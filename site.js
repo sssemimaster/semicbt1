@@ -464,7 +464,10 @@
     //    결제 후 돌아오면 서버에 "승인 확인"을 요청할 뿐이다. (성공 주소의 값은 서버가 PG에 다시 물어 검증한다)
     //  - 클라이언트 키(…_ck_…)는 toss-config.js 에만 둔다. 시크릿 키는 이 저장소에 절대 두지 않는다.
     // =====================================================
-    const PAY = { packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
+    // 아이콘: index.html 맨 위의 SVG 스프라이트(#i-…)를 가리킨다. 이모지 대신 쓰는 선 아이콘(ico)과 토큰 코인(TK)
+    const ico = (n, c) => `<svg class="ic ln${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+    const TK = (c) => `<svg class="ic tk${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-tok"/></svg>`;
+    const PAY = { packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
     const PAY_PENDING = 'semiPayPending', PAY_BACK = 'semiPayBack';
     const won = (n) => Number(n).toLocaleString('ko-KR') + '원';
     const payDate = (ms) => { const d = new Date(ms); return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`; };
@@ -481,7 +484,7 @@
       if (!acct.user) { openAcct(); return; }
       closeAcct();
       let o = document.getElementById('payM');
-      if (!o) { o = document.createElement('div'); o.id = 'payM'; o.className = 'wl'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 충전'); o.addEventListener('click', (e) => { if (e.target === o) payClose(); }); document.body.appendChild(o); }
+      if (!o) { o = document.createElement('div'); o.id = 'payM'; o.className = 'pmg'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 충전'); o.addEventListener('click', (e) => { if (e.target === o) payClose(); }); document.body.appendChild(o); }
       PAY.err = ''; PAY.note = ''; payRender(); requestAnimationFrame(() => o.classList.add('on'));
       payClientKey().then(() => payRender()); payLoadOrders();
     }
@@ -494,29 +497,41 @@
     function payRender() {
       const o = document.getElementById('payM'); if (!o) return;
       const have = PRM.free + PRM.paid, ready = !!PAY.key, test = ready && PAY.key.indexOf('test_') === 0;
-      const packs = PAY.packs.map((p) => `<button type="button" class="pay-pack" ${ready && !PAY.busy ? '' : 'disabled'} onclick="payStart('${p.id}')"><span><b>🪙 ${p.tokens}개</b><small>개당 약 ${Math.round(p.amount / p.tokens)}원</small></span><span class="pr">${won(p.amount)}</span></button>`).join('');
-      const st = { paid: '', refunding: '환불 처리 중', refunded: '환불 완료' };
-      const list = PAY.orders === null ? '<p class="ac-note">불러오는 중…</p>' : !PAY.orders.length ? '<p class="ac-note">아직 결제 내역이 없어요.</p>' : PAY.orders.map((x) => {
-        let act = '';
+      const best = PAY.packs.reduce((m, p) => (p.amount / p.tokens < m.amount / m.tokens ? p : m));
+      const packs = PAY.packs.map((p) => {
+        const busy = PAY.busy && PAY.busyPack === p.id, th = Math.floor(p.tokens / PRICE_HINT.theory);
+        return `<button type="button" class="pay-pack${busy ? ' busy' : ''}" ${ready && !PAY.busy ? '' : 'disabled'} onclick="payStart('${p.id}')">${p.id === best.id ? '<span class="pay-tag">개당 최저가</span>' : ''}`
+          + `<span class="pp-l">${TK('pp-tk')}<span><b>${p.tokens}<em>토큰</em></b><small>개당 약 ${Math.round(p.amount / p.tokens)}원 · 이론 ${th}편 분량</small></span></span>`
+          + `<span class="pp-r"><b>${won(p.amount)}</b><small>${busy ? '결제창 여는 중…' : '결제하기'}</small></span></button>`;
+      }).join('');
+      const pill = { paid: ['결제 완료', 'ok'], refunding: ['환불 처리 중', 'wait'], refunded: ['환불 완료', 'off'] };
+      const rows = PAY.orders === null ? '<li class="pay-empty">불러오는 중…</li>' : !PAY.orders.length ? '<li class="pay-empty">아직 결제 내역이 없어요</li>' : PAY.orders.map((x) => {
+        let foot = '';
         if (x.status === 'paid') {
-          if (x.refundableTokens > 0) act = `<button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 요청 · 미사용 ${x.refundableTokens}개 → ${won(x.refundAmount)}</button><small>${x.refundUntil ? payDate(x.refundUntil) + '까지 가능' : ''}</small>`;
-          else act = `<small>${x.refundBlocked === 'window_expired' ? '환불 기간(7일)이 지났어요' : x.refundBlocked === 'no_unused_tokens' ? '환불할 미사용 유료 토큰이 없어요 (해금에 사용)' : ''}</small>`;
-        } else act = `<small>${st[x.status] || ''}</small>`;
-        return `<li><div><b>🪙 ${x.tokens}개 · ${won(x.amount)}</b><small>${x.paidAt ? payDate(x.paidAt) : ''}${st[x.status] && x.status !== 'paid' ? ' · ' + st[x.status] : ''}</small></div><div class="pay-act">${act}</div></li>`;
+          if (x.refundableTokens > 0) foot = `<div class="pay-rf-row"><span>미사용 <b>${x.refundableTokens}토큰</b> · ${won(x.refundAmount)} 환불 가능${x.refundUntil ? ` (${payDate(x.refundUntil)}까지)` : ''}</span><button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 요청</button></div>`;
+          else { const n = x.refundBlocked === 'window_expired' ? '환불 기간(7일)이 지났어요' : x.refundBlocked === 'no_unused_tokens' ? '환불할 미사용 유료 토큰이 없어요 (해금에 사용)' : ''; if (n) foot = `<div class="pay-rf-row"><span>${n}</span></div>`; }
+        }
+        const pl = pill[x.status] || ['', 'off'];
+        return `<li class="pay-row"><div class="pay-row-h"><div><b>${TK()}${x.tokens}토큰</b><small>${x.paidAt ? payDate(x.paidAt) + ' · ' : ''}${won(x.amount)}</small></div><span class="pay-pill ${pl[1]}">${pl[0]}</span></div>${foot}</li>`;
       }).join('');
       const pend = (() => { try { return !!sessionStorage.getItem(PAY_PENDING); } catch (e) { return false; } })();
-      o.innerHTML = `<div class="wl-card ac-card pay-card"><div class="wl-top"><div><p class="eyebrow">TOKENS</p><h3>토큰 충전</h3></div><button type="button" class="wl-x" onclick="payClose()" aria-label="닫기">✕</button></div>
-        <div class="ac-stat"><span>내 토큰</span><b>🪙 ${have} (무료 ${PRM.free} · 유료 ${PRM.paid})</b></div>
-        ${pend ? '<p class="ac-note"><b>결제를 마무리하는 중이에요.</b> 잠시만 기다려 주세요. 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : ''}
-        ${ready ? (test ? '<p class="pay-test">🧪 테스트 결제 모드예요. 실제로 요금이 청구되지 않아요.</p>' : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
-        <div class="pay-packs">${packs}</div>${PAY.err ? `<p class="ac-err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="ac-note">${escH(PAY.note)}</p>` : ''}
-        <ul class="ac-list pay-policy"><li><span>카드로 결제하고, 결제 후 바로 유료 토큰이 지급돼요</span></li><li><span>결제 후 <b>7일 이내</b>, 아직 쓰지 않은 유료 토큰은 환불받을 수 있어요</span></li><li><span><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</span></li><li><span>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</span></li></ul>
-        <h4 class="pay-h">결제 내역</h4><ul class="pay-list">${list}</ul></div>`;
+      o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
+        <span class="pmg-tick"><i></i>TOKEN STORE</span><h3>토큰 충전</h3>
+        <div class="pay-bal">${TK('pay-bal-tk')}<div><small>내 토큰</small><b>${have}</b></div><div class="pay-bal-s"><span>무료 ${PRM.free}</span><span>유료 ${PRM.paid}</span></div></div>
+        ${pend ? '<p class="pay-msg ok"><b>결제를 마무리하는 중이에요.</b> 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : ''}
+        ${ready ? (test ? `<p class="pay-test">${ico('flask')}<span>테스트 결제 모드 · 실제로 요금이 청구되지 않아요</span></p>` : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
+        <div class="pay-sec"><span class="pmg-tick"><i></i>CHARGE</span></div>
+        <div class="pay-packs">${packs}</div>
+        <p class="pay-secure">${ico('shield')}<span>카드 결제 · 토스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
+        ${PAY.err ? `<p class="pay-msg err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="pay-msg ok">${escH(PAY.note)}</p>` : ''}
+        <ul class="pmg-pts pay-pts"><li>결제 후 <b>7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li></ul>
+        <div class="pay-sec"><span class="pmg-tick"><i></i>HISTORY</span></div>
+        <ul class="pay-rows">${rows}</ul></div>`;
     }
     async function payStart(packId) {
       if (PAY.busy) return; const P = PAY.packs.find((x) => x.id === packId); if (!P) return;
       const key = await payClientKey(); if (!key) { PAY.err = '결제 기능을 준비 중이에요.'; payRender(); return; }
-      PAY.busy = true; PAY.err = ''; PAY.note = ''; payRender();
+      PAY.busy = true; PAY.busyPack = packId; PAY.err = ''; PAY.note = ''; payRender();
       try {
         const r = await apiJson('/orders', 'POST', { pack: packId });
         if (r.status === 503) throw new Error('unavailable');
@@ -534,7 +549,7 @@
         else if (e && e.message === 'sdk') PAY.err = '결제창을 불러오지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.';
         else PAY.err = '결제를 시작하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
       }
-      PAY.busy = false; payRender();
+      PAY.busy = false; PAY.busyPack = ''; payRender();
     }
     function payBackHere() {   // 결제 후 돌아왔을 때 보던 글로 되돌리기 위한 위치
       if (currentViewId === 'view-learning' && learnState.level === 'detail' && learnState.theoryId) return { t: learnState.theoryId };
@@ -565,7 +580,7 @@
         if (r.status === 200 && r.body.ok) {
           try { sessionStorage.removeItem(PAY_PENDING); } catch (e) {}
           await walletLoad();
-          pmToast(r.body.already ? '이미 충전이 반영된 결제예요.' : `토큰 ${r.body.tokens}개가 충전됐어요 🪙`);
+          pmToast(r.body.already ? '이미 충전이 반영된 결제예요.' : `토큰 ${r.body.tokens}개가 충전됐어요`);
           if (document.getElementById('payM')) payLoadOrders();
           payGoBack();
         } else if (r.status >= 500 || r.status === 429 || r.status === 0) {
@@ -596,7 +611,8 @@
       } catch (e) { PAY.err = '연결이 끊겨 결과를 확인하지 못했어요. 내역을 새로 불러와 확인해 주세요.'; }
       PAY.busy = false; await payLoadOrders();
     }
-    payHandleReturn();
+    // 스크립트 전체가 끝난 뒤에 실행한다 (여기서 바로 부르면 아래쪽에서 선언되는 acct 등을 아직 못 읽어 사이트 전체가 멈춘다)
+    setTimeout(() => { try { payHandleReturn(); } catch (e) {} }, 0);
 
     // ===== 이론 정적 페이지(theory/…)에서 넘어오는 딥링크: ?theory=ID[&go=quiz|interview] =====
     function handleDeepLink() {
@@ -710,7 +726,7 @@
         if (cat === ADV_CAT) {   // 심화 이론: 어두운 기술 문서 테마의 넓은 카드
           const n = allTheories.filter(t => t.category === cat).length;
           btn.className = 'adv-folder'; btn.onclick = () => navTo('view-learning', { level: 'category', category: cat });
-          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">🔒 토큰 해금</span></span><h3>${escH(cat)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
+          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(cat)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
           container.appendChild(btn); return;
         }
         btn.className = "group bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-2xl text-left transition flex items-center gap-4 shadow-sm";
@@ -732,7 +748,7 @@
         if (category === ADV_CAT) {
           const n = allTheories.filter(t => t.category === category && t.subject === sub).length;
           btn.className = 'adv-sub'; btn.onclick = () => navTo('view-learning', { level: 'subject', category: category, subject: sub });
-          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">▣</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>FOLDER<span class="pm-lk">🔒 토큰 해금</span></span><h3>${escH(sub)}</h3><p>장비마다 개요 · 구조 · 레시피 · 트러블슈팅을 한 편에 담았어요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
+          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">▣</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>FOLDER<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(sub)}</h3><p>장비마다 개요 · 구조 · 레시피 · 트러블슈팅을 한 편에 담았어요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
           container.appendChild(btn); return;
         }
         btn.className = "group bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-2xl text-left transition flex items-center gap-4 shadow-sm";
@@ -7302,7 +7318,7 @@
         const r = await apiJson('/claim', 'POST');
         if (r.status !== 200) return;
         PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.loaded = true; tokenRender();
-        if (r.body.granted) pmToast('🪙 출석 보상으로 토큰 1개를 받았어요');
+        if (r.body.granted) pmToast('출석 보상으로 토큰 1개를 받았어요');
         else if (r.body.reason === 'not_enough_points') pmToast('로그인한 상태로 쌓은 학습 점수만 토큰으로 인정돼요 (지금 ' + r.body.points + ' / ' + r.body.goal + ')');
         else if (r.body.reason === 'free_cap') pmToast('무료 토큰이 가득 찼어요 (최대 30개). 해금에 써 보세요');
         tokenWelcome();
@@ -7329,7 +7345,7 @@
         if (r.status === 200 && r.body.unlocked) {
           PRM.free = r.body.free; PRM.paid = r.body.paid;
           (Array.isArray(r.body.items) ? r.body.items : [id]).forEach((x) => PRM.unlocked.add(x));   // 번들이면 묶인 콘텐츠가 모두 열린다
-          tokenRender(); pmToast(r.body.already ? '이미 해금돼 있어요' : '🔓 해금했어요');
+          tokenRender(); pmToast(r.body.already ? '이미 해금돼 있어요' : '해금했어요');
         }
         else if (r.status === 402) { PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); pmToast('토큰이 모자라요 (필요 ' + r.body.price + ')'); }
         else if (r.status === 409) pmToast('그 사이 상태가 바뀌어서 다시 계산했어요. 한 번 더 눌러 주세요.');
@@ -7349,15 +7365,16 @@
     }
     function bundleBlock(id, have) {
       const bd = bundleOf(id); if (!bd) return '';
-      const head = `<div class="pm-bundle"><p><b>📦 이론 + 장비 체험 번들</b> · ${bd.price}토큰${bd.save > 0 ? ` <span class="pm-sub">(따로 사면 ${bd.sum}토큰 · ${bd.save}토큰 할인)</span>` : ''}</p>`;
-      return head + (have >= bd.price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${bd.id}')">🪙 ${bd.price}개로 둘 다 해금하기</button>` : `<p class="pm-sub">번들은 토큰이 ${bd.price - have}개 모자라요.</p>`) + `</div>`;
+      return `<div class="pm-bundle"><div class="pmb-h">${ico('pack')}<b>이론 + 장비 체험 번들</b><span>${TK()}${bd.price}</span></div>`
+        + (bd.save > 0 ? `<small>따로 사면 ${bd.sum}토큰 · <em>${bd.save}토큰 할인</em></small>` : '')
+        + (have >= bd.price ? `<button type="button" class="tkb ghost" onclick="premiumUnlock('${bd.id}')">${TK()} ${bd.price}토큰으로 둘 다 해금하기</button>` : `<small class="pm-sub">번들은 토큰이 ${bd.price - have}개 모자라요</small>`) + `</div>`;
     }
     // 검색용 본문: 해금 전 유료 글은 본문이 없으니(공개 데이터는 안내 한 줄뿐) 제목·태그로만 찾는다
     function pmBody(t) { return t.premium && !PRM.cache[t.id] ? '' : String(t.content || ''); }
     // 잠금 배지: 이론 카드·장비 체험 카드에 🔒 / 🔓 해금됨. 상태가 바뀔 때마다 pmBadges 가 다시 맞춘다.
     function pmLk(id) {
       let on = false; try { on = !!(acct.user && PRM.loaded && PRM.unlocked.has(id)); } catch (e) {}
-      return `<span class="pm-lk${on ? ' on' : ''}" data-pm="${id}" title="${on ? '해금됨' : '토큰으로 해금'}">${on ? '🔓 해금됨' : '🔒'}</span>`;
+      return `<span class="pm-lk${on ? ' on' : ''}" data-pm="${id}" title="${on ? '해금됨' : '토큰으로 해금'}">${on ? ico('unlock') + ' 해금됨' : ico('lock')}</span>`;
     }
     function pmBadges() {
       document.querySelectorAll('[onclick^="labOpen("]').forEach((b) => {
@@ -7367,7 +7384,7 @@
       });
       document.querySelectorAll('.pm-lk[data-pm]').forEach((el) => {
         let on = false; try { on = !!(acct.user && PRM.loaded && PRM.unlocked.has(el.dataset.pm)); } catch (e) {}
-        el.classList.toggle('on', on); el.textContent = on ? '🔓 해금됨' : '🔒'; el.title = on ? '해금됨' : '토큰으로 해금';
+        el.classList.toggle('on', on); el.innerHTML = on ? ico('unlock') + ' 해금됨' : ico('lock'); el.title = on ? '해금됨' : '토큰으로 해금';
       });
     }
     setTimeout(pmBadges, 0);
@@ -7396,12 +7413,12 @@
       let title, sub, tick, ic, pts;
       if (kind === 'lab') {
         const k = id.slice(4), L = LABS[k], gt = allTheories.find((x) => x.category === ADV_CAT && x.lab === k);
-        title = L.title; sub = L.desc; tick = 'EQUIPMENT LAB'; ic = '🧪';
+        title = L.title; sub = L.desc; tick = 'EQUIPMENT LAB'; ic = ico('flask');
         pts = ['<b>직접 조작</b> — 공정 조건을 바꿔 가며 결과가 어떻게 달라지는지 바로 확인해요', '<b>단면과 수치로 확인</b> — 읽기만으로는 잡히지 않는 장비 감각을 손으로 익혀요']
           .concat(gt ? [`<b>짝이 되는 가이드</b> — “${escH(gt.title)}”와 같은 조건으로 따라 해 볼 수 있어요`] : []);
       } else {
         const t = allTheories.find((x) => x.id === id) || { title: '', lab: '' };
-        title = t.title; tick = 'ADVANCED · FIELD GUIDE'; ic = '📘';
+        title = t.title; tick = 'ADVANCED · FIELD GUIDE'; ic = ico('book');
         sub = '장비를 실제로 다루는 사람의 눈으로 정리한 글이에요. 교과서 개념을 넘어 현장에서 쓰는 판단 순서까지 담았어요.';
         pts = ['<b>한 편에 끝까지</b> — 개요 · 구조 · 레시피 · 결과 읽기 · 트러블슈팅' + (t.mins ? ` (약 ${t.mins}분 분량)` : ''), '<b>상황별 대처</b> — 현장에서 마주치는 상황마다 어떻게 대응하는지 정리했어요']
           .concat(t.lab && LABS[t.lab] ? [`<b>바로 실습</b> — 읽은 뒤 “${escH(LABS[t.lab].title)}”에서 같은 조건으로 따라 해 볼 수 있어요`] : []);
@@ -7411,12 +7428,12 @@
       if (!acct.user) body = `<button type="button" class="pmg-cta" onclick="pmGateLogin()">구글 로그인하고 시작하기</button><p class="pmg-wallet">로그인하고 하루 학습 미션을 채우면 토큰을 1개씩 받아요</p>`;
       else {
         const bd = bundleOf(id);
-        const mk = (cid, label, note, pr, rec) => `<button type="button" class="pmg-of${rec ? ' rec' : ''}"${have >= pr ? '' : ' disabled'} onclick="pmGateUnlock('${cid}')"><span><b>${label}</b><small>${note}</small></span><span class="pr">🪙 ${pr}</span></button>`;
+        const mk = (cid, label, note, pr, rec) => `<button type="button" class="pmg-of${rec ? ' rec' : ''}"${have >= pr ? '' : ' disabled'} onclick="pmGateUnlock('${cid}')"><span><b>${label}</b><small>${note}</small></span><span class="pr">${TK()}${pr}</span></button>`;
         const offers = (bd ? mk(bd.id, '이론 + 장비 체험 번들', `<em>${bd.save}토큰 할인</em> · 따로 사면 ${bd.sum}토큰`, bd.price, true) : '')
           + mk(id, kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
         const min = bd ? Math.min(bd.price, price) : price;
         body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요</p>` : '')
-          + (have < min ? `<button type="button" class="pmg-cta" onclick="payFromGate()">🪙 토큰 충전하기</button>` : '') + `<p class="pmg-wallet">내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid})</p>`;
+          + (have < min ? `<button type="button" class="pmg-cta" onclick="payFromGate()">${TK()} 토큰 충전하기</button>` : '') + `<p class="pmg-wallet">${TK()} 내 토큰 ${have}개 · 무료 ${PRM.free} · 유료 ${PRM.paid}</p>`;
       }
       o.innerHTML = `<div class="pmg-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="pmGateClose()">✕</button>`
         + `<div class="pmg-ic" aria-hidden="true">${ic}</div><span class="pmg-tick"><i></i>${tick}</span><h3 id="pmgT">${escH(title)}</h3><p class="pmg-sub">${escH(sub)}</p>`
@@ -7438,14 +7455,17 @@
       const el = document.createElement('div'); el.className = 'pm-lock';
       const what = kind === 'lab' ? '이 장비 체험' : '이 글의 나머지';
       const price = PRICE_HINT[kind];
+      const head = (ic, t, p) => `<div class="pml-ic" aria-hidden="true">${ico(ic)}</div><h4>${t}</h4>${p ? `<p>${p}</p>` : ''}`;
       let h;
-      if (!acct.user) h = `<h4>🔒 ${what}은 토큰으로 열어요</h4><p>구글 로그인 후, 하루 학습 미션을 채우고 출석하면 토큰을 1개씩 받아요. 토큰 ${price}개로 계정에 영구 해금돼요.</p><button type="button" class="pbtn" onclick="openAcct()">로그인하고 시작하기</button>`;
-      else if (!PRM.loaded) h = `<h4>🔒 확인하는 중…</h4>`;
-      else if (PRM.unlocked.has(id)) h = `<h4>🔓 불러오는 중…</h4>`;
+      if (!acct.user) h = head('lock', `${what}은 토큰으로 열어요`, `구글 로그인 후, 하루 학습 미션을 채우고 출석하면 토큰을 1개씩 받아요. 토큰 ${price}개로 계정에 영구 해금돼요.`) + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 시작하기</button></div>`;
+      else if (!PRM.loaded) h = head('lock', '확인하는 중…');
+      else if (PRM.unlocked.has(id)) h = head('unlock', '불러오는 중…');
       else {
         const have = PRM.free + PRM.paid;
-        h = `<h4>🔒 ${what}을 보려면 토큰 ${price}개가 필요해요</h4><p>내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid}) · 해금하면 이 계정에서 계속 볼 수 있어요.</p>`
-          + (have >= price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${id}')">🪙 ${price}개로 해금하기</button>` : `<p class="pm-sub">토큰이 ${price - have}개 모자라요. 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요.</p><button type="button" class="pbtn" onclick="payOpen()">🪙 토큰 충전하기</button>`)
+        h = head('lock', `${what}을 보려면 토큰 ${price}개가 필요해요`, '해금하면 이 계정에서 계속 볼 수 있어요.')
+          + `<div class="pml-wal">${TK()}<span>내 토큰 <b>${have}</b></span><i>무료 ${PRM.free} · 유료 ${PRM.paid}</i></div>`
+          + `<div class="pml-btns">` + (have >= price ? `<button type="button" class="tkb" onclick="premiumUnlock('${id}')">${TK()} ${price}토큰으로 해금하기</button>` : `<button type="button" class="tkb" onclick="payOpen()">${TK()} 토큰 충전하기</button>`) + `</div>`
+          + (have < price ? `<p class="pm-sub pml-miss">토큰이 ${price - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요</p>` : '')
           + bundleBlock(id, have);
       }
       el.innerHTML = h; return el;
@@ -7480,7 +7500,7 @@
       // 서버 기록(학습 기록·남은 토큰)부터 지운다. 서버가 거부하면(환불 처리 중·잔액 변경) 아무것도 지우지 않고 멈춘다.
       try { await walletLoad(); } catch (e) {}
       const paid = PRM.paid, free = PRM.free;
-      const tokenMsg = (paid + free) > 0 ? `\n\n⚠ 남은 토큰 🪙 ${paid + free}개(무료 ${free} · 유료 ${paid})는 모두 사라져요.${paid > 0 ? '\n미사용 유료 토큰의 환불은 삭제 전에 「토큰 충전 · 결제 내역」에서 신청해 주세요. 삭제하면 환불받을 수 없어요.' : ''}` : '';
+      const tokenMsg = (paid + free) > 0 ? `\n\n⚠ 남은 토큰 ${paid + free}개(무료 ${free} · 유료 ${paid})는 모두 사라져요.${paid > 0 ? '\n미사용 유료 토큰의 환불은 삭제 전에 「토큰 충전 · 결제 내역」에서 신청해 주세요. 삭제하면 환불받을 수 없어요.' : ''}` : '';
       if (!confirm('계정에 저장된 학습 기록을 모두 삭제할까요?\n이 기기에 있는 기록은 그대로 남지만, 다른 기기와의 동기화는 끊겨요.\n삭제한 기록은 되돌릴 수 없어요.' + tokenMsg + '\n\n결제·해금 기록은 법령에 따라 5년간 보관돼요.')) return;
       try {
         const r = await apiJson('/account/delete', 'POST', { confirm: true, paid });
@@ -7507,8 +7527,8 @@
       o.innerHTML = u ? `<div class="wl-card ac-card"><div class="wl-top"><div><p class="eyebrow">MY ACCOUNT</p><h3>내 계정</h3></div><button type="button" class="wl-x" onclick="closeAcct()" aria-label="닫기">✕</button></div>
           <div class="ac-me">${u.photoURL ? `<img src="${escH(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : '<span>👤</span>'}<div><b>${escH(u.displayName || '구글 계정')}</b><p>${escH(u.email || '')}</p></div></div>
           <div class="ac-stat"><span>${acct.busy ? '동기화 중…' : '마지막 동기화'}</span><b>${acct.busy ? '' : ago(acct.last)}</b></div>
-          <div class="ac-stat"><span>토큰</span><b>🪙 ${PRM.free + PRM.paid} (무료 ${PRM.free} · 유료 ${PRM.paid})</b></div>
-          <button type="button" class="pay-open" onclick="payOpen()">🪙 토큰 충전 · 결제 내역</button>
+          <div class="ac-stat"><span>토큰</span><b class="ac-tk">${TK()}${PRM.free + PRM.paid}<small>무료 ${PRM.free} · 유료 ${PRM.paid}</small></b></div>
+          <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전 · 결제 내역</button>
           <p class="ac-note">출석 ${attendDays.length}일 · 오답 노트 ${Object.keys(wrongNotes).length}개 · 즐겨찾기 ${starredIds.length}개가 이 계정과 연결돼 있어요. 기록은 이 기기와 계정에 함께 저장돼요.</p>${err}
           <div class="ac-btns"><button type="button" class="pbtn" onclick="syncNow()" ${acct.busy ? 'disabled' : ''}>지금 동기화</button><button type="button" class="ac-ghost" onclick="acctSignOut()">로그아웃</button></div>
           <button type="button" class="ac-del" onclick="if(confirm('로그아웃하고 이 기기에 저장된 학습 기록을 지울까요?\n(기록은 계정에 남아 있어서 다시 로그인하면 돌아와요.)'))acctSignOut(true)">공용 기기라면: 로그아웃하고 이 기기 기록 지우기</button>
