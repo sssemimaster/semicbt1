@@ -596,7 +596,8 @@
       } catch (e) { PAY.err = '연결이 끊겨 결과를 확인하지 못했어요. 내역을 새로 불러와 확인해 주세요.'; }
       PAY.busy = false; await payLoadOrders();
     }
-    payHandleReturn();
+    // 스크립트 전체가 끝난 뒤에 실행한다 (여기서 바로 부르면 아래쪽에서 선언되는 acct 등을 아직 못 읽어 사이트 전체가 멈춘다)
+    setTimeout(() => { try { payHandleReturn(); } catch (e) {} }, 0);
 
     // ===== 이론 정적 페이지(theory/…)에서 넘어오는 딥링크: ?theory=ID[&go=quiz|interview] =====
     function handleDeepLink() {
