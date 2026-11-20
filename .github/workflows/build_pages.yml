@@ -13,9 +13,8 @@ on:
       - 'index.html'
       - 'site.js'
       - 'scripts/build_pages.py'
-  # 도메인 이전(새 레포로 서비스 전환) 때 아래 두 줄의 # 을 지워 켠다.
-  # schedule:
-  #   - cron: '17 20 * * *'
+  schedule:
+    - cron: '17 20 * * *'
   workflow_dispatch:
 
 concurrency:
