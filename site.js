@@ -6180,7 +6180,11 @@
       } catch (e) {}
     }
     function renderDetailDOM(theoryId) {
-      const t = allTheories.find(x => x.id === theoryId); addPoints(2, theoryId, { k: 'th', cat: t.category, label: t.title }); pathMarkRead(theoryId);
+      const t0 = allTheories.find(x => x.id === theoryId); let t = t0, locked = false;
+      if (t0.premium) {   // 유료 글: 공개 데이터에는 개요만 있다. 해금한 계정만 서버에서 본문을 받는다
+        if (PRM.cache[t0.id]) t = Object.assign({}, t0, { content: PRM.cache[t0.id] }); else { locked = true; if (PRM.unlocked.has(t0.id)) premiumFetch(t0.id); }
+      }
+      if (!locked) { addPoints(2, theoryId, { k: 'th', cat: t.category, label: t.title, id: theoryId }); pathMarkRead(theoryId); }
       renderBreadcrumb();
       const container = document.getElementById('learningContainer'); container.className = "flex flex-col space-y-4"; container.innerHTML = '';
       const adv = t.category === ADV_CAT;
@@ -6219,7 +6223,7 @@
           </header>
           <div class="adv-bodywrap"><div class="custom-table-container theory-body adv-body prose prose-slate dark:prose-invert max-w-none">${math.restore(safeHtml(marked.parse(rawMarkdown)))}</div></div>
           ${labK ? `<div class="adv-cta"><div><b>직접 다뤄 보고 싶다면</b><p>${escH(LABS[labK].title)}에서 이 글의 내용을 직접 조작해 볼 수 있어요.</p></div><button type="button" onclick="labOpen('${labK}')">${escH(LABS[labK].title)} 열기 →</button></div>` : ''}`;
-        container.appendChild(card); hydrateDiagrams(card); advIndex(card); applyMathRendering(); return;
+        container.appendChild(card); hydrateDiagrams(card); advIndex(card); applyMathRendering(); if (locked) container.appendChild(premiumLock(t0.id, 'theory')); return;
       }
       
       card.innerHTML = `
@@ -6483,7 +6487,7 @@
     }
     function revealInterview() {
       const i = filteredSession[currentIndex];
-      document.getElementById('iRevealBtn').classList.add('hidden'); document.getElementById('iExpBox').classList.remove('hidden'); saveResume(); addPoints(1, null, { k: 'iv', cat: i.category }); document.getElementById('iBar').style.width = ((currentIndex + 1) / filteredSession.length * 100) + '%';
+      document.getElementById('iRevealBtn').classList.add('hidden'); document.getElementById('iExpBox').classList.remove('hidden'); saveResume(); addPoints(1, null, { k: 'iv', cat: i.category, id: i.id }); document.getElementById('iBar').style.width = ((currentIndex + 1) / filteredSession.length * 100) + '%';
       document.getElementById('iKeywords').innerHTML = (i.key_points||[]).map(k=>`<span class="bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 px-2 py-1 rounded text-xs font-bold">#${k}</span>`).join('');
       document.getElementById('iAnsText').innerText = i.interview_answer;
       const fw = document.getElementById('iFollow'); fw.classList.toggle('hidden', !i.follow_up); fw.classList.remove('iv-pop'); void fw.offsetWidth; if (i.follow_up) fw.classList.add('iv-pop');
@@ -6544,7 +6548,7 @@
       const n = wrongNotes[q.id] || (ok ? null : { wrong: 0, right: 0, memo: '' });
       if (n) { if (ok) n.right = (n.right || 0) + 1; else n.wrong = (n.wrong || 0) + 1; srsUpdate(n, ok); n.last = Date.now(); wrongNotes[q.id] = n; saveWrong(); }
       if (reviewCtx && reviewCtx.ref === filteredSession) srsCount();
-      recordStat(q, ok); addPoints(1, null, { k: 'q', cat: q.category, label: q.topic });
+      recordStat(q, ok); addPoints(1, null, { k: 'q', cat: q.category, label: q.topic, id: q.id });
     }
     // 🔗 문제 → 관련 이론 (theory_id 우선, 옛 문제는 주제명이 제목에 들어간 이론)
     function theoryFor(q) {
@@ -6730,8 +6734,10 @@
     function addPoints(n, theoryId, meta) {
       const t = todayData();
       if (theoryId) { if (t.theories.includes(theoryId)) return; t.theories.push(theoryId); }
+      else if (meta && meta.id) { const key = meta.k + ':' + meta.id; t.items = t.items || []; if (t.items.includes(key)) return; t.items.push(key); }   // 같은 문제·면접은 하루 한 번만 점수 (서버 규칙과 같음)
       t.pts += n; try { localStorage.setItem(TODAY_KEY, JSON.stringify(t)); } catch (e) {}
       if (meta && typeof logStudy === 'function') logStudy(meta.k, meta.cat, meta.label);
+      if (meta && meta.id) studySend(meta.k, meta.id);
     }
     // =====================================================
     // 한 달(출석 30일) = 웨이퍼 한 장. 패턴 레벨은 3단계: 기초(기본 빛깔) → 푸른 웨이퍼(10일~) → 프리즘 웨이퍼(20일~).
@@ -7000,7 +7006,7 @@
       if (attendDays.includes(dateStr()) || t.pts < DAILY_GOAL) return;
       attendBusy = true; attendDays.push(dateStr()); saveAttend();
       try { await runCeremony(waferInfo(attendDays.length)); } catch (e) {}
-      attendBusy = false; renderWaferPanel(); renderHome(); updateHeaderChip();
+      attendBusy = false; renderWaferPanel(); renderHome(); updateHeaderChip(); tokenClaim();
     }
     function updateHeaderChip() { const t = `출석 ${attendDays.length}일`; ['navAttendText', 'sbAttendText'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = t; }); }
 
@@ -7076,7 +7082,7 @@
         const app = A.initializeApp(cfg), auth = U.getAuth(app);
         fb = { app, auth, U };
         U.getRedirectResult(auth).catch((e) => { acct.err = acctErr(e); renderAcct(); });
-        U.onAuthStateChanged(auth, (u) => { acct.user = u; if (u) hintSet(true); renderAcct(); if (u) syncNow(); });
+        U.onAuthStateChanged(auth, (u) => { acct.user = u; if (u) hintSet(true); renderAcct(); if (u) syncNow(); walletLoad(); });
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && acct.user && Date.now() - acct.last > 60000) syncNow(); });
       })().catch((e) => { sdkP = null; acct.err = '로그인 모듈을 불러오지 못했어요. 네트워크를 확인해 주세요.'; renderAcct(); throw e; });
       return sdkP;
@@ -7093,7 +7099,110 @@
       const tok = await fb.auth.currentUser.getIdToken();
       return fetch(API_BASE + path, Object.assign({}, init, { headers: Object.assign({}, init && init.headers, { Authorization: 'Bearer ' + tok }) }));
     }
-    window.semiApi = { me: () => apiFetch('/me').then((r) => r.json()) };   // 0단계 확인용: 콘솔에서 semiApi.me()
+    window.semiApi = { me: () => apiFetch('/me').then((r) => r.json()) };   // 확인용: 콘솔에서 semiApi.me()
+
+    // =====================================================
+    // 🪙 토큰 · 유료 콘텐츠 (잔액·가격·해금은 전부 서버가 정한다. 화면은 요청만 보내고 결과를 보여 준다)
+    // =====================================================
+    const PRM = { free: 0, paid: 0, unlocked: new Set(), cache: {}, loaded: false, queue: [], pumpP: null, lastSent: 0, welcomed: false, busy: false };
+    const PRICE_HINT = { theory: 15, lab: 10 };   // 화면 안내용일 뿐, 실제 가격은 서버 카탈로그가 정한다
+    async function apiJson(path, method, body) {
+      const r = await apiFetch(path, { method: method || 'GET', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+      let j = {}; try { j = await r.json(); } catch (e) {}
+      return { status: r.status, body: j };
+    }
+    function pmToast(msg) {
+      const d = document.createElement('div'); d.textContent = msg; d.setAttribute('role', 'status');
+      d.style.cssText = 'position:fixed;left:50%;bottom:5.5rem;transform:translateX(-50%);z-index:100;max-width:90vw;padding:.7rem 1rem;border-radius:.8rem;background:#0f172a;color:#fff;font-size:.85rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3)';
+      document.body.appendChild(d); setTimeout(() => d.remove(), 4200);
+    }
+    function tokenRender() {
+      const chip = document.getElementById('navTokens'), tx = document.getElementById('navTokensText');
+      const on = !!(acct.user && PRM.loaded);
+      if (chip) chip.classList.toggle('hidden', !on); if (tx) tx.textContent = PRM.free + PRM.paid;
+      if (typeof renderAcct === 'function') renderAcct();
+    }
+    async function walletLoad() {
+      if (!acct.user) { PRM.loaded = false; PRM.free = PRM.paid = 0; PRM.unlocked = new Set(); PRM.cache = {}; PRM.queue = []; tokenRender(); return; }
+      try {
+        const r = await apiJson('/me');
+        if (r.status === 200) { PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.unlocked = new Set(r.body.unlocked || []); PRM.loaded = true; }
+      } catch (e) {}
+      tokenRender(); premiumRefresh();
+      if (PRM.loaded && !PRM.welcomed) { PRM.welcomed = true; tokenWelcome(); }
+    }
+    function premiumRefresh() {   // 잔액·해금이 바뀌었을 때 지금 보고 있는 유료 화면을 다시 그린다
+      try {
+        if (currentViewId === 'view-learning' && learnState.level === 'detail' && learnState.theoryId) { const t = allTheories.find(x => x.id === learnState.theoryId); if (t && t.premium) renderDetailDOM(t.id); }
+        else if (currentViewId === 'view-lab' && typeof enterLab === 'function') { const k = labKind; if (k && !window[LABS[k].g]) enterLab(); }
+      } catch (e) {}
+    }
+    // 학습 기록을 서버에 보낸다 (서버는 기록 사이 3초 이상을 요구하므로 줄을 세워 천천히 보낸다)
+    function studySend(kind, id) { if (!acct.user || !id) return; PRM.queue.push({ kind, id }); studyPump(); }
+    function studyPump() {
+      if (PRM.pumpP) return PRM.pumpP;
+      PRM.pumpP = (async () => {
+        while (PRM.queue.length) {
+          const wait = 3300 - (Date.now() - PRM.lastSent); if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+          const e = PRM.queue.shift(); PRM.lastSent = Date.now();
+          try { await apiJson('/study', 'POST', e); } catch (err) {}
+        }
+      })().finally(() => { PRM.pumpP = null; });
+      return PRM.pumpP;
+    }
+    async function tokenClaim() {
+      if (!acct.user) return;
+      try {
+        await studyPump();
+        const r = await apiJson('/claim', 'POST');
+        if (r.status !== 200) return;
+        PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.loaded = true; tokenRender();
+        if (r.body.granted) pmToast('🪙 출석 보상으로 토큰 1개를 받았어요');
+        else if (r.body.reason === 'not_enough_points') pmToast('로그인한 상태로 쌓은 학습 점수만 토큰으로 인정돼요 (지금 ' + r.body.points + ' / ' + r.body.goal + ')');
+        else if (r.body.reason === 'free_cap') pmToast('무료 토큰이 가득 찼어요 (최대 30개). 해금에 써 보세요');
+        tokenWelcome();
+      } catch (e) {}
+    }
+    async function tokenWelcome() {
+      try {
+        const r = await apiJson('/welcome', 'POST');
+        if (r.status === 200 && r.body.granted) { PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); pmToast('🎁 환영 토큰 3개를 받았어요'); }
+      } catch (e) {}
+    }
+    async function premiumFetch(id) {
+      if (PRM.cache[id] || PRM.fetching === id) return; PRM.fetching = id;
+      try {
+        const r = await apiJson('/content/' + encodeURIComponent(id));
+        if (r.status === 200 && r.body.body) { PRM.cache[id] = r.body.body; premiumRefresh(); }
+      } catch (e) {}
+      PRM.fetching = null;
+    }
+    async function premiumUnlock(id) {
+      if (PRM.busy) return; PRM.busy = true;
+      try {
+        const r = await apiJson('/unlock', 'POST', { contentId: id });
+        if (r.status === 200 && r.body.unlocked) { PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.unlocked.add(id); tokenRender(); pmToast('🔓 해금했어요'); }
+        else if (r.status === 402) { PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); pmToast('토큰이 모자라요 (필요 ' + r.body.price + ')'); }
+        else pmToast('해금하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
+      } catch (e) { pmToast('서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'); }
+      PRM.busy = false; premiumRefresh();
+    }
+    // 잠금 카드: 로그인 전 / 로그인 후(잔액 표시 · 해금 버튼) / 해금됨(불러오는 중)
+    function premiumLock(id, kind) {
+      const el = document.createElement('div'); el.className = 'pm-lock';
+      const what = kind === 'lab' ? '이 장비 체험' : '이 글의 나머지';
+      const price = PRICE_HINT[kind];
+      let h;
+      if (!acct.user) h = `<h4>🔒 ${what}은 토큰으로 열어요</h4><p>구글 로그인 후, 하루 학습 미션을 채우고 출석하면 토큰을 1개씩 받아요. 토큰 ${price}개로 계정에 영구 해금돼요.</p><button type="button" class="pbtn" onclick="openAcct()">로그인하고 시작하기</button>`;
+      else if (!PRM.loaded) h = `<h4>🔒 확인하는 중…</h4>`;
+      else if (PRM.unlocked.has(id)) h = `<h4>🔓 불러오는 중…</h4>`;
+      else {
+        const have = PRM.free + PRM.paid;
+        h = `<h4>🔒 ${what}을 보려면 토큰 ${price}개가 필요해요</h4><p>내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid}) · 해금하면 이 계정에서 계속 볼 수 있어요.</p>`
+          + (have >= price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${id}')">🪙 ${price}개로 해금하기</button>` : `<p class="pm-sub">토큰이 ${price - have}개 모자라요. 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요.</p>`);
+      }
+      el.innerHTML = h; return el;
+    }
     async function acctInit() {
       const btn = document.getElementById('acctBtn'); if (!btn || acct.ready) return;
       try { await new Promise((res) => { const s = document.createElement('script'); s.src = ROOT + 'firebase-config.js?v=' + Date.now(); s.onload = s.onerror = res; document.head.appendChild(s); }); } catch (e) {}
@@ -7138,6 +7247,7 @@
       o.innerHTML = u ? `<div class="wl-card ac-card"><div class="wl-top"><div><p class="eyebrow">MY ACCOUNT</p><h3>내 계정</h3></div><button type="button" class="wl-x" onclick="closeAcct()" aria-label="닫기">✕</button></div>
           <div class="ac-me">${u.photoURL ? `<img src="${escH(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : '<span>👤</span>'}<div><b>${escH(u.displayName || '구글 계정')}</b><p>${escH(u.email || '')}</p></div></div>
           <div class="ac-stat"><span>${acct.busy ? '동기화 중…' : '마지막 동기화'}</span><b>${acct.busy ? '' : ago(acct.last)}</b></div>
+          <div class="ac-stat"><span>토큰</span><b>🪙 ${PRM.free + PRM.paid} (무료 ${PRM.free} · 유료 ${PRM.paid})</b></div>
           <p class="ac-note">출석 ${attendDays.length}일 · 오답 노트 ${Object.keys(wrongNotes).length}개 · 즐겨찾기 ${starredIds.length}개가 이 계정과 연결돼 있어요. 기록은 이 기기와 계정에 함께 저장돼요.</p>${err}
           <div class="ac-btns"><button type="button" class="pbtn" onclick="syncNow()" ${acct.busy ? 'disabled' : ''}>지금 동기화</button><button type="button" class="ac-ghost" onclick="acctSignOut()">로그아웃</button></div>
           <button type="button" class="ac-del" onclick="if(confirm('로그아웃하고 이 기기에 저장된 학습 기록을 지울까요?\n(기록은 계정에 남아 있어서 다시 로그인하면 돌아와요.)'))acctSignOut(true)">공용 기기라면: 로그아웃하고 이 기기 기록 지우기</button>
@@ -7610,8 +7720,15 @@
     function labLoad(kind) {
       const L = LABS[kind]; if (window[L.g]) return Promise.resolve();
       if (labLoads[kind]) return labLoads[kind];
-      const ld = (src) => new Promise((ok, no) => { if (src === 'vendor/three.min.js' && window.THREE) return ok(); const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = () => no(new Error(src)); document.head.appendChild(sc); });
-      labLoads[kind] = (L.flat || window.THREE ? Promise.resolve() : ld('vendor/three.min.js')).then(() => [].concat(L.file).reduce((p, f) => p.then(() => (f === 'lab2d.js' && window.LAB2D ? 0 : ld(f))), Promise.resolve())).catch((e) => { labLoads[kind] = null; throw e; });
+      // 체험 코드는 공개 파일이 아니라 서버(해금 확인 후)에서 받아 실행한다
+      labLoads[kind] = apiJson('/content/lab-' + kind).then((r) => {
+        if (r.status !== 200 || !r.body || !r.body.body) throw new Error('lab-' + r.status);
+        return new Promise((ok, no) => {
+          const url = URL.createObjectURL(new Blob([r.body.body], { type: 'text/javascript' })), sc = document.createElement('script');
+          sc.src = url; sc.onload = () => { URL.revokeObjectURL(url); sc.remove(); ok(); }; sc.onerror = () => { URL.revokeObjectURL(url); no(new Error('lab-script')); };
+          document.head.appendChild(sc);
+        });
+      }).catch((e) => { labLoads[kind] = null; throw e; });
       return labLoads[kind];
     }
     function labOpen(kind) {
@@ -7624,6 +7741,7 @@
       const t = document.getElementById('labTitle'), d = document.getElementById('labDesc'); if (t) t.textContent = L.title; if (d) d.textContent = L.desc;
       const gb = document.getElementById('labGuideBtn'), gt = allTheories.find(x => x.category === ADV_CAT && x.lab === kind); if (gb) { gb.classList.toggle('hidden', !gt); gb.dataset.id = gt ? gt.id : ''; }
       Object.keys(LABS).forEach((k) => { if (k !== kind && window[LABS[k].g]) window[LABS[k].g].stop(); });
+      if (!window[L.g] && !PRM.unlocked.has('lab-' + kind)) { if (el) { el.style.display = 'flex'; el.innerHTML = ''; el.appendChild(premiumLock('lab-' + kind, 'lab')); } return; }   // 해금 전: 잠금 화면
       if (!window[L.g] && el) { el.style.display = 'flex'; el.textContent = '장비를 불러오는 중…'; }
       labLoad(kind).then(() => { if (currentViewId === 'view-lab' && labKind === kind) window[L.g].start(); })
         .catch(() => { if (el) { el.style.display = 'flex'; el.textContent = '체험 화면을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.'; } });
