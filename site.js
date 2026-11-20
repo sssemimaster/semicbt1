@@ -467,7 +467,7 @@
     // 아이콘: index.html 맨 위의 SVG 스프라이트(#i-…)를 가리킨다. 이모지 대신 쓰는 선 아이콘(ico)과 토큰 코인(TK)
     const ico = (n, c) => `<svg class="ic ln${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
     const TK = (c) => `<svg class="ic tk${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-tok"/></svg>`;
-    const PAY = { packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
+    const PAY = { packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', faqOpen: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
     const PAY_PENDING = 'semiPayPending', PAY_BACK = 'semiPayBack';
     const won = (n) => Number(n).toLocaleString('ko-KR') + '원';
     const payDate = (ms) => { const d = new Date(ms); return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`; };
@@ -506,14 +506,14 @@
       }).join('');
       const pill = { paid: ['결제 완료', 'ok'], refunding: ['환불 처리 중', 'wait'], refunded: ['환불 완료', 'off'] };
       const rows = PAY.orders === null ? '<li class="pay-empty">불러오는 중…</li>' : !PAY.orders.length ? '<li class="pay-empty">아직 결제 내역이 없어요</li>' : PAY.orders.map((x) => {
-        let foot = '';
-        if (x.status === 'paid') {
-          if (x.refundableTokens > 0) foot = `<div class="pay-rf-row"><span>미사용 <b>${x.refundableTokens}토큰</b> · ${won(x.refundAmount)} 환불 가능${x.refundUntil ? ` (${payDate(x.refundUntil)}까지)` : ''}</span><button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 요청</button></div>`;
-          else { const n = x.refundBlocked === 'window_expired' ? '환불 기간(7일)이 지났어요' : x.refundBlocked === 'no_unused_tokens' ? '환불할 미사용 유료 토큰이 없어요 (해금에 사용)' : ''; if (n) foot = `<div class="pay-rf-row"><span>${n}</span></div>`; }
-        }
         const pl = pill[x.status] || ['', 'off'];
-        return `<li class="pay-row"><div class="pay-row-h"><div><b>${TK()}${x.tokens}토큰</b><small>${x.paidAt ? payDate(x.paidAt) + ' · ' : ''}${won(x.amount)}</small></div><span class="pay-pill ${pl[1]}">${pl[0]}</span></div>${foot}</li>`;
+        return `<li class="pay-row"><div class="pay-row-h"><div><b>${TK()}${x.tokens}토큰</b><small>${x.paidAt ? payDate(x.paidAt) + ' · ' : ''}${won(x.amount)}</small></div><span class="pay-pill ${pl[1]}">${pl[0]}</span></div></li>`;
       }).join('');
+      // 환불은 눈에 띄는 버튼이 아니라 '환불 문의' 안쪽(접힌 상태)에서만 신청한다
+      const refundable = (PAY.orders || []).filter((x) => x.status === 'paid' && x.refundableTokens > 0);
+      const rfList = PAY.orders === null ? '' : refundable.length
+        ? `<ul class="pay-rfl">${refundable.map((x) => `<li><span>${payDate(x.paidAt)} 결제 · ${x.tokens}토큰<small>미사용 ${x.refundableTokens}토큰 · ${won(x.refundAmount)} 환불 가능${x.refundUntil ? ` (${payDate(x.refundUntil)}까지)` : ''}</small></span><button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 신청</button></li>`).join('')}</ul>`
+        : `<p class="pay-rfn">지금 환불할 수 있는 결제가 없어요. (결제 후 7일 이내이고 미사용 유료 토큰이 남아 있어야 해요)</p>`;
       const pend = (() => { try { return !!sessionStorage.getItem(PAY_PENDING); } catch (e) { return false; } })();
       o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
         <span class="pmg-tick"><i></i>TOKEN STORE</span><h3>토큰 충전</h3>
@@ -524,9 +524,11 @@
         <div class="pay-packs">${packs}</div>
         <p class="pay-secure">${ico('shield')}<span>카드 결제 · 토스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
         ${PAY.err ? `<p class="pay-msg err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="pay-msg ok">${escH(PAY.note)}</p>` : ''}
-        <ul class="pmg-pts pay-pts"><li>결제 후 <b>7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li></ul>
         <div class="pay-sec"><span class="pmg-tick"><i></i>HISTORY</span></div>
-        <ul class="pay-rows">${rows}</ul></div>`;
+        <ul class="pay-rows">${rows}</ul>
+        <details class="pay-faq"${PAY.faqOpen ? ' open' : ''} ontoggle="PAY.faqOpen = this.open"><summary>환불 문의</summary><div class="pay-faq-b">
+          <ul class="pmg-pts pay-pts"><li>결제 후 <b>7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
+          ${rfList}</div></details></div>`;
     }
     async function payStart(packId) {
       if (PAY.busy) return; const P = PAY.packs.find((x) => x.id === packId); if (!P) return;
@@ -7338,7 +7340,36 @@
       } catch (e) {}
       PRM.fetching = null;
     }
+    // 해금(토큰 사용) 전에 한 번 더 확인한다: 무엇을, 얼마를, 어떤 토큰으로 쓰는지 + 사용한 토큰은 환불되지 않는다는 고지
+    function pmConfirm(name, price) {
+      return new Promise((resolve) => {
+        const free = PRM.free, paid = PRM.paid, useF = Math.min(free, price), useP = price - useF;
+        const o = document.createElement('div'); o.className = 'pmg'; o.id = 'pmc'; o.style.zIndex = '99'; o.setAttribute('role', 'alertdialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-labelledby', 'pmcT');
+        const use = [useF ? `무료 ${useF}` : '', useP ? `유료 ${useP}` : ''].filter(Boolean).join(' + ');
+        o.innerHTML = `<div class="pmg-card pmc-card"><span class="pmg-tick"><i></i>CONFIRM</span><h3 id="pmcT">토큰을 사용해 해금할까요?</h3>
+          <div class="pmc-item"><b>${escH(name)}</b><span>${TK()}${price}</span></div>
+          <dl class="pmc-rows"><div><dt>사용하는 토큰</dt><dd>${use} <small>(무료 토큰이 먼저 쓰여요)</small></dd></div><div><dt>해금 후 남는 토큰</dt><dd>${TK()}${free + paid - price} <small>무료 ${free - useF} · 유료 ${paid - useP}</small></dd></div></dl>
+          <p class="pmc-warn">${ico('lock')}<span><b>해금에 사용한 토큰은 환불되지 않아요.</b> 해금하면 이 계정에서 계속 볼 수 있어요.</span></p>
+          <div class="pmc-btns"><button type="button" class="tkb" id="pmcOk" disabled>${price}토큰 사용하고 해금</button><button type="button" class="pmg-later" id="pmcNo">취소</button></div></div>`;
+        const done = (v) => { window.removeEventListener('keydown', onKey, true); o.classList.remove('on'); setTimeout(() => o.remove(), 220); resolve(v); };
+        const onKey = (e) => { if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); done(false); } };
+        window.addEventListener('keydown', onKey, true);
+        o.addEventListener('click', (e) => { if (e.target === o) done(false); });
+        document.body.appendChild(o);
+        const ok = o.querySelector('#pmcOk'); ok.onclick = () => done(true); o.querySelector('#pmcNo').onclick = () => done(false);
+        requestAnimationFrame(() => o.classList.add('on'));
+        setTimeout(() => { ok.disabled = false; try { ok.focus({ preventScroll: true }); } catch (e) {} }, 450);   // 같은 자리를 연달아 눌러 바로 확정되는 실수를 막는다
+      });
+    }
     async function premiumUnlock(id) {
+      if (PRM.busy || document.getElementById('pmc')) return;
+      const bd = (PRM.bundles || []).find((b) => b.id === id), isLab = String(id).indexOf('lab-') === 0;
+      const price = bd ? bd.price : PRICE_HINT[isLab ? 'lab' : 'theory'];
+      const name = bd ? '이론 + 장비 체험 번들' : isLab ? ((LABS[id.slice(4)] || {}).title || '장비 체험') : ((allTheories.find((x) => x.id === id) || {}).title || '이 글');
+      if (!(await pmConfirm(name, price))) return;
+      return premiumUnlockDo(id);
+    }
+    async function premiumUnlockDo(id) {
       if (PRM.busy) return; PRM.busy = true;
       try {
         const r = await apiJson('/unlock', 'POST', { contentId: id });

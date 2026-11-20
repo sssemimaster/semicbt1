@@ -1324,6 +1324,15 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
   .pm-bundle .pm-sub{margin:0}
   .pmg-of .pr{display:inline-flex;align-items:center;gap:.35rem} .pmg-of .pr .ic.tk{font-size:1.15em}
   .pmg-wallet{display:flex;align-items:center;justify-content:center;gap:.4rem}
+  /* 해금 확인 창 */
+  .pmc-card{max-width:400px}
+  .pmc-item{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin:1rem 0 .2rem;padding:.8rem .95rem;border:1px solid var(--am);border-radius:10px;background:linear-gradient(135deg,var(--amt),var(--panel));color:var(--h)}
+  .pmc-item b{font-size:.92rem;font-weight:800;line-height:1.4;word-break:keep-all} .pmc-item span{flex:none;display:inline-flex;align-items:center;gap:.35rem;font:800 1.05rem 'Sora',system-ui,sans-serif;color:var(--am)} .pmc-item .ic.tk{font-size:1.2em}
+  .pmc-rows{margin:.9rem 0 0;display:grid;gap:.55rem} .pmc-rows>div{display:flex;justify-content:space-between;align-items:baseline;gap:.8rem;font-size:.84rem}
+  .pmc-rows dt{color:var(--dim);white-space:nowrap;flex:none} .pmc-rows dd{margin:0;text-align:right;font-weight:800;color:var(--h);display:inline-flex;align-items:center;gap:.3rem;flex-wrap:wrap;justify-content:flex-end} .pmc-rows dd small{font-weight:600;font-size:.72rem;color:var(--dim)} .pmc-rows .ic.tk{font-size:1.1em}
+  .pmc-warn{display:flex;gap:.55rem;align-items:flex-start;margin:1rem 0 0;padding:.7rem .8rem;border-radius:8px;background:rgba(190,18,60,.08);border:1px solid rgba(190,18,60,.25);font-size:.8rem;line-height:1.55;color:#9f1239} .pmc-warn .ic{margin-top:.15rem;font-size:1.05rem} .pmc-warn b{font-weight:800}
+  html.dark .pmc-warn{background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.3);color:#fda4af}
+  .pmc-btns{display:grid;gap:.2rem;margin-top:1rem} .pmc-btns .tkb:disabled{opacity:.55;cursor:wait;transform:none}
   /* 충전 창 */
   .pay-card{max-width:440px}
   .pay-bal{display:flex;align-items:center;gap:.85rem;margin:1rem 0 .3rem;padding:.85rem 1rem;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
@@ -1359,8 +1368,15 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
   .pay-pill{flex:none;padding:.18rem .6rem;border-radius:999px;font-size:.68rem;font-weight:800;white-space:nowrap}
   .pay-pill.ok{color:#0e7490;background:rgba(14,116,144,.1)} html.dark .pay-pill.ok{color:#5ad1e6;background:rgba(90,209,230,.1)}
   .pay-pill.wait{color:var(--am);background:var(--amt)} .pay-pill.off{color:var(--dim);background:rgba(100,116,139,.14)}
-  .pay-rf-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-top:.6rem;padding-top:.6rem;border-top:1px dashed var(--line);font-size:.74rem;line-height:1.5;color:var(--dim)} .pay-rf-row b{display:inline;font-size:inherit;color:var(--h)}
-  .pay-rf{flex:none;padding:.42rem .8rem;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:.74rem;font-weight:800;cursor:pointer;transition:.15s}
+    .pay-faq{margin-top:.9rem;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+  .pay-faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;padding:.7rem .9rem;font-size:.8rem;font-weight:700;color:var(--dim)} .pay-faq summary::-webkit-details-marker{display:none}
+  .pay-faq summary::after{content:"";width:.5rem;height:.5rem;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);transition:transform .15s;margin-right:.15rem} .pay-faq[open] summary::after{transform:rotate(-135deg)}
+  .pay-faq summary:hover{color:var(--h)} .pay-faq-b{padding:0 .9rem .9rem}
+  .pay-faq .pay-pts{margin:.1rem 0 0}
+  .pay-rfl{list-style:none;margin:.9rem 0 0;padding:.8rem 0 0;border-top:1px dashed var(--line);display:grid;gap:.6rem}
+  .pay-rfl li{display:flex;align-items:center;justify-content:space-between;gap:.7rem;font-size:.78rem;color:var(--h);font-weight:700} .pay-rfl small{display:block;margin-top:.15rem;font-size:.7rem;font-weight:500;color:var(--dim)}
+  .pay-rfn{margin:.9rem 0 0;padding-top:.8rem;border-top:1px dashed var(--line);font-size:.74rem;line-height:1.5;color:var(--dim)}
+.pay-rf{flex:none;padding:.42rem .8rem;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:.74rem;font-weight:800;cursor:pointer;transition:.15s}
   .pay-rf:hover:not(:disabled){border-color:#be123c;color:#be123c;background:rgba(190,18,60,.06)} .pay-rf:disabled{opacity:.5;cursor:not-allowed}
   /* 계정 창 */
   .ac-tk{display:inline-flex;align-items:center;gap:.4rem} .ac-tk .ic.tk{font-size:1.15rem} .ac-tk small{font-size:11px;font-weight:600;opacity:.7;margin-left:.2rem}
