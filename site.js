@@ -458,6 +458,146 @@
       } catch (e) {}
     }
 
+    // =====================================================
+    // 💳 토큰 충전 · 결제 내역 · 환불 (토스페이먼츠 결제창 v2)
+    //  - 금액·토큰 수·결제 확인은 전부 서버가 한다. 화면은 팩 이름만 보내고, 결제창을 띄우고,
+    //    결제 후 돌아오면 서버에 "승인 확인"을 요청할 뿐이다. (성공 주소의 값은 서버가 PG에 다시 물어 검증한다)
+    //  - 클라이언트 키(…_ck_…)는 toss-config.js 에만 둔다. 시크릿 키는 이 저장소에 절대 두지 않는다.
+    // =====================================================
+    const PAY = { packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
+    const PAY_PENDING = 'semiPayPending', PAY_BACK = 'semiPayBack';
+    const won = (n) => Number(n).toLocaleString('ko-KR') + '원';
+    const payDate = (ms) => { const d = new Date(ms); return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`; };
+    function payClientKey() {
+      if (!PAY.cfgP) PAY.cfgP = new Promise((res) => { if (typeof window.TOSS_CLIENT_KEY === 'string') return res(); const s = document.createElement('script'); s.src = ROOT + 'toss-config.js?v=' + Date.now(); s.onload = s.onerror = res; document.head.appendChild(s); });
+      return PAY.cfgP.then(() => { const k = window.TOSS_CLIENT_KEY; PAY.key = typeof k === 'string' && /^(test|live)_ck_[A-Za-z0-9_=-]{10,}$/.test(k) ? k : ''; return PAY.key; });
+    }
+    function paySdk() {
+      if (window.TossPayments) return Promise.resolve();
+      if (!PAY.sdkP) PAY.sdkP = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://js.tosspayments.com/v2/standard'; s.onload = () => (window.TossPayments ? res() : rej(new Error('sdk'))); s.onerror = () => rej(new Error('sdk')); document.head.appendChild(s); }).catch((e) => { PAY.sdkP = null; throw e; });
+      return PAY.sdkP;
+    }
+    function payOpen() {
+      if (!acct.user) { openAcct(); return; }
+      closeAcct();
+      let o = document.getElementById('payM');
+      if (!o) { o = document.createElement('div'); o.id = 'payM'; o.className = 'wl'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 충전'); o.addEventListener('click', (e) => { if (e.target === o) payClose(); }); document.body.appendChild(o); }
+      PAY.err = ''; PAY.note = ''; payRender(); requestAnimationFrame(() => o.classList.add('on'));
+      payClientKey().then(() => payRender()); payLoadOrders();
+    }
+    function payClose() { const o = document.getElementById('payM'); if (!o) return; o.classList.remove('on'); setTimeout(() => o.remove(), 220); }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('payM')) payClose(); });
+    async function payLoadOrders() {
+      try { const r = await apiJson('/orders'); if (r.status === 200) PAY.orders = r.body.orders || []; else if (r.status !== 503) PAY.err = '결제 내역을 불러오지 못했어요.'; } catch (e) { PAY.err = '결제 내역을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.'; }
+      payRender();
+    }
+    function payRender() {
+      const o = document.getElementById('payM'); if (!o) return;
+      const have = PRM.free + PRM.paid, ready = !!PAY.key, test = ready && PAY.key.indexOf('test_') === 0;
+      const packs = PAY.packs.map((p) => `<button type="button" class="pay-pack" ${ready && !PAY.busy ? '' : 'disabled'} onclick="payStart('${p.id}')"><span><b>🪙 ${p.tokens}개</b><small>개당 약 ${Math.round(p.amount / p.tokens)}원</small></span><span class="pr">${won(p.amount)}</span></button>`).join('');
+      const st = { paid: '', refunding: '환불 처리 중', refunded: '환불 완료' };
+      const list = PAY.orders === null ? '<p class="ac-note">불러오는 중…</p>' : !PAY.orders.length ? '<p class="ac-note">아직 결제 내역이 없어요.</p>' : PAY.orders.map((x) => {
+        let act = '';
+        if (x.status === 'paid') {
+          if (x.refundableTokens > 0) act = `<button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 요청 · 미사용 ${x.refundableTokens}개 → ${won(x.refundAmount)}</button><small>${x.refundUntil ? payDate(x.refundUntil) + '까지 가능' : ''}</small>`;
+          else act = `<small>${x.refundBlocked === 'window_expired' ? '환불 기간(7일)이 지났어요' : x.refundBlocked === 'no_unused_tokens' ? '환불할 미사용 유료 토큰이 없어요 (해금에 사용)' : ''}</small>`;
+        } else act = `<small>${st[x.status] || ''}</small>`;
+        return `<li><div><b>🪙 ${x.tokens}개 · ${won(x.amount)}</b><small>${x.paidAt ? payDate(x.paidAt) : ''}${st[x.status] && x.status !== 'paid' ? ' · ' + st[x.status] : ''}</small></div><div class="pay-act">${act}</div></li>`;
+      }).join('');
+      const pend = (() => { try { return !!sessionStorage.getItem(PAY_PENDING); } catch (e) { return false; } })();
+      o.innerHTML = `<div class="wl-card ac-card pay-card"><div class="wl-top"><div><p class="eyebrow">TOKENS</p><h3>토큰 충전</h3></div><button type="button" class="wl-x" onclick="payClose()" aria-label="닫기">✕</button></div>
+        <div class="ac-stat"><span>내 토큰</span><b>🪙 ${have} (무료 ${PRM.free} · 유료 ${PRM.paid})</b></div>
+        ${pend ? '<p class="ac-note"><b>결제를 마무리하는 중이에요.</b> 잠시만 기다려 주세요. 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : ''}
+        ${ready ? (test ? '<p class="pay-test">🧪 테스트 결제 모드예요. 실제로 요금이 청구되지 않아요.</p>' : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
+        <div class="pay-packs">${packs}</div>${PAY.err ? `<p class="ac-err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="ac-note">${escH(PAY.note)}</p>` : ''}
+        <ul class="ac-list pay-policy"><li><span>카드로 결제하고, 결제 후 바로 유료 토큰이 지급돼요</span></li><li><span>결제 후 <b>7일 이내</b>, 아직 쓰지 않은 유료 토큰은 환불받을 수 있어요</span></li><li><span><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</span></li><li><span>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</span></li></ul>
+        <h4 class="pay-h">결제 내역</h4><ul class="pay-list">${list}</ul></div>`;
+    }
+    async function payStart(packId) {
+      if (PAY.busy) return; const P = PAY.packs.find((x) => x.id === packId); if (!P) return;
+      const key = await payClientKey(); if (!key) { PAY.err = '결제 기능을 준비 중이에요.'; payRender(); return; }
+      PAY.busy = true; PAY.err = ''; PAY.note = ''; payRender();
+      try {
+        const r = await apiJson('/orders', 'POST', { pack: packId });
+        if (r.status === 503) throw new Error('unavailable');
+        if (r.status !== 200 || !r.body.orderId) throw new Error('order');
+        if (r.body.amount !== P.amount) { PAY.err = '가격이 바뀌었어요. 페이지를 새로고침한 뒤 다시 시도해 주세요.'; PAY.busy = false; payRender(); return; }
+        await paySdk();
+        try { sessionStorage.setItem(PAY_BACK, JSON.stringify(payBackHere())); } catch (e) {}
+        const base = location.origin + ROOT;
+        const payment = window.TossPayments(key).payment({ customerKey: window.TossPayments.ANONYMOUS });   // 비회원 결제 키: 계정 식별자를 토스에 넘기지 않는다
+        await payment.requestPayment({ method: 'CARD', amount: { currency: 'KRW', value: r.body.amount }, orderId: r.body.orderId, orderName: r.body.orderName, successUrl: base + '?pay=success', failUrl: base + '?pay=fail' });
+      } catch (e) {
+        const c = e && e.code;
+        if (c === 'USER_CANCEL' || c === 'PAY_PROCESS_CANCELED') PAY.note = '결제를 취소했어요.';
+        else if (e && e.message === 'unavailable') PAY.err = '결제 기능을 준비 중이에요.';
+        else if (e && e.message === 'sdk') PAY.err = '결제창을 불러오지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.';
+        else PAY.err = '결제를 시작하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+      }
+      PAY.busy = false; payRender();
+    }
+    function payBackHere() {   // 결제 후 돌아왔을 때 보던 글로 되돌리기 위한 위치
+      if (currentViewId === 'view-learning' && learnState.level === 'detail' && learnState.theoryId) return { t: learnState.theoryId };
+      if (currentViewId === 'view-lab' && labKind) return { lab: labKind };
+      return {};
+    }
+    // 결제창에서 돌아온 주소(?pay=success&paymentKey=…&orderId=…&amount=…)를 읽어 보관하고 주소창을 정리한다
+    function payHandleReturn() {
+      let p; try { p = new URLSearchParams(location.search); } catch (e) { return; }
+      const st = p.get('pay'); if (st !== 'success' && st !== 'fail') return;
+      try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (e) {}
+      if (st === 'fail') {
+        const c = p.get('code') || ''; pmToast(c === 'PAY_PROCESS_CANCELED' || c === 'USER_CANCEL' ? '결제를 취소했어요.' : '결제가 완료되지 않았어요. 요금은 청구되지 않았어요.' + (/^[A-Z_]{3,40}$/.test(c) ? ` (${c})` : '')); return;
+      }
+      const paymentKey = p.get('paymentKey') || '', orderId = p.get('orderId') || '', amount = Number(p.get('amount'));
+      if (!/^[A-Za-z0-9_-]{1,200}$/.test(paymentKey) || !/^ord_[a-f0-9]{32}$/.test(orderId) || !Number.isInteger(amount)) return;
+      try { sessionStorage.setItem(PAY_PENDING, JSON.stringify({ paymentKey, orderId, amount, ts: Date.now() })); } catch (e) {}
+      if (!acct.user) pmToast('로그인이 확인되면 결제를 마무리해요. 잠시만 기다려 주세요.');
+    }
+    // 보관해 둔 결제를 서버에 승인 확인한다. 로그인·잔액 조회가 끝난 뒤 불린다(여러 번 불려도 한 번에 하나만 처리)
+    async function payResume() {
+      if (PAY.resuming || !acct.user) return;
+      let pend = null; try { pend = JSON.parse(sessionStorage.getItem(PAY_PENDING) || 'null'); } catch (e) {}
+      if (!pend) return;
+      PAY.resuming = true;
+      try {
+        const r = await apiJson('/pay/confirm', 'POST', { paymentKey: pend.paymentKey, orderId: pend.orderId, amount: pend.amount });
+        if (r.status === 200 && r.body.ok) {
+          try { sessionStorage.removeItem(PAY_PENDING); } catch (e) {}
+          await walletLoad();
+          pmToast(r.body.already ? '이미 충전이 반영된 결제예요.' : `토큰 ${r.body.tokens}개가 충전됐어요 🪙`);
+          if (document.getElementById('payM')) payLoadOrders();
+          payGoBack();
+        } else if (r.status >= 500 || r.status === 429 || r.status === 0) {
+          pmToast('결제 확인이 지연되고 있어요. 잠시 뒤 자동으로 다시 확인해요.'); setTimeout(payResume, 15000);
+        } else {   // 승인 실패·불일치·남의 주문 등: 다시 시도해도 같으므로 보관을 지운다
+          try { sessionStorage.removeItem(PAY_PENDING); } catch (e) {}
+          const code = r.body && r.body.code ? ` (${String(r.body.code).replace(/[^A-Z_]/g, '').slice(0, 40)})` : '';
+          pmToast(r.status === 402 ? '결제 승인에 실패했어요. 요금이 청구되지 않았다면 다시 시도해 주세요.' + code : '결제를 확인하지 못했어요. 요금이 청구됐다면 문의해 주세요. (주문번호 ' + pend.orderId + ')');
+        }
+      } catch (e) { pmToast('결제 확인 중 연결이 끊겼어요. 잠시 뒤 자동으로 다시 확인해요.'); setTimeout(payResume, 15000); }
+      PAY.resuming = false; payRender();
+    }
+    function payGoBack() {
+      let b = {}; try { b = JSON.parse(sessionStorage.getItem(PAY_BACK) || '{}'); sessionStorage.removeItem(PAY_BACK); } catch (e) {}
+      try { if (b.t && allTheories.some((x) => x.id === b.t)) openTheory(b.t); else if (b.lab && LABS[b.lab]) labOpen(b.lab); } catch (e) {}
+    }
+    async function payRefund(orderId) {
+      if (PAY.busy) return; const x = (PAY.orders || []).find((o) => o.orderId === orderId); if (!x || !(x.refundableTokens > 0)) return;
+      if (!confirm(`미사용 유료 토큰 ${x.refundableTokens}개를 환불하고 ${won(x.refundAmount)}을 결제 수단으로 돌려받을까요?\n\n· 지금 바로 토큰 ${x.refundableTokens}개가 차감돼요\n· 이 주문은 환불을 한 번만 할 수 있어요\n· 카드 취소 반영까지는 카드사에 따라 며칠 걸릴 수 있어요`)) return;
+      PAY.busy = true; PAY.err = ''; PAY.note = ''; payRender();
+      try {
+        const r = await apiJson('/refund', 'POST', { orderId });
+        if (r.status === 200 && r.body.ok) { PAY.note = r.body.already ? '이미 환불된 주문이에요.' : `환불을 요청했어요. 토큰 ${r.body.refundedTokens}개가 차감되고 ${won(r.body.refundAmount)}이 취소돼요.`; await walletLoad(); }
+        else if (r.status === 400 && r.body.error === 'not_refundable') PAY.err = r.body.reason === 'window_expired' ? '환불 가능 기간(7일)이 지났어요.' : r.body.reason === 'no_unused_tokens' ? '환불할 수 있는 미사용 유료 토큰이 없어요.' : '이 주문은 환불할 수 없어요.';
+        else if (r.status === 409) PAY.err = '환불이 이미 진행 중이거나 잔액이 방금 바뀌었어요. 내역을 확인한 뒤 다시 시도해 주세요.';
+        else if (r.status === 502) PAY.err = '카드 취소 요청이 실패해서 토큰은 그대로예요. 잠시 뒤 다시 시도해 주세요.';
+        else PAY.err = '환불을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+      } catch (e) { PAY.err = '연결이 끊겨 결과를 확인하지 못했어요. 내역을 새로 불러와 확인해 주세요.'; }
+      PAY.busy = false; await payLoadOrders();
+    }
+    payHandleReturn();
+
     // ===== 이론 정적 페이지(theory/…)에서 넘어오는 딥링크: ?theory=ID[&go=quiz|interview] =====
     function handleDeepLink() {
       const p = new URLSearchParams(location.search), id = p.get('theory'); if (!id) return;
@@ -7086,7 +7226,7 @@
         const app = A.initializeApp(cfg), auth = U.getAuth(app);
         fb = { app, auth, U };
         U.getRedirectResult(auth).catch((e) => { acct.err = acctErr(e); renderAcct(); });
-        U.onAuthStateChanged(auth, (u) => { acct.user = u; if (u) hintSet(true); renderAcct(); if (u) syncNow(); walletLoad(); });
+        U.onAuthStateChanged(auth, (u) => { acct.user = u; if (u) hintSet(true); renderAcct(); if (u) syncNow(); walletLoad().then(() => { if (u) payResume(); }); });
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && acct.user && Date.now() - acct.last > 60000) syncNow(); });
       })().catch((e) => { sdkP = null; acct.err = '로그인 모듈을 불러오지 못했어요. 네트워크를 확인해 주세요.'; renderAcct(); throw e; });
       return sdkP;
@@ -7276,14 +7416,15 @@
           + mk(id, kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
         const min = bd ? Math.min(bd.price, price) : price;
         body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요</p>` : '')
-          + `<p class="pmg-wallet">내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid})</p>`;
+          + (have < min ? `<button type="button" class="pmg-cta" onclick="payFromGate()">🪙 토큰 충전하기</button>` : '') + `<p class="pmg-wallet">내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid})</p>`;
       }
       o.innerHTML = `<div class="pmg-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="pmGateClose()">✕</button>`
         + `<div class="pmg-ic" aria-hidden="true">${ic}</div><span class="pmg-tick"><i></i>${tick}</span><h3 id="pmgT">${escH(title)}</h3><p class="pmg-sub">${escH(sub)}</p>`
         + `<ul class="pmg-pts">${pts.map((x) => `<li>${x}</li>`).join('')}</ul>${body}`
-        + `<p class="pmg-fine">한 번 해금하면 이 계정에서 계속 볼 수 있고, 이후 개정본도 추가 비용이 없어요.</p><button type="button" class="pmg-later" onclick="pmGateClose()">나중에 볼게요</button></div>`;
+        + `<p class="pmg-fine">한 번 해금하면 이 계정에서 계속 볼 수 있고, 이후 개정본도 추가 비용이 없어요. 해금에 쓴 토큰은 환불되지 않아요.</p><button type="button" class="pmg-later" onclick="pmGateClose()">나중에 볼게요</button></div>`;
     }
     function pmGateLogin() { pmGateId = null; pmGateClose(); openAcct(); }
+    function payFromGate() { pmGateClose(); payOpen(); }
     async function pmGateUnlock(cid) {
       const o = document.getElementById('pmg'); if (o) o.querySelectorAll('button').forEach((b) => { b.disabled = true; });
       await premiumUnlock(cid);
@@ -7304,7 +7445,7 @@
       else {
         const have = PRM.free + PRM.paid;
         h = `<h4>🔒 ${what}을 보려면 토큰 ${price}개가 필요해요</h4><p>내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid}) · 해금하면 이 계정에서 계속 볼 수 있어요.</p>`
-          + (have >= price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${id}')">🪙 ${price}개로 해금하기</button>` : `<p class="pm-sub">토큰이 ${price - have}개 모자라요. 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요.</p>`)
+          + (have >= price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${id}')">🪙 ${price}개로 해금하기</button>` : `<p class="pm-sub">토큰이 ${price - have}개 모자라요. 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요.</p><button type="button" class="pbtn" onclick="payOpen()">🪙 토큰 충전하기</button>`)
           + bundleBlock(id, have);
       }
       el.innerHTML = h; return el;
@@ -7336,7 +7477,20 @@
     }
     async function acctDelete() {
       if (!fb || !acct.user) return;
-      if (!confirm('계정에 저장된 학습 기록을 모두 삭제할까요?\n이 기기에 있는 기록은 그대로 남지만, 다른 기기와의 동기화는 끊겨요.\n삭제한 기록은 되돌릴 수 없어요.')) return;
+      // 서버 기록(학습 기록·남은 토큰)부터 지운다. 서버가 거부하면(환불 처리 중·잔액 변경) 아무것도 지우지 않고 멈춘다.
+      try { await walletLoad(); } catch (e) {}
+      const paid = PRM.paid, free = PRM.free;
+      const tokenMsg = (paid + free) > 0 ? `\n\n⚠ 남은 토큰 🪙 ${paid + free}개(무료 ${free} · 유료 ${paid})는 모두 사라져요.${paid > 0 ? '\n미사용 유료 토큰의 환불은 삭제 전에 「토큰 충전 · 결제 내역」에서 신청해 주세요. 삭제하면 환불받을 수 없어요.' : ''}` : '';
+      if (!confirm('계정에 저장된 학습 기록을 모두 삭제할까요?\n이 기기에 있는 기록은 그대로 남지만, 다른 기기와의 동기화는 끊겨요.\n삭제한 기록은 되돌릴 수 없어요.' + tokenMsg + '\n\n결제·해금 기록은 법령에 따라 5년간 보관돼요.')) return;
+      try {
+        const r = await apiJson('/account/delete', 'POST', { confirm: true, paid });
+        if (r.status !== 200 || !r.body.ok) {
+          acct.err = r.status === 409 && r.body.error === 'refund_in_progress' ? '환불이 처리 중이에요. 완료된 뒤 다시 시도해 주세요.'
+            : r.status === 409 ? '토큰 잔액이 방금 바뀌었어요. 다시 눌러 확인해 주세요.' : '서버 기록을 삭제하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+          if (r.status === 409) { try { await walletLoad(); } catch (e) {} }
+          renderAcct(); return;
+        }
+      } catch (e) { acct.err = '서버와 연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.'; renderAcct(); return; }
       try { await fbStore(); await fb.deleteDoc(fb.doc(fb.db, 'users', acct.user.uid)); try { await acct.user.delete(); } catch (e) {} try { await fb.U.signOut(fb.auth); } catch (e) {} hintSet(false); closeAcct(); alert('계정에 저장된 기록을 삭제했어요.'); }
       catch (e) { acct.err = acctErr(e); renderAcct(); }
     }
@@ -7354,6 +7508,7 @@
           <div class="ac-me">${u.photoURL ? `<img src="${escH(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : '<span>👤</span>'}<div><b>${escH(u.displayName || '구글 계정')}</b><p>${escH(u.email || '')}</p></div></div>
           <div class="ac-stat"><span>${acct.busy ? '동기화 중…' : '마지막 동기화'}</span><b>${acct.busy ? '' : ago(acct.last)}</b></div>
           <div class="ac-stat"><span>토큰</span><b>🪙 ${PRM.free + PRM.paid} (무료 ${PRM.free} · 유료 ${PRM.paid})</b></div>
+          <button type="button" class="pay-open" onclick="payOpen()">🪙 토큰 충전 · 결제 내역</button>
           <p class="ac-note">출석 ${attendDays.length}일 · 오답 노트 ${Object.keys(wrongNotes).length}개 · 즐겨찾기 ${starredIds.length}개가 이 계정과 연결돼 있어요. 기록은 이 기기와 계정에 함께 저장돼요.</p>${err}
           <div class="ac-btns"><button type="button" class="pbtn" onclick="syncNow()" ${acct.busy ? 'disabled' : ''}>지금 동기화</button><button type="button" class="ac-ghost" onclick="acctSignOut()">로그아웃</button></div>
           <button type="button" class="ac-del" onclick="if(confirm('로그아웃하고 이 기기에 저장된 학습 기록을 지울까요?\n(기록은 계정에 남아 있어서 다시 로그인하면 돌아와요.)'))acctSignOut(true)">공용 기기라면: 로그아웃하고 이 기기 기록 지우기</button>
