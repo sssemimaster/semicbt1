@@ -6187,6 +6187,7 @@
         if (PRM.cache[t0.id]) t = Object.assign({}, t0, { content: PRM.cache[t0.id] }); else { locked = true; if (PRM.unlocked.has(t0.id)) premiumFetch(t0.id); }
       }
       if (locked && !PRM.unlocked.has(t0.id)) { try { pmGateMaybe(t0.id, 'theory'); } catch (e) {} }   // 들어올 때 해금 팝업
+      if (locked) t = Object.assign({}, t0, { content: '' });   // 해금 전에는 본문을 한 줄도 그리지 않는다(제목·분량·잠금 카드만)
       if (!locked) { addPoints(2, theoryId, { k: 'th', cat: t.category, label: t.title, id: theoryId }); pathMarkRead(theoryId); }
       renderBreadcrumb();
       const container = document.getElementById('learningContainer'); container.className = "flex flex-col space-y-4"; container.innerHTML = '';
@@ -6220,11 +6221,11 @@
             <dl class="adv-meta">
               <div><dt>분류</dt><dd>${escH(t.category)} / ${escH(t.subject)}</dd></div>
               <div><dt>대상 장비</dt><dd>${escH(t.equip || '-')}</dd></div>
-              <div><dt>읽는 시간</dt><dd>약 ${Math.max(1, Math.round(String(t.content).length / 650))}분</dd></div>
+              <div><dt>읽는 시간</dt><dd>약 ${t0.premium && t0.mins ? t0.mins : Math.max(1, Math.round(String(t.content).length / 650))}분</dd></div>
               <div><dt>연계 체험</dt><dd>${labK ? escH(LABS[labK].title) : '준비 중'}</dd></div>
             </dl>
           </header>
-          <div class="adv-bodywrap"><div class="custom-table-container theory-body adv-body prose prose-slate dark:prose-invert max-w-none">${math.restore(safeHtml(marked.parse(rawMarkdown)))}</div></div>
+          ${locked ? '' : `<div class="adv-bodywrap"><div class="custom-table-container theory-body adv-body prose prose-slate dark:prose-invert max-w-none">${math.restore(safeHtml(marked.parse(rawMarkdown)))}</div></div>`}
           ${labK ? `<div class="adv-cta"><div><b>직접 다뤄 보고 싶다면</b><p>${escH(LABS[labK].title)}에서 이 글의 내용을 직접 조작해 볼 수 있어요.</p></div><button type="button" onclick="labOpen('${labK}')">${escH(LABS[labK].title)} 열기 →</button></div>` : ''}`;
         container.appendChild(card); hydrateDiagrams(card); advIndex(card); applyMathRendering(); if (locked) container.appendChild(premiumLock(t0.id, 'theory')); return;
       }
@@ -6368,7 +6369,7 @@
       if (!query) return applyState('view-learning', learnState);
       document.getElementById('breadcrumbContainer').classList.add('hidden');
       const container = document.getElementById('learningContainer'); container.className = "flex flex-col space-y-3"; container.innerHTML = '';
-      const res = allTheories.filter(t => t.title.toLowerCase().includes(query) || t.content.toLowerCase().includes(query));
+      const res = allTheories.filter(t => t.title.toLowerCase().includes(query) || pmBody(t).toLowerCase().includes(query));
       if (res.length === 0) container.innerHTML = `<div class="bg-white dark:bg-[#0f1729] p-6 text-center text-slate-400 rounded-xl">검색 결과가 없습니다.</div>`;
       else res.forEach(t => renderTitleCard(t, container));
     }
@@ -7211,6 +7212,8 @@
       const head = `<div class="pm-bundle"><p><b>📦 이론 + 장비 체험 번들</b> · ${bd.price}토큰${bd.save > 0 ? ` <span class="pm-sub">(따로 사면 ${bd.sum}토큰 · ${bd.save}토큰 할인)</span>` : ''}</p>`;
       return head + (have >= bd.price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${bd.id}')">🪙 ${bd.price}개로 둘 다 해금하기</button>` : `<p class="pm-sub">번들은 토큰이 ${bd.price - have}개 모자라요.</p>`) + `</div>`;
     }
+    // 검색용 본문: 해금 전 유료 글은 본문이 없으니(공개 데이터는 안내 한 줄뿐) 제목·태그로만 찾는다
+    function pmBody(t) { return t.premium && !PRM.cache[t.id] ? '' : String(t.content || ''); }
     // 잠금 배지: 이론 카드·장비 체험 카드에 🔒 / 🔓 해금됨. 상태가 바뀔 때마다 pmBadges 가 다시 맞춘다.
     function pmLk(id) {
       let on = false; try { on = !!(acct.user && PRM.loaded && PRM.unlocked.has(id)); } catch (e) {}
@@ -7592,7 +7595,7 @@
       if (!q) { out.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">이론 제목·본문, 문제, 면접 질문을 한 번에 찾아 드려요.</p>`; return; }
       const has = (...vals) => vals.some(v => String(Array.isArray(v) ? v.join(' ') : v || '').toLowerCase().includes(q));
       const real = (t) => !String(t.content).includes('채워질 예정');
-      const th = allTheories.filter(t => real(t) && has(t.title, t.title_en, t.tags, t.content)).slice(0, 8);
+      const th = allTheories.filter(t => real(t) && has(t.title, t.title_en, t.tags, pmBody(t))).slice(0, 8);
       const qs = allQuizData.filter(x => has(x.question, x.topic, x.options, x.explanation)).slice(0, 15);
       const iv = allInterviewData.filter(x => has(x.question, x.topic, x.key_points, x.interview_answer)).slice(0, 10);
       if (!th.length && !qs.length && !iv.length) { out.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">'${escH(q)}' 검색 결과가 없어요.</p>`; return; }
