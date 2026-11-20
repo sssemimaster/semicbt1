@@ -482,7 +482,7 @@
     }
     function payOpen() {
       if (!acct.user) { openAcct(); return; }
-      closeAcct();
+      closeAcct(); try { earnClose(); } catch (e) {}
       let o = document.getElementById('payM');
       if (!o) { o = document.createElement('div'); o.id = 'payM'; o.className = 'pmg'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 충전'); o.addEventListener('click', (e) => { if (e.target === o) payClose(); }); document.body.appendChild(o); }
       PAY.err = ''; PAY.note = ''; payRender(); requestAnimationFrame(() => o.classList.add('on'));
@@ -490,6 +490,39 @@
     }
     function payClose() { const o = document.getElementById('payM'); if (!o) return; o.classList.remove('on'); setTimeout(() => o.remove(), 220); }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('payM')) payClose(); });
+    // ===== 토큰 얻는 법 안내 창: 무료로 받는 방법·충전·상한·쓰임새를 한 곳에 정리 =====
+    function earnClose() { const o = document.getElementById('earnM'); if (!o) return; o.classList.remove('on'); setTimeout(() => o.remove(), 220); }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('earnM')) earnClose(); });
+    function earnOpen() {
+      try { closeAcct(); } catch (e) {} try { payClose(); } catch (e) {} try { pmGateClose(); } catch (e) {}
+      let o = document.getElementById('earnM');
+      if (!o) { o = document.createElement('div'); o.id = 'earnM'; o.className = 'pmg'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 얻는 법'); o.addEventListener('click', (e) => { if (e.target === o) earnClose(); }); document.body.appendChild(o); }
+      earnRender(); requestAnimationFrame(() => o.classList.add('on'));
+    }
+    function earnRender() {
+      const o = document.getElementById('earnM'); if (!o) return;
+      const t = todayData(), pts = Math.min(t.pts || 0, DAILY_GOAL), in_ = !!acct.user, have = PRM.free + PRM.paid;
+      const bal = in_ && PRM.loaded ? `<div class="pay-bal">${TK('pay-bal-tk')}<div><small>내 토큰</small><b>${have}</b></div><div class="pay-bal-s"><span>무료 ${PRM.free}</span><span>유료 ${PRM.paid}</span></div></div>` : '';
+      const prog = `<div class="earn-prog"><div class="earn-bar"><i style="width:${Math.round(pts / DAILY_GOAL * 100)}%"></i></div><span>오늘 <b>${pts}</b> / ${DAILY_GOAL}점</span></div>`;
+      o.innerHTML = `<div class="pmg-card pay-card earn-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="earnClose()">✕</button>
+        <span class="pmg-tick"><i></i>HOW TO EARN</span><h3>토큰 얻는 법</h3>${bal}
+        <p class="earn-lead">토큰은 심화 이론·장비 체험을 <b>내 계정에 영구 해금</b>할 때 써요. 무료로 모으거나 충전할 수 있어요.</p>
+        <div class="earn-way"><div class="earn-h"><span class="earn-n">1</span><b>오늘의 미션 · 출석</b><em class="earn-plus">+5</em></div>
+          <p>학습 점수 <b>${DAILY_GOAL}점</b>을 채우고 출석하면 무료 토큰 <b>5개</b>를 받아요. 하루 한 번, 한국 시간 0시에 새로 시작해요.</p>
+          <ul class="earn-pts"><li>문제 풀기 <b>1점</b></li><li>면접 연습 <b>1점</b></li><li>이론 읽기 <b>2점</b></li></ul>
+          ${prog}<p class="earn-small">로그인한 상태로 쌓은 점수만 인정돼요. 3일 연속이면 토큰 15개로 심화 이론 1편을 열 수 있어요.</p></div>
+        <div class="earn-way"><div class="earn-h"><span class="earn-n">2</span><b>가입 환영 선물</b><em class="earn-plus">+3</em></div>
+          <p>로그인하고 <b>24시간이 지난 뒤</b>, 학습 기록이 하나 이상 있으면 무료 토큰 3개를 한 번 받아요.</p></div>
+        <div class="earn-way"><div class="earn-h"><span class="earn-n">3</span><b>토큰 충전</b><em class="earn-plus pay">구매</em></div>
+          <p>15개 ${won(3000)} · 40개 ${won(7500)} · 100개 ${won(17000)}. 결제 후 7일 이내, 쓰지 않은 유료 토큰은 환불받을 수 있어요.</p>
+          <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전하기</button></div>
+        <p class="earn-free">${ico('unlock')}<span><b>무료 맛보기</b> · 플라즈마 식각(RIE) 이론과 식각 장비 체험은 토큰 없이, 로그인만 하면 바로 볼 수 있어요</span></p>
+        <div class="pay-sec"><span class="pmg-tick"><i></i>PRICE</span></div>
+        <ul class="earn-price"><li><span>심화 이론 1편</span><b>${TK()}${PRICE_HINT.theory}</b></li><li><span>장비 체험 1개</span><b>${TK()}${PRICE_HINT.lab}</b></li><li><span>이론 + 장비 묶음</span><b>${TK()}${PRICE_HINT.bundle}</b></li></ul>
+        <div class="pay-sec"><span class="pmg-tick"><i></i>GOOD TO KNOW</span></div>
+        <ul class="pmg-pts pay-pts"><li>해금은 한 번이면 <b>계정에 영구</b> 적용돼요</li><li>무료 토큰은 <b>최대 30개</b>까지 모을 수 있어요. 가득 차면 출석 보상이 그만큼만 들어와요</li><li>토큰을 쓸 때는 <b>무료 토큰이 먼저</b> 쓰여요</li><li>무료 토큰은 환불 대상이 아니고, <b>해금에 쓴 토큰은 환불되지 않아요</b></li></ul>
+        ${in_ ? '' : '<button type="button" class="pmg-cta" onclick="earnClose();openAcct()">구글 로그인하고 시작하기</button>'}</div>`;
+    }
     async function payLoadOrders() {
       try { const r = await apiJson('/orders'); if (r.status === 200) PAY.orders = r.body.orders || []; else if (r.status !== 503) PAY.err = '결제 내역을 불러오지 못했어요.'; } catch (e) { PAY.err = '결제 내역을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.'; }
       payRender();
@@ -518,6 +551,7 @@
       o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
         <span class="pmg-tick"><i></i>TOKEN STORE</span><h3>토큰 충전</h3>
         <div class="pay-bal">${TK('pay-bal-tk')}<div><small>내 토큰</small><b>${have}</b></div><div class="pay-bal-s"><span>무료 ${PRM.free}</span><span>유료 ${PRM.paid}</span></div></div>
+        <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 무료로 토큰 얻는 법</button>
         ${pend ? '<p class="pay-msg ok"><b>결제를 마무리하는 중이에요.</b> 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : ''}
         ${ready ? (test ? `<p class="pay-test">${ico('flask')}<span>테스트 결제 모드 · 실제로 요금이 청구되지 않아요</span></p>` : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
         <div class="pay-sec"><span class="pmg-tick"><i></i>CHARGE</span></div>
@@ -7267,7 +7301,9 @@
     // 🪙 토큰 · 유료 콘텐츠 (잔액·가격·해금은 전부 서버가 정한다. 화면은 요청만 보내고 결과를 보여 준다)
     // =====================================================
     const PRM = { free: 0, paid: 0, unlocked: new Set(), bundles: [], cache: {}, loaded: false, queue: [], pumpP: null, lastSent: 0, welcomed: false, busy: false };
-    const PRICE_HINT = { theory: 15, lab: 10 };   // 화면 안내용일 뿐, 실제 가격은 서버 카탈로그가 정한다
+    const PRICE_HINT = { theory: 15, lab: 10, bundle: 22 };
+    // 무료 맛보기: 토큰 없이 로그인만 하면 열리는 심화 이론 1편·장비 체험 1개(같은 장비). 서버 FREE_PREVIEW 와 같은 목록으로 맞춘다
+    const FREE_PREVIEW = new Set(['TH-543f9c26', 'lab-etch']);   // 화면 안내용일 뿐, 실제 가격은 서버 카탈로그가 정한다
     async function apiJson(path, method, body) {
       const r = await apiFetch(path, { method: method || 'GET', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
       let j = {}; try { j = await r.json(); } catch (e) {}
@@ -7277,6 +7313,38 @@
       const d = document.createElement('div'); d.textContent = msg; d.setAttribute('role', 'status');
       d.style.cssText = 'position:fixed;left:50%;bottom:5.5rem;transform:translateX(-50%);z-index:100;max-width:90vw;padding:.7rem 1rem;border-radius:.8rem;background:#0f172a;color:#fff;font-size:.85rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3)';
       document.body.appendChild(d); setTimeout(() => d.remove(), 4200);
+    }
+    // 토큰을 받았을 때의 연출: 화면 가운데에서 코인이 퍼졌다가 상단 토큰 칩으로 날아가 숫자가 올라간다 (모션 줄이기 설정이면 칩만 살짝 반짝)
+    function tokenBurst(n, before) {
+      try {
+        n = Math.max(1, Math.min(99, n | 0));
+        const chip = document.getElementById('navTokens'), tx = document.getElementById('navTokensText');
+        const total = PRM.free + PRM.paid, from = typeof before === 'number' ? before : total - n;
+        const pulse = () => { if (!chip) return; chip.classList.remove('tk-pulse'); void chip.offsetWidth; chip.classList.add('tk-pulse'); setTimeout(() => chip.classList.remove('tk-pulse'), 700); };
+        const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (still || !document.body.animate) { if (tx) tx.textContent = total; pulse(); return; }
+        if (tx) tx.textContent = from;
+        const vw = innerWidth, vh = innerHeight, cx = vw / 2, cy = vh * 0.42;
+        let tx0 = vw - 60, ty0 = 28;
+        if (chip && !chip.classList.contains('hidden')) { const b = chip.getBoundingClientRect(); if (b.width) { tx0 = b.left + 18; ty0 = b.top + b.height / 2; } }
+        const layer = document.createElement('div'); layer.className = 'tkfx-layer'; layer.setAttribute('aria-hidden', 'true');
+        const amt = document.createElement('div'); amt.className = 'tkfx-amt'; amt.textContent = '+' + n; amt.style.left = cx + 'px'; amt.style.top = cy + 'px'; layer.appendChild(amt);
+        const cnt = Math.min(n, 8); let landed = 0;
+        for (let i = 0; i < cnt; i++) {
+          const c = document.createElement('div'); c.className = 'tkfx-coin'; c.innerHTML = TK(); layer.appendChild(c);
+          const ang = (-Math.PI / 2) + (i - (cnt - 1) / 2) * (Math.PI * 0.75 / Math.max(cnt - 1, 1)) + (Math.random() - .5) * .25;
+          const r = 70 + Math.random() * 40, bx = cx + Math.cos(ang) * r - 14, by = cy + Math.sin(ang) * r - 14;
+          const a = c.animate([
+            { transform: `translate(${cx - 14}px,${cy - 14}px) scale(.3)`, opacity: 0, offset: 0 },
+            { transform: `translate(${bx}px,${by}px) scale(1.1)`, opacity: 1, offset: .38, easing: 'cubic-bezier(.5,0,.9,.4)' },
+            { transform: `translate(${tx0 - 14}px,${ty0 - 14}px) scale(.55)`, opacity: .95, offset: 1 }
+          ], { duration: 1050 + i * 70, delay: i * 55, fill: 'forwards', easing: 'cubic-bezier(.25,.8,.3,1)' });
+          a.onfinish = () => { landed++; if (tx) tx.textContent = Math.min(total, from + Math.ceil(n * landed / cnt)); pulse(); };
+        }
+        amt.animate([{ transform: 'translate(-50%,-50%) scale(.6)', opacity: 0 }, { transform: 'translate(-50%,-80%) scale(1.15)', opacity: 1, offset: .3 }, { transform: 'translate(-50%,-130%) scale(1)', opacity: 0 }], { duration: 1300, easing: 'ease-out', fill: 'forwards' });
+        document.body.appendChild(layer);
+        setTimeout(() => { layer.remove(); if (tx) tx.textContent = PRM.free + PRM.paid; }, 1050 + cnt * 70 + cnt * 55 + 250);
+      } catch (e) { const tx = document.getElementById('navTokensText'); if (tx) tx.textContent = PRM.free + PRM.paid; }
     }
     function tokenRender() {
       const chip = document.getElementById('navTokens'), tx = document.getElementById('navTokensText');
@@ -7319,8 +7387,9 @@
         await studyPump();
         const r = await apiJson('/claim', 'POST');
         if (r.status !== 200) return;
+        const before = PRM.free + PRM.paid;
         PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.loaded = true; tokenRender();
-        if (r.body.granted) pmToast('출석 보상으로 토큰 1개를 받았어요');
+        if (r.body.granted) { const n = r.body.amount || (PRM.free + PRM.paid - before) || 1; tokenBurst(n, before); pmToast('출석 보상으로 토큰 ' + n + '개를 받았어요'); }
         else if (r.body.reason === 'not_enough_points') pmToast('로그인한 상태로 쌓은 학습 점수만 토큰으로 인정돼요 (지금 ' + r.body.points + ' / ' + r.body.goal + ')');
         else if (r.body.reason === 'free_cap') pmToast('무료 토큰이 가득 찼어요 (최대 30개). 해금에 써 보세요');
         tokenWelcome();
@@ -7329,7 +7398,7 @@
     async function tokenWelcome() {
       try {
         const r = await apiJson('/welcome', 'POST');
-        if (r.status === 200 && r.body.granted) { PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); pmToast('🎁 환영 토큰 3개를 받았어요'); }
+        if (r.status === 200 && r.body.granted) { const before = PRM.free + PRM.paid; PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); tokenBurst(PRM.free + PRM.paid - before || 3, before); pmToast('🎁 환영 토큰 3개를 받았어요'); }
       } catch (e) {}
     }
     async function premiumFetch(id) {
@@ -7403,10 +7472,12 @@
     // 검색용 본문: 해금 전 유료 글은 본문이 없으니(공개 데이터는 안내 한 줄뿐) 제목·태그로만 찾는다
     function pmBody(t) { return t.premium && !PRM.cache[t.id] ? '' : String(t.content || ''); }
     // 잠금 배지: 이론 카드·장비 체험 카드에 🔒 / 🔓 해금됨. 상태가 바뀔 때마다 pmBadges 가 다시 맞춘다.
-    function pmLk(id) {
+    function pmLkState(id) {   // 배지의 모양을 한 곳에서 정한다: 무료 맛보기 / 해금됨 / 잠금
       let on = false; try { on = !!(acct.user && PRM.loaded && PRM.unlocked.has(id)); } catch (e) {}
-      return `<span class="pm-lk${on ? ' on' : ''}" data-pm="${id}" title="${on ? '해금됨' : '토큰으로 해금'}">${on ? ico('unlock') + ' 해금됨' : ico('lock')}</span>`;
+      if (FREE_PREVIEW.has(id)) return { cls: ' free', html: ico('unlock') + ' 무료 맛보기', title: '토큰 없이 볼 수 있어요 (로그인 필요)' };
+      return { cls: on ? ' on' : '', html: on ? ico('unlock') + ' 해금됨' : ico('lock'), title: on ? '해금됨' : '토큰으로 해금' };
     }
+    function pmLk(id) { const st = pmLkState(id); return `<span class="pm-lk${st.cls}" data-pm="${id}" title="${st.title}">${st.html}</span>`; }
     function pmBadges() {
       document.querySelectorAll('[onclick^="labOpen("]').forEach((b) => {
         const m = /labOpen\('([a-z]+)'\)/.exec(b.getAttribute('onclick') || ''); if (!m || !LABS[m[1]] || b.querySelector('.pm-lk')) return;
@@ -7414,8 +7485,8 @@
         if (tg) b.insertBefore(el, tg); else b.appendChild(el);
       });
       document.querySelectorAll('.pm-lk[data-pm]').forEach((el) => {
-        let on = false; try { on = !!(acct.user && PRM.loaded && PRM.unlocked.has(el.dataset.pm)); } catch (e) {}
-        el.classList.toggle('on', on); el.innerHTML = on ? ico('unlock') + ' 해금됨' : ico('lock'); el.title = on ? '해금됨' : '토큰으로 해금';
+        const st = pmLkState(el.dataset.pm);
+        el.classList.toggle('on', st.cls === ' on'); el.classList.toggle('free', st.cls === ' free'); el.innerHTML = st.html; el.title = st.title;
       });
     }
     setTimeout(pmBadges, 0);
@@ -7456,14 +7527,15 @@
       }
       const price = PRICE_HINT[kind], have = PRM.free + PRM.paid;
       let body;
-      if (!acct.user) body = `<button type="button" class="pmg-cta" onclick="pmGateLogin()">구글 로그인하고 시작하기</button><p class="pmg-wallet">로그인하고 하루 학습 미션을 채우면 토큰을 1개씩 받아요</p>`;
+      if (!acct.user && FREE_PREVIEW.has(id)) body = `<button type="button" class="pmg-cta" onclick="pmGateLogin()">구글 로그인하고 무료로 보기</button><p class="pmg-wallet">무료 맛보기예요 · 로그인만 하면 토큰 없이 바로 볼 수 있어요</p>`;
+      else if (!acct.user) body = `<button type="button" class="pmg-cta" onclick="pmGateLogin()">구글 로그인하고 시작하기</button><p class="pmg-wallet">로그인하고 하루 학습 미션을 채우면 토큰을 5개씩 받아요</p>`;
       else {
         const bd = bundleOf(id);
         const mk = (cid, label, note, pr, rec) => `<button type="button" class="pmg-of${rec ? ' rec' : ''}"${have >= pr ? '' : ' disabled'} onclick="pmGateUnlock('${cid}')"><span><b>${label}</b><small>${note}</small></span><span class="pr">${TK()}${pr}</span></button>`;
         const offers = (bd ? mk(bd.id, '이론 + 장비 체험 번들', `<em>${bd.save}토큰 할인</em> · 따로 사면 ${bd.sum}토큰`, bd.price, true) : '')
           + mk(id, kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
         const min = bd ? Math.min(bd.price, price) : price;
-        body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요</p>` : '')
+        body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 얻는 법</button></p>` : '')
           + (have < min ? `<button type="button" class="pmg-cta" onclick="payFromGate()">${TK()} 토큰 충전하기</button>` : '') + `<p class="pmg-wallet">${TK()} 내 토큰 ${have}개 · 무료 ${PRM.free} · 유료 ${PRM.paid}</p>`;
       }
       o.innerHTML = `<div class="pmg-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="pmGateClose()">✕</button>`
@@ -7488,7 +7560,8 @@
       const price = PRICE_HINT[kind];
       const head = (ic, t, p) => `<div class="pml-ic" aria-hidden="true">${ico(ic)}</div><h4>${t}</h4>${p ? `<p>${p}</p>` : ''}`;
       let h;
-      if (!acct.user) h = head('lock', `${what}은 토큰으로 열어요`, `구글 로그인 후, 하루 학습 미션을 채우고 출석하면 토큰을 1개씩 받아요. 토큰 ${price}개로 계정에 영구 해금돼요.`) + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 시작하기</button></div>`;
+      if (!acct.user && FREE_PREVIEW.has(id)) h = head('unlock', `${what}은 무료 맛보기예요`, '구글 로그인만 하면 토큰 없이 바로 볼 수 있어요.') + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 무료로 보기</button></div>`;
+      else if (!acct.user) h = head('lock', `${what}은 토큰으로 열어요`, `구글 로그인 후, 하루 학습 미션을 채우고 출석하면 토큰을 5개씩 받아요. 토큰 ${price}개로 계정에 영구 해금돼요.`) + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 시작하기</button></div>`;
       else if (!PRM.loaded) h = head('lock', '확인하는 중…');
       else if (PRM.unlocked.has(id)) h = head('unlock', '불러오는 중…');
       else {
@@ -7496,7 +7569,7 @@
         h = head('lock', `${what}을 보려면 토큰 ${price}개가 필요해요`, '해금하면 이 계정에서 계속 볼 수 있어요.')
           + `<div class="pml-wal">${TK()}<span>내 토큰 <b>${have}</b></span><i>무료 ${PRM.free} · 유료 ${PRM.paid}</i></div>`
           + `<div class="pml-btns">` + (have >= price ? `<button type="button" class="tkb" onclick="premiumUnlock('${id}')">${TK()} ${price}토큰으로 해금하기</button>` : `<button type="button" class="tkb" onclick="payOpen()">${TK()} 토큰 충전하기</button>`) + `</div>`
-          + (have < price ? `<p class="pm-sub pml-miss">토큰이 ${price - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요</p>` : '')
+          + (have < price ? `<p class="pm-sub pml-miss">토큰이 ${price - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 얻는 법</button></p>` : '')
           + bundleBlock(id, have);
       }
       el.innerHTML = h; return el;
@@ -7560,6 +7633,7 @@
           <div class="ac-stat"><span>${acct.busy ? '동기화 중…' : '마지막 동기화'}</span><b>${acct.busy ? '' : ago(acct.last)}</b></div>
           <div class="ac-stat"><span>토큰</span><b class="ac-tk">${TK()}${PRM.free + PRM.paid}<small>무료 ${PRM.free} · 유료 ${PRM.paid}</small></b></div>
           <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전 · 결제 내역</button>
+          <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 토큰 얻는 법 보기</button>
           <p class="ac-note">출석 ${attendDays.length}일 · 오답 노트 ${Object.keys(wrongNotes).length}개 · 즐겨찾기 ${starredIds.length}개가 이 계정과 연결돼 있어요. 기록은 이 기기와 계정에 함께 저장돼요.</p>${err}
           <div class="ac-btns"><button type="button" class="pbtn" onclick="syncNow()" ${acct.busy ? 'disabled' : ''}>지금 동기화</button><button type="button" class="ac-ghost" onclick="acctSignOut()">로그아웃</button></div>
           <button type="button" class="ac-del" onclick="if(confirm('로그아웃하고 이 기기에 저장된 학습 기록을 지울까요?\n(기록은 계정에 남아 있어서 다시 로그인하면 돌아와요.)'))acctSignOut(true)">공용 기기라면: 로그아웃하고 이 기기 기록 지우기</button>
