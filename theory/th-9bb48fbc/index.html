@@ -1254,6 +1254,48 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
   .pm-lock h4{font-size:1.05rem;font-weight:800;margin:0 0 .5rem}
   .pm-lock p{font-size:.88rem;opacity:.85;margin:0 0 .85rem;line-height:1.55}
   .pm-lock .pm-sub{opacity:.7;margin-bottom:0}
+  .pm-lock .pm-bundle{margin-top:1rem;padding-top:1rem;border-top:1px dashed rgba(100,116,139,.45)}
+  .pm-lock .pm-bundle p{margin-bottom:.6rem}
+  /* 잠금 배지 + 해금 팝업 */
+  .pm-lk{display:inline-flex;align-items:center;gap:.25rem;margin-left:auto;flex:none;padding:.2rem .55rem;border-radius:999px;font:800 .66rem/1 'Sora',system-ui,sans-serif;letter-spacing:.02em;white-space:nowrap;text-transform:none;color:#b45309;background:rgba(180,83,9,.1);border:1px solid rgba(180,83,9,.25)}
+  html.dark .pm-lk{color:#f5b942;background:rgba(245,185,66,.1);border-color:rgba(245,185,66,.3)}
+  .pm-lk.on{color:#0e7490;background:rgba(14,116,144,.1);border-color:rgba(14,116,144,.28)}
+  html.dark .pm-lk.on{color:#5ad1e6;background:rgba(90,209,230,.1);border-color:rgba(90,209,230,.3)}
+  .ex-it .pm-lk{margin-left:.4rem}
+  .pmg{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,20,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .22s}
+  .pmg.on{opacity:1}
+  .pmg-card{--bg:#f6f8fc;--panel:#fff;--line:#d0d9e8;--ink:#25324a;--dim:#5a6882;--h:#0f172a;--cy:#0e7490;--am:#b45309;--amt:rgba(180,83,9,.09);--grid:rgba(14,116,144,.07);--g1:#eaf0fa;--g2:#f6f8fc;position:relative;width:100%;max-width:460px;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;color:var(--ink);border:1px solid var(--line);border-top:3px solid var(--am);border-radius:10px;padding:1.4rem 1.3rem 1.1rem;box-shadow:0 28px 70px rgba(2,6,23,.45);background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),linear-gradient(135deg,var(--g1),var(--g2) 70%);background-size:22px 22px,22px 22px,100% 100%;transform:translateY(10px) scale(.98);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+  .pmg.on .pmg-card{transform:none}
+  html.dark .pmg-card{--bg:#060b16;--panel:#0a1428;--line:#1f2d49;--ink:#c8d3e6;--dim:#7d8ba6;--h:#f1f5f9;--cy:#5ad1e6;--am:#f5b942;--amt:rgba(245,185,66,.09);--grid:rgba(90,209,230,.055);--g1:#0b1630;--g2:#060b16}
+  .pmg-x{position:absolute;top:.7rem;right:.7rem;width:1.9rem;height:1.9rem;border-radius:50%;border:0;background:rgba(100,116,139,.14);color:var(--dim);font-size:13px;cursor:pointer}
+  .pmg-x:hover{background:rgba(100,116,139,.26)}
+  .pmg-ic{display:grid;place-items:center;width:3rem;height:3rem;border:1px solid var(--line);border-radius:6px;background:var(--amt);font-size:1.45rem;margin-bottom:.9rem}
+  .pmg-tick{display:flex;align-items:center;gap:.5rem;font:700 .68rem/1 'JetBrains Mono','IBM Plex Mono',ui-monospace,Consolas,monospace;letter-spacing:.07em;color:var(--cy);text-transform:uppercase}
+  .pmg-tick i{width:8px;height:8px;background:var(--am);box-shadow:0 0 0 3px var(--amt)}
+  .pmg h3{margin:.65rem 0 .3rem;font-size:1.28rem;font-weight:800;line-height:1.3;letter-spacing:-.02em;color:var(--h);word-break:keep-all}
+  .pmg-sub{margin:0;font-size:.86rem;line-height:1.6;color:var(--dim);word-break:keep-all}
+  .pmg-sub{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .pmg-pts{list-style:none;margin:1.05rem 0 1.1rem;padding:0;display:grid;gap:.55rem}
+  .pmg-pts li{position:relative;padding-left:1.15rem;font-size:.85rem;line-height:1.55;color:var(--ink);word-break:keep-all}
+  .pmg-pts li::before{content:"";position:absolute;left:.05rem;top:.55em;width:6px;height:6px;background:var(--am);transform:rotate(45deg)}
+  .pmg-pts b{color:var(--h)}
+  .pmg-offers{display:grid;gap:.6rem}
+  .pmg-of{display:flex;align-items:center;justify-content:space-between;gap:.8rem;width:100%;padding:.8rem .95rem;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--h);text-align:left;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+  .pmg-of:hover:not(:disabled){border-color:var(--cy);transform:translateY(-1px);box-shadow:0 6px 18px rgba(15,23,42,.14)}
+  .pmg-of:focus-visible,.pmg-cta:focus-visible,.pmg-later:focus-visible,.pmg-x:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+  .pmg-of:disabled{opacity:.5;cursor:not-allowed}
+  .pmg-of b{display:block;font-size:.92rem;font-weight:800}
+  .pmg-of small{display:block;margin-top:.15rem;font-size:.74rem;color:var(--dim)}
+  .pmg-of .pr{flex:none;font:800 .95rem 'Sora',system-ui,sans-serif;color:var(--am);white-space:nowrap}
+  .pmg-of.rec{border-color:var(--am);background:linear-gradient(135deg,var(--amt),var(--panel))}
+  .pmg-of.rec small em{font-style:normal;font-weight:800;color:var(--am)}
+  .pmg-cta{display:block;width:100%;padding:.85rem 1rem;border:0;border-radius:8px;background:var(--am);color:#fff;font-weight:800;font-size:.95rem;cursor:pointer}
+  html.dark .pmg-cta{color:#04101c}
+  .pmg-wallet{margin:.85rem 0 0;font-size:.78rem;color:var(--dim);text-align:center}
+  .pmg-warn{margin:.7rem 0 0;font-size:.78rem;line-height:1.5;color:#be123c;text-align:center} html.dark .pmg-warn{color:#fb7185}
+  .pmg-fine{margin:.5rem 0 0;font-size:.72rem;line-height:1.5;color:var(--dim);text-align:center}
+  .pmg-later{display:block;margin:.65rem auto 0;border:0;background:none;color:var(--dim);font-size:.8rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  @media (prefers-reduced-motion:reduce){.pmg,.pmg-card{transition:none}}
   #labLoading .pm-lock{background:rgba(15,23,42,.88);color:#f1f5f9;border-color:rgba(148,163,184,.5)}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "MOSFET", "description": "현대 전자 기기에서 수많은 트랜지스터가 집적된 반도체 칩이 없다면, 컴퓨터나 스마트폰 같은 기기의 성능은 크게 저하될 것이다. MOSFET은 이러한 트랜지스터 중에서도 가장 널리 사용되는 소자이다.", "inLanguage": "ko", "articleSection": "반도체 소자", "dateModified": "2026-11-17", "publisher": {"@type": "Organization", "name": "반도체 새김"}, "mainEntityOfPage": "https://semicarve.com/theory/th-9bb48fbc/"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "반도체 새김", "item": "https://semicarve.com/"}, {"@type": "ListItem", "position": 2, "name": "이론 백과사전", "item": "https://semicarve.com/theory/"}, {"@type": "ListItem", "position": 3, "name": "MOSFET"}]}</script></head>
