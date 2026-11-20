@@ -1,0 +1,374 @@
+{
+  "groups": [
+    {
+      "id": "ee",
+      "name": "Electrical, Electronics & Communications"
+    },
+    {
+      "id": "cs",
+      "name": "Computing & AI"
+    },
+    {
+      "id": "mat",
+      "name": "Materials, Chemistry & Energy"
+    },
+    {
+      "id": "mech",
+      "name": "Mechanical, Industrial & Civil"
+    },
+    {
+      "id": "sci",
+      "name": "Natural Sciences"
+    },
+    {
+      "id": "biz",
+      "name": "Business, Humanities & Administration"
+    }
+  ],
+  "majors": [
+    {
+      "id": "m1",
+      "_h": "9054599c",
+      "name": "Electronic Engineering",
+      "alias": [
+        "Electronics",
+        "Electrical and Electronic Engineering",
+        "EE",
+        "ECE",
+        "Electrical and Computer Engineering"
+      ],
+      "why": "You study circuits and devices, so it's listed as a qualifying major in most postings for design, device, process, test and equipment roles."
+    },
+    {
+      "id": "m2",
+      "_h": "121240ea",
+      "name": "Electrical Engineering",
+      "alias": [
+        "Power Engineering",
+        "Electrical Systems",
+        "EE"
+      ],
+      "why": "A major that almost always appears in postings for process and equipment roles and for fab power facilities."
+    },
+    {
+      "id": "m3",
+      "_h": "98f2f131",
+      "name": "Semiconductor Engineering",
+      "alias": [
+        "Semiconductor Science",
+        "Microelectronics",
+        "VLSI"
+      ],
+      "why": "Where it's offered as its own program, it's named directly in postings for device, process, design, package and equipment roles, making it the most broadly applicable."
+    },
+    {
+      "id": "m4",
+      "_h": "aab83f73",
+      "name": "Telecommunications Engineering",
+      "alias": [
+        "Communications Engineering",
+        "RF Engineering",
+        "Networking"
+      ],
+      "why": "Used in digital design, firmware and IT, and also leads into patent and equipment roles."
+    },
+    {
+      "id": "m5",
+      "_h": "547f184a",
+      "name": "Control & Instrumentation Engineering",
+      "alias": [
+        "Control Engineering",
+        "Instrumentation",
+        "Robotics and Control",
+        "Electronic Control"
+      ],
+      "why": "Control majors are listed separately in postings for equipment service, utilities and metrology."
+    },
+    {
+      "id": "m6",
+      "_h": "4bddb00a",
+      "name": "Nano & Optical Engineering",
+      "alias": [
+        "Nanotechnology",
+        "Optics",
+        "Optoelectronics",
+        "Photonics",
+        "Lasers"
+      ],
+      "why": "A strength in lithography, photomasks and metrology. It's rarely named on its own in postings, so graduates apply widely to device and process roles too."
+    },
+    {
+      "id": "m7",
+      "_h": "86465469",
+      "name": "Computer Engineering",
+      "alias": [
+        "Computer Science",
+        "CS",
+        "Computer Software"
+      ],
+      "why": "Listed as a qualifying major in postings for IT and software, design verification, test and production management."
+    },
+    {
+      "id": "m8",
+      "_h": "a8911a6d",
+      "name": "Software Engineering",
+      "alias": [
+        "Software",
+        "Software Development"
+      ],
+      "why": "A good fit for software-centric roles such as fab automation, firmware and IT infrastructure."
+    },
+    {
+      "id": "m9",
+      "_h": "7c79418f",
+      "name": "AI & Data Science",
+      "alias": [
+        "Artificial Intelligence",
+        "AI",
+        "Machine Learning",
+        "Big Data",
+        "Data Science"
+      ],
+      "why": "Closest to roles that analyze yield and defect data. It pays to build semiconductor knowledge alongside."
+    },
+    {
+      "id": "m10",
+      "_h": "3aa0c98a",
+      "name": "Information Security",
+      "alias": [
+        "Cybersecurity",
+        "Security Engineering",
+        "Information Assurance"
+      ],
+      "why": "Leads straight into security roles that prevent technology leaks. Look at IT infrastructure too."
+    },
+    {
+      "id": "m11",
+      "_h": "39b6b6ab",
+      "name": "Materials Science & Engineering",
+      "alias": [
+        "Materials Engineering",
+        "Metallurgy",
+        "Ceramic Engineering",
+        "MSE"
+      ],
+      "why": "A materials major almost always appears in postings for process, device, package and analysis roles."
+    },
+    {
+      "id": "m12",
+      "_h": "02a07747",
+      "name": "Chemical Engineering",
+      "alias": [
+        "ChemE",
+        "Applied Chemical Engineering",
+        "Chemical and Biomolecular Engineering"
+      ],
+      "why": "Listed broadly for process, equipment, package, chemical/gas and materials roles."
+    },
+    {
+      "id": "m13",
+      "_h": "fa441d2f",
+      "name": "Chemistry",
+      "alias": [
+        "Applied Chemistry",
+        "Analytical Chemistry"
+      ],
+      "why": "Appears in postings for process and materials development, analysis, chemicals and EHS."
+    },
+    {
+      "id": "m14",
+      "_h": "25721ecf",
+      "name": "Polymer Engineering",
+      "alias": [
+        "Polymer Science",
+        "Textile Engineering",
+        "Organic Materials"
+      ],
+      "why": "Used in materials R&D and package materials (resins, photosensitive materials)."
+    },
+    {
+      "id": "m15",
+      "_h": "74cec96d",
+      "name": "Energy Engineering",
+      "alias": [
+        "Energy Systems",
+        "Batteries",
+        "Renewable Energy",
+        "Energy Chemistry"
+      ],
+      "why": "Some chipmakers list energy majors in safety and infrastructure postings, and it also leads into materials roles."
+    },
+    {
+      "id": "m16",
+      "_h": "eef6eca3",
+      "name": "Environmental Engineering",
+      "alias": [
+        "Environmental Science",
+        "Environmental and Energy Engineering"
+      ],
+      "why": "Appears in postings for fab environment and safety, and gas/chemical utilities."
+    },
+    {
+      "id": "m17",
+      "_h": "dea14da2",
+      "name": "Mechanical Engineering",
+      "alias": [
+        "Mechanical Design",
+        "Mechanical Systems",
+        "MechE"
+      ],
+      "why": "The most widely requested major, spanning equipment service, equipment engineering, packaging and infrastructure."
+    },
+    {
+      "id": "m18",
+      "_h": "1684fbd8",
+      "name": "Mechatronics & Robotics",
+      "alias": [
+        "Mechatronics",
+        "Robotics",
+        "Smart Manufacturing"
+      ],
+      "why": "Used in equipment installation and service, equipment R&D and automation."
+    },
+    {
+      "id": "m19",
+      "_h": "707f3442",
+      "name": "Industrial Engineering",
+      "alias": [
+        "Industrial and Systems Engineering",
+        "Operations Research",
+        "Quality Management"
+      ],
+      "why": "Industrial engineering is listed separately in postings for production management, IT, equipment and infrastructure."
+    },
+    {
+      "id": "m20",
+      "_h": "be39dcb6",
+      "name": "Safety Engineering",
+      "alias": [
+        "Occupational Safety",
+        "Fire Protection",
+        "Industrial Safety"
+      ],
+      "why": "Leads directly into fab safety and health and gas management."
+    },
+    {
+      "id": "m21",
+      "_h": "6e349554",
+      "name": "Architecture, Civil & Building Services",
+      "alias": [
+        "Architectural Engineering",
+        "Building Services",
+        "MEP",
+        "Civil Engineering",
+        "Construction"
+      ],
+      "why": "Appears in postings for cleanroom and fab construction and facilities operation."
+    },
+    {
+      "id": "m22",
+      "_h": "b581aacd",
+      "name": "Transportation Mechanical Engineering",
+      "alias": [
+        "Aerospace Engineering",
+        "Automotive Engineering",
+        "Naval Architecture"
+      ],
+      "why": "As a mechanical discipline, you can apply to equipment roles. It's rarely named on its own in postings."
+    },
+    {
+      "id": "m23",
+      "_h": "b58d7264",
+      "name": "Physics",
+      "alias": [
+        "Applied Physics",
+        "Semiconductor Physics",
+        "Solid-State Physics"
+      ],
+      "why": "Physics is often listed in postings for device, process and analysis roles."
+    },
+    {
+      "id": "m24",
+      "_h": "107bf11f",
+      "name": "Mathematics",
+      "alias": [
+        "Mathematical Sciences",
+        "Applied Mathematics"
+      ],
+      "why": "Used in modeling, data and design algorithms. In postings' major requirements it's usually grouped as math/statistics."
+    },
+    {
+      "id": "m25",
+      "_h": "d5b0878c",
+      "name": "Statistics",
+      "alias": [
+        "Applied Statistics",
+        "Information Statistics",
+        "Biostatistics"
+      ],
+      "why": "Appears in postings for production management, yield, quality and data analysis."
+    },
+    {
+      "id": "m26",
+      "_h": "e001176b",
+      "name": "Business Administration",
+      "alias": [
+        "Business",
+        "Management Information Systems",
+        "Marketing",
+        "International Business",
+        "MBA"
+      ],
+      "why": "Appears in postings for business support, production management, sales and marketing, and product planning."
+    },
+    {
+      "id": "m27",
+      "_h": "09a546cc",
+      "name": "Economics & International Trade",
+      "alias": [
+        "Economics",
+        "Trade",
+        "International Commerce",
+        "Finance"
+      ],
+      "why": "Used in sales, planning and business support."
+    },
+    {
+      "id": "m28",
+      "_h": "ea055902",
+      "name": "Accounting & Finance",
+      "alias": [
+        "Accounting",
+        "Taxation",
+        "Finance"
+      ],
+      "why": "Directly used in business support roles such as finance, procurement and HR."
+    },
+    {
+      "id": "m29",
+      "_h": "7d4d3d05",
+      "name": "Law & Intellectual Property",
+      "alias": [
+        "Law",
+        "Legal Studies",
+        "Intellectual Property",
+        "Patent Law"
+      ],
+      "why": "Patent postings center on STEM majors. Law helps as a double major and also leads into contracts and business support."
+    },
+    {
+      "id": "m30",
+      "_h": "b49d7a7c",
+      "name": "Languages & International Studies",
+      "alias": [
+        "English",
+        "Chinese",
+        "Japanese",
+        "Korean",
+        "International Studies",
+        "International Relations"
+      ],
+      "why": "Language skills are an edge in sales and equipment support for customers in other countries. Technical roles still assume a STEM major."
+    }
+  ]
+}

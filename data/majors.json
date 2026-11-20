@@ -1,0 +1,957 @@
+{
+ "groups": [
+  {
+   "id": "ee",
+   "name": "전기·전자·통신",
+   "icon": "⚡"
+  },
+  {
+   "id": "cs",
+   "name": "컴퓨터·AI",
+   "icon": "💻"
+  },
+  {
+   "id": "mat",
+   "name": "재료·화학·에너지",
+   "icon": "🧪"
+  },
+  {
+   "id": "mech",
+   "name": "기계·산업·건축",
+   "icon": "⚙️"
+  },
+  {
+   "id": "sci",
+   "name": "자연과학",
+   "icon": "🔬"
+  },
+  {
+   "id": "biz",
+   "name": "경영·인문·사무",
+   "icon": "📊"
+  }
+ ],
+ "majors": [
+  {
+   "id": "m1",
+   "g": "ee",
+   "name": "전자공학",
+   "alias": [
+    "전자전기공학",
+    "전기전자공학",
+    "전자정보"
+   ],
+   "why": "회로와 소자를 배워서 설계·소자·공정·테스트·장비 직무 대부분의 공고에 전공으로 올라와요.",
+   "core": [
+    "pe",
+    "eq",
+    "procdev",
+    "devdev",
+    "pi",
+    "test",
+    "fa",
+    "fae",
+    "arch",
+    "analog",
+    "rtl",
+    "dv",
+    "pd",
+    "dft",
+    "fw",
+    "patent",
+    "cs"
+   ],
+   "also": [
+    "yield",
+    "tcad",
+    "mask",
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "rel",
+    "qa",
+    "metro",
+    "facility",
+    "gas",
+    "install",
+    "eqrd",
+    "matrd",
+    "sf",
+    "data",
+    "itinfra",
+    "sec",
+    "sales",
+    "plan"
+   ]
+  },
+  {
+   "id": "m2",
+   "g": "ee",
+   "name": "전기공학",
+   "alias": [
+    "전기시스템",
+    "전력공학"
+   ],
+   "why": "공정·설비 직무와 팹 전력 설비(Facility) 공고에 거의 빠지지 않는 전공이에요.",
+   "core": [
+    "pe",
+    "eq",
+    "devdev",
+    "test",
+    "rel",
+    "facility",
+    "install",
+    "fae",
+    "analog",
+    "patent",
+    "cs"
+   ],
+   "also": [
+    "procdev",
+    "pi",
+    "tcad",
+    "mask",
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "fa",
+    "metro",
+    "gas",
+    "ehs",
+    "eqrd",
+    "matrd",
+    "arch",
+    "rtl",
+    "dv",
+    "pd",
+    "dft",
+    "fw",
+    "sf",
+    "itinfra",
+    "sales",
+    "plan"
+   ]
+  },
+  {
+   "id": "m3",
+   "g": "ee",
+   "name": "반도체공학",
+   "alias": [
+    "반도체학과",
+    "시스템반도체",
+    "반도체 특성화"
+   ],
+   "why": "소자·공정·설계·패키지·장비 지원 전공에 직접 이름이 올라 가장 폭넓게 쓰여요.",
+   "core": [
+    "pe",
+    "yield",
+    "procdev",
+    "devdev",
+    "pi",
+    "mask",
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "test",
+    "fa",
+    "fae",
+    "patent",
+    "cs"
+   ],
+   "also": [
+    "eq",
+    "pc",
+    "tcad",
+    "rel",
+    "qa",
+    "metro",
+    "install",
+    "eqrd",
+    "matrd",
+    "arch",
+    "analog",
+    "rtl",
+    "dv",
+    "pd",
+    "dft",
+    "fw",
+    "sf",
+    "data",
+    "itinfra",
+    "sales",
+    "plan"
+   ]
+  },
+  {
+   "id": "m4",
+   "g": "ee",
+   "name": "정보통신공학",
+   "alias": [
+    "통신공학",
+    "전파공학",
+    "네트워크"
+   ],
+   "why": "디지털 설계·펌웨어·IT 쪽에서 쓰이고, 특허와 장비 직무로도 이어져요.",
+   "core": [
+    "arch",
+    "rtl",
+    "dv",
+    "dft",
+    "fw",
+    "itinfra",
+    "sec"
+   ],
+   "also": [
+    "test",
+    "fae",
+    "analog",
+    "pd",
+    "sf",
+    "data",
+    "plan",
+    "patent"
+   ]
+  },
+  {
+   "id": "m5",
+   "g": "ee",
+   "name": "제어계측공학",
+   "alias": [
+    "제어로봇",
+    "계측제어",
+    "전자제어"
+   ],
+   "why": "설비·장비 서비스, Utility, 계측 공고에 제어 전공이 따로 적혀 있어요.",
+   "core": [
+    "eq",
+    "metro",
+    "facility",
+    "install",
+    "eqrd",
+    "fw",
+    "cs"
+   ],
+   "also": [
+    "pkgmfg",
+    "test",
+    "fae",
+    "analog",
+    "rtl",
+    "dft",
+    "sf",
+    "itinfra",
+    "patent"
+   ]
+  },
+  {
+   "id": "m6",
+   "g": "ee",
+   "name": "나노·광공학",
+   "alias": [
+    "나노공학",
+    "광학",
+    "광전자",
+    "레이저"
+   ],
+   "why": "노광·마스크·계측 쪽에서 강점이 돼요. 공고에 따로 적힌 경우는 적어서 소자·공정 직무에도 폭넓게 지원해요.",
+   "core": [
+    "mask",
+    "metro"
+   ],
+   "also": [
+    "pe",
+    "procdev",
+    "devdev",
+    "pi",
+    "tcad",
+    "adv",
+    "fa",
+    "fae",
+    "eqrd",
+    "matrd",
+    "analog",
+    "cs"
+   ]
+  },
+  {
+   "id": "m7",
+   "g": "cs",
+   "name": "컴퓨터공학",
+   "alias": [
+    "컴퓨터과학",
+    "컴퓨터소프트웨어",
+    "컴공"
+   ],
+   "why": "IT·SW, 설계 검증, 테스트, 양산관리 공고에 전공으로 올라와요.",
+   "core": [
+    "test",
+    "arch",
+    "dv",
+    "fw",
+    "sf",
+    "data",
+    "itinfra",
+    "sec",
+    "patent"
+   ],
+   "also": [
+    "yield",
+    "pc",
+    "tcad",
+    "pkgdev",
+    "pkgmfg",
+    "metro",
+    "eqrd",
+    "rtl",
+    "pd",
+    "dft",
+    "sales",
+    "plan"
+   ]
+  },
+  {
+   "id": "m8",
+   "g": "cs",
+   "name": "소프트웨어학",
+   "alias": [
+    "소프트웨어공학",
+    "SW융합",
+    "소프트웨어융합"
+   ],
+   "why": "팹 자동화, 펌웨어, IT 인프라처럼 소프트웨어가 중심인 직무와 잘 맞아요.",
+   "core": [
+    "fw",
+    "sf",
+    "itinfra",
+    "sec"
+   ],
+   "also": [
+    "test",
+    "arch",
+    "rtl",
+    "dv",
+    "dft",
+    "data",
+    "patent"
+   ]
+  },
+  {
+   "id": "m9",
+   "g": "cs",
+   "name": "인공지능·데이터사이언스",
+   "alias": [
+    "인공지능",
+    "AI",
+    "빅데이터",
+    "데이터과학",
+    "데이터사이언스"
+   ],
+   "why": "수율과 불량 데이터를 분석하는 직무가 가장 가까워요. 반도체 지식을 함께 쌓으면 좋아요.",
+   "core": [
+    "yield",
+    "sf",
+    "data"
+   ],
+   "also": [
+    "pc",
+    "tcad",
+    "fa",
+    "qa",
+    "metro",
+    "arch",
+    "rtl",
+    "dv",
+    "pd",
+    "fw",
+    "itinfra",
+    "sec",
+    "plan",
+    "patent"
+   ]
+  },
+  {
+   "id": "m10",
+   "g": "cs",
+   "name": "정보보안",
+   "alias": [
+    "사이버보안",
+    "보안공학",
+    "정보보호"
+   ],
+   "why": "기술 유출을 막는 보안 직무가 바로 이어져요. IT 인프라도 함께 봐요.",
+   "core": [
+    "itinfra",
+    "sec"
+   ],
+   "also": [
+    "fw",
+    "sf"
+   ]
+  },
+  {
+   "id": "m11",
+   "g": "mat",
+   "name": "신소재공학",
+   "alias": [
+    "재료공학",
+    "금속공학",
+    "세라믹공학",
+    "재료"
+   ],
+   "why": "공정·소자·패키지·분석 공고에 재료 전공이 거의 항상 들어가요.",
+   "core": [
+    "pe",
+    "procdev",
+    "devdev",
+    "pi",
+    "mask",
+    "pkgdev",
+    "adv",
+    "fa",
+    "rel",
+    "metro",
+    "fae",
+    "matrd",
+    "matqa",
+    "patent"
+   ],
+   "also": [
+    "eq",
+    "yield",
+    "tcad",
+    "pkgmfg",
+    "test",
+    "qa",
+    "facility",
+    "gas",
+    "ehs",
+    "install",
+    "eqrd",
+    "data",
+    "sales",
+    "plan",
+    "cs"
+   ]
+  },
+  {
+   "id": "m12",
+   "g": "mat",
+   "name": "화학공학",
+   "alias": [
+    "화공",
+    "응용화학공학",
+    "화학생명공학"
+   ],
+   "why": "공정, 설비, 패키지, 케미컬·가스, 소재 직무에 폭넓게 올라와요.",
+   "core": [
+    "pe",
+    "procdev",
+    "pkgdev",
+    "facility",
+    "gas",
+    "ehs",
+    "fae",
+    "matrd",
+    "matqa",
+    "patent"
+   ],
+   "also": [
+    "eq",
+    "yield",
+    "devdev",
+    "pi",
+    "mask",
+    "adv",
+    "pkgmfg",
+    "test",
+    "fa",
+    "rel",
+    "qa",
+    "metro",
+    "install",
+    "eqrd",
+    "sales",
+    "cs"
+   ]
+  },
+  {
+   "id": "m13",
+   "g": "mat",
+   "name": "화학",
+   "alias": [
+    "화학과",
+    "응용화학",
+    "분석화학"
+   ],
+   "why": "공정과 소재 개발, 분석, 케미컬·EHS 공고에 올라와요.",
+   "core": [
+    "pe",
+    "procdev",
+    "fa",
+    "metro",
+    "gas",
+    "ehs",
+    "matrd",
+    "matqa"
+   ],
+   "also": [
+    "eq",
+    "devdev",
+    "pi",
+    "mask",
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "test",
+    "rel",
+    "qa",
+    "fae",
+    "sales",
+    "patent",
+    "cs"
+   ]
+  },
+  {
+   "id": "m14",
+   "g": "mat",
+   "name": "고분자공학",
+   "alias": [
+    "고분자",
+    "섬유공학",
+    "유기재료"
+   ],
+   "why": "소재 R&D와 패키지 재료 쪽(수지·감광 소재)에서 쓰여요.",
+   "core": [
+    "matrd",
+    "matqa"
+   ],
+   "also": [
+    "pe",
+    "procdev",
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "fa",
+    "rel",
+    "qa",
+    "ehs",
+    "fae",
+    "sales",
+    "patent"
+   ]
+  },
+  {
+   "id": "m15",
+   "g": "mat",
+   "name": "에너지공학",
+   "alias": [
+    "에너지",
+    "배터리",
+    "신재생에너지",
+    "에너지화학"
+   ],
+   "why": "삼성 안전보건·인프라 공고에 에너지 전공이 적혀 있고 소재 쪽으로도 이어져요.",
+   "core": [
+    "facility",
+    "gas",
+    "ehs"
+   ],
+   "also": [
+    "pe",
+    "eq",
+    "procdev",
+    "devdev",
+    "pkgdev",
+    "install",
+    "matrd",
+    "matqa",
+    "cs"
+   ]
+  },
+  {
+   "id": "m16",
+   "g": "mat",
+   "name": "환경공학",
+   "alias": [
+    "환경",
+    "환경에너지"
+   ],
+   "why": "팹의 환경·안전, 가스·케미컬 유틸리티 공고에 올라와요.",
+   "core": [
+    "facility",
+    "gas",
+    "ehs"
+   ],
+   "also": [
+    "fa",
+    "qa",
+    "matqa"
+   ]
+  },
+  {
+   "id": "m17",
+   "g": "mech",
+   "name": "기계공학",
+   "alias": [
+    "기계설계",
+    "기계시스템"
+   ],
+   "why": "장비 서비스·설비기술·패키지·인프라까지 가장 넓게 요구되는 전공이에요.",
+   "core": [
+    "eq",
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "facility",
+    "gas",
+    "install",
+    "fae",
+    "eqrd",
+    "patent",
+    "cs"
+   ],
+   "also": [
+    "pe",
+    "pi",
+    "mask",
+    "test",
+    "fa",
+    "rel",
+    "qa",
+    "metro",
+    "ehs",
+    "sales"
+   ]
+  },
+  {
+   "id": "m18",
+   "g": "mech",
+   "name": "메카트로닉스·로봇공학",
+   "alias": [
+    "메카트로닉스",
+    "로봇",
+    "스마트제조"
+   ],
+   "why": "장비 설치·서비스와 장비 R&D, 자동화에서 쓰여요.",
+   "core": [
+    "eq",
+    "install",
+    "eqrd",
+    "cs"
+   ],
+   "also": [
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "facility",
+    "fae",
+    "fw",
+    "sf",
+    "patent"
+   ]
+  },
+  {
+   "id": "m19",
+   "g": "mech",
+   "name": "산업공학",
+   "alias": [
+    "산업경영공학",
+    "산업시스템",
+    "품질경영"
+   ],
+   "why": "양산관리·IT·설비·인프라 공고에 산업공학이 따로 적혀 있어요.",
+   "core": [
+    "yield",
+    "pc",
+    "pkgmfg",
+    "qa",
+    "sf",
+    "data",
+    "itinfra",
+    "plan"
+   ],
+   "also": [
+    "eq",
+    "pi",
+    "pkgdev",
+    "test",
+    "fa",
+    "rel",
+    "facility",
+    "gas",
+    "ehs",
+    "install",
+    "matqa",
+    "sales",
+    "patent",
+    "admin"
+   ]
+  },
+  {
+   "id": "m20",
+   "g": "mech",
+   "name": "안전공학",
+   "alias": [
+    "안전",
+    "소방방재",
+    "산업안전"
+   ],
+   "why": "팹의 안전보건·가스 관리와 바로 이어져요.",
+   "core": [
+    "gas",
+    "ehs"
+   ],
+   "also": [
+    "qa",
+    "facility"
+   ]
+  },
+  {
+   "id": "m21",
+   "g": "mech",
+   "name": "건축·토목·설비",
+   "alias": [
+    "건축공학",
+    "건축설비",
+    "토목",
+    "건설"
+   ],
+   "why": "클린룸과 팹 건설, 시설(Facility) 운영 쪽 공고에 올라와요.",
+   "core": [
+    "facility"
+   ],
+   "also": [
+    "gas",
+    "ehs",
+    "install"
+   ]
+  },
+  {
+   "id": "m22",
+   "g": "mech",
+   "name": "수송기계공학",
+   "alias": [
+    "항공우주",
+    "자동차공학",
+    "조선해양"
+   ],
+   "why": "기계 계열로 장비 직무에 지원할 수 있어요. 공고에 따로 이름이 오르는 경우는 적어요.",
+   "core": [],
+   "also": [
+    "eq",
+    "adv",
+    "rel",
+    "install",
+    "eqrd",
+    "cs"
+   ]
+  },
+  {
+   "id": "m23",
+   "g": "sci",
+   "name": "물리학",
+   "alias": [
+    "물리",
+    "응용물리",
+    "반도체물리"
+   ],
+   "why": "소자·공정·분석 공고에 물리 전공이 자주 적혀요.",
+   "core": [
+    "pe",
+    "procdev",
+    "devdev",
+    "tcad",
+    "mask",
+    "fa",
+    "metro",
+    "fae",
+    "eqrd",
+    "patent"
+   ],
+   "also": [
+    "eq",
+    "yield",
+    "pi",
+    "pkgdev",
+    "adv",
+    "pkgmfg",
+    "test",
+    "rel",
+    "qa",
+    "install",
+    "matrd",
+    "matqa",
+    "arch",
+    "analog",
+    "pd",
+    "data",
+    "plan",
+    "cs"
+   ]
+  },
+  {
+   "id": "m24",
+   "g": "sci",
+   "name": "수학",
+   "alias": [
+    "수리과학",
+    "응용수학"
+   ],
+   "why": "모델링과 데이터, 설계 알고리즘 쪽에서 쓰여요. 공고 전공란에는 수학·통계로 묶여 올라와요.",
+   "core": [
+    "data"
+   ],
+   "also": [
+    "yield",
+    "pc",
+    "tcad",
+    "metro",
+    "facility",
+    "gas",
+    "arch",
+    "rtl",
+    "dv",
+    "pd",
+    "dft",
+    "fw",
+    "sf",
+    "sec"
+   ]
+  },
+  {
+   "id": "m25",
+   "g": "sci",
+   "name": "통계학",
+   "alias": [
+    "통계",
+    "정보통계",
+    "응용통계"
+   ],
+   "why": "양산관리, 수율, 품질, 데이터 분석 공고에 올라와요.",
+   "core": [
+    "yield",
+    "pc",
+    "qa",
+    "data"
+   ],
+   "also": [
+    "pe",
+    "tcad",
+    "pkgmfg",
+    "test",
+    "rel",
+    "metro",
+    "facility",
+    "gas",
+    "matqa",
+    "arch",
+    "dv",
+    "sf",
+    "plan",
+    "admin"
+   ]
+  },
+  {
+   "id": "m26",
+   "g": "biz",
+   "name": "경영학",
+   "alias": [
+    "경영",
+    "경영정보",
+    "마케팅",
+    "국제경영"
+   ],
+   "why": "경영지원, 생산관리, 영업·마케팅, 상품기획 공고에 올라와요.",
+   "core": [
+    "pc",
+    "sales",
+    "plan",
+    "admin"
+   ],
+   "also": [
+    "yield",
+    "sf",
+    "data",
+    "itinfra"
+   ]
+  },
+  {
+   "id": "m27",
+   "g": "biz",
+   "name": "경제·무역학",
+   "alias": [
+    "경제학",
+    "무역",
+    "국제통상",
+    "금융"
+   ],
+   "why": "영업과 기획, 경영지원 쪽에서 쓰여요.",
+   "core": [
+    "sales",
+    "admin"
+   ],
+   "also": [
+    "pc",
+    "plan"
+   ]
+  },
+  {
+   "id": "m28",
+   "g": "biz",
+   "name": "회계·재무",
+   "alias": [
+    "회계",
+    "세무",
+    "재무",
+    "회계학"
+   ],
+   "why": "재무·구매·인사 같은 경영지원에서 바로 쓰여요.",
+   "core": [
+    "admin"
+   ],
+   "also": [
+    "sales"
+   ]
+  },
+  {
+   "id": "m29",
+   "g": "biz",
+   "name": "법학·지식재산",
+   "alias": [
+    "법학",
+    "법",
+    "지식재산",
+    "변리"
+   ],
+   "why": "특허 공고는 이공계 전공이 중심이에요. 법학은 복수전공으로 도움이 되고, 계약·경영지원 쪽으로도 이어져요.",
+   "core": [],
+   "also": [
+    "sales",
+    "patent",
+    "admin"
+   ]
+  },
+  {
+   "id": "m30",
+   "g": "biz",
+   "name": "외국어·국제학",
+   "alias": [
+    "영어영문",
+    "중국어",
+    "일본어",
+    "국제학",
+    "국제대학"
+   ],
+   "why": "해외 고객을 상대하는 영업과 장비 기술지원에서 어학 실력이 강점이 돼요. 기술 직무는 이공계 전공이 기본이에요.",
+   "core": [
+    "sales"
+   ],
+   "also": [
+    "fae",
+    "plan",
+    "admin",
+    "cs"
+   ]
+  }
+ ]
+}

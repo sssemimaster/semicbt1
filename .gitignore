@@ -1,0 +1,18 @@
+__pycache__/
+*.pyc
+
+# 비밀 값·개인 파일은 절대 커밋하지 않습니다 (키는 GitHub Secrets 에만 둡니다)
+.env
+.env.*
+*.pem
+*.key
+*serviceAccount*.json
+*service-account*.json
+*-adminsdk-*.json
+.DS_Store
+# 스크립트가 만드는 자동 백업
+*.bak
+
+# graphify 산출물 (로컬 인덱스, 필요 시 재생성)
+graphify-out/
+.graphify-src/

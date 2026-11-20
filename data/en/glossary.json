@@ -1,0 +1,1428 @@
+{
+"terms": [
+{
+"k": "기초 이론|기본 용어|나노미터",
+"_h": "b122c18a",
+"t": "Nanometer",
+"d": "A unit of length equal to one billionth of a meter.",
+"e": "About 1/100,000 the width of a human hair. It's used in generation names like \"5nm process,\" but it doesn't literally refer to an actual circuit dimension.",
+"u": "When talking about process generation names, film thickness or line width"
+},
+{
+"k": "기초 이론|기본 용어|절연체",
+"_h": "9ee9d689",
+"t": "Insulator",
+"d": "A material that doesn't conduct electricity.",
+"e": "It acts as a wall between wires or electrodes so they don't short out.",
+"u": "Oxide films, interlayer dielectrics, gate dielectrics"
+},
+{
+"k": "기초 이론|기본 용어|불순물",
+"_h": "00956c35",
+"t": "Impurity",
+"d": "A different element mixed into a pure material.",
+"e": "Added on purpose, it's doping; mixed in by accident, it causes defects.",
+"u": "Doping, ion implantation, cleaning"
+},
+{
+"k": "기초 이론|기본 용어|이온",
+"_h": "2813e795",
+"t": "Ion",
+"d": "An atom or molecule that has become electrically charged by losing or gaining electrons.",
+"e": "Because it's charged, an electric field can accelerate it or change its direction.",
+"u": "Ion implantation, plasma etching, sputtering"
+},
+{
+"k": "기초 이론|반도체 물리|캐리어",
+"_h": "dfd6d2b9",
+"t": "Carrier",
+"d": "A particle that carries electricity in a semiconductor — electrons and holes.",
+"e": "Current is ultimately just carriers moving. The more carriers there are and the faster they move, the better current flows.",
+"u": "Almost always, when explaining current, doping or mobility"
+},
+{
+"k": "기초 이론|반도체 물리|정공",
+"_h": "6e4c73d7",
+"t": "Hole",
+"d": "The empty spot left behind when an electron leaves; it moves like a positively charged particle.",
+"e": "Picture an empty space in a parking lot shifting along as cars move into it.",
+"u": "P-type semiconductors, PMOS transistors"
+},
+{
+"k": "기초 이론|반도체 물리|밴드갭",
+"_h": "518c2615",
+"t": "Band gap",
+"d": "The width of the energy range electrons can't have.",
+"e": "A wide gap means an insulator, a narrow one means close to a conductor, and semiconductors sit in between. Silicon's is about 1.1 eV.",
+"u": "Classifying materials, leakage current, LEDs and solar cells"
+},
+{
+"k": "기초 이론|반도체 물리|페르미 준위",
+"_h": "d4d0bd46",
+"t": "Fermi level",
+"d": "The energy height that serves as the reference for how full of electrons the states are.",
+"e": "Like the water level in a glass, it's the reference line showing how far up electrons are filled.",
+"u": "Explaining PN junctions, MOS capacitors and threshold voltage"
+},
+{
+"k": "기초 이론|반도체 물리|도핑",
+"_h": "935ac49b",
+"t": "Doping",
+"d": "Deliberately mixing a small amount of another element into a semiconductor to control how well it conducts.",
+"e": "N-type adds electrons; p-type adds holes. It's a bit like adding a pinch of salt to change a dish's flavor.",
+"u": "Forming source/drain and wells, ion implantation"
+},
+{
+"k": "기초 이론|반도체 물리|PN 접합",
+"_h": "6aaab489",
+"t": "PN junction",
+"d": "A structure joining p-type and n-type semiconductors that lets current flow easily in only one direction.",
+"e": "Like a one-way door that lets current through in only one direction.",
+"u": "Diodes, between a transistor's source/drain and the substrate"
+},
+{
+"k": "기초 이론|반도체 물리|이동도",
+"_h": "77a0813d",
+"t": "Mobility",
+"d": "How fast carriers move when an electric field is applied.",
+"e": "Think of it as how well something runs when pushed with the same force.",
+"u": "Transistor performance, boosters such as strained silicon"
+},
+{
+"k": "기초 이론|반도체 물리|확산",
+"_h": "566c3250",
+"t": "Diffusion",
+"d": "The spontaneous spreading of atoms or molecules from high concentration to low.",
+"e": "Like a drop of ink slowly spreading through water. It speeds up with heat, which is why impurities spread during annealing.",
+"u": "Annealing after doping, what barrier metals block"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|웨이퍼",
+"_h": "e1d10c3f",
+"t": "Wafer",
+"d": "A thin round disc, usually sliced from silicon, that chips are built on.",
+"e": "Like stamping many cookies from one sheet of dough, many chips are made at once on a single wafer.",
+"u": "The starting point of every process; 300 mm diameter is mainstream today"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|단결정",
+"_h": "aeb7e5a4",
+"t": "Single crystal",
+"d": "A solid whose atomic arrangement continues unbroken in one orientation.",
+"e": "Think of a wall of bricks laid perfectly with no gaps or misalignment. When the crystal is off, electrical properties waver.",
+"u": "Ingot growth, epitaxy"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|잉곳",
+"_h": "92652f1f",
+"t": "Ingot",
+"d": "A cylindrical single-crystal block made by melting and solidifying silicon.",
+"e": "Slice this block thin and you get wafers — like cutting thin slices off a salami.",
+"u": "The first step of wafer manufacturing"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|초크랄스키",
+"_h": "43fe9ba7",
+"t": "Czochralski",
+"d": "A method of growing an ingot by dipping a seed crystal into molten silicon and slowly pulling it up while rotating.",
+"e": "It resembles the experiment of growing crystals by dipping a string in a solution and slowly lifting it.",
+"u": "Ingot growth"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|에피택시",
+"_h": "34293f95",
+"t": "Epitaxy",
+"d": "Growing a thin single-crystal layer on a wafer surface in the same crystal orientation.",
+"e": "It adds one more layer on top that's cleaner and better controlled than the wafer itself.",
+"u": "Wafer manufacturing, forming FinFET and GAA channels"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|CMP",
+"_h": "06177f8b",
+"t": "CMP",
+"d": "A process that flattens a surface using chemicals and abrasives.",
+"e": "A polishing step that smooths out a bumpy surface. It's essential before stacking a new layer on top.",
+"u": "Wafer polishing, planarizing after copper wiring"
+},
+{
+"k": "8대 공정|2. 산화|산화막",
+"_h": "2ed9b425",
+"t": "Oxide film",
+"d": "A thin film of silicon dioxide (SiO2) grown on the silicon surface.",
+"e": "A thin protective film that doesn't conduct electricity. It forms naturally when silicon reacts with oxygen.",
+"u": "Gate dielectric, isolation between devices, masking"
+},
+{
+"k": "8대 공정|2. 산화|건식·습식 산화",
+"_h": "9c2d5ff3",
+"t": "Dry / wet oxidation",
+"d": "Growing oxide with oxygen is dry oxidation; with steam, it's wet oxidation.",
+"e": "Dry is slow but dense; wet is fast but less dense. Thin, critical films use dry; thick films use wet.",
+"u": "Gate oxide (dry), thick isolation oxide (wet)"
+},
+{
+"k": "8대 공정|2. 산화|게이트 산화막",
+"_h": "c983e7ec",
+"t": "Gate oxide",
+"d": "The very thin insulating film under a transistor's gate electrode.",
+"e": "A thin partition that passes the gate voltage through to the channel while blocking current.",
+"u": "Transistor fabrication, the switch to high-k materials"
+},
+{
+"k": "8대 공정|2. 산화|어닐링",
+"_h": "703021a5",
+"t": "Annealing",
+"d": "Heat treatment that heals damage or moves atoms into stable positions by heating the wafer.",
+"e": "RTP heats quickly over a short time, keeping atoms from spreading more than needed.",
+"u": "Repairing the crystal after ion implantation, activating dopants"
+},
+{
+"k": "8대 공정|3. 포토|포토레지스트",
+"_h": "3ce8f4c1",
+"t": "Photoresist",
+"d": "A light-sensitive material whose properties change when exposed to light.",
+"e": "Like the light-sensitive coating on photo film, only the areas hit by light change, carving in the circuit shape.",
+"u": "Coated on the wafer surface, then exposed and developed"
+},
+{
+"k": "8대 공정|3. 포토|노광",
+"_h": "0f12f79c",
+"t": "Exposure",
+"d": "The step that uses light to transfer the circuit pattern on a mask onto the photoresist on the wafer.",
+"e": "Like using a stamp, it transfers the circuit shape with light.",
+"u": "The core step of photolithography"
+},
+{
+"k": "8대 공정|3. 포토|레티클",
+"_h": "13e01097",
+"t": "Reticle",
+"d": "A glass plate (mask) bearing the circuit pattern to be transferred onto the wafer.",
+"e": "The equivalent of a photo negative or the face of a stamp.",
+"u": "Mounted inside the exposure tool"
+},
+{
+"k": "8대 공정|3. 포토|해상도",
+"_h": "939d9dad",
+"t": "Resolution",
+"d": "How fine a line can be drawn sharply.",
+"e": "The higher the resolution, the finer the circuits you can draw. Shorter wavelengths help.",
+"u": "Exposure tool performance, why EUV was adopted"
+},
+{
+"k": "8대 공정|3. 포토|초점 심도",
+"_h": "9b6c6b7e",
+"t": "Depth of focus",
+"d": "The height range that can be considered in focus.",
+"e": "The narrower it is, the more even slight bumps on the wafer surface blur the lines. That's why CMP is used to flatten it.",
+"u": "Exposure tool settings, planarization requirements"
+},
+{
+"k": "8대 공정|3. 포토|EUV",
+"_h": "658d110f",
+"t": "EUV",
+"d": "Lithography using extreme ultraviolet light with a 13.5 nm wavelength.",
+"e": "The shorter the wavelength, the finer the lines you can draw. Its wavelength is far shorter than conventional lithography's.",
+"u": "Exposure steps in leading-edge processes"
+},
+{
+"k": "8대 공정|3. 포토|OPC",
+"_h": "7b0840bf",
+"t": "OPC",
+"d": "A technique that pre-calculates how light bends and spreads and deliberately adjusts the mask shapes to compensate.",
+"e": "Knowing corners will blur when printed, you draw them pre-corrected in the opposite direction.",
+"u": "Mask design"
+},
+{
+"k": "8대 공정|3. 포토|멀티 패터닝",
+"_h": "4ee814d4",
+"t": "Multi-patterning",
+"d": "Splitting a pattern too dense to print in one go into several passes that are overlaid.",
+"e": "Drawing lines too tightly packed for one pass in two or three passes. The downside is more process steps and cost.",
+"u": "Fine processes before EUV, supplementing some EUV layers"
+},
+{
+"k": "8대 공정|4. 식각|식각",
+"_h": "8c472be7",
+"t": "Etching",
+"d": "The process that carves away unwanted material following the shape drawn in photolithography.",
+"e": "Like carving out a drawing with a chisel. Photolithography draws the shape; etching carves it out.",
+"u": "Forming circuit patterns, cutting deep holes (vias, channel holes)"
+},
+{
+"k": "8대 공정|4. 식각|플라즈마",
+"_h": "4855c950",
+"t": "Plasma",
+"d": "A state created by energizing a gas into a mix of ions, electrons and radicals.",
+"e": "Like the inside of a fluorescent lamp or a lightning bolt — gas that's electrically charged and glowing. It powers etching and deposition.",
+"u": "Plasma etching, PECVD, sputtering"
+},
+{
+"k": "8대 공정|4. 식각|식각 선택비",
+"_h": "694fba64",
+"t": "Etch selectivity",
+"d": "The ratio of etch rates between the film you want removed and the film you want kept.",
+"e": "The higher it is, the more you can carve only the needed film while protecting the one you keep.",
+"u": "Setting etch conditions, choosing masks"
+},
+{
+"k": "8대 공정|4. 식각|이방성·등방성",
+"_h": "966fe64d",
+"t": "Anisotropic / isotropic",
+"d": "Anisotropic etching carves only vertically; isotropic etching carves in every direction.",
+"e": "Standing circuits up straight needs anisotropic etching; isotropic etching, which spreads sideways too, is mainly used for cleaning and removal.",
+"u": "Dry etching (anisotropic), wet etching (isotropic)"
+},
+{
+"k": "8대 공정|4. 식각|라디칼",
+"_h": "271006f1",
+"t": "Radical",
+"d": "An atom or molecule with an unpaired electron, which reacts very easily with other substances.",
+"e": "A high-energy particle that drives chemical reactions.",
+"u": "Plasma etching, chemistry-driven etching"
+},
+{
+"k": "8대 공정|4. 식각|종횡비",
+"_h": "c67727bd",
+"t": "Aspect ratio",
+"d": "A hole's or pillar's depth (height) divided by its width.",
+"e": "The higher it is, the deeper and narrower the hole. The narrower and deeper, the harder it is to dig and to fill.",
+"u": "3D NAND channel holes, vias, TSVs"
+},
+{
+"k": "8대 공정|4. 식각|보잉",
+"_h": "3fd69289",
+"t": "Bowing",
+"d": "When etching a deep hole, the sidewalls bulge outward.",
+"e": "The deeper you dig, the more ions spread sideways, so the middle of the hole swells like a barrel.",
+"u": "Analyzing deep-hole etch defects"
+},
+{
+"k": "8대 공정|5. 박막 증착|증착",
+"_h": "44d02391",
+"t": "Deposition",
+"d": "The process of coating a thin film onto the wafer.",
+"e": "Like painting on a thin coat, it applies the desired material to the wafer.",
+"u": "Forming insulating, metal and semiconductor films"
+},
+{
+"k": "8대 공정|5. 박막 증착|PVD",
+"_h": "cabe78b2",
+"t": "PVD",
+"d": "A method that knocks material loose by physical force and coats it onto the wafer.",
+"e": "Sputtering is the classic example: ions strike the material, and the atoms knocked loose stick to the wafer.",
+"u": "Forming metal films (barrier, seed layer)"
+},
+{
+"k": "8대 공정|5. 박막 증착|CVD",
+"_h": "9e7d4ad9",
+"t": "CVD",
+"d": "A method where gas precursors react chemically on the wafer surface to build up a film.",
+"e": "Gases react on the surface and solidify into a film. Its advantage is fast deposition.",
+"u": "Forming insulating films and polysilicon films"
+},
+{
+"k": "8대 공정|5. 박막 증착|ALD",
+"_h": "f6df5a16",
+"t": "ALD",
+"d": "A method that builds films one atomic layer at a time in alternating steps, for precise thickness control.",
+"e": "Slow, but it can coat very thin, uniform films all the way inside deep holes.",
+"u": "High-k dielectrics, thin films in 3D structures"
+},
+{
+"k": "8대 공정|5. 박막 증착|단차 피복성",
+"_h": "04d14bbf",
+"t": "Step coverage",
+"d": "How evenly a film covers raised and recessed parts of a surface.",
+"e": "It checks whether bumpy floors and the insides of walls get coated to the same thickness.",
+"u": "Deposition quality in deep holes and 3D structures"
+},
+{
+"k": "8대 공정|5. 박막 증착|이온 주입",
+"_h": "44238bf7",
+"t": "Ion implantation",
+"d": "The doping process that accelerates ions and drives them into the wafer.",
+"e": "Ion energy and dose precisely set the depth and concentration. After implantation, annealing repairs the damage.",
+"u": "Forming source/drain and wells"
+},
+{
+"k": "8대 공정|6. 금속 배선|배선",
+"_h": "7cd03ee8",
+"t": "Interconnect",
+"d": "The metal lines inside a chip that link devices and carry electrical signals.",
+"e": "The road network linking devices, stacked in many layers.",
+"u": "The whole metallization process"
+},
+{
+"k": "8대 공정|6. 금속 배선|비아",
+"_h": "48564ff1",
+"t": "Via",
+"d": "A small metal-filled hole that connects wiring on upper and lower layers.",
+"e": "Like an elevator in a building, a passage up and down between floors.",
+"u": "Multilayer wiring; a TSV is the same idea scaled up to the chip level"
+},
+{
+"k": "8대 공정|6. 금속 배선|구리 다마신",
+"_h": "dd46f2a4",
+"t": "Copper damascene",
+"d": "A method of making wiring by first etching trenches in the insulator, filling them with copper, then polishing it back with CMP.",
+"e": "Copper is hard to etch, so trenches are dug first and then filled.",
+"u": "Forming copper wiring"
+},
+{
+"k": "8대 공정|6. 금속 배선|배리어 메탈",
+"_h": "d2178fd6",
+"t": "Barrier metal",
+"d": "A thin metal film that keeps copper from spreading into the insulator.",
+"e": "If copper spreads into the neighboring insulator, devices fail, so it's wrapped in a thin metal wall.",
+"u": "The bottom and sides of copper wiring"
+},
+{
+"k": "8대 공정|6. 금속 배선|전자 이동",
+"_h": "82aa437f",
+"t": "Electromigration",
+"d": "When a large current flows for a long time, metal atoms are pushed along by the electron flow and the wire breaks.",
+"e": "Keep running a strong current through a thin wire and the path slowly wears away until it breaks.",
+"u": "Wiring reliability evaluation"
+},
+{
+"k": "8대 공정|6. 금속 배선|RC 지연",
+"_h": "6afb64fb",
+"t": "RC delay",
+"d": "Signal delay caused by wiring resistance (R) and capacitance (C).",
+"e": "It worsens as wires get thinner and denser, limiting the speed of high-performance chips.",
+"u": "Wiring design, adopting low-k dielectrics"
+},
+{
+"k": "8대 공정|7. EDS|EDS",
+"_h": "ae782928",
+"t": "EDS",
+"d": "The process that electrically tests each chip on the wafer and sorts good from bad.",
+"e": "It screens out bad chips before packaging, cutting wasted cost.",
+"u": "End of wafer fabrication, before packaging begins"
+},
+{
+"k": "8대 공정|7. EDS|수율",
+"_h": "4d78418f",
+"t": "Yield",
+"d": "The share of chips made that actually work properly.",
+"e": "The higher the yield, the more profit from the same wafer.",
+"u": "Process control, calculating cost and profit"
+},
+{
+"k": "8대 공정|7. EDS|번인",
+"_h": "4be6e411",
+"t": "Burn-in",
+"d": "A test that deliberately applies stress with high heat and voltage to weed out chips that would fail early.",
+"e": "A test that picks out weak chips before shipment.",
+"u": "Reliability screening"
+},
+{
+"k": "8대 공정|7. EDS|리던던시·리페어",
+"_h": "5aa622ee",
+"t": "Redundancy / repair",
+"d": "Building spare circuits ahead of time and swapping failing cells for spares to save the chip.",
+"e": "Memory chips are large with many cells, so this keeps one or two bad cells from scrapping the whole chip.",
+"u": "Raising memory (DRAM, NAND) yield"
+},
+{
+"k": "8대 공정|8. 패키징|와이어 본딩",
+"_h": "02f3781a",
+"t": "Wire bonding",
+"d": "Connecting the chip to the substrate with fine metal wires.",
+"e": "The oldest connection method. Cheap, but the long wires hurt speed.",
+"u": "Standard packages"
+},
+{
+"k": "8대 공정|8. 패키징|플립칩",
+"_h": "f40a4b4f",
+"t": "Flip chip",
+"d": "Flipping the chip over and attaching it directly to the substrate with bumps.",
+"e": "Short connections make it fast, and the whole chip surface can be used for connections.",
+"u": "High-performance CPU and GPU packages"
+},
+{
+"k": "8대 공정|8. 패키징|범프",
+"_h": "9b092aba",
+"t": "Bump",
+"d": "A small metal protrusion (solder ball) that electrically connects the chip and substrate.",
+"e": "A tiny contact on the underside of the chip.",
+"u": "Flip chip, 2.5D and 3D packages"
+},
+{
+"k": "8대 공정|8. 패키징|언더필",
+"_h": "fde8c2b9",
+"t": "Underfill",
+"d": "Resin that fills the gap between the chip and substrate to protect the joints.",
+"e": "Filling the space between bumps with resin keeps bumps from breaking under thermal deformation.",
+"u": "Flip-chip packages"
+},
+{
+"k": "8대 공정|8. 패키징|몰딩",
+"_h": "f6c0b4d9",
+"t": "Molding",
+"d": "The process of encasing the chip in resin (EMC) to protect it from moisture and impact.",
+"e": "The step that wraps the chip in a hard plastic case.",
+"u": "Late-stage packaging"
+},
+{
+"k": "8대 공정|8. 패키징|열팽창 계수",
+"_h": "4f7dc83e",
+"t": "Coefficient of thermal expansion",
+"d": "How much a material expands as temperature rises.",
+"e": "If materials expand by different amounts, heat can warp or break the joints.",
+"u": "Choosing chip, substrate and underfill materials"
+},
+{
+"k": "8대 공정|8. 패키징|열전도율",
+"_h": "cad8291e",
+"t": "Thermal conductivity",
+"d": "How well heat travels through a material.",
+"e": "The higher it is, the more easily heat escapes. When a chip gets hot, performance drops.",
+"u": "Package heat dissipation, HBM stacking"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|트랜지스터",
+"_h": "20939dbf",
+"t": "Transistor",
+"d": "A semiconductor switch that turns current on and off with an electrical signal.",
+"e": "A single chip holds billions of them. It's the smallest unit that makes 0s and 1s.",
+"u": "Every digital circuit"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|MOSFET",
+"_h": "4eda3a05",
+"t": "MOSFET",
+"d": "The most common transistor, which uses gate voltage to switch current between source and drain.",
+"e": "Like a faucet, turning the gate voltage controls the current flowing through the channel.",
+"u": "Logic chips, memory cells"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|게이트",
+"_h": "c91041fc",
+"t": "Gate",
+"d": "The electrode in a transistor that uses voltage to decide whether current flows.",
+"e": "It works like the handle of a switch.",
+"u": "Explaining transistor structure in general"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|채널",
+"_h": "d9da73d2",
+"t": "Channel",
+"d": "The path current flows through inside a transistor.",
+"e": "The gate voltage opens and closes this path. FinFET and GAA change the channel's shape to improve control.",
+"u": "MOSFET operation, short-channel effects"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|소스·드레인",
+"_h": "cc99f3d1",
+"t": "Source / drain",
+"d": "The two ends of the channel: charge enters at the source and exits at the drain.",
+"e": "They're made by doping with ion implantation.",
+"u": "MOSFET structure"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|문턱 전압",
+"_h": "01d63601",
+"t": "Threshold voltage",
+"d": "The minimum gate voltage at which a transistor starts to turn on.",
+"e": "The gate must go above this voltage for the channel to open and current to flow.",
+"u": "Transistor design, controlling power consumption"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|서브스레숄드 스윙",
+"_h": "61fefd87",
+"t": "Subthreshold swing",
+"d": "The gate voltage needed to change current tenfold in the turn-off region (mV/dec).",
+"e": "The smaller it is, the more sharply the switch turns on and off. At room temperature, about 60 mV/dec is the limit.",
+"u": "Evaluating leakage current and power efficiency"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|누설 전류",
+"_h": "5b0d023d",
+"t": "Leakage current",
+"d": "Current that leaks unintentionally through a device that's supposed to be off.",
+"e": "Like water dripping from a closed faucet. It causes power drain and heat.",
+"u": "Mobile battery drain, DRAM refresh"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|단채널 효과",
+"_h": "d398318d",
+"t": "Short-channel effects",
+"d": "Problems that arise as the channel shortens and the gate can no longer control current properly.",
+"e": "As the channel shortens, the drain's influence grows and the switch won't turn off cleanly. This is the main reason FinFET and GAA were introduced.",
+"u": "Explaining the limits of scaling"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|채널 길이 변조",
+"_h": "c2514bed",
+"t": "Channel-length modulation",
+"d": "As drain voltage rises, the effective channel length shortens and current creeps up.",
+"e": "It's why current isn't perfectly constant even in saturation.",
+"u": "Analyzing transistor characteristics"
+},
+{
+"k": "소자·메모리|메모리 반도체|휘발성·비휘발성",
+"_h": "17c03989",
+"t": "Volatile / non-volatile",
+"d": "If data disappears when power is off, it's volatile; if it remains, it's non-volatile.",
+"e": "DRAM and SRAM are volatile; NAND flash is non-volatile.",
+"u": "Classifying memory"
+},
+{
+"k": "소자·메모리|메모리 반도체|DRAM",
+"_h": "2dfb4e6f",
+"t": "DRAM",
+"d": "Memory that stores 0s and 1s as charge on a capacitor.",
+"e": "The charge slowly leaks, so it must be refilled periodically. It's used as a computer's working memory.",
+"u": "Main memory in servers, PCs and smartphones"
+},
+{
+"k": "소자·메모리|메모리 반도체|SRAM",
+"_h": "0ea52726",
+"t": "SRAM",
+"d": "Fast memory that stores data in cells built from several transistors.",
+"e": "It needs no refresh and is fast, but its large cells make capacity hard to scale.",
+"u": "CPU caches"
+},
+{
+"k": "소자·메모리|메모리 반도체|NAND 플래시",
+"_h": "bdced45c",
+"t": "NAND flash",
+"d": "Non-volatile memory that keeps data even with the power off.",
+"e": "It remembers information by trapping charge. It's cheap and high-capacity.",
+"u": "SSDs, smartphone and USB storage"
+},
+{
+"k": "소자·메모리|메모리 반도체|커패시터",
+"_h": "6d246e28",
+"t": "Capacitor",
+"d": "A component that stores charge.",
+"e": "In DRAM, whether charge is present or not distinguishes 0 from 1.",
+"u": "DRAM cells"
+},
+{
+"k": "소자·메모리|메모리 반도체|리프레시",
+"_h": "ad40aa7c",
+"t": "Refresh",
+"d": "Periodically reading and refilling charge that leaks away.",
+"e": "Like topping up a leaky container with water over and over.",
+"u": "DRAM operation"
+},
+{
+"k": "소자·메모리|메모리 반도체|3D NAND",
+"_h": "b5f3f9de",
+"t": "3D NAND",
+"d": "NAND flash that increases capacity by stacking cells upward.",
+"e": "Since shrinking further on a flat plane is hard, it builds upward — like a high-rise apartment instead of a house.",
+"u": "High-capacity SSDs"
+},
+{
+"k": "차세대 기술|차세대 소자|FinFET",
+"_h": "5d21a508",
+"t": "FinFET",
+"d": "A structure where the channel stands up like a fish fin and the gate wraps three sides.",
+"e": "The gate wraps more sides than a flat channel, improving current control.",
+"u": "Major logic chips since the 2010s"
+},
+{
+"k": "차세대 기술|차세대 소자|GAA",
+"_h": "ddd4fe5a",
+"t": "GAA",
+"d": "A structure where the gate wraps the channel on all sides.",
+"e": "One step beyond FinFET: the channel becomes thin sheets (nanosheets) wrapped on every side.",
+"u": "3nm-class processes and below"
+},
+{
+"k": "차세대 기술|차세대 소자|High-k/Metal Gate",
+"_h": "742e13cf",
+"t": "High-k/Metal Gate",
+"d": "A technology that combines a high-dielectric-constant insulator with a metal gate to reduce leakage.",
+"e": "When oxide got too thin, current leaked, so a thicker insulator delivering the same effect was needed.",
+"u": "Logic chips from around 45nm onward"
+},
+{
+"k": "차세대 기술|차세대 소자|BSPDN",
+"_h": "c5b7148e",
+"t": "BSPDN",
+"d": "A technology that moves power lines to the back of the wafer.",
+"e": "To avoid signal and power lines tangling on one side, the front carries signals and the back carries power.",
+"u": "Next-generation logic processes"
+},
+{
+"k": "차세대 기술|차세대 소자|CFET",
+"_h": "81c9efde",
+"t": "CFET",
+"d": "A structure that stacks n-type and p-type transistors on top of each other.",
+"e": "A way to save area by stacking two transistors that used to sit side by side.",
+"u": "A next-gen device candidate after GAA"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|HBM",
+"_h": "1af70469",
+"t": "HBM",
+"d": "High-bandwidth memory that stacks DRAM chips in many layers and connects them through a wide pathway.",
+"e": "Instead of several narrow roads, it builds a wide highway. Widely used in AI accelerators.",
+"u": "AI accelerators, server GPUs"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|TSV",
+"_h": "2c55b3cb",
+"t": "TSV",
+"d": "A passage drilled vertically through a silicon chip and filled with metal.",
+"e": "Like an elevator running through a building, it lets stacked chips exchange signals.",
+"u": "HBM, 3D stacked packages"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|인터포저",
+"_h": "6cd351d9",
+"t": "Interposer",
+"d": "An intermediate substrate that holds several chips side by side and links them.",
+"e": "It connects chips with short, dense wiring.",
+"u": "2.5D packages (GPU + HBM)"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|하이브리드 본딩",
+"_h": "525dec58",
+"t": "Hybrid bonding",
+"d": "A bonding method that joins copper pads directly, without bumps.",
+"e": "It allows much tighter contact spacing and shorter connections.",
+"u": "Next-gen HBM, 3D stacking"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|칩렛",
+"_h": "59b0d04b",
+"t": "Chiplet",
+"d": "Splitting a large chip into several small chips made separately and combined in the package.",
+"e": "Like Lego blocks, each function is made separately and assembled. The yield burden is smaller than making one huge chip.",
+"u": "CPUs, GPUs, AI accelerators"
+},
+{
+"k": "기초 이론|업계·제조 환경|반도체",
+"_h": "c297a26e",
+"t": "Semiconductor",
+"d": "A material with properties between a conductor, which conducts electricity, and an insulator, which doesn't.",
+"e": "How well it conducts can be controlled by doping, temperature, light and voltage, which is why it's used to make switches and memory.",
+"u": "The chips in every electronic device"
+},
+{
+"k": "기초 이론|업계·제조 환경|집적회로",
+"_h": "345027c0",
+"t": "Integrated circuit",
+"d": "A circuit made by placing many devices, such as transistors, on a single piece of substrate.",
+"e": "This is what we usually call a \"chip.\"",
+"u": "Every semiconductor product: memory, CPUs, mobile chips and more"
+},
+{
+"k": "기초 이론|업계·제조 환경|칩과 다이",
+"_h": "405e9a7d",
+"t": "Chip / die",
+"d": "A die is one piece cut from a wafer; \"chip\" usually means the same thing or the finished, packaged product.",
+"e": "On the fab floor, one chip on the wafer is often called a die.",
+"u": "Dies per wafer, EDS, dicing"
+},
+{
+"k": "기초 이론|업계·제조 환경|팹",
+"_h": "82b0fd76",
+"t": "Fab",
+"d": "A semiconductor manufacturing plant where circuits are built onto wafers.",
+"e": "Hundreds of process steps happen inside. Companies operate multiple fabs, each with its own name.",
+"u": "Manufacturing in general, investment and expansion news"
+},
+{
+"k": "기초 이론|업계·제조 환경|클린룸",
+"_h": "d9127a27",
+"t": "Cleanroom",
+"d": "A workspace where dust and contaminant particles are kept to an absolute minimum.",
+"e": "Circuit lines are far thinner than a hair, so a single speck of dust can cause a defect.",
+"u": "Inside the fab, wearing cleanroom suits"
+},
+{
+"k": "기초 이론|업계·제조 환경|팹리스·파운드리·IDM",
+"_h": "4f2a560b",
+"t": "Fabless / foundry / IDM",
+"d": "Fabless companies only design; foundries manufacture other companies' designs under contract; IDMs do everything from design to production themselves.",
+"e": "A foundry is a manufacturing specialist that builds chips designed by others.",
+"u": "Industry structure, career map"
+},
+{
+"k": "기초 이론|업계·제조 환경|시스템 반도체",
+"_h": "88390982",
+"t": "Logic chips",
+"d": "Unlike memory chips, which store information, these chips handle computation, control and processing.",
+"e": "CPUs, mobile application processors, image sensors and communication chips belong here. Also called non-memory semiconductors.",
+"u": "Industry classification, logic chips"
+},
+{
+"k": "기초 이론|업계·제조 환경|CPU·GPU",
+"_h": "76b5f12c",
+"t": "CPU / GPU",
+"d": "A CPU is the brain that processes varied instructions in order; a GPU processes huge numbers of simple calculations at once.",
+"e": "GPUs are widely used not just for graphics but also for AI training and inference.",
+"u": "Servers, PCs, AI accelerators"
+},
+{
+"k": "기초 이론|업계·제조 환경|무어의 법칙",
+"_h": "9ae1ef1c",
+"t": "Moore's law",
+"d": "The empirical observation that the number of transistors on a chip doubles roughly every two years.",
+"e": "Many say it no longer holds as fast as before because scaling has gotten harder. Advanced packaging is drawing attention to make up for it.",
+"u": "Background on scaling, a common interview question"
+},
+{
+"k": "기초 이론|업계·제조 환경|공정 노드",
+"_h": "1c25e997",
+"t": "Process node",
+"d": "The name for a generation of fine process technology, like 7nm, 5nm or 3nm.",
+"e": "A smaller number means a newer generation, but today it no longer literally reflects actual circuit dimensions.",
+"u": "Company roadmaps, comparing chip performance"
+},
+{
+"k": "기초 이론|반도체 물리|n형·p형 반도체",
+"_h": "418cdcb9",
+"t": "N-type / p-type",
+"d": "Doping that adds electrons makes n-type; doping that adds holes makes p-type.",
+"e": "Adding group-V elements like phosphorus or arsenic makes n-type; group-III elements like boron make p-type.",
+"u": "Source/drain, wells, diodes"
+},
+{
+"k": "기초 이론|반도체 물리|전도대·가전자대",
+"_h": "a35f2084",
+"t": "Conduction / valence band",
+"d": "The conduction band is the energy range where electrons move freely; the valence band is the energy range filled with electrons.",
+"e": "The empty gap between them is the band gap. When electrons rise into the conduction band, they create current.",
+"u": "Energy band diagrams, explaining semiconductor physics"
+},
+{
+"k": "기초 이론|반도체 물리|공핍층",
+"_h": "85750289",
+"t": "Depletion region",
+"d": "A region near a junction with almost no carriers.",
+"e": "It forms when p-type and n-type meet and electrons and holes near the boundary find each other and disappear.",
+"u": "PN junctions, MOS capacitors, around source/drain"
+},
+{
+"k": "기초 이론|반도체 물리|다이오드",
+"_h": "ad8f6f35",
+"t": "Diode",
+"d": "A device that lets current flow easily in only one direction.",
+"e": "The most basic PN junction device.",
+"u": "Rectification, protection circuits, LEDs and solar cells"
+},
+{
+"k": "기초 이론|반도체 물리|순방향·역방향 바이어스",
+"_h": "a1ab880b",
+"t": "Forward / reverse bias",
+"d": "Applying + voltage to the p side drives current easily (forward); the opposite barely passes any (reverse).",
+"e": "Forward bias lowers the barrier; reverse bias raises it and widens the depletion region.",
+"u": "Diodes, source/drain junctions"
+},
+{
+"k": "기초 이론|반도체 물리|유전율",
+"_h": "4aabd819",
+"t": "Permittivity",
+"d": "How well an insulator holds charge in an electric field.",
+"e": "An insulator with high permittivity can gather more charge at the same thickness. Silicon dioxide's is about 3.9.",
+"u": "High-k dielectrics, low-k wiring dielectrics, capacitors"
+},
+{
+"k": "기초 이론|반도체 물리|재결합",
+"_h": "eb4776f3",
+"t": "Recombination",
+"d": "When an electron and a hole meet and disappear together, releasing energy.",
+"e": "When that energy comes out as light, you get an LED.",
+"u": "Depletion region formation, LEDs, analyzing device operation"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|실리콘",
+"_h": "9eda39ae",
+"t": "Silicon",
+"d": "The most common semiconductor material, obtained from silicon, the main component of sand.",
+"e": "A stable oxide forms easily on its surface, which makes it ideal for building transistors.",
+"u": "Wafers, oxide films, transistor channels"
+},
+{
+"k": "8대 공정|1. 웨이퍼 제조|세정",
+"_h": "6bac7861",
+"t": "Cleaning",
+"d": "The process of washing particles, organics and metal contamination off the wafer surface.",
+"e": "It's repeated between every process step. A single speck of dust or metal ion can cause a defect.",
+"u": "Wafer manufacturing, before and after every process"
+},
+{
+"k": "8대 공정|2. 산화|Deal-Grove 모델",
+"_h": "5c20e0c5",
+"t": "Deal–Grove model",
+"d": "A model describing how oxide thickens over time.",
+"e": "At first, the reaction rate sets the thickness; as the film thickens, the rate at which oxygen penetrates the film takes over.",
+"u": "Predicting film thickness from oxidation time and temperature"
+},
+{
+"k": "8대 공정|2. 산화|STI",
+"_h": "03431cd7",
+"t": "STI",
+"d": "A method of electrically isolating transistors by etching shallow trenches between them and filling them with insulator.",
+"e": "A partition that keeps neighboring devices from leaking current into or interfering with each other.",
+"u": "Device isolation"
+},
+{
+"k": "8대 공정|3. 포토|리소그래피",
+"_h": "f79610c2",
+"t": "Lithography",
+"d": "The overall technology of transferring circuit shapes onto the wafer with light.",
+"e": "Nearly the same as \"photolithography.\" It's the core technology driving chip scaling.",
+"u": "Photolithography in general, exposure tools"
+},
+{
+"k": "8대 공정|3. 포토|스핀 코팅",
+"_h": "3ff64d65",
+"t": "Spin coating",
+"d": "Spinning the wafer quickly so centrifugal force spreads photoresist evenly.",
+"e": "Similar to swirling pancake batter in a pan to spread it thin.",
+"u": "The first step of photolithography"
+},
+{
+"k": "8대 공정|3. 포토|현상",
+"_h": "08e7209e",
+"t": "Develop",
+"d": "The step after exposure that washes away the light-reacted areas with a solution to reveal the pattern.",
+"e": "Like the image emerging when a photo is developed.",
+"u": "The step after exposure in photolithography"
+},
+{
+"k": "8대 공정|3. 포토|포지티브·네거티브 PR",
+"_h": "a87fd7d8",
+"t": "Positive / negative PR",
+"d": "With positive photoresist, exposed areas dissolve away; with negative, exposed areas remain.",
+"e": "Depending on which part remains, the mask shape is reversed.",
+"u": "Choosing photoresist"
+},
+{
+"k": "8대 공정|3. 포토|개구수",
+"_h": "c27bcf73",
+"t": "Numerical aperture",
+"d": "How wide an angle a lens can gather light from.",
+"e": "A larger NA improves resolution but narrows depth of focus.",
+"u": "Exposure tool performance, High-NA EUV"
+},
+{
+"k": "8대 공정|3. 포토|임계 치수",
+"_h": "b2ea5d27",
+"t": "Critical dimension",
+"d": "The pattern line width most closely controlled in a process.",
+"e": "Managing how far line width strays from target is at the heart of process control.",
+"u": "Measuring line width after lithography and etching"
+},
+{
+"k": "8대 공정|3. 포토|오버레이",
+"_h": "fb787c6c",
+"t": "Overlay",
+"d": "Alignment accuracy — how precisely patterns on upper and lower layers line up.",
+"e": "Each layer is printed separately, so even a slight misalignment can make a via miss its wire.",
+"u": "Lithography alignment, multi-patterning"
+},
+{
+"k": "8대 공정|3. 포토|스캐너",
+"_h": "71b8bee2",
+"t": "Scanner",
+"d": "An exposure tool that moves the reticle and wafer together while shining light to transfer the pattern.",
+"e": "A stepper is the older type that prints one field at a time; a scanner sweeps across as it prints and is the mainstream today.",
+"u": "Exposure tools"
+},
+{
+"k": "8대 공정|4. 식각|습식 식각",
+"_h": "548dfa6b",
+"t": "Wet etching",
+"d": "Etching that dissolves films by immersing them in a chemical solution.",
+"e": "Relatively simple with good selectivity, but it carves sideways too (isotropic), which is bad for fine patterns.",
+"u": "Cleaning, removing films on large patterns"
+},
+{
+"k": "8대 공정|4. 식각|건식 식각",
+"_h": "b49f394a",
+"t": "Dry etching",
+"d": "Etching that carves material with plasma and gases.",
+"e": "It can carve straight down (anisotropic), so it's used for fine patterns.",
+"u": "Forming fine circuit patterns"
+},
+{
+"k": "8대 공정|4. 식각|RIE",
+"_h": "af0b83dd",
+"t": "RIE",
+"d": "A dry etching method that combines chemical reactions with ion bombardment.",
+"e": "The chemical reaction provides selectivity; ion bombardment provides verticality.",
+"u": "Most dry etch tools"
+},
+{
+"k": "8대 공정|4. 식각|하드마스크",
+"_h": "69e21acd",
+"t": "Hard mask",
+"d": "A tough film added beneath the photoresist when photoresist alone can't hold up.",
+"e": "It keeps the photoresist from wearing away first during deep etching.",
+"u": "Deep-hole etching, fine patterning"
+},
+{
+"k": "8대 공정|4. 식각|식각률",
+"_h": "f02e6e05",
+"t": "Etch rate",
+"d": "The thickness removed per unit of time.",
+"e": "The basis for setting how long it takes to reach the target depth.",
+"u": "Setting etch conditions"
+},
+{
+"k": "8대 공정|4. 식각|언더컷",
+"_h": "eae5c7d2",
+"t": "Undercut",
+"d": "When the sidewall beneath the mask gets carved in.",
+"e": "It mostly happens in isotropic etching and makes patterns narrower than designed.",
+"u": "Wet etching defects"
+},
+{
+"k": "8대 공정|5. 박막 증착|박막",
+"_h": "3ab9a657",
+"t": "Thin film",
+"d": "A very thin film, from a few nanometers to a few micrometers thick.",
+"e": "Chips are built by stacking dozens of these thin films.",
+"u": "Every film made by deposition"
+},
+{
+"k": "8대 공정|5. 박막 증착|스퍼터링",
+"_h": "f743b621",
+"t": "Sputtering",
+"d": "A PVD method where ions strike a material (target) and the atoms knocked loose stick to the wafer.",
+"e": "Like one billiard ball striking another and sending it flying.",
+"u": "Metal film deposition"
+},
+{
+"k": "8대 공정|5. 박막 증착|PECVD",
+"_h": "154595a3",
+"t": "PECVD",
+"d": "CVD that uses plasma to deposit films at low temperature.",
+"e": "Deposition happens at low temperature so structures already built aren't damaged by high heat.",
+"u": "Insulator deposition"
+},
+{
+"k": "8대 공정|5. 박막 증착|전구체",
+"_h": "1917e0ed",
+"t": "Precursor",
+"d": "The chemical that serves as a film's raw material during deposition.",
+"e": "The material that reacts to become the film — especially important in ALD and CVD.",
+"u": "Choosing materials for ALD and CVD"
+},
+{
+"k": "8대 공정|5. 박막 증착|폴리실리콘",
+"_h": "b0bd9c39",
+"t": "Polysilicon",
+"d": "Silicon made of many small crystals (polycrystalline).",
+"e": "It was widely used for transistor gate electrodes in the past and has largely been replaced by metal gates.",
+"u": "Gate electrodes, some memory structures"
+},
+{
+"k": "8대 공정|5. 박막 증착|도즈",
+"_h": "96c2aa07",
+"t": "Dose",
+"d": "The amount of ions implanted per unit area in ion implantation.",
+"e": "The higher the dose, the higher the doping concentration.",
+"u": "Ion implantation conditions"
+},
+{
+"k": "8대 공정|6. 금속 배선|FEOL·BEOL",
+"_h": "a6c1492b",
+"t": "FEOL / BEOL",
+"d": "FEOL is the front-end stage that builds transistors; BEOL is the back-end stage that builds wiring on top.",
+"e": "If you're building a house, FEOL is the rooms and fixtures, and BEOL is laying the hallways and plumbing.",
+"u": "Dividing the process flow, explaining backside power (BSPDN)"
+},
+{
+"k": "8대 공정|6. 금속 배선|콘택",
+"_h": "0232e0c1",
+"t": "Contact",
+"d": "The vertical connection linking a transistor's source, drain and gate to the first wiring layer.",
+"e": "The first passage between a transistor and the wiring.",
+"u": "Between transistors and wiring"
+},
+{
+"k": "8대 공정|6. 금속 배선|Low-k",
+"_h": "ba1387d2",
+"t": "Low-k",
+"d": "An insulating film with a low dielectric constant.",
+"e": "Placed between wires, it lowers capacitance and reduces RC delay.",
+"u": "Insulation between wiring layers"
+},
+{
+"k": "8대 공정|6. 금속 배선|실리사이드",
+"_h": "f0d6a78b",
+"t": "Silicide",
+"d": "A compound formed by reacting silicon with metal, used to lower contact resistance.",
+"e": "Coated on the source/drain silicon so it connects well to metal contacts.",
+"u": "Source, drain and gate contacts"
+},
+{
+"k": "8대 공정|6. 금속 배선|기생 저항·용량",
+"_h": "c5c7f6ab",
+"t": "Parasitic R / C",
+"d": "Resistance and capacitance that weren't designed in but arise unavoidably from wiring and structure.",
+"e": "They slow signals and increase power use. Their impact grows with scaling.",
+"u": "Wiring design, performance analysis"
+},
+{
+"k": "8대 공정|7. EDS|프로브 카드",
+"_h": "b48d947c",
+"t": "Probe card",
+"d": "A test fixture with fine needles that touch the pads of chips on the wafer.",
+"e": "The needles contact the chip, send electrical signals and read the response.",
+"u": "EDS testing"
+},
+{
+"k": "8대 공정|7. EDS|웨이퍼 맵",
+"_h": "98abffab",
+"t": "Wafer map",
+"d": "A map showing good and bad chips on a wafer by color.",
+"e": "Failures clustered at the edge or on one side are clues pointing to a process problem.",
+"u": "Yield analysis"
+},
+{
+"k": "8대 공정|7. EDS|불량 분석",
+"_h": "3409eb12",
+"t": "Failure analysis",
+"d": "Opening up a failed chip to find the cause.",
+"e": "Microscopy, cross-sectioning and other methods reveal which process step went wrong.",
+"u": "Yield improvement, solving reliability problems"
+},
+{
+"k": "8대 공정|7. EDS|신뢰성 시험",
+"_h": "83d80e30",
+"t": "Reliability test",
+"d": "A test that checks whether a product can last long under harsh conditions of temperature, humidity, voltage and so on.",
+"e": "Burn-in weeds out early failures; reliability tests confirm lifetime.",
+"u": "Verification before shipment"
+},
+{
+"k": "8대 공정|8. 패키징|백그라인딩",
+"_h": "9974f503",
+"t": "Back grinding",
+"d": "Grinding the back of the wafer to thin it.",
+"e": "Thinner wafers shed heat better and make thinner packages, and it's essential for stacked packages.",
+"u": "Early packaging, TSV and HBM stacking"
+},
+{
+"k": "8대 공정|8. 패키징|다이싱",
+"_h": "33d67f47",
+"t": "Dicing",
+"d": "Cutting the wafer into individual chips.",
+"e": "A saw or laser cuts along the empty lines between chips (scribe lines).",
+"u": "Early packaging"
+},
+{
+"k": "8대 공정|8. 패키징|다이 본딩",
+"_h": "7d460d56",
+"t": "Die bonding",
+"d": "Attaching cut chips onto a substrate or lead frame.",
+"e": "Adhesive or film fixes the chip in place.",
+"u": "Mid-stage packaging"
+},
+{
+"k": "8대 공정|8. 패키징|리드프레임",
+"_h": "edf8c383",
+"t": "Lead frame",
+"d": "A metal skeleton that holds the chip and connects it to external terminals.",
+"e": "Both the platform the chip sits on and the legs reaching outside.",
+"u": "Wire-bonded packages"
+},
+{
+"k": "8대 공정|8. 패키징|솔더볼·BGA",
+"_h": "07ca2b9c",
+"t": "Solder ball / BGA",
+"d": "A connection method with small solder balls arranged in a grid on the package's underside.",
+"e": "Using the whole underside as contacts instead of legs greatly increases the pin count.",
+"u": "Mobile and PC packages"
+},
+{
+"k": "8대 공정|8. 패키징|패키지 기판",
+"_h": "d0ed356b",
+"t": "Package substrate",
+"d": "A thin board that carries signals and power between the chip and the motherboard.",
+"e": "The bridge connecting the chip's tiny contacts to the motherboard's large ones.",
+"u": "Flip-chip and BGA packages"
+},
+{
+"k": "8대 공정|8. 패키징|WLP·팬아웃",
+"_h": "022e8f0d",
+"t": "WLP / fan-out",
+"d": "WLP packages chips while still in wafer form; fan-out spreads wiring beyond the chip's edge to make contacts.",
+"e": "It can be made thin and light without a substrate.",
+"u": "Mobile chip packages"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|CMOS",
+"_h": "79dd2c2f",
+"t": "CMOS",
+"d": "A circuit style that pairs NMOS and PMOS transistors.",
+"e": "When one turns on the other turns off, so almost no current flows while the value holds. That's why it's low power.",
+"u": "Almost every digital chip"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|NMOS·PMOS",
+"_h": "99d089b8",
+"t": "NMOS / PMOS",
+"d": "MOSFETs where current is carried by electrons (NMOS) or holes (PMOS).",
+"e": "Holes are slower than electrons, so PMOS carries less current than NMOS. Designers often make PMOS larger.",
+"u": "CMOS circuits, inverters"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|선형·포화 영역",
+"_h": "fb2765fe",
+"t": "Linear / saturation region",
+"d": "At low drain voltage, current is proportional to voltage (linear); high enough, it becomes nearly constant (saturation).",
+"e": "Like a faucet: open it more and flow increases, until at some point the pipe's width caps it.",
+"u": "Transistor current-voltage characteristics"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|Ion·Ioff",
+"_h": "6c2356a0",
+"t": "Ion / Ioff",
+"d": "Ion is the current when on; Ioff is the current leaking when off.",
+"e": "A good switch has a large Ion and a small Ioff. Their ratio is used to compare performance.",
+"u": "Evaluating transistor performance"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|DIBL",
+"_h": "c405ab90",
+"t": "DIBL",
+"d": "In short channels, drain voltage lowers the barrier on the source side, lowering the threshold voltage.",
+"e": "A classic form of short-channel effect — the drain steals some of the gate's control.",
+"u": "Analyzing scaled transistors"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|터널링",
+"_h": "6cfdd919",
+"t": "Tunneling",
+"d": "The quantum-mechanical phenomenon of electrons passing through a thin barrier they seemingly can't cross.",
+"e": "When gate oxide gets too thin, this makes leakage current rise sharply.",
+"u": "Gate leakage, flash memory operation"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|핫 캐리어",
+"_h": "e472f455",
+"t": "Hot carrier",
+"d": "A carrier that has gained a lot of energy in a strong electric field.",
+"e": "When these carriers get lodged in the oxide, device characteristics gradually shift and lifetime shortens.",
+"u": "Device reliability"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|스케일링",
+"_h": "d6787815",
+"t": "Scaling",
+"d": "Shrinking device size by a fixed ratio to pack in more and improve performance.",
+"e": "Smaller means better speed and density, but short-channel effects and leakage become problems.",
+"u": "Discussions of scaling in general"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|스트레인드 실리콘",
+"_h": "e58908a8",
+"t": "Strained silicon",
+"d": "Silicon deliberately stressed to deform its crystal and raise carrier mobility.",
+"e": "Slightly changing the spacing between atoms lets electrons or holes run faster.",
+"u": "Boosting logic chip performance"
+},
+{
+"k": "소자·메모리|트랜지스터 소자|동적·정적 전력",
+"_h": "c08a02e4",
+"t": "Dynamic / static power",
+"d": "Dynamic power is used when switching on and off; static power is used by current leaking even when off.",
+"e": "With scaling, static power (leakage) has become a larger share.",
+"u": "Chip power design, mobile battery life"
+},
+{
+"k": "소자·메모리|메모리 반도체|메모리 셀",
+"_h": "f27dcc12",
+"t": "Memory cell",
+"d": "The smallest unit that stores one bit of information.",
+"e": "A DRAM cell is one transistor and one capacitor; a NAND cell is one transistor.",
+"u": "All memory"
+},
+{
+"k": "소자·메모리|메모리 반도체|워드라인·비트라인",
+"_h": "94f6e1fc",
+"t": "Word line / bit line",
+"d": "The word line selects which cell to access; the bit line reads and writes the data.",
+"e": "On a grid of roads, the intersection of a horizontal and vertical line is a cell's address.",
+"u": "DRAM, NAND and SRAM cell arrays"
+},
+{
+"k": "소자·메모리|메모리 반도체|센스 앰프",
+"_h": "7cf35710",
+"t": "Sense amplifier",
+"d": "A circuit that amplifies a tiny voltage difference on the bit line to decide 0 or 1.",
+"e": "DRAM cells hold very little charge, so this amplification is essential when reading.",
+"u": "DRAM read operation"
+},
+{
+"k": "소자·메모리|메모리 반도체|MLC·TLC·QLC",
+"_h": "20527232",
+"t": "MLC / TLC / QLC",
+"d": "NAND schemes that store 2, 3 and 4 bits per cell, respectively.",
+"e": "More bits store more in the same area, but speed and endurance drop.",
+"u": "SSD and smartphone storage"
+},
+{
+"k": "소자·메모리|메모리 반도체|플로팅 게이트·전하 트랩",
+"_h": "16943284",
+"t": "Floating gate / charge trap",
+"d": "The two ways flash memory traps charge.",
+"e": "The charge stays trapped with the power off, so the information remains. 3D NAND mostly uses charge trap.",
+"u": "NAND flash cell structure"
+},
+{
+"k": "소자·메모리|메모리 반도체|블록·페이지",
+"_h": "1ebac848",
+"t": "Block / page",
+"d": "In NAND, reads and writes happen per page; erases happen per block.",
+"e": "Several pages make a block. So even to rewrite just part, you have to manage it block by block.",
+"u": "NAND operation, SSD controllers"
+},
+{
+"k": "소자·메모리|메모리 반도체|프로그램·소거",
+"_h": "40831bb3",
+"t": "Program / erase",
+"d": "In NAND, writing data is called programming, and deleting it is called erasing.",
+"e": "Each cycle wears the oxide, so the number of cycles is limited.",
+"u": "NAND operation, explaining endurance"
+},
+{
+"k": "소자·메모리|메모리 반도체|대역폭·지연시간",
+"_h": "e32503b0",
+"t": "Bandwidth / latency",
+"d": "Bandwidth is the amount of data moved per second; latency is the time from request to response.",
+"e": "On a road, bandwidth is the number of lanes and latency is the travel time.",
+"u": "Comparing memory performance, HBM"
+},
+{
+"k": "소자·메모리|메모리 반도체|DDR·LPDDR",
+"_h": "9d4b8a7c",
+"t": "DDR / LPDDR",
+"d": "DDR is the DRAM standard for PCs and servers; LPDDR is the low-power standard for mobile.",
+"e": "It sends data on both the rising and falling edges of the clock for speed. Higher generation numbers are faster.",
+"u": "PC and server memory (DDR), smartphones (LPDDR)"
+},
+{
+"k": "소자·메모리|메모리 반도체|캐시",
+"_h": "6b74e98e",
+"t": "Cache",
+"d": "Small, fast memory that keeps frequently used data close to the CPU.",
+"e": "Mostly made of SRAM. Like keeping only the books you use most on your desk.",
+"u": "The memory hierarchy inside CPUs and GPUs"
+},
+{
+"k": "소자·메모리|메모리 반도체|NOR 플래시",
+"_h": "f115840d",
+"t": "NOR flash",
+"d": "Flash memory that's non-volatile with fast reads, used to store program code.",
+"e": "It costs more per unit of capacity than NAND but can read any location quickly.",
+"u": "Storing firmware and boot code"
+},
+{
+"k": "소자·메모리|메모리 반도체|차세대 메모리",
+"_h": "ff6a2542",
+"t": "Emerging memory",
+"d": "Memories that store information using new principles such as magnetism, resistance or phase change.",
+"e": "Research aims for memory that keeps data with the power off while running close to DRAM speeds.",
+"u": "Future memory candidates"
+},
+{
+"k": "차세대 기술|차세대 소자|High-NA EUV",
+"_h": "eccd3ac3",
+"t": "High-NA EUV",
+"d": "A next-gen EUV tool that raises numerical aperture (NA) from 0.33 to 0.55 to draw finer patterns.",
+"e": "It uses larger optics to gather light from a wider angle. The tools are extremely expensive.",
+"u": "2nm-class processes and below"
+},
+{
+"k": "차세대 기술|차세대 소자|포크시트",
+"_h": "5364af76",
+"t": "Forksheet",
+"d": "A GAA nanosheet structure that places an insulating wall between NMOS and PMOS to tighten spacing.",
+"e": "It's being researched as a device structure candidate after GAA.",
+"u": "Next-gen logic device candidate"
+},
+{
+"k": "차세대 기술|시스템·신소재|와이드 밴드갭",
+"_h": "55a6cc46",
+"t": "Wide band gap",
+"d": "Materials with a band gap wider than silicon's, notably SiC (silicon carbide) and GaN (gallium nitride).",
+"e": "They withstand high voltage and temperature, so they're used in power semiconductors like EV inverters and chargers.",
+"u": "Power semiconductors"
+},
+{
+"k": "차세대 기술|시스템·신소재|실리콘 포토닉스",
+"_h": "e279ccec",
+"t": "Silicon photonics",
+"d": "Integrating devices that send and receive data with light onto a silicon chip.",
+"e": "Faster than electrical signals with less heat, it's increasingly used for data center communication.",
+"u": "Optical communication in data centers"
+},
+{
+"k": "차세대 기술|시스템·신소재|NPU·AI 가속기",
+"_h": "e034c170",
+"t": "NPU / AI accelerator",
+"d": "A chip built to process the matrix calculations AI relies on quickly and efficiently.",
+"e": "GPUs also serve as AI accelerators, and smartphones include a separate NPU.",
+"u": "Server AI, smartphone AI"
+},
+{
+"k": "차세대 기술|시스템·신소재|PIM",
+"_h": "72cefc66",
+"t": "PIM",
+"d": "Technology that handles part of the computation inside memory to cut the burden of moving data.",
+"e": "The goal is to save the time and power spent moving data over long distances.",
+"u": "AI memory research"
+},
+{
+"k": "차세대 기술|시스템·신소재|CXL",
+"_h": "c41f88a9",
+"t": "CXL",
+"d": "An interconnect standard that links CPUs, memory and accelerators at high speed and lets memory be expanded or shared.",
+"e": "It's drawing attention as a way to expand memory in servers.",
+"u": "Server memory expansion"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|2.5D·3D 패키징",
+"_h": "08a04989",
+"t": "2.5D / 3D packaging",
+"d": "2.5D places chips side by side on an interposer; 3D stacks chips vertically.",
+"e": "2.5D connects neighbors on the same level; 3D connects between layers. TSVs and hybrid bonding are key to 3D.",
+"u": "GPU + HBM, stacked memory"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|CoWoS",
+"_h": "101dea75",
+"t": "CoWoS",
+"d": "A 2.5D packaging technology that mounts chips on an interposer and then attaches it to a substrate. It's TSMC's name for it.",
+"e": "Widely used to bundle AI accelerators and HBM in one package.",
+"u": "AI accelerator packages"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|마이크로범프",
+"_h": "138ac61f",
+"t": "Micro bump",
+"d": "A bonding bump much smaller than a regular bump.",
+"e": "Used to stack chips in HBM. The smaller and denser they get, the more connections fit.",
+"u": "HBM stacking, chip-to-chip bonding"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|SiP·SoC",
+"_h": "821baffa",
+"t": "SiP / SoC",
+"d": "SoC puts many functions on one chip; SiP puts several chips in one package.",
+"e": "When one chip gets too big to make easily, splitting it and combining the pieces in a package (SiP, chiplets) is on the rise.",
+"u": "Mobile application processors, wearables"
+},
+{
+"k": "차세대 기술|어드밴스드 패키징|UCIe",
+"_h": "e814fa90",
+"t": "UCIe",
+"d": "An open standard that unifies how chiplets connect to each other.",
+"e": "The idea is that chiplets from different companies can be joined using the same specification.",
+"u": "Chiplet-based design"
+}
+]
+}

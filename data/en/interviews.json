@@ -1,0 +1,1871 @@
+[
+{
+"id": "INT-09d497d1",
+"_h": "3ee261c5",
+"question": "What trade-offs come up when designing a system with chiplets?",
+"follow_up": "Then when you have to weigh performance and cost at the same time, what approach would you take?",
+"follow_up_answer": "In that case, I'd analyze each chiplet's function and performance requirements to find the most effective combination. I'd also choose the best process for each one, so we meet the performance requirements while keeping cost as low as possible.",
+"interview_answer": "In chiplet-based design, you have to weigh the trade-off between performance and cost. You pick the best process for the function each chiplet handles, and from there find the combination that maximizes performance while cutting cost. This approach also makes the design more flexible.",
+"key_points": [
+"Trade-offs",
+"Performance",
+"Cost",
+"Optimization"
+]
+},
+{
+"id": "INT-51c502a3",
+"_h": "bcf66f3e",
+"question": "Could you explain the concept of chiplets?",
+"follow_up": "So why do you think chiplets are needed?",
+"follow_up_answer": "Chiplets reduce design complexity and let each function use the process best suited to it. That leads to lower manufacturing cost and better performance, which strengthens a company's competitiveness in the chip industry.",
+"interview_answer": "Chiplets are a way of building one system by combining several small chips. Because each function can be optimized independently, design complexity goes down and manufacturing cost drops. The structure is also modular, so new functions can be added or swapped as needed — a real advantage for responding quickly to market changes.",
+"key_points": [
+"Design complexity",
+"Cost reduction",
+"Performance gains",
+"Per-function optimization"
+]
+},
+{
+"id": "INT-68a7d1fd",
+"_h": "f2b2570e",
+"question": "How would you approach the complexity of the FOWLP manufacturing process?",
+"follow_up": "What do you think are the ways to reduce that complexity?",
+"follow_up_answer": "Process automation can raise the precision of each step and cut human error. I'd also consider materials innovation to make the process more efficient.",
+"interview_answer": "FOWLP manufacturing involves many steps, so it's quite complex. To deal with that, I'd look at automating the process, and raising precision at every step is key. Because FOWLP packages at the wafer level, it involves redistributing chips and extending their connections. That spreads the chip's external connections across a wider area, improving electrical performance and heat dissipation. But such a complex process means high upfront investment and more chances for defects at each step. So the right approach is to raise efficiency through materials innovation and process automation.",
+"key_points": [
+"Manufacturing complexity",
+"Process automation",
+"Materials innovation",
+"Precision"
+]
+},
+{
+"id": "INT-15eabee7",
+"_h": "6126a513",
+"question": "Could you explain the basic concept of FOWLP?",
+"follow_up": "Why is that approach needed?",
+"follow_up_answer": "FOWLP lets you shrink the package while increasing connectivity. That's essential for raising integration and maximizing performance in the many applications that demand high-performance chips.",
+"interview_answer": "FOWLP, or fan-out wafer-level packaging, is a technology that packages chips at the wafer level so their external connections can be extended outward. It improves space efficiency, which in turn improves electrical performance and thermal management. It evolved to overcome the limits of conventional packaging and meet the needs of high-performance chips.",
+"key_points": [
+"Chip size",
+"Connectivity",
+"Integration",
+"High performance"
+]
+},
+{
+"id": "INT-926d9413",
+"_h": "b9c6294e",
+"question": "What design approaches can you use to reduce the hot-carrier effect?",
+"follow_up": "If we assume we can't lower the voltage, what alternatives are there?",
+"follow_up_answer": "Without lowering voltage, you can adjust the drain structure — for example with a lightly doped drain — or use high-k gate dielectrics. These approaches reduce the effect of the electric field and ease the hot-carrier effect. Adopting newer structures such as FinFETs is also effective.",
+"interview_answer": "To reduce the hot-carrier effect, you can soften the peak electric field near the drain, for example with a lightly doped drain (LDD), or apply a gate dielectric made of high-k material. These methods minimize the effect of the field and suppress trap formation. Three-dimensional structures like FinFETs can also improve the field distribution and reduce the hot-carrier effect.",
+"key_points": [
+"Design approaches",
+"Drain engineering",
+"High-k materials",
+"FinFET structure"
+]
+},
+{
+"id": "INT-260a6393",
+"_h": "087e5536",
+"question": "Could you explain the hot-carrier effect?",
+"follow_up": "Why do you think that happens?",
+"follow_up_answer": "The hot-carrier effect happens because electrons and holes gain high energy and create traps inside the device. Those traps change the electrical characteristics and can ultimately degrade performance. That's why understanding and managing the hot-carrier effect is so important in device design.",
+"interview_answer": "The hot-carrier effect occurs when electrons and holes gain high energy under strong electric fields. This creates traps inside the device, which change its electrical characteristics and degrade performance. In MOSFETs especially, the effect becomes pronounced when the field between the channel and drain is strong, so managing it is essential in device design.",
+"key_points": [
+"Hot carriers",
+"Trap formation",
+"Performance degradation",
+"Device design"
+]
+},
+{
+"id": "INT-2329f521",
+"_h": "ff551ced",
+"question": "Could you explain the stress problems that can arise in the STI process?",
+"follow_up": "How could that problem be solved?",
+"follow_up_answer": "Stress problems mainly arise after trench etching. To solve them, you can optimize the etch profile or choose high-quality insulating fill materials. These methods help raise device reliability.",
+"interview_answer": "Stress in the STI process mainly arises after trench etching, and it can hurt device reliability. The stress depends on trench depth and how well the insulator fills it: deeper trenches improve electrical isolation, but they can also increase stress. That can create defects in the device's physical structure, which eventually leads to performance loss. So it's important to optimize the etch profile or use high-quality insulating materials. That approach raises reliability and is essential for guaranteeing performance in high-density integrated circuits.",
+"key_points": [
+"STI",
+"Stress problems",
+"Solutions",
+"Reliability"
+]
+},
+{
+"id": "INT-96ae1c84",
+"_h": "3831c61f",
+"question": "Could you compare the pros and cons of LOCOS and STI?",
+"follow_up": "Then why is STI better suited to high-density integrated circuits?",
+"follow_up_answer": "STI uses space efficiently and gives sharper boundaries, so it reduces interference between devices in high-density circuits. LOCOS, on the other hand, can cause interference because of the bird's beak, so it isn't suited to high-density designs.",
+"interview_answer": "LOCOS and STI are the two main techniques for isolating devices, and each has clear pros and cons. LOCOS grows a thick oxide to provide a physical barrier, but the bird's beak that forms in the process hurts space efficiency. STI, by contrast, etches a shallow trench and fills it with insulator, using space more efficiently and holding up well in fine patterns. That's why LOCOS isn't suited to high-density integrated circuits, and STI is mainly used. Each technique has its strengths under certain conditions, but in practice STI tends to be far more widely used.",
+"key_points": [
+"LOCOS",
+"STI",
+"Pros and cons",
+"High-density ICs"
+]
+},
+{
+"id": "INT-bb1fe8b7",
+"_h": "1daafead",
+"question": "Could you talk about problems that can occur in wet etching and how to solve them?",
+"follow_up": "How would you set up the process to prevent that problem?",
+"follow_up_answer": "To prevent it, I'd precisely control the chemical solution's concentration and temperature. I'd also improve how the bath is agitated so the reaction happens uniformly. That keeps the etch rate steady and reduces excessive lateral etching.",
+"interview_answer": "In wet etching, isotropy can degrade pattern accuracy. Because the chemical removes material evenly in every direction, the sides get affected during patterning, so unwanted parts may be left behind or removed. That becomes an even more serious problem in chipmaking, which demands very fine patterns. To solve it, I'd precisely control the solution's concentration and temperature and improve agitation so the reaction is uniform. That keeps the etch rate steady and reduces excessive lateral etching. Hybrid approaches that combine dry and wet etching are also being researched, opening the door to even more precise control of etch profiles.",
+"key_points": [
+"Problems",
+"Solutions",
+"Precise control",
+"Agitation"
+]
+},
+{
+"id": "INT-df248bd2",
+"_h": "684245f8",
+"question": "Could you explain the isotropic nature of wet etching?",
+"follow_up": "Could you explain in more detail why isotropy can cause problems?",
+"follow_up_answer": "Isotropic etching removes material evenly in every direction, so when forming fine patterns, areas you didn't want to touch can get eaten away. In complex structures especially, lateral etching becomes more pronounced and pattern accuracy can drop. It directly affects circuit performance, so it's a very important issue.",
+"interview_answer": "The isotropic nature of wet etching means material is removed evenly in every direction. It comes from the way a chemical solution dissolves specific materials on the wafer surface, selectively removing them through chemical reactions. When forming complex patterns, this isotropy can affect the sides too, raising the chance that unwanted areas get eroded. So it must be considered in process design, and it matters even more in chipmaking, which demands fine patterns. In practice, it also means the solution's concentration and temperature have to be controlled precisely to keep wet etching effective.",
+"key_points": [
+"Isotropy",
+"Fine patterns",
+"Erosion",
+"Accuracy"
+]
+},
+{
+"id": "INT-37f6f7cf",
+"_h": "9b0c2b8a",
+"question": "Why does mechanical stability drop when using low-k dielectrics?",
+"follow_up": "What can you do in that situation?",
+"follow_up_answer": "Mechanical stability drops because the many pores weaken the film's physical strength. In that situation, you can optimize the pore structure and improve the chemical composition to raise mechanical strength.",
+"interview_answer": "Low-k dielectrics lose mechanical stability because, to lower the dielectric constant, their structure includes many pores. That weakens physical strength and makes mechanical stress damage more likely. So I think keeping the right balance is important. To do that, you can optimize the pore structure and improve the chemical composition.",
+"key_points": [
+"Mechanical stability",
+"Pore structure",
+"Chemical composition",
+"Strength"
+]
+},
+{
+"id": "INT-5e19c560",
+"_h": "902e27b6",
+"question": "Could you explain why low-k dielectrics are needed?",
+"follow_up": "Why do that?",
+"follow_up_answer": "Low-k dielectrics are needed to reduce parasitic capacitance and speed up signal transmission. If the dielectric between wires has a high dielectric constant, signals slow down, so low-k films are used to solve that and optimize chip performance.",
+"interview_answer": "Low-k dielectrics are needed to speed up signal transmission between wires. Their low dielectric constant reduces parasitic capacitance, which minimizes electrical interference and raises overall chip performance. That makes low-k dielectrics an essential part of semiconductor processing.",
+"key_points": [
+"Parasitic capacitance",
+"Signal speed",
+"Chip performance",
+"Low-k dielectrics"
+]
+},
+{
+"id": "INT-b0f543e0",
+"_h": "9a6cdd52",
+"question": "Could you explain how metal silicide improves electrical contact?",
+"follow_up": "Why does that happen?",
+"follow_up_answer": "Metal silicide bonds chemically with silicon, lowering electrical resistance. That lets current flow smoothly, and as a result, device performance improves. Silicide is actually less conductive than pure metal, but its bond with silicon is what improves the electrical contact.",
+"interview_answer": "Metal silicide improves electrical contact, reducing the device's resistance and helping current flow smoothly. That's possible because of its chemical bond with silicon: silicide is less conductive than pure metal, but the bond makes the contact electrically more reliable. The end result is better device performance.",
+"key_points": [
+"Electrical contact",
+"Lower resistance",
+"Better device performance"
+]
+},
+{
+"id": "INT-a2800815",
+"_h": "10052a0a",
+"question": "What are the key variables in back grinding and in dicing?",
+"follow_up": "What would happen if you raised the grinding wheel's rotation speed?",
+"follow_up_answer": "Raising the wheel speed increases the removal rate, so the wafer can get thinner. But if it's too fast, cracks or surface-roughness problems can appear, so speed control matters.",
+"interview_answer": "In back grinding, the grinding wheel's rotation speed and grinding pressure are key; in dicing, blade thickness and cutting speed are the core variables. These directly affect the quality and reliability of the final product, so they need precise control. Optimizing each variable is essential for an efficient process.",
+"key_points": [
+"Variable control",
+"Removal rate",
+"Surface roughness"
+]
+},
+{
+"id": "INT-69ddcd5a",
+"_h": "2e2904d8",
+"question": "Could you explain why wafer back grinding is needed?",
+"follow_up": "Then what problems can occur if the wafer gets too thin?",
+"follow_up_answer": "If the wafer gets too thin, it can crack or lose mechanical strength. That can lead to lower chip performance and reliability problems, so keeping the right thickness is important.",
+"interview_answer": "Wafer back grinding thins the wafer so the chips can fit into packages. A thick wafer can't shed heat effectively, which can hurt performance. And if the thickness isn't uniform, chips may not work properly after packaging, so back grinding is needed to address these problems.",
+"key_points": [
+"Heat dissipation",
+"Performance loss",
+"Thickness uniformity"
+]
+},
+{
+"id": "INT-91456230",
+"_h": "b8ce5ec3",
+"question": "Could you compare the pros and cons of BGA and CSP?",
+"follow_up": "So in what situation would you choose BGA between the two?",
+"follow_up_answer": "I'd choose BGA when I need high I/O density and efficient heat dissipation. It's especially suited to high-performance processors and memory modules where performance is critical.",
+"interview_answer": "BGA and CSP are package types, each with its own strengths and weaknesses. BGA offers high I/O density and excellent heat dissipation, because the solder balls arrayed under the chip carry electrical signals effectively and help release heat efficiently. CSP, on the other hand, offers miniaturization and good electrical characteristics, making it a fit for small electronics such as mobile devices. Its drawbacks are relatively higher manufacturing cost and more complex thermal management. That's why BGA suits high-performance processors, while CSP is better when saving space matters. So it's important to choose the right package for the application.",
+"key_points": [
+"BGA",
+"CSP",
+"Heat dissipation",
+"I/O density"
+]
+},
+{
+"id": "INT-dce3756f",
+"_h": "f369401d",
+"question": "Could you explain why packaging matters?",
+"follow_up": "Then what happens if something goes wrong in packaging?",
+"follow_up_answer": "If packaging goes wrong, the chip can be damaged or signals may not pass through cleanly. And if heat isn't dissipated properly, performance can drop.",
+"interview_answer": "Packaging plays an important role: it protects the chip from the outside environment, carries electrical signals, and releases heat. Without it, the chip's functions can't be used, and performance loss or damage can occur. So packaging is an essential step that guarantees chip performance and reliability.",
+"key_points": [
+"Reliability",
+"Heat dissipation",
+"Signal transmission",
+"Chip protection"
+]
+},
+{
+"id": "INT-2ccce3bd",
+"_h": "43c4595e",
+"question": "Could you explain why annealing after ion implantation is important?",
+"follow_up": "Then what should you watch out for during annealing?",
+"follow_up_answer": "During annealing, it's important to get the implanted ions evenly distributed in the crystal lattice. Too high a temperature or too long a time can cause defects, so you have to set optimal conditions.",
+"interview_answer": "Annealing after ion implantation is an important step that helps the implanted ions settle evenly into the wafer's crystal structure. It lets the ions bond into the lattice and the dopants sit stably in place. So setting the right anneal conditions is essential for reducing defects and optimizing device performance.",
+"key_points": [
+"Why annealing matters",
+"Defect repair",
+"Uniform ion distribution"
+]
+},
+{
+"id": "INT-50da7d90",
+"_h": "27cddeca",
+"question": "Could you explain how ion implantation affects device performance?",
+"follow_up": "Why does it have that effect?",
+"follow_up_answer": "By controlling the concentration and type of impurities through ion implantation, you can change a semiconductor's electrical characteristics. That can improve switching speed or reduce power consumption. But if implantation isn't done properly, performance can suffer.",
+"interview_answer": "Ion implantation plays an important role in device performance. It's the core process that controls the type and concentration of impurities to raise conductivity and improve switching speed. Device performance depends heavily on electrical characteristics at the atomic level, and poor doping can degrade it. For example, when impurity ions are implanted into the wafer to shape its electrical characteristics, implant depth and concentration matter a great deal. Depth determines how far the ions go into the wafer, and concentration is the number of ions per unit volume. If implantation isn't done properly, performance can drop, so it's important to tune implant energy and dose to keep the concentration uniform.",
+"key_points": [
+"Impurity concentration",
+"Electrical characteristics",
+"Switching speed",
+"Power consumption"
+]
+},
+{
+"id": "INT-d88bf3b2",
+"_h": "57261c32",
+"question": "When a leakage current problem comes up, how would you approach solving it?",
+"follow_up": "Are there any limits or conditions to that approach?",
+"follow_up_answer": "Using a high-k gate dielectric can reduce leakage current, but the material doesn't always guarantee optimal performance. Depending on the high-k material's properties, the device's electrical characteristics can also change, so it needs careful review.",
+"interview_answer": "To solve a leakage problem, I'd consider using a high-k gate dielectric. It reduces tunneling current and helps raise device reliability. But electrical characteristics can change depending on the material's properties, so careful review and testing are needed.",
+"key_points": [
+"Leakage current",
+"High-k materials",
+"Device reliability",
+"Electrical characteristics"
+]
+},
+{
+"id": "INT-7ba6f83a",
+"_h": "e1cc046c",
+"question": "Could you explain the accumulation, depletion and inversion states of a MOS capacitor?",
+"follow_up": "Could you explain why the charge distribution changes that way in each state?",
+"follow_up_answer": "In accumulation, the gate voltage pulls holes up under the oxide, so charge accumulates there. In depletion, as the gate voltage increases, holes are pushed away and almost no mobile charge is left. Finally, in inversion, the gate voltage is high enough that conduction electrons gather at the surface, flipping the polarity of the charge.",
+"interview_answer": "A MOS capacitor operates in three states: accumulation, depletion and inversion. In accumulation, at low voltage, holes gather and charge accumulates; in depletion, as voltage rises, holes are pushed away and almost no mobile charge remains. In inversion, at high voltage, conduction electrons gather and the charge polarity flips. These states change with voltage and are essential for controlling device operation precisely.",
+"key_points": [
+"Accumulation",
+"Depletion",
+"Inversion",
+"Charge distribution"
+]
+},
+{
+"id": "INT-340434fe",
+"_h": "d2178c4b",
+"question": "Why is a smaller subthreshold swing better?",
+"follow_up": "What methods can you use to improve the swing?",
+"follow_up_answer": "To improve swing, you can thin the gate oxide to strengthen gate control or use structures and materials that couple the gate more tightly to the channel. These help raise switching speed and power efficiency, optimizing device performance.",
+"interview_answer": "The smaller the swing, the more steeply a transistor's current rises near the threshold voltage. That means the device can turn on and off faster, which helps switching speed and power efficiency. So reducing swing is important for raising device performance.",
+"key_points": [
+"Switching speed",
+"Power efficiency",
+"Gate oxide thickness",
+"High-mobility materials"
+]
+},
+{
+"id": "INT-9e24962c",
+"_h": "08d46932",
+"question": "Could you explain subthreshold current?",
+"follow_up": "Then how does a large subthreshold current affect a device?",
+"follow_up_answer": "If subthreshold current is large, the device wastes power even when it's off, lowering overall efficiency. Especially in mobile devices that need low-power components, this can shorten battery life.",
+"interview_answer": "Subthreshold current is the current that flows below the threshold voltage. Because it flows in tiny amounts even when the transistor is off, it affects power consumption. In low-power devices such as mobile devices especially, a large subthreshold current lowers efficiency and can hurt battery life.",
+"key_points": [
+"Power consumption",
+"Device efficiency",
+"Transistors",
+"Low-power devices"
+]
+},
+{
+"id": "INT-9bde8020",
+"_h": "bf3f5009",
+"question": "Could you compare the pros and cons of annealing and RTP?",
+"follow_up": "In what situations would you choose RTP?",
+"follow_up_answer": "RTP can process at high temperature in a short time, preventing the wafer from overheating. It's the right choice especially when you need fast temperature changes or must minimize thermal stress. That's why it's widely used in modern chipmaking.",
+"interview_answer": "Annealing and RTP are two important heat treatments in semiconductor processing, each with its own characteristics. Conventional annealing is good for removing wafer defects and optimizing the crystal structure. It holds the wafer at high temperature for a set time, activating dopants and recovering electrical characteristics. RTP, on the other hand, processes the wafer at high temperature for a short time, minimizing thermal damage. That reduces physical deformation and shortens process time. Its drawback is that thermal uniformity is harder to achieve. So the two should be used appropriately depending on the situation. Conventional annealing takes longer and uses more energy, but it's essential for recovering electrical performance. RTP reduces wafer damage with short heat treatments, but extra effort is needed to solve uniformity issues. Understanding these traits and applying them properly helps make chipmaking more efficient.",
+"key_points": [
+"Annealing strengths",
+"RTP strengths",
+"Choosing by situation"
+]
+},
+{
+"id": "INT-03fabda1",
+"_h": "ff55f043",
+"question": "Could you explain why annealing is needed?",
+"follow_up": "Why do those defects form?",
+"follow_up_answer": "Defects form during ion implantation as impurities are driven into the wafer. The crystal takes physical and chemical stress and its structure is damaged, which degrades electrical characteristics. So annealing is needed to remove those defects and restore the structure.",
+"interview_answer": "Annealing is a process for removing wafer defects and restoring physical properties. Defects created inside the wafer after ion implantation can degrade electrical characteristics. Heat-treating at high temperature reduces those defects and realigns the crystal structure, improving electrical performance.",
+"key_points": [
+"Defect removal",
+"Restoring electrical characteristics",
+"Physical stress"
+]
+},
+{
+"id": "INT-fcb92d71",
+"_h": "7339a501",
+"question": "What problems can occur if drift current grows excessively in a high-voltage device?",
+"follow_up": "Then what are efficient ways to reduce drift current?",
+"follow_up_answer": "To reduce drift current, it's important to design the device for a uniform electric-field distribution. For example, you can tune the gate oxide thickness or use high-k materials to control the field efficiently. These methods help make the device more stable.",
+"interview_answer": "In a high-voltage device, if drift current grows excessively, heat increases and device lifetime can shorten. That can lead to performance loss, so managing drift current properly is essential. So in device design, it's important to make the field distribution uniform and use high-k materials where needed.",
+"key_points": [
+"High-voltage devices",
+"Rising drift current",
+"Field distribution",
+"Gate oxide"
+]
+},
+{
+"id": "INT-9d04170b",
+"_h": "f68494c8",
+"question": "Could you explain the difference between drift current and diffusion current?",
+"follow_up": "Then could you explain why drift current depends on the electric field while diffusion current depends on concentration differences?",
+"follow_up_answer": "Drift current depends on field strength because an external electric field moves charges in an orderly way. Diffusion current, on the other hand, arises naturally from a difference in carrier concentration, so it doesn't need an electric field. These principles are very important for understanding how semiconductor devices work.",
+"interview_answer": "Drift current is current from charges moved by an external electric field. Diffusion current, by contrast, comes from a difference in carrier concentration. In other words, drift current is orderly charge movement, while diffusion current is spontaneous movement. The two rest on different principles, and device design has to consider each one's characteristics.",
+"key_points": [
+"Drift current",
+"Diffusion current",
+"Electric field",
+"Concentration difference"
+]
+},
+{
+"id": "INT-1a4fa810",
+"_h": "45e93735",
+"question": "What problems can arise in 3D NAND's stacked structure?",
+"follow_up": "What approaches could solve those problems?",
+"follow_up_answer": "The problems with stacking are process complexity and thermal management. Precise lithography and etching can reduce alignment errors between layers. Researching new materials and structures to improve heat dissipation is another important direction.",
+"interview_answer": "The biggest problem with 3D NAND stacking is the growing process complexity. The more layers there are, the harder it gets to align each layer and etch uniformly, which can hurt production yield. Heat also becomes harder to dissipate, which can cause reliability problems. Solving these takes precise lithography and research into new materials.",
+"key_points": [
+"Process complexity",
+"Thermal management",
+"Lithography technology",
+"Better heat dissipation"
+]
+},
+{
+"id": "INT-34812d2b",
+"_h": "e6dc4e79",
+"question": "Could you explain why 3D NAND is needed?",
+"follow_up": "What do you think caused that need?",
+"follow_up_answer": "Mainly the need for more storage capacity. In 2D NAND, cells have to keep shrinking, which can cause electrical interference problems. 3D NAND solves this by stacking cells vertically while increasing capacity.",
+"interview_answer": "3D NAND became necessary because the conventional 2D NAND structure struggled to meet growing demand for storage capacity. 2D NAND has to keep shrinking its cells, which can cause electrical interference. 3D NAND stacks cells vertically, using space efficiently and increasing capacity without shrinking the cells.",
+"key_points": [
+"More storage capacity",
+"Electrical interference",
+"3D structure",
+"Efficient use of space"
+]
+},
+{
+"id": "INT-25bab19e",
+"_h": "982760d9",
+"question": "Why do resolution and depth of focus matter in photolithography?",
+"follow_up": "Could you explain the trade-off between the two?",
+"follow_up_answer": "Resolution sets the smallest line width, and depth of focus is the range of depth over which the pattern stays in focus. The two are closely linked: raising NA to improve resolution reduces depth of focus, which creates a trade-off. So it's important to balance them.",
+"interview_answer": "Resolution and depth of focus are the key factors that decide pattern accuracy in photolithography. Resolution sets the smallest line width, and depth of focus defines the range of focus on the wafer. The two trade off against each other — raising resolution can shrink depth of focus — so process conditions have to be tuned carefully.",
+"key_points": [
+"Resolution",
+"Depth of focus",
+"Trade-off",
+"Pattern accuracy"
+]
+},
+{
+"id": "INT-be80c89d",
+"_h": "812170d8",
+"question": "When an overlay (alignment) error occurs in photolithography, how would you approach solving it?",
+"follow_up": "In that situation, how could the exposure tool's performance be improved?",
+"follow_up_answer": "To reduce overlay error, the exposure tool's precision needs to go up. You can use higher-resolution optics or calibrate the tool regularly to minimize errors. Optimizing the tool's alignment system and correction models is also a good approach.",
+"interview_answer": "When an overlay error occurs, I'd first analyze the cause thoroughly, then check tool calibration and the work environment. In photolithography, overlay error is when the pattern on the wafer is shifted from its expected position, and it can cause serious defects in later steps. It's affected by the exposure tool's precision, the photoresist's properties and environmental conditions, so each factor needs a close look. Then, if needed, I'd raise the tool's performance with higher-resolution optics or adopt newer technology such as EUV lithography. Regular inspections should keep the tool precise, and work on improving photoresist quality should continue. Finally, it's important to tightly control temperature, humidity and cleanliness, since they directly affect whether photolithography succeeds.",
+"key_points": [
+"Overlay error",
+"Problem solving",
+"Exposure tool",
+"Precision"
+]
+},
+{
+"id": "INT-d4b0e80e",
+"_h": "832c6156",
+"question": "Could you explain the difference between SADP and LELE?",
+"follow_up": "In what situations would one approach be more advantageous?",
+"follow_up_answer": "SADP forms patterns using spacers, so uniformity of spacer width matters. LELE needs two alignments, so overlay accuracy is critical. So it's important to choose the right approach based on the device's characteristics and requirements.",
+"interview_answer": "Instead of printing the pattern twice, SADP forms the desired pattern using spacers on the sidewalls. LELE, on the other hand, forms patterns through two rounds of exposure and etch. Which one is chosen depends on the device's characteristics and requirements: spacer thickness is what matters in SADP, while overlay accuracy is key in LELE.",
+"key_points": [
+"SADP",
+"LELE",
+"Using spacers",
+"Overlay accuracy"
+]
+},
+{
+"id": "INT-a3688254",
+"_h": "c3896a1b",
+"question": "Could you explain why multi-patterning is needed?",
+"follow_up": "What caused that need?",
+"follow_up_answer": "As line widths shrink, existing patterning methods can't deliver the resolution needed. That can lead to lower device performance and yield. Multi-patterning is needed to solve those problems.",
+"interview_answer": "Multi-patterning is needed to overcome resolution limits in chipmaking. As line widths shrink, conventional single patterning can no longer achieve the resolution required. That can lead to lower device performance and yield. Multi-patterning techniques solve these problems and make finer patterns possible.",
+"key_points": [
+"Resolution limits",
+"Device performance",
+"Process efficiency",
+"Pattern accuracy"
+]
+},
+{
+"id": "INT-8f458d5d",
+"_h": "b15bcaa2",
+"question": "Could you briefly explain OPC?",
+"follow_up": "Why is that correction needed?",
+"follow_up_answer": "OPC is needed to correct pattern distortion so the device keeps working as intended. Distorted patterns can degrade device performance, so OPC makes sure patterns transfer accurately. That's essential for the stability and performance of high-density integrated circuits.",
+"interview_answer": "OPC is a technique that predicts and corrects pattern distortion caused by diffraction. It's essential for raising the precision of photolithography in chipmaking. Pattern distortion comes from the diffraction of light, and its effect grows the finer the pattern. OPC works by predicting, from the design data, the distortion that will occur during actual exposure and adding features to the mask to compensate. That ensures the intended pattern transfers accurately and guarantees device performance. But OPC has limits: pattern complexity grows, process variability remains, and it costs time and money. Overcoming those challenges depends on design automation and high-performance computing resources.",
+"key_points": [
+"Pattern distortion",
+"Accurate pattern transfer",
+"Maintaining device performance"
+]
+},
+{
+"id": "INT-ee64d7ed",
+"_h": "6ab886ef",
+"question": "What problems can occur if cleaning time runs too long in wafer cleaning?",
+"follow_up": "Then how could cleaning time be optimized?",
+"follow_up_answer": "If cleaning runs too long, the risk of damaging the wafer surface goes up. To optimize it, I'd analyze cleaning time versus effectiveness experimentally to set the right time, and introduce a real-time monitoring system for immediate feedback.",
+"interview_answer": "If cleaning runs too long, the risk of damaging the wafer surface increases. At the same time, cleaning matters because contamination on the wafer surface causes big problems in chipmaking: tiny particles or impurities left behind can distort patterns or cause defects in later steps. As circuits shrink, wafer cleanliness becomes even more important. So cleaning time has to be set just right, and experimental analysis plus real-time monitoring help find the optimal time. To prevent incomplete cleaning or chemical contamination, it's also necessary to introduce automation and control chemical concentrations precisely.",
+"key_points": [
+"Cleaning time",
+"Wafer damage",
+"Optimization",
+"Real-time monitoring"
+]
+},
+{
+"id": "INT-08f5508c",
+"_h": "5f20b0e5",
+"question": "Could you explain the SC1 step of RCA cleaning?",
+"follow_up": "Why is it done that way?",
+"follow_up_answer": "In the SC1 step, ammonia and hydrogen peroxide react to oxidize organics and some metal contamination. This raises the wafer surface's cleanliness, which is important for preventing defects in later steps. So it's an essential step for guaranteeing wafer performance and yield.",
+"interview_answer": "The SC1 step of RCA cleaning uses ammonia and hydrogen peroxide to remove organics and some metal contamination. It plays a big role in raising wafer cleanliness and reducing the chance of defects in later steps. If SC1 isn't done properly, pattern distortion or performance loss can occur later, so it's very important.",
+"key_points": [
+"SC1 step",
+"Removing organics",
+"Defect prevention",
+"Better cleanliness"
+]
+},
+{
+"id": "INT-283439a0",
+"_h": "2ea132a2",
+"question": "How would you explain the effect of impurity concentration on crystal quality in the Czochralski process?",
+"follow_up": "Then what methods can be used to minimize impurities?",
+"follow_up_answer": "Impurities can cause defects in the crystal, which can lead to poorer electrical characteristics. So to minimize impurities, it's important to keep a cleanroom environment and use high-purity raw materials. These methods improve crystal quality.",
+"interview_answer": "High impurity concentrations create defects inside the crystal, which can degrade electrical characteristics. Impurities such as oxygen and carbon in particular strongly affect crystal reliability, so minimizing them is very important. That requires running the process in a cleanroom and using high-purity raw materials.",
+"key_points": [
+"Impurities",
+"Crystal quality",
+"Cleanroom environment",
+"High-purity raw materials"
+]
+},
+{
+"id": "INT-6041a5a4",
+"_h": "1c024a79",
+"question": "What problems can occur if crystal growth is too fast in the Czochralski process?",
+"follow_up": "Then how can speed control prevent those problems?",
+"follow_up_answer": "If growth is too fast, the crystal can crack or develop defects. To prevent that, a precision control system should keep the speed in the right range, and temperature and conditions during growth should be optimized. That keeps crystal growth uniform.",
+"interview_answer": "If crystal growth is too fast, defects can form inside the crystal or it can crack. That's because the interaction between the seed crystal and the molten silicon becomes unstable during growth. When the crystal grows too quickly, silicon atoms don't have time to arrange themselves properly, which creates defects. These defects hurt electrical characteristics and can lower device performance and reliability. A cracked crystal also means big losses in production. So controlling the growth rate properly is essential in the Czochralski process. That's how you produce high-quality single-crystal silicon wafers and improve overall device performance.",
+"key_points": [
+"Speed control",
+"Defect formation",
+"Precision control",
+"Uniformity"
+]
+},
+{
+"id": "INT-be02d3db",
+"_h": "741f173b",
+"question": "What approach would you use to control oxide thickness in the oxidation process?",
+"follow_up": "If that approach fails, what's your alternative?",
+"follow_up_answer": "You can control oxide thickness by adjusting temperature and oxidizing-gas concentration. If that fails, you could apply correction factors based on experimental data or use additional modeling that adjusts the oxidant's diffusion rate.",
+"interview_answer": "To control oxide thickness, I'd raise the temperature or adjust the oxidizing gas concentration. These directly affect the oxidation rate, so they're effective for hitting the target thickness. If they don't give the desired result, I'd consider adding correction factors or adjusting the diffusion rate in the model.",
+"key_points": [
+"Temperature control",
+"Oxidizing gas concentration",
+"Experimental correction",
+"Alternative modeling"
+]
+},
+{
+"id": "INT-6bcd5124",
+"_h": "1ebaca77",
+"question": "Could you explain why the Deal–Grove model matters in oxidation?",
+"follow_up": "Then what do you think the model's limitations are?",
+"follow_up_answer": "The Deal–Grove model is less accurate in the very early stage of growth, especially for thin oxides, and its predictive power can drop at high temperatures or pressures. Overcoming those limits requires experimental correction factors or additional modeling techniques.",
+"interview_answer": "The Deal–Grove model is an important tool for predicting oxide growth rate. It explains how growth slows as the oxide thickens, which lets you predict the process time needed for a target thickness. But it needs supplementing in the very early growth stage and in extreme conditions, where its predictions are weaker.",
+"key_points": [
+"Predicting oxide growth",
+"Early linear stage",
+"High-temperature conditions",
+"Model supplements"
+]
+},
+{
+"id": "INT-2c535e03",
+"_h": "63b4df7f",
+"question": "What methods would you consider to stabilize the threshold voltage?",
+"follow_up": "If that doesn't work, what alternative approach would you take?",
+"follow_up_answer": "If keeping the gate oxide thickness uniform doesn't work, I'd control channel doping more precisely or add a temperature-compensation circuit to minimize variation. I'd also look at strengthening the process monitoring system to detect and respond to changes in real time.",
+"interview_answer": "To stabilize the threshold voltage, it's important to keep the gate oxide thickness uniform and control channel doping precisely. You can also design a temperature-compensation circuit to offset voltage shifts from temperature changes. These methods improve transistor reliability and performance.",
+"key_points": [
+"Threshold voltage stabilization",
+"Gate oxide thickness",
+"Temperature-compensation circuit",
+"Process monitoring"
+]
+},
+{
+"id": "INT-e398a291",
+"_h": "f1d06451",
+"question": "Could you explain threshold voltage?",
+"follow_up": "Could you explain why threshold voltage matters so much?",
+"follow_up_answer": "Threshold voltage is the critical voltage that decides how a transistor operates. Below it, current essentially doesn't flow, so it largely determines switching performance. If it isn't set properly, leakage current can occur or power can be used inefficiently, which also affects device stability and reliability.",
+"interview_answer": "Threshold voltage is the minimum voltage needed to switch a transistor from off to on. Only above this voltage does a channel form and current flow, so it's crucial to switching performance. If the threshold voltage isn't right, current can flow when it shouldn't, causing leakage.",
+"key_points": [
+"Definition of threshold voltage",
+"Switching performance",
+"Leakage current",
+"Device stability"
+]
+},
+{
+"id": "INT-46805fd2",
+"_h": "6c4ca059",
+"question": "What trade-offs should you consider when adjusting doping concentration?",
+"follow_up": "Could you explain how that trade-off affects the actual process?",
+"follow_up_answer": "Raising doping increases carrier concentration and improves conductivity, but it can also raise power consumption. That can directly affect device reliability and yield, so the trade-off has to be considered, and process optimization is needed.",
+"interview_answer": "When adjusting doping concentration, you have to weigh carrier concentration against power consumption. Higher doping increases carrier concentration and improves conductivity, but power consumption can rise too. These changes affect device reliability, so precise concentration control during processing is essential.",
+"key_points": [
+"Doping concentration",
+"Carrier concentration",
+"Power consumption",
+"Reliability"
+]
+},
+{
+"id": "INT-5768f33b",
+"_h": "87bac2b0",
+"question": "Could you explain how carrier concentration affects a device's electrical characteristics?",
+"follow_up": "Could you explain further why that happens?",
+"follow_up_answer": "High carrier concentration lets current flow smoothly, so the device switches faster. If the concentration is too low, conductivity drops and the device doesn't work properly. So the right concentration has to be maintained to optimize device performance.",
+"interview_answer": "Carrier concentration is a key factor in a device's electrical characteristics. High concentration lets current flow smoothly and improves switching speed, while low concentration reduces conductivity and keeps the device from working properly. So maintaining the right carrier concentration is essential for performance and efficiency.",
+"key_points": [
+"Carrier concentration",
+"Electrical characteristics",
+"Switching speed",
+"Conductivity"
+]
+},
+{
+"id": "INT-9543866a",
+"_h": "9f952ae3",
+"question": "What approaches can you take to solve electromigration problems?",
+"follow_up": "Which of those approaches do you think is most effective?",
+"follow_up_answer": "Metal alloying is an effective method: adding small amounts of other elements strengthens bonding in the metal and improves resistance to electromigration. This can be especially effective in fine wiring structures.",
+"interview_answer": "There are several approaches to electromigration. First, alloying the metal can raise its resistance to electromigration. Second, optimizing the wiring structure can reduce current density. Finally, managing temperature slows the movement of metal atoms and suppresses electromigration.",
+"key_points": [
+"Problem solving",
+"Metal alloying",
+"Wiring optimization",
+"Temperature management"
+]
+},
+{
+"id": "INT-9491701a",
+"_h": "fd017b6c",
+"question": "Could you explain what electromigration is?",
+"follow_up": "Then could you describe specifically how electromigration affects device reliability?",
+"follow_up_answer": "Electromigration physically deforms metal wiring, which shortens device lifetime. At high current density and high temperature especially, metal atoms move faster and structural defects can form.",
+"interview_answer": "Electromigration is when electrons flowing through a metal push its atoms along. As current flows, the electrons' motion moves metal atoms, so certain spots can thin out or break. This hurts device reliability and ultimately shortens device lifetime.",
+"key_points": [
+"Electromigration",
+"Reliability",
+"Device lifetime",
+"Structural defects"
+]
+},
+{
+"id": "INT-13d3f0d3",
+"_h": "661b6717",
+"question": "How would you approach scratch problems in CMP?",
+"follow_up": "What are specific improvements for solving scratch problems?",
+"follow_up_answer": "To solve scratch problems, it's important to check the slurry composition and pad condition regularly and replace them when needed. Pressure and speed should also be tuned during the process to minimize scratches.",
+"interview_answer": "Scratches in CMP create defects on the wafer surface that can seriously affect later steps. They degrade wafer flatness and cause pattern distortion, which ultimately leads to lower circuit performance. Since modern chips have multilayer structures, unevenness between layers accumulates and makes the problem worse. So to solve scratch problems, it's essential to closely check slurry composition and pad condition and replace them when needed. Slurry chemistry directly affects polishing efficiency and removal rate, so keeping the right composition matters. Pad wear should also be checked and the pad replaced periodically to secure uniformity.",
+"key_points": [
+"Scratch problems",
+"Slurry composition",
+"Pad condition",
+"Process control"
+]
+},
+{
+"id": "INT-00e9d81b",
+"_h": "e65e2276",
+"question": "What trade-offs arise when adjusting pressure in CMP?",
+"follow_up": "Higher pressure raises removal rate, but what other problems can it cause?",
+"follow_up_answer": "Higher pressure increases removal rate, but it also raises the risk of surface damage. So you have to find the optimal pressure, weighing uniformity and quality together.",
+"interview_answer": "Adjusting pressure in CMP can raise removal rate, but too much pressure can damage the surface. That's because CMP flattens the wafer by combining chemical reaction with mechanical friction. Higher pressure means the pad presses harder on the wafer, raising removal rate, but the risk of surface damage rises too. So pressure adjustment has to balance removal rate and uniformity. That's why optimizing variables such as pressure, speed and slurry composition is key to maintaining quality in CMP.",
+"key_points": [
+"Pressure adjustment",
+"Removal rate",
+"Surface damage",
+"Uniformity"
+]
+},
+{
+"id": "INT-967a60d3",
+"_h": "5b24c65a",
+"question": "Could you explain the difference between PVD and CVD?",
+"follow_up": "Then which method should you choose in particular situations?",
+"follow_up_answer": "For complex structures, CVD may be the better fit. Because it forms films through chemical reactions, it can keep thickness uniform and works well even in deep trenches and narrow gaps.",
+"interview_answer": "PVD deposits films by physical means and suits relatively simple structures. CVD, by contrast, forms films through chemical reactions, so it can keep thickness uniform even over complex topography. So it's important to choose the right method based on the structure's complexity.",
+"key_points": [
+"PVD",
+"CVD",
+"Step coverage",
+"Structural complexity"
+]
+},
+{
+"id": "INT-e95913e2",
+"_h": "94e5c15f",
+"question": "What factors should you consider when adjusting deposition temperature in PVD?",
+"follow_up": "What are the pros and cons of raising the temperature?",
+"follow_up_answer": "Raising the temperature can speed up deposition and improve crystallinity. But too high a temperature can damage materials, so proper temperature control is important.",
+"interview_answer": "When adjusting deposition temperature in PVD, you need to consider deposition rate and film crystallinity. Higher temperature increases the vaporization rate, which speeds up deposition and can improve crystallinity. But too high a temperature can damage materials, so care is needed. Other variables such as substrate rotation speed and vacuum level also need to be considered, both in the lab and in volume production. Proper temperature control is essential for PVD to succeed.",
+"key_points": [
+"Deposition temperature",
+"Deposition rate",
+"Crystallinity",
+"Material damage"
+]
+},
+{
+"id": "INT-3451975a",
+"_h": "a5cb3d2b",
+"question": "How would you approach the trade-off between power consumption and data retention time in refresh?",
+"follow_up": "Then how do you see temperature changes affecting that trade-off?",
+"follow_up_answer": "Temperature changes affect how fast charge leaks from the capacitor; at high temperature, the refresh interval has to be shortened to protect data, which costs more power. At low temperature, the interval can be lengthened to save power. So a dynamic response to temperature is needed to find the right balance.",
+"interview_answer": "The trade-off between power consumption and data retention in refresh is very important. The shorter the refresh interval, the more power it consumes; the longer the interval, the less power, but the more you depend on cells retaining data that long. So striking the right balance between the two is key in practice.",
+"key_points": [
+"Power consumption",
+"Data retention time",
+"Trade-off",
+"Temperature changes"
+]
+},
+{
+"id": "INT-f55cc112",
+"_h": "f0fb29e2",
+"question": "Could you explain why refresh is needed?",
+"follow_up": "What problems would occur without refresh?",
+"follow_up_answer": "Without refresh, charge stored in DRAM cell capacitors leaks away and data is gradually lost. Eventually the stored data becomes unreadable and system reliability drops. So refresh is essential to maintain data integrity.",
+"interview_answer": "Refresh is the process of periodically rewriting the data stored in DRAM. It's needed because charge stored in the capacitors leaks, which can cause data loss. Without refresh, data gradually corrupts or becomes unreadable, so it must be performed to maintain data integrity.",
+"key_points": [
+"Refresh",
+"Data loss",
+"Reliability",
+"Integrity"
+]
+},
+{
+"id": "INT-97687ae2",
+"_h": "9edec8ef",
+"question": "If you wanted to reduce the electron effective mass, what approaches are there?",
+"follow_up": "What are the downsides of changing materials?",
+"follow_up_answer": "III-V materials with small electron effective mass have low hole mobility and small band gaps, which can increase leakage. Interface quality with silicon and substrate cost are also issues, so the choice weighs electron and hole performance, leakage and process compatibility together.",
+"interview_answer": "Effective mass is set by the curvature of the energy band, so you use methods that change the band. The first is strain engineering in the channel, with strained silicon and SiGe channels as classic examples. The second is using materials with a smaller electron effective mass. Silicon's conductivity effective mass is about 0.26 $m_0$, while germanium's is about 0.12 $m_0$ and GaAs's about 0.067 $m_0$, much smaller. Doping, on the other hand, only changes carrier count; it doesn't reduce effective mass. When changing materials, you also check other conditions such as hole mobility and band gap.",
+"key_points": [
+"Band modification via strain",
+"Materials with small effective mass",
+"Doping doesn't apply",
+"Consider hole mobility and interface quality"
+]
+},
+{
+"id": "INT-303be568",
+"_h": "1c765a67",
+"question": "Could you explain what effective mass is?",
+"follow_up": "Why is effective mass needed?",
+"follow_up_answer": "Electrons move through the crystal's periodic potential, so their acceleration can't be explained with their vacuum mass. Folding the interaction with the lattice into a single effective mass lets you describe electron behavior with a simple equation like $F = m^* a$.",
+"interview_answer": "Effective mass expresses, as if it were mass, how an electron in a crystal responds to an external force. The electron's actual mass doesn't change; it's a value that folds in the interaction with the crystal's periodic potential. Mathematically, it's proportional to the inverse of the energy band's curvature, so the more sharply curved the band, the smaller the effective mass. A smaller effective mass means electrons accelerate more readily in the same field, so mobility is higher. That's why it matters when choosing channel materials for high-speed devices.",
+"key_points": [
+"Differs from actual mass",
+"Set by energy band curvature",
+"Inversely related to mobility",
+"Varies by material"
+]
+},
+{
+"id": "INT-343183bb",
+"_h": "025e702f",
+"question": "When bowing occurs, how can the problem be solved?",
+"follow_up": "If that method doesn't apply under certain conditions, what alternatives would you consider?",
+"follow_up_answer": "Adjusting plasma density and ion energy is the basic solution. But if that doesn't apply, I'd consider forming a sidewall passivation layer or optimizing etch time. These alternatives are also effective at easing bowing.",
+"interview_answer": "To solve bowing, adjusting plasma density and ion energy is key. That raises anisotropy in the etch and helps reduce bowing. Bowing occurs mainly in dry etching, where ion directionality and non-uniform plasma bombardment make the sidewalls bend irregularly. Depending on the depth of the trench or via hole, the sidewalls curve, making it hard to fill conductive or insulating material uniformly in later steps. Adjusting plasma density and ion energy optimizes how often and how hard ions strike, effectively easing bowing. Forming a sidewall protection layer or optimizing etch time can also help. These methods give real help in reducing bowing.",
+"key_points": [
+"Problem solving",
+"Plasma density control",
+"Ion energy control",
+"Sidewall protection layer"
+]
+},
+{
+"id": "INT-c0070d7c",
+"_h": "5d2904ab",
+"question": "Could you explain what bowing is?",
+"follow_up": "Why does it happen?",
+"follow_up_answer": "Bowing is mainly caused by non-uniform bombardment from ions and plasma. When ions strike the sidewalls too much, the etch becomes asymmetric and the sidewalls bulge. It's especially pronounced in dry etching.",
+"interview_answer": "Bowing is when sidewalls bend unevenly during semiconductor etching, mainly in dry etching. It's driven mostly by the angular spread of ions and the reactivity of the etch gas: ions accelerated vertically mostly etch the bottom, but the sidewalls also receive some energy and get etched, producing a bulge. Bowing can affect a pattern's electrical characteristics and degrade device performance, and it creates uneven thickness when conductive or insulating material is filled in later, hurting reliability. So optimizing etch conditions and choosing the right etch equipment are very important for minimizing bowing.",
+"key_points": [
+"Bowing",
+"Ions and plasma",
+"Asymmetric etching",
+"Dry etching"
+]
+},
+{
+"id": "INT-142bcbbf",
+"_h": "65588be4",
+"question": "Could you explain the difference between wire bonding and flip-chip bonding?",
+"follow_up": "Then what do you see as the pros and cons of each?",
+"follow_up_answer": "Wire bonding is simple and cheap, but it's slower and not suited to high density. Flip-chip bonding is faster and enables high-density packaging, but it costs more and the process is complex.",
+"interview_answer": "The difference between wire bonding and flip-chip bonding comes down to the bonding method and process complexity. Wire bonding is a simple way to connect chip and package, with low cost and a relatively easy process. But it's slower electrically and isn't suited to high-density packaging. Flip-chip bonding, by contrast, is faster and enables high-density packaging, but the process is complex and costs more. These differences decide where each technology is used and what performance it delivers. For example, flip chip may be preferred where high-speed data transfer is needed, while wire bonding may fit better where cost efficiency matters. So each technology should be chosen to fit specific conditions and requirements.",
+"key_points": [
+"Wire bonding",
+"Flip-chip bonding",
+"Pros and cons",
+"Cost"
+]
+},
+{
+"id": "INT-108ffbb8",
+"_h": "05406811",
+"question": "When bonding failures occur in wire bonding, what factors would you consider to solve the problem?",
+"follow_up": "Then how would your approach change if specific conditions changed?",
+"follow_up_answer": "If temperature is too low or pressure is uneven, adjusting them can raise bond strength. Additional steps to improve the precision of the automated system may also be needed.",
+"interview_answer": "When bonding failures occur, I'd first check the bonding parameters — temperature and pressure — and also check the bond pads for contamination and the condition of the wire. Temperature is a key factor that helps the wire fuse with the bond pad; without the right temperature, the bond may not form properly. Pressure strengthens the physical bond; the wire only attaches firmly to the pad under the right pressure. I'd solve the problem by considering all these factors together. Pad contamination and mechanical damage to the wire are common causes of bonding failure, so management to prevent them in advance is needed. That means precisely controlling bonding parameters and upgrading equipment to raise the precision of the automated system.",
+"key_points": [
+"Bonding failures",
+"Bonding parameters",
+"Precision",
+"Temperature and pressure"
+]
+},
+{
+"id": "INT-a2e1f7af",
+"_h": "fb13d4c0",
+"question": "Could you explain why leakage current increases as the channel gets shorter?",
+"follow_up": "How could the design be adjusted in this situation?",
+"follow_up_answer": "To keep leakage minimal while shortening the channel, you can adjust gate oxide thickness or use high-performance high-k materials. These technical approaches improve the device's electrical characteristics and help reduce unwanted current.",
+"interview_answer": "Leakage increases as the channel shortens because electrons can travel between source and drain more easily; the gate loses some control to the drain. Current flows along unintended paths, degrading the device's electrical characteristics and ultimately product reliability. Leakage that flows even when the device is off increases power consumption and generates heat, which can lower performance and lifetime. So minimizing leakage is very important in modern device design.",
+"key_points": [
+"Channel length",
+"Rising leakage current",
+"Gate oxide",
+"High-k materials"
+]
+},
+{
+"id": "INT-e6fc36dc",
+"_h": "f5c28d08",
+"question": "Could you explain how leakage current affects device performance?",
+"follow_up": "Then why do you think leakage current increases?",
+"follow_up_answer": "There are several reasons, but the most typical is electrons tunneling through a gate oxide that has become thin. A shorter channel also makes source-to-drain leakage more likely, and incomplete doping or defects can make the problem worse.",
+"interview_answer": "Leakage current increases a device's power consumption, generating heat and degrading performance, which ultimately lowers reliability. It arises when electrons flow along unwanted paths, degrading electrical characteristics and product efficiency. Leakage grows especially as the gate oxide thins or the channel shortens. This is more pronounced in modern devices that are smaller and must deliver high performance, and in low-power devices such as mobile and IoT devices, leakage raises total system power and shortens battery life. That's why controlling leakage is so important.",
+"key_points": [
+"Performance loss",
+"Higher power consumption",
+"Heat generation",
+"Lower reliability"
+]
+},
+{
+"id": "INT-8ea8090b",
+"_h": "9db9211a",
+"question": "What situations should you consider when applying repair?",
+"follow_up": "How would you prioritize those situations?",
+"follow_up_answer": "I'd prioritize repair success rate, time required and cost. Generally, methods with high success rates and low cost are applied first, and then I'd judge based on reliability after repair.",
+"interview_answer": "When applying repair, you need to consider the defect type, the repair technology, the repair success rate, and the time and cost involved. Since the repair approach differs by defect type, identifying that first is important. Post-repair reliability also needs to be considered to choose the best method.",
+"key_points": [
+"Repair success rate",
+"Cost",
+"Reliability",
+"Prioritization"
+]
+},
+{
+"id": "INT-c765732b",
+"_h": "44707a5c",
+"question": "Could you explain the difference between repair and redundancy?",
+"follow_up": "Why did you frame it that way?",
+"follow_up_answer": "Repair fixes defects after they occur, while redundancy is a design approach that prepares in advance. The two play complementary roles in minimizing defects and optimizing system performance.",
+"interview_answer": "Repair is the process of fixing a defect after it occurs, while redundancy is a design approach that prepares for defects in advance. In other words, repair happens after the chip is made, and redundancy is considered from the design stage. Both aim to reduce defects and improve performance, but because their approaches differ, each fits different situations.",
+"key_points": [
+"Repair",
+"Redundancy",
+"Differences",
+"Complementary roles"
+]
+},
+{
+"id": "INT-32fc4415",
+"_h": "79f52502",
+"question": "Could you explain why the dielectric constant matters in high-k/metal gate technology?",
+"follow_up": "Then what are the advantages of a higher dielectric constant?",
+"follow_up_answer": "A higher dielectric constant lowers EOT, increasing electrical control. That improves device performance and reduces leakage current. Thanks to these traits, stability can be maintained even in highly integrated circuits.",
+"interview_answer": "In high-k/metal gate technology, the dielectric constant is a key factor in the device's electrical characteristics. Using a high-k material lets you increase physical thickness while keeping the same electrical control — that is, achieving a small EOT. As a result, leakage current drops and device performance improves.",
+"key_points": [
+"Dielectric constant",
+"EOT",
+"Better performance",
+"Lower leakage current"
+]
+},
+{
+"id": "INT-6cefaab2",
+"_h": "65a632e0",
+"question": "Could you explain what etch selectivity is and why it's needed?",
+"follow_up": "How do mask selectivity and underlayer selectivity differ?",
+"follow_up_answer": "Mask selectivity describes how well the photoresist or hard mask defining the pattern holds up during etching, while underlayer selectivity describes how little the layer where etching should stop gets etched. The first ties directly to mask thickness and etch depth design; the second to over-etch margin.",
+"interview_answer": "Etch selectivity is the etch rate of the film to be removed divided by the etch rate of the film to be kept. It's needed because etch gases or chemicals can't etch only the target; they eat a little of the mask and underlayer too. For example, at a selectivity of 10, the kept film loses 1 unit for every 10 of the target. If mask selectivity is low, the mask wears out before etching ends and the pattern is ruined; if underlayer selectivity is low, the layer below gets etched or punched through during the over-etch that compensates for thickness variation across the wafer. Raising selectivity usually means less physical etching, which can cost verticality and etch rate, so you check rate and profile together rather than looking at selectivity alone.",
+"key_points": [
+"Target ÷ protected film etch rate",
+"Mask consumption",
+"Over-etch and underlayer",
+"Balancing rate and profile"
+]
+},
+{
+"id": "INT-61fbc9a6",
+"_h": "fe129077",
+"question": "In a deep-hole etch, the underlayer got punched through. In what order would you narrow down the cause and set countermeasures?",
+"follow_up": "If you lower ion energy to raise underlayer selectivity, what side effects should you check?",
+"follow_up_answer": "Lowering ion energy reduces physical etching and raises selectivity, but etch rate drops, etching can stop at the hole bottom, or the profile can taper. So I'd check etch rate, hole profile and bottom residue together.",
+"interview_answer": "First, I'd check whether the punch-through is across the whole wafer or concentrated in certain patterns or locations. If wide holes or certain wafer areas break through first and then continue to be over-etched, I'd check whether over-etch time is too long or underlayer selectivity is too low. I'd also check etch-rate uniformity across the wafer and how etch rate varies with hole width. If the cause narrows down to insufficient selectivity, I'd adjust gas composition or ion energy to raise underlayer selectivity, and use endpoint detection to shorten over-etch in parallel. These adjustments affect etch rate and profile, though, so after changing conditions I'd re-check the cross-section and document it as a recurrence-prevention standard.",
+"key_points": [
+"Failure location distribution",
+"Over-etch time",
+"Underlayer selectivity",
+"Re-checking the profile after changes"
+]
+},
+{
+"id": "INT-f8d86d14",
+"_h": "8e387c51",
+"question": "Could you explain why the damascene process is used for copper wiring?",
+"follow_up": "How does the process order differ from aluminum wiring?",
+"follow_up_answer": "With aluminum, you deposit the metal film first, etch it into wires, then fill between the wires with insulator. Copper damascene first makes trenches in the insulator, fills them with copper, and cleans up the top with CMP. The key difference is whether you etch the metal or the insulator.",
+"interview_answer": "The compounds copper forms with etch gases don't volatilize well, so it's hard to make wiring by etching a copper film the way you do with aluminum. So the order is reversed: etch wiring trenches into the insulator first, coat with barrier and copper seed, fill the trenches by electroplating, then polish away the excess copper with CMP so it remains only in the trenches. Because you etch the insulator rather than the copper, you avoid the copper-etching problem. Dual damascene, which forms vias and wires at once, also cuts process steps and cost. Copper's lower resistivity than aluminum helps with wiring delay too, but barriers and capping layers are needed to stop copper diffusion.",
+"key_points": [
+"Copper is hard to etch",
+"Trenches etched first",
+"Barrier, seed, plating",
+"CMP"
+]
+},
+{
+"id": "INT-b563b528",
+"_h": "e2eb5ba9",
+"question": "After copper CMP, the tops of wide lines are dished and the insulator thinned in dense areas. How would you explain the cause and countermeasures?",
+"follow_up": "What can be done on the design side to reduce dishing and erosion?",
+"follow_up_answer": "Add dummy patterns in empty areas so wiring density isn't lopsided, and design wide lines as slotted structures split into narrow lines, evening out the polishing load. That reduces differences in polish rate between areas and eases dishing and erosion.",
+"interview_answer": "A top surface scooped out like a dish is dishing, and insulator thinning in densely wired areas is erosion. Copper polishes faster than the surrounding barrier and insulator, so wide lines lose too much copper, while dense areas concentrate polishing pressure and lose insulator too. The result is a smaller wire cross-section with unstable resistance and poorer flatness for the next layer, leading to defects later. The fix is adjusting CMP conditions such as pressure, slurry and polishing time to balance the polish rates of copper, barrier and insulator. On the design side, dummy patterns reduce differences in wiring density.",
+"key_points": [
+"Dishing",
+"Erosion",
+"Adjusting CMP conditions",
+"Dummy patterns"
+]
+},
+{
+"id": "INT-2f97147b",
+"_h": "216a6db3",
+"question": "Could you explain short-channel effects and name two representative phenomena?",
+"follow_up": "What problems does a large DIBL cause from a circuit standpoint?",
+"follow_up_answer": "With large DIBL, threshold voltage varies with drain voltage, so the same device has different off-state current depending on operating conditions. Leakage rises in the state where it should be off, increasing standby power, and threshold margin shrinks, which can hurt circuit timing and operating stability.",
+"interview_answer": "Short-channel effects are a bundle of anomalies that arise when the channel becomes as short as the source and drain depletion regions, weakening the gate's control over the channel. One representative is threshold-voltage roll-off: as the channel shortens, the source and drain supply part of the charge under the channel, lowering the threshold voltage. Another is DIBL: at higher drain voltage, the drain field lowers the energy barrier on the source side, pulling the threshold down and increasing off-state current. Degraded subthreshold swing and punch-through come from the same cause. That's why gate control is strengthened with thinner oxides, doping adjustments, and structural changes such as FinFET or GAA.",
+"key_points": [
+"Depletion region encroachment",
+"Threshold-voltage roll-off",
+"DIBL",
+"Weakened gate control"
+]
+},
+{
+"id": "INT-c5e30ff3",
+"_h": "32f542f4",
+"question": "Shrinking the channel length is increasing off-state leakage. In what order would you review countermeasures?",
+"follow_up": "What are the limits of solving it by raising channel doping?",
+"follow_up_answer": "Raising doping narrows the depletion regions and reduces short-channel effects, but carrier mobility drops, reducing drive current, and junction leakage and threshold-voltage variation grow. So doping alone has limits, and structural changes become necessary.",
+"interview_answer": "First, to tell whether the leakage comes from short-channel effects such as threshold roll-off or DIBL, or from another source such as oxide tunneling, I'd measure threshold voltage by channel length and its change with drain voltage. If short-channel effects are the cause, the first thing I'd review is strengthening gate control by thinning the gate oxide and applying high-k. Next, I'd reduce depletion encroachment with halo doping, shallow junctions or channel doping adjustments, checking the cost in mobility and junction leakage. If that's still not enough, I'd review moving to FinFET or GAA structures, where the gate wraps the channel on several sides. At each step, I'd evaluate the balance between drive current and leakage.",
+"key_points": [
+"Identifying the cause",
+"Thinner oxide and high-k",
+"Halo and shallow junctions",
+"FinFET and GAA"
+]
+},
+{
+"id": "INT-d701197e",
+"_h": "f6a3176a",
+"question": "Could you explain HBM's structure and why its bandwidth is higher than DDR's?",
+"follow_up": "What role does the base die play in HBM?",
+"follow_up_answer": "The base die sits at the bottom of the stack and handles the interface circuitry that talks to the processor, plus test and repair circuits, distributing signals to the DRAM dies above. More and more, this die is being made on a foundry logic process.",
+"interview_answer": "HBM is memory built by stacking multiple DRAM dies and connecting them with TSVs and micro bumps. Core DRAM dies sit on top of a base die at the bottom, and the whole stack connects side by side with the processor on a silicon interposer. Bandwidth equals I/O width times per-pin rate, divided by 8; HBM3 is 1024 bits wide, 16 times wider than a DDR5 module's 64 bits. At the same per-pin rate, bandwidth is 16 times higher, and with such a wide interface, you don't have to push speed hard, while short wiring helps power efficiency. In exchange, stacking and packaging are complex and costly.",
+"key_points": [
+"Stacked DRAM + TSVs",
+"Base die",
+"Wide I/O",
+"Placement next to the processor on an interposer"
+]
+},
+{
+"id": "INT-157f3a32",
+"_h": "88dcf00b",
+"question": "What difficulties arise when going from 12-high to 16-high HBM stacks, and how would you respond?",
+"follow_up": "Could you explain with a calculation why yield drops so much as layers increase?",
+"follow_up_answer": "Because yield multiplies layer by layer. Assuming 98% good dies per layer, 12 layers gives about 78%, and 16 layers drops to 0.98 to the 16th power, about 72%. Multiply in bonding yield and it goes even lower, so screening to stack only good dies, plus repair, becomes important.",
+"interview_answer": "Three things get harder as layers increase. First is stack yield: one bad die makes the whole stack bad, so per-layer yields multiply. Second is heat: heat from the middle dies doesn't escape well, so temperature rises and the refresh burden grows. Third is the height limit: fitting more layers within the package thickness means grinding dies thinner and shrinking bond gaps, and thin dies warp or break easily. To respond, I'd protect yield with known-good-die screening before stacking and TSV redundancy, and supplement heat dissipation with high-thermal-conductivity fill materials and heat-transfer structures. Hybrid bonding is being considered as a way to shrink bond gaps further.",
+"key_points": [
+"Multiplying stack yield",
+"Heat dissipation",
+"Package height limit",
+"Hybrid bonding"
+]
+},
+{
+"id": "INT-7779864b",
+"_h": "5bf891ff",
+"question": "Could you explain the role of photoresist and the difference between positive and negative resist?",
+"follow_up": "Why is positive resist mainly used in fine-feature processes?",
+"follow_up_answer": "Classic negative resists swelled in organic-solvent developers, which hurt resolution, while positive resists cleanly remove only the dissolving parts in alkaline developer, favoring fine patterns. That's why positive-type resists are mainly used in fine-feature processes.",
+"interview_answer": "Photoresist is a polymer film whose solubility in developer changes when exposed to light. It turns the light pattern from exposure into a material pattern and serves as a mask for etching or ion implantation. In positive resist, exposed areas break down and dissolve away in the developer, leaving the unexposed areas. In negative resist, exposed areas cross-link and remain insoluble. Since the same mask gives opposite results, the mask design and resist type are chosen together so the desired pattern remains. Resist performance is evaluated by metrics such as resolution, sensitivity, line-edge roughness and etch resistance, and after etching or implantation it's removed by ashing and cleaning.",
+"key_points": [
+"Solubility change",
+"Positive vs. negative",
+"Mask for etching and implantation",
+"Resolution"
+]
+},
+{
+"id": "INT-3767db67",
+"_h": "fb1cfe9a",
+"question": "Could you explain the principle and limits of chemically amplified resists?",
+"follow_up": "What problems arise if the post-exposure bake temperature is too high?",
+"follow_up_answer": "If the temperature is too high or the time too long, acid spreads farther beyond the exposure boundary, blurring pattern edges, shifting line width or worsening roughness. If it's too low, the deprotection reaction is insufficient and development is incomplete.",
+"interview_answer": "In a chemically amplified resist, a photoacid generator creates acid where light hits, and during the post-exposure bake that acid acts as a catalyst, stripping protecting groups from the polymer in a chain. The acid isn't consumed; it moves on to the next protecting group, so a little light produces a large solubility change and sensitivity is high. The limit comes from acid diffusing beyond the exposure boundary. When acid spreads, pattern edges blur and resolution and line-edge roughness get worse. So diffusion is controlled with quencher additives and bake temperature and time, balancing sensitivity, resolution and roughness.",
+"key_points": [
+"Photoacid generator",
+"Acid-catalyzed chain reaction",
+"Acid diffusion",
+"Resolution and roughness"
+]
+},
+{
+"id": "INT-bfeb036d",
+"_h": "699475bf",
+"question": "Could you explain BSPDN backside power technology?",
+"follow_up": "What improves when power is delivered from the back?",
+"follow_up_answer": "The power path becomes shorter and thicker, so voltage drop decreases. The front-side wiring layers can be used for signals only, easing congestion, and it also helps shrink standard-cell height to save area.",
+"interview_answer": "BSPDN stands for backside power delivery network: a structure that moves power wiring to the back of the wafer and delivers power to transistors from behind. Traditionally, signal and power lines shared the same front-side wiring layers, and voltage dropped as power came down through vias across many layers. With BSPDN, devices and signal wiring are built on the front, then the wafer is flipped, the substrate ground thin, and backside contacts connect the source/drain side to the power wiring. This lowers the power path's resistance, reducing voltage drop, and the front wiring handles only signals, easing congestion. However, the thinned backside must be aligned to the front-side devices, heat escapes along different paths making cooling harder, and process steps and cost increase.",
+"key_points": [
+"Backside power delivery",
+"Lower voltage drop (IR drop)",
+"Freed-up front-side signal wiring",
+"Backside alignment and cooling challenges"
+]
+},
+{
+"id": "INT-ff8d557b",
+"_h": "139aa540",
+"question": "How can SRAM's power consumption problem be solved?",
+"follow_up": "Would that method work in every situation, or only under certain conditions?",
+"follow_up_answer": "Solving power consumption calls for design that minimizes standby power. But this applies differently depending on process technology and temperature. For example, power consumption can rise at higher temperature, so temperature management should go hand in hand.",
+"interview_answer": "SRAM's power consumption problem can be solved by minimizing standby power at the design stage. For example, you can design circuits that cut power to parts that don't need it. But this applies differently as process technology advances and temperature changes, so an approach suited to the situation is needed.",
+"key_points": [
+"Power consumption",
+"Standby power",
+"Design optimization",
+"Temperature management"
+]
+},
+{
+"id": "INT-6f649cdf",
+"_h": "a4b625c6",
+"question": "Could you explain SRAM's basic structure?",
+"follow_up": "Could you explain why it's designed that way?",
+"follow_up_answer": "SRAM's structure of two inverters plus access transistors enables stable data storage. This design gives fast reads and writes and keeps high reliability without complex circuitry. That makes SRAM well suited to high-speed memory applications such as CPU caches.",
+"interview_answer": "An SRAM cell is typically made of six transistors. Two cross-coupled inverters store the data, and the remaining transistors handle the connection to outside circuitry. Thanks to this structure, SRAM offers fast reads and writes without needing complex circuitry, making it a fit for high-speed memory applications.",
+"key_points": [
+"SRAM structure",
+"Inverters",
+"Transistors",
+"Reliability"
+]
+},
+{
+"id": "INT-4efd4470",
+"_h": "8bab87c0",
+"question": "What problems arise if alignment error occurs in hybrid bonding?",
+"follow_up": "What methods can reduce alignment error?",
+"follow_up_answer": "Reducing alignment error requires equipment with nanometer-level precision. Optical alignment techniques and precise sensors also enable more accurate positioning.",
+"interview_answer": "Alignment error makes the electrical connections between chips poor, which can cause signal loss or data transfer errors. That's tied to the principle of hybrid bonding, where mechanical and electrical bonding must happen at the same time. If alignment isn't accurate, contact between the metal pads is incomplete and electrical signals don't pass properly. That can slow data transfer or cause errors, degrading overall system performance. In situations requiring high-speed data transfer, these problems can be even more critical. So precise equipment and techniques to minimize alignment error are needed.",
+"key_points": [
+"Alignment error",
+"Electrical connection problems",
+"Precision equipment",
+"Optical alignment techniques"
+]
+},
+{
+"id": "INT-77bb3720",
+"_h": "88cd5952",
+"question": "What happens if gate oxide thickness uniformity isn't secured?",
+"follow_up": "Then what methods can secure thickness uniformity?",
+"follow_up_answer": "The basics are keeping the furnace's uniform-temperature zone wide and optimizing gas flow. I'd also check variation by wafer spacing and loading position, and control time precisely for thin films with rapid thermal processing. After oxidation, thickness is measured with ellipsometry and fed back into process conditions.",
+"interview_answer": "If gate oxide thickness isn't uniform within a wafer or between devices, transistors of the same design end up with different threshold voltages. Where the oxide is relatively thin, gate current tunnels through and leakage rises, and the concentrated field causes early breakdown, shortening lifetime. Where it's thicker, drive current drops and speed slows. The result is a wider spread in device characteristics and lower yield. To secure uniformity, keep the furnace's temperature distribution and gas flow stable, and measure thickness with ellipsometry to feed back into the process.",
+"key_points": [
+"Threshold-voltage spread",
+"Tunneling leakage current",
+"Reduced reliability (TDDB)",
+"Managing temperature and gas uniformity"
+]
+},
+{
+"id": "INT-74cbd368",
+"_h": "c0c2245c",
+"question": "Could you explain the role of the gate oxide?",
+"follow_up": "Why is that role so important to device performance?",
+"follow_up_answer": "The thinner the oxide, the better the gate voltage reaches the channel, so the device can switch at lower voltage, but if it's too thin, tunneling leakage grows. So thickness and film quality together set drive current, leakage and reliability.",
+"interview_answer": "The gate oxide is a thin insulating film between a MOSFET's gate electrode and channel. The film itself is an insulator through which almost no current flows; the electric field from the gate voltage passes through it to the channel, creating or removing the inversion layer. That's why almost no DC current flows into the gate and the device can be controlled by voltage alone. It's only a few nanometers thick: the thinner it is, the better the gate's control and the lower the operating voltage, but if it's too thin, electrons tunnel through and leakage rises. So thickness and uniformity are tightly controlled, and high-k dielectrics are used where it would have to get even thinner.",
+"key_points": [
+"Insulation between gate and channel",
+"Controlling the channel with an electric field",
+"Balancing thickness against drive current and leakage",
+"Using high-k"
+]
+},
+{
+"id": "INT-74c73bac",
+"_h": "76ade218",
+"question": "Could you explain how temperature and pressure affect package quality in molding?",
+"follow_up": "Then could you be specific about how to optimize these two variables?",
+"follow_up_answer": "To optimize temperature and pressure, it's important to first understand the molding material's properties. Generally, you set an appropriate temperature range and find, through experiments, the pressure that gives the best package quality. Along the way, adjusting the time of each stage can improve package uniformity.",
+"interview_answer": "Temperature and pressure strongly affect the molding material's flow and the package's final quality. Higher temperature lowers the material's viscosity and makes injection easier, but too high a temperature can thermally damage the device. Proper pressure helps distribute the material evenly and reduces bubbles, improving package quality.",
+"key_points": [
+"Temperature",
+"Pressure",
+"Package quality",
+"Optimization"
+]
+},
+{
+"id": "INT-c4b5e05c",
+"_h": "07131084",
+"question": "What problems can occur in the molding process?",
+"follow_up": "What are ways to solve these problems?",
+"follow_up_answer": "The main problems are uneven material distribution, residual stress and thermal expansion mismatch. To solve them, it's important to optimize material formulation and dispersion and to control temperature and pressure properly during processing. Relieving residual stress through heat treatment should also be considered.",
+"interview_answer": "Problems in molding include uneven material distribution, residual stress and thermal expansion mismatch. These can degrade the device's electrical characteristics, directly affecting product reliability and performance. For example, uneven distribution increases stress inside the package and hurts electrical characteristics, and residual stress can weaken the package mechanically. Thermal expansion mismatch also creates a risk of splitting or cracking. So solving these problems means optimizing the molding material's formulation and dispersion and setting molding temperature and pressure properly. That reduces stress and improves the product's electrical characteristics.",
+"key_points": [
+"Uneven distribution",
+"Residual stress",
+"Thermal expansion coefficient",
+"Solutions"
+]
+},
+{
+"id": "INT-767c473a",
+"_h": "481f1739",
+"question": "How would you approach a step-coverage problem in CVD?",
+"follow_up": "What would you do if the gas concentration is high?",
+"follow_up_answer": "With high gas concentration, the reaction happens quickly at the opening, so film piles up there and the trench interior stays thin. I'd lower pressure and gas concentration to make the process surface-reaction-limited, and if that's still not enough, switch to ALD.",
+"interview_answer": "A step-coverage problem is when, in deep, narrow trenches, film builds up thick at the opening and thin on the walls and bottom. It happens because reactant gas is used up at the opening first or the opening closes first. First, I'd measure the thickness at the opening, sidewall and bottom with cross-sectional SEM to check coverage. The basic fix is lowering substrate temperature and adjusting pressure and gas concentration so the process is limited by the surface reaction. If the structure is even narrower, I'd switch to ALD, which builds one layer at a time. PECVD helps deposit at low temperature, but it isn't a fix for coverage.",
+"key_points": [
+"Film piling up at the opening",
+"Adjusting pressure and temperature",
+"Switching to ALD",
+"PECVD is for low temperature"
+]
+},
+{
+"id": "INT-1aa6b79a",
+"_h": "9f6fe3a5",
+"question": "Could you explain the core concept of the CVD process?",
+"follow_up": "Why did you explain it that way?",
+"follow_up_answer": "CVD is an essential technology for depositing uniform thin films, which is especially important for device performance and reliability. Without uniform films, electrical characteristics can degrade, so a process that solves this is necessary.",
+"interview_answer": "CVD is a technology that forms thin films from gaseous precursors. It produces films of uniform thickness and composition, keeping device performance stable. CVD also has the advantage that, by tuning reaction conditions, you can readily get films of the material you want.",
+"key_points": [
+"Thin-film deposition",
+"Device performance",
+"Reliability",
+"Uniformity"
+]
+},
+{
+"id": "INT-a4114342",
+"_h": "15a29e78",
+"question": "Could you talk about ways to make burn-in testing more efficient?",
+"follow_up": "Which of those methods do you think is most effective?",
+"follow_up_answer": "I think optimizing test conditions is most effective. It shortens test time and reduces the load on equipment, raising overall efficiency. Using data analysis to predict early-failure patterns also helps a lot.",
+"interview_answer": "To make burn-in more efficient, optimizing test conditions is key. Adjusting temperature and voltage lets you cut unnecessary testing and focus where it's needed. Introducing automation built on the latest technology also saves labor and time. These approaches help raise overall efficiency.",
+"key_points": [
+"Efficiency",
+"Optimizing conditions",
+"Data analysis",
+"Automation"
+]
+},
+{
+"id": "INT-7bd9c90a",
+"_h": "963dd4c1",
+"question": "What trade-offs should you consider when running burn-in at high temperature and high voltage?",
+"follow_up": "For example, how would you approach shortening test time?",
+"follow_up_answer": "Raising temperature and voltage to accelerate failures can shorten time, but it has the limit of consuming the lifetime of good devices. I'd use accelerated-test data to check failure rates by condition and choose the shortest condition that screens out defects well without affecting good devices.",
+"interview_answer": "Burn-in accelerates early failures with high temperature and voltage to screen them out, so the harsher the conditions, the faster weak devices are found. But conditions that are too harsh can consume part of the lifetime of good devices or create new damage. Too high a temperature can also cause thermal runaway as devices self-heat. If conditions are too mild, defects show up later at the customer. Longer tests tie up equipment and add cost, so throughput has to be considered too. So, based on accelerated-test data, I'd find conditions where both defect detection and the impact on good devices' lifetime are acceptable.",
+"key_points": [
+"Accelerating defects vs. consuming good-device lifetime",
+"Temperature/voltage acceleration",
+"Test time and throughput",
+"Thermal runaway and equipment load"
+]
+},
+{
+"id": "INT-1d56d387",
+"_h": "a96c6d1d",
+"question": "How would you approach the complexity and cost of FinFET manufacturing?",
+"follow_up": "If manufacturing cost had to come down, what methods are there?",
+"follow_up_answer": "Process automation and materials improvements are key to cutting manufacturing cost. Automation reduces human error and improves consistency, and new materials can simplify manufacturing. These approaches help make high-volume production more feasible.",
+"interview_answer": "The complexity and cost of FinFET manufacturing come mainly from its 3D structure. Photolithography and etching get more complex, which can raise failure rates and increase cost per wafer. So the problem should be addressed with technology that raises etch selectivity and with process automation.",
+"key_points": [
+"Manufacturing complexity",
+"Cost",
+"Process automation",
+"Materials improvement"
+]
+},
+{
+"id": "INT-fd57ee80",
+"_h": "ad107fba",
+"question": "Could you explain short-channel effects?",
+"follow_up": "Why do they happen?",
+"follow_up_answer": "As the channel shortens, the source and drain depletion regions become comparable to the channel length, so the drain field lowers the barrier on the source side and the gate's control weakens. The threshold voltage drops and current leaks even when the device is off.",
+"interview_answer": "Short-channel effects are anomalies that arise when, as the channel shortens, the gate can no longer control the channel on its own. Typical examples are threshold-voltage roll-off, where the threshold drops as the channel shortens; DIBL, where drain voltage lowers the barrier on the source side; and degraded subthreshold swing. As a result, leakage rises even in the off state, increasing standby power, and threshold-voltage variation across devices grows. The fix is strengthening control by having the gate wrap the channel on more sides: FinFETs wrap three sides, and GAA nanosheets four.",
+"key_points": [
+"Weakened gate control",
+"Threshold roll-off and DIBL",
+"Rising leakage current",
+"Restoring control with FinFET and GAA"
+]
+},
+{
+"id": "INT-000da3b4",
+"_h": "190460f8",
+"question": "How would you determine that cell-to-cell interference is occurring in NAND flash?",
+"follow_up": "Then what methods are there to reduce cell-to-cell interference?",
+"follow_up_answer": "You can adjust the programming order and correct read voltages based on neighboring cells' states. Structurally, keeping enough cell spacing and switching to charge trapping, as in 3D NAND, reduces capacitive coupling with neighboring cells.",
+"interview_answer": "Cell-to-cell interference is when capacitive coupling between neighboring floating gates shifts the threshold voltage of an already-written cell as its neighbor is programmed. To determine it, I'd first look at the threshold-voltage distribution to see whether it widens or shifts up depending on neighboring cells' states. I'd also check whether the number of read error bits varies with neighbors' data patterns. It gets worse as cell spacing shrinks, so it's especially important in scaled planar NAND. Countermeasures include circuit methods such as programming order and read-voltage correction, ECC for error correction, and structurally, charge-trap 3D NAND to reduce cell-to-cell coupling.",
+"key_points": [
+"Capacitive coupling with neighbors",
+"Threshold shift after neighbor programming",
+"Checking error bits and Vth distributions",
+"3D NAND and ECC"
+]
+},
+{
+"id": "INT-349ecd49",
+"_h": "17bb5b5b",
+"question": "Could you explain the basic structure and operating principle of NAND flash?",
+"follow_up": "Could you explain what advantages that structure gives for data storage?",
+"follow_up_answer": "NAND flash stores electrons in a floating gate, which makes it non-volatile, so data stays even when power is off. Connecting many cells in series also lets it store data efficiently.",
+"interview_answer": "NAND flash is made of floating-gate transistors, each with two gates. Data is stored using the tunneling effect, by injecting electrons into or removing them from the floating gate. Thanks to this structure, NAND flash is non-volatile, keeping data with the power off, and it stores data efficiently by connecting many cells in series.",
+"key_points": [
+"Non-volatility",
+"Floating gate",
+"Data retention",
+"Efficiency"
+]
+},
+{
+"id": "INT-129058aa",
+"_h": "517ec478",
+"question": "When channel-length modulation becomes a problem, what approaches can solve it?",
+"follow_up": "Under what conditions is that method effective?",
+"follow_up_answer": "For analog devices, using a longer channel is simple and very effective. It suits amplifiers and current sources where some area and speed penalty is acceptable, and if more gain is needed, you add a cascode or gain-boosting circuit.",
+"interview_answer": "Channel-length modulation is when, in saturation, a higher drain voltage moves the pinch-off point toward the source, shortening the effective channel, so current isn't constant but creeps up. It matters mainly in analog circuits, where lower output resistance reduces amplifier gain and current-mirror accuracy. There are two directions for solving it: device and circuit. On the device side, transistors where gain matters are deliberately drawn with longer channels to reduce $\\lambda$. On the circuit side, a cascode structure reduces drain-voltage swing to raise output resistance. FinFET and GAA are effective at reducing short-channel effects like DIBL, but output resistance is secured through channel length and circuit structure together.",
+"key_points": [
+"Effective length shrinking with drain voltage",
+"Lower output resistance $r_o$",
+"Longer channels",
+"Cascode structure"
+]
+},
+{
+"id": "INT-f61e4fa7",
+"_h": "8bddcf5a",
+"question": "Could you explain channel-length modulation?",
+"follow_up": "Why does it happen?",
+"follow_up_answer": "In saturation, as drain voltage increases, the drain-side depletion region widens and the pinch-off point moves toward the source. The effective channel carrying current gets shorter, so current rises slightly with drain voltage.",
+"interview_answer": "Channel-length modulation is when, in saturation, raising the drain voltage makes drain current creep up instead of staying perfectly constant. As drain voltage increases, the drain-side depletion region widens, moving the pinch-off point where the channel cuts off toward the source, and the effective channel length actually carrying current gets shorter. In equations, $I_D$ is multiplied by $(1 + \\lambda V_{DS})$, and the shorter the channel, the larger $\\lambda$. As a result, the device's output resistance drops and analog circuit gain decreases.",
+"key_points": [
+"Caused by drain voltage",
+"Pinch-off point moves",
+"Saturation current rises gently",
+"Lower output resistance"
+]
+},
+{
+"id": "INT-056dcc70",
+"_h": "1e7d46f1",
+"question": "What trade-offs should be considered when designing a 2.5D interposer?",
+"follow_up": "For example, what problems can arise if you increase wiring density?",
+"follow_up_answer": "Higher wiring density raises the chance of signal interference, which can lower overall system reliability. And if wire length increases, signal delay can grow and hurt performance. So wiring density needs to be optimized.",
+"interview_answer": "When designing a 2.5D interposer, wiring density and wire length must be considered. Higher wiring density raises the chance of signal interference, which can hurt system performance. Longer wires increase signal delay and can slow data transfer. So balancing the two is important. Optimizing wiring density, for example, requires considering electrical resistance and thermal conductivity, which are closely tied to the interposer's material choice. These considerations matter a lot in practice: wiring density and length need to be tuned from the earliest design stage to maximize overall system performance.",
+"key_points": [
+"Wiring density",
+"Signal interference",
+"Lower reliability",
+"Signal delay"
+]
+},
+{
+"id": "INT-a5a2d520",
+"_h": "977f1dc4",
+"question": "What problems arise if the barrier metal is too thin?",
+"follow_up": "Then what methods should you consider for controlling thickness?",
+"follow_up_answer": "Adjusting the deposition technique is key to controlling thickness. For example, ALD (atomic layer deposition) forms films of uniform thickness, maximizing the diffusion-blocking effect.",
+"interview_answer": "If the barrier metal is too thin, it's less effective at stopping metal atoms from diffusing into the semiconductor. That can degrade the device's electrical characteristics and cause reliability problems. So maintaining the right thickness is very important. Barrier thickness directly affects diffusion blocking and resistance, so the optimal thickness must be set with both in mind.",
+"key_points": [
+"Thickness problems",
+"Diffusion-blocking effect",
+"Deposition technique",
+"ALD"
+]
+},
+{
+"id": "INT-d5411c89",
+"_h": "ca8242e2",
+"question": "Could you explain one of the factors that affects barrier metal performance?",
+"follow_up": "Could you be specific about how that factor affects performance?",
+"follow_up_answer": "For example, the deposition method strongly affects thickness uniformity and deposition rate. PVD and CVD work differently, so the barrier's properties can differ depending on the choice.",
+"interview_answer": "Barrier metal performance depends heavily on the deposition method, because techniques such as PVD (physical vapor deposition) and CVD (chemical vapor deposition) each have their own characteristics. The deposition method ultimately affects the barrier's thickness uniformity and resistance, which directly affect the device's electrical characteristics and reliability. So choosing the right deposition method is very important. For example, ALD (atomic layer deposition) is good at forming uniform films and can help improve barrier thickness and uniformity. But applying it requires fine-tuning process conditions and fully understanding each technique's pros and cons before choosing.",
+"key_points": [
+"Performance factors",
+"Deposition method",
+"Thickness uniformity",
+"PVD vs. CVD"
+]
+},
+{
+"id": "INT-e51f3d59",
+"_h": "c0a904bd",
+"question": "What specific methods can improve heat-dissipation performance?",
+"follow_up": "In what situations are those methods more effective?",
+"follow_up_answer": "Adding heat sinks or heat pipes is especially effective for high-power devices. These structural elements extend the heat path and help heat dissipate faster. Using high-thermal-conductivity materials is also effective at reducing thermal resistance, so combining them to suit the situation gives the best performance.",
+"interview_answer": "Several methods can improve heat dissipation. For example, optimizing the package design by adding heat sinks or heat pipes is effective. Choosing materials with high thermal conductivity also reduces thermal resistance, helping improve the device's thermal stability.",
+"key_points": [
+"Heat sinks",
+"Heat pipes",
+"Material choice",
+"High-power devices"
+]
+},
+{
+"id": "INT-455f7635",
+"_h": "1afc5cdf",
+"question": "What factors should you consider to optimize heat dissipation in package design?",
+"follow_up": "Which of those factors do you think is most important?",
+"follow_up_answer": "I think the most important is the package material's thermal conductivity. Materials with high thermal conductivity release heat effectively and help a lot in lowering device temperature. Package design and environmental conditions matter too, but material choice is the foundation, so it should be considered first.",
+"interview_answer": "Optimizing heat dissipation in package design means considering several factors. First, the package material's thermal conductivity is very important. Beyond that, the form of the design structure and additional elements such as heat sinks can help promote heat dissipation. Finally, ambient temperature also affects heat dissipation, so ways to manage it are needed too.",
+"key_points": [
+"Package materials",
+"Thermal conductivity",
+"Design optimization",
+"Environmental conditions"
+]
+},
+{
+"id": "INT-ebc3cfcc",
+"_h": "767780af",
+"question": "Could you explain how rising temperature affects energy bands?",
+"follow_up": "How do temperature changes show up in actual device operation?",
+"follow_up_answer": "As temperature rises, thermally generated electrons and holes increase exponentially, so leakage current grows and threshold voltage drops. Mobility, on the other hand, falls due to lattice vibration, so drive current changes differently; that's why operation is checked across the whole operating temperature range.",
+"interview_answer": "As temperature rises, lattice vibration increases and the lattice constant grows, so the band gap shrinks gradually. Silicon's is about 1.1 eV at room temperature and gets slightly smaller as temperature rises. But the main reason conductivity goes up isn't the narrower band gap; it's that thermal energy exponentially increases the number of electrons and holes lifted from the valence band to the conduction band. Mobility drops as lattice scattering increases, but the rise in carrier count is larger, so an intrinsic semiconductor's conductivity increases. In devices, this raises leakage and blurs the characteristics set by doping, so designs are made for a defined temperature range.",
+"key_points": [
+"Gradual band-gap narrowing",
+"Exponential rise in thermally generated carriers",
+"Carrier count is the main reason conductivity rises",
+"Lower mobility"
+]
+},
+{
+"id": "INT-173f47a7",
+"_h": "aeb24ae6",
+"question": "What problems can arise if a semiconductor's band gap is too wide?",
+"follow_up": "How could that be solved in that case?",
+"follow_up_answer": "In wide-band-gap materials, donors and acceptors introduced by doping don't ionize easily, so it's hard to create carriers. So you raise doping concentration or choose impurities with lower ionization energy, raise the activation rate with annealing, and pick the right contact metal to lower contact resistance.",
+"interview_answer": "With a wide band gap, electrons need a lot of energy to reach the conduction band, so almost no carriers are generated thermally. Intrinsic conductivity is very low, close to an insulator, and even with doping, donors and acceptors don't ionize easily, making carriers hard to create. Contacts with metal also have high barriers, raising contact resistance. On the other hand, low thermal leakage lets the material operate at high temperature, and it withstands high fields, which favors high-voltage devices. That's why wide-band-gap semiconductors such as SiC and GaN are used in power devices. So the problems are solved by choosing materials for the application and optimizing doping and contact processes.",
+"key_points": [
+"Too few thermally generated carriers",
+"Difficult dopant activation",
+"Higher contact resistance",
+"Advantageous for high-temperature, high-voltage operation"
+]
+},
+{
+"id": "INT-a87149a6",
+"_h": "d4f695df",
+"question": "How would you approach the trade-off between resolution and depth of focus?",
+"follow_up": "If the substrate's flatness is poor, what additional measures would you consider?",
+"follow_up_answer": "If flatness is poor, you could lower NA to secure depth of focus, but resolution gets worse, so first I'd planarize with CMP and strengthen the tool's focus correction. Coating thinner resist to reduce the depth of focus needed also helps.",
+"interview_answer": "Resolution is $R = k_1 \\lambda / NA$ and depth of focus is $DOF = k_2 \\lambda / NA^2$. Raising NA improves resolution in proportion to NA but shrinks depth of focus in inverse proportion to NA squared, so the two trade off. First, I'd pick the shortest wavelength that can make the required line width, and set NA within the range wafer flatness allows. Then lowering $k_1$ with OPC, phase-shift masks and off-axis illumination secures resolution without raising NA. Protecting depth of focus also requires CMP planarization and the tool's wafer-height correction.",
+"key_points": [
+"$R = k_1 \\lambda / NA$",
+"$DOF = k_2 \\lambda / NA^2$",
+"NA and DOF's squared relationship",
+"Planarization and lowering $k_1$"
+]
+},
+{
+"id": "INT-62381f4b",
+"_h": "e6495e20",
+"question": "Could you explain the concepts of resolution and depth of focus?",
+"follow_up": "Could you explain how these two concepts affect device performance?",
+"follow_up_answer": "With poor resolution, patterns transfer blurry and current may stray from its intended path. With insufficient depth of focus, patterns blur depending on substrate height, which can impair the whole device's function. Both lower device performance and yield, so they're very important concepts.",
+"interview_answer": "Resolution describes how fine a pattern photolithography can produce, and depth of focus is the range of depth over which the pattern can form sharply. With poor resolution, patterns smear and the device's electrical characteristics can vary; with insufficient depth of focus, changes in wafer flatness can blur patterns. So both strongly affect device performance and yield.",
+"key_points": [
+"Resolution",
+"Depth of focus",
+"Device performance",
+"Pattern transfer"
+]
+},
+{
+"id": "INT-bbc3d041",
+"_h": "273732f2",
+"question": "What should you consider when tightening the solder bump pitch in flip-chip packaging?",
+"follow_up": "When pitch shrinks further and solder bumps reach their limit, what alternatives can you consider?",
+"follow_up_answer": "Instead of solder bumps, you can use micro bumps — copper pillars topped with a small amount of solder — or, at even finer pitches, consider hybrid bonding, which joins copper to copper directly without solder. As bumps get smaller, alignment precision and inspection difficulty rise too, so equipment and inspection methods need to be considered together.",
+"interview_answer": "Tightening bump pitch fits more I/O in the same area, but raises the risk of bridging, where neighboring bumps melt together. Smaller bumps also mean less joint area and height; with narrow gaps, underfill may not flow fully into the spaces or voids can form, and thermal stress from the expansion mismatch between chip and substrate concentrates on the small bumps, raising the risk of fatigue cracks. So solder volume uniformity, bump structures such as copper pillars, underfill viscosity and fill conditions, alignment precision and inspection methods all need to be reviewed together.",
+"key_points": [
+"Bump pitch",
+"Bridging defects",
+"Underfill",
+"Thermal stress"
+]
+},
+{
+"id": "INT-2a05947c",
+"_h": "0f5e79db",
+"question": "Could you explain the basic principle of flip-chip packaging and its pros and cons versus wire bonding?",
+"follow_up": "Why is underfill needed?",
+"follow_up_answer": "Silicon chips and organic substrates have different coefficients of thermal expansion, so repeated temperature changes build up shear stress in the bumps and crack them. Underfill fills the space between chip and substrate with resin, spreading stress across the whole chip and protecting bumps from moisture and contamination, raising reliability.",
+"interview_answer": "Flip chip flips the chip over and connects it directly to the substrate through solder bumps on the chip surface. Wire bonding connects from the chip's edge with thin metal wires, so the wiring is long and I/O can only sit at the edges; flip chip can place I/O across the whole chip area, so signal paths are short and it wins on electrical performance and I/O density. In exchange, the expansion mismatch between chip and substrate puts stress on the bumps, so the area around them is reinforced with underfill resin, and structures that cool through the back of the chip (such as heat spreaders) are designed in together.",
+"key_points": [
+"Solder bumps",
+"Shorter signal paths",
+"Underfill",
+"Heat dissipation"
+]
+},
+{
+"id": "INT-b7039daa",
+"_h": "3763df23",
+"question": "How do MOSFET channel-length modulation and short-channel effects affect circuit performance, and how would you approach them?",
+"follow_up": "Are channel-length modulation and short-channel effects the same thing?",
+"follow_up_answer": "No. Channel-length modulation is current rising gently with drain voltage in saturation, while short-channel effects arise when the gate can't control a shortened channel well — for example, threshold voltage dropping or leakage rising through DIBL. Both become more pronounced as channels shorten, but their causes and remedies differ, so they should be explained separately.",
+"interview_answer": "Channel-length modulation is when, in saturation, a higher drain voltage moves the pinch-off point toward the source, shortening the effective channel, so drain current isn't perfectly constant but rises slightly. The current source becomes non-ideal and output resistance drops, which shows up as reduced gain in analog circuits. The usual remedy is circuit-level: longer channels for analog devices or a cascode structure. For short-channel effects such as DIBL, which come from shorter channels, FinFET or GAA structures with stronger gate control and high-k gate dielectrics are applied.",
+"key_points": [
+"Channel-length modulation",
+"Output resistance",
+"Short-channel effects",
+"FinFET"
+]
+},
+{
+"id": "INT-3e6dcb14",
+"_h": "b06d1c6d",
+"question": "Could you explain how a MOSFET works?",
+"follow_up": "What factors determine the threshold voltage?",
+"follow_up_answer": "The main factors are substrate doping, gate oxide thickness and dielectric constant, and the gate material's work function. Higher substrate doping and thicker oxide raise the threshold voltage, and in processing it's tuned through channel doping or the choice of gate metal. Threshold voltage generally drops as temperature rises.",
+"interview_answer": "A MOSFET is a field-effect device that controls channel conduction with gate voltage. For an NMOS, when gate voltage exceeds the threshold, an inversion layer of electrons forms at the surface of the P-type substrate under the gate oxide, connecting source and drain through a channel, and current flows when drain voltage is applied. Below threshold, there's no channel and almost no current flows, so digital circuits use these two states as a switch representing 0 and 1. Another big advantage is that the gate is insulated by the oxide, so there's almost no DC gate current.",
+"key_points": [
+"Threshold voltage",
+"Inversion-layer channel",
+"Field effect",
+"Switching role"
+]
+},
+{
+"id": "INT-b652f9f4",
+"_h": "2ad90f97",
+"question": "Could you explain the self-limiting reaction in ALD?",
+"follow_up": "What is the ALD window?",
+"follow_up_answer": "It's the temperature range where the self-limiting reaction holds and growth per cycle stays constant. If the temperature is too low, reactions are incomplete or the precursor condenses; too high, and the precursor decomposes on its own and grows like CVD, hurting uniformity.",
+"interview_answer": "ALD's self-limiting reaction is the property that once the precursor has adsorbed onto all available reactive sites on the surface, no more adsorption occurs, so only a fixed thickness deposits per cycle. A cycle has four steps — precursor dose, purge, reactant dose, purge — and the purges remove leftover gas so CVD growth from gas-phase reactions doesn't mix in. Because the reaction proceeds until the surface saturates, deposition is uniform even in deep, narrow structures, giving excellent step coverage, and thickness can be controlled precisely at the atomic-layer level by the number of cycles. In exchange, deposition is slow, and if temperature leaves the ALD window, self-limitation breaks, so temperature management is important.",
+"key_points": [
+"Self-limiting reaction",
+"Purge",
+"Step coverage",
+"Thickness control"
+]
+},
+{
+"id": "INT-20f707b3",
+"_h": "2a42c3c5",
+"question": "What methods reduce RC delay in high-speed circuits?",
+"follow_up": "What problems arise when using low-k materials?",
+"follow_up_answer": "Low-k films are often porous, so they're mechanically weak and easily damaged during CMP or packaging. If the film is damaged during etching or ashing, its dielectric constant can actually rise, and absorbed moisture degrades its properties, so damage suppression and sealing (capping) steps are needed as well.",
+"interview_answer": "RC delay is proportional to the product of wire resistance (R) and the capacitance between wires (C), so both must come down. Resistance is reduced by using copper wiring, with lower resistivity than aluminum (the damascene process), and by securing cross-sectional area. Capacitance is reduced by replacing the insulator between wires with low-k materials whose dielectric constant is lower than SiO₂'s, or by using air gaps, and by keeping wire spacing. Note, though, that thicker wires lower resistance but increase the area facing neighboring wires, raising capacitance, so the two must be balanced.",
+"key_points": [
+"Lower resistance",
+"Lower capacitance",
+"Copper wiring",
+"Low-k"
+]
+},
+{
+"id": "INT-11070b3e",
+"_h": "bfb5f54a",
+"question": "Could you explain what RC delay is?",
+"follow_up": "How does RC delay affect circuit performance?",
+"follow_up_answer": "Signals propagate more slowly, making it hard to raise the clock, and mismatched arrival times can cause timing errors. Charging and discharging wires also costs power, raising power consumption. That's why process improvements such as copper wiring and low-k dielectrics are essential.",
+"interview_answer": "RC delay is the time it takes a signal to propagate along a wire because of the wire's resistance (R) and capacitance (C). A wire can be seen as an RC circuit charging a capacitor, so the larger R×C, the more slowly the signal changes. As devices scale, transistors themselves get faster, but wires shrink in cross-section, raising resistance, and get closer together, raising capacitance, so wiring delay becomes the bottleneck for overall speed.",
+"key_points": [
+"RC delay",
+"Wire resistance",
+"Wire capacitance",
+"Scaling"
+]
+},
+{
+"id": "INT-3329cbc3",
+"_h": "04f774b2",
+"question": "Explain how the Fermi level moves with temperature, and how that affects device characteristics.",
+"follow_up": "Besides temperature, what determines where the Fermi level sits?",
+"follow_up_answer": "The biggest factor is doping concentration and type. The more donors, the closer the Fermi level gets to the conduction band; acceptors pull it down toward the valence band. Material properties such as band gap also play a role. In processing, doping concentration is controlled through implant dose and annealing.",
+"interview_answer": "In a doped semiconductor at room temperature, the Fermi level sits toward the conduction band for N-type and toward the valence band for P-type. As temperature rises, many thermal electron-hole pairs form and intrinsic carrier concentration increases exponentially; as it approaches the doping concentration, the Fermi level moves toward the intrinsic level at the middle of the gap. As a result, at high temperature the N-type and P-type character set by doping weakens, PN junction leakage rises and threshold voltage shifts. So device designs keep doping concentration well above intrinsic carrier concentration across the operating range, and devices that must run hot are considered for wider-band-gap materials.",
+"key_points": [
+"Intrinsic carrier concentration",
+"Converging toward the intrinsic level",
+"Weakened doping effect",
+"Leakage current"
+]
+},
+{
+"id": "INT-f2f220b3",
+"_h": "3991cbdb",
+"question": "How do a PN junction diode's characteristics change with temperature, and how is that handled in design?",
+"follow_up": "How do you raise heat-transfer efficiency when designing a cooling system?",
+"follow_up_answer": "The key is reducing the thermal resistance along the heat path. Use materials with high thermal conductivity, reduce contact resistance between the chip and heat sink with a TIM, widen the heat-dissipating area, and optimize coolant or airflow. The design adds up all the thermal resistances so the junction temperature stays within limits.",
+"interview_answer": "As temperature rises, more carriers are generated thermally, so the PN junction's reverse saturation current increases exponentially and the forward voltage at a given current decreases. Rising reverse leakage increases standby power and can lead to thermal runaway, where heat drives more leakage. On the device side, the first response is securing heat paths to keep junction temperature down, drawing heat out with high-conductivity materials, heat-spreading structures and heat sinks. On the circuit side, temperature sensors can correct the operating point, and protection circuits can limit operation when overheating.",
+"key_points": [
+"Reverse leakage current",
+"Lower forward voltage",
+"Thermal runaway",
+"Thermal design"
+]
+},
+{
+"id": "INT-a8f8a56b",
+"_h": "15050acf",
+"question": "What should be managed to secure reliable pattern formation in EUV lithography, and why?",
+"follow_up": "What are the pros and cons of raising the exposure dose in EUV?",
+"follow_up_answer": "The upside is that the photoresist absorbs more photons, reducing stochastic variation and lowering line roughness and defects. The downside is longer exposure time, which lowers tool throughput and raises cost, so you find the sweet spot between defect level and productivity.",
+"interview_answer": "EUV forms fine patterns with 13.5 nm light, but with relatively few photons, stochastic variation is large, so several items must be managed together. First, measure with a CD-SEM whether resolution and critical dimension (CD) are within target, and confirm CD uniformity across the wafer. Line-edge roughness (LER) from low photon counts and random stochastic defects such as bridges and breaks also matter; raising dose reduces them but costs productivity, a trade-off. Finally, overlay — alignment accuracy with the underlying layer — must be managed too.",
+"key_points": [
+"Resolution",
+"CD uniformity",
+"Stochastic defects",
+"Overlay"
+]
+},
+{
+"id": "INT-7ad7cdcf",
+"_h": "a0d5ea9d",
+"question": "If defect density rises in epitaxial growth, in what order would you find and fix the cause?",
+"follow_up": "Why is native oxide on the substrate surface a problem for epitaxy?",
+"follow_up_answer": "Epitaxy grows by inheriting the substrate's single-crystal information. If oxide or contamination remains, crystal information isn't passed on at those spots, creating polycrystalline regions or stacking faults. So the oxide is removed with an HF clean, and the surface is conditioned in a high-temperature hydrogen ambient right before growth.",
+"interview_answer": "Because epitaxy grows along the substrate's crystal structure, the substrate surface condition has the biggest influence on defects. First, I'd confirm that native oxide, organics and particles on the substrate surface were fully removed (cleaning, pre-growth hydrogen bake). Next, I'd check growth temperature and rate: if temperature is too low or growth too fast, atoms don't have time to find their sites and stacking faults increase. If the lattice constants of substrate and epi layer differ significantly, stress creates dislocations, so thickness or composition is adjusted. Finally, I'd check source gas purity and chamber condition to eliminate contamination sources.",
+"key_points": [
+"Substrate surface pretreatment",
+"Lattice mismatch",
+"Growth temperature and rate",
+"Particles and contamination"
+]
+},
+{
+"id": "INT-81b71784",
+"_h": "c202c7ca",
+"question": "What specific methods can keep oxide thickness and uniformity in check in wet oxidation?",
+"follow_up": "Why are thin, dense gate oxides formed by dry oxidation?",
+"follow_up_answer": "Dry oxidation uses only O₂ and grows slowly, so thickness is easy to control and the film is dense with good insulating properties. Wet oxidation is fast but less dense, so it's mainly used where thickness matters, such as thick isolation oxides.",
+"interview_answer": "Wet oxidation uses steam (H₂O) as the oxidant, so it oxidizes faster than dry oxidation and suits thick oxides, though the film is less dense. Thickness is set by oxidation temperature, time and steam supply, so keeping these constant is key. For uniformity, I'd keep the furnace uniform across its temperature zones, precisely control H₂ and O₂ flow to keep steam generation constant, and check variation by wafer spacing and loading position. After oxidation, thickness is measured with an ellipsometer and fed back into process conditions.",
+"key_points": [
+"Temperature uniformity",
+"Steam supply",
+"Oxidation time",
+"Ellipsometer"
+]
+},
+{
+"id": "INT-ef0daf36",
+"_h": "a73de651",
+"question": "Could you explain how the gate structure of GAA nanosheets helps improve device performance?",
+"follow_up": "What's the biggest difference between GAA and FinFET?",
+"follow_up_answer": "The number of channel faces the gate wraps. FinFET wraps three faces and GAA wraps four, giving stronger gate control. Also, FinFET can only adjust current by the number of fins, while GAA nanosheets can also tune current continuously through sheet width, giving more design freedom.",
+"interview_answer": "GAA nanosheets are a structure in which the gate surrounds a thin, plate-shaped channel on all four sides: top, bottom and both sides. A FinFET's gate wraps only three faces of the channel, but GAA wraps the entire channel, so the gate controls it more strongly, further reducing off-state leakage and short-channel effects. Drive current can also be designed by adjusting nanosheet width, and stacking several layers increases current in the same area, so it's seen as a next-generation structure that goes beyond FinFET's limits in device density and power efficiency.",
+"key_points": [
+"Gate wraps all four sides",
+"Gate control",
+"Lower leakage current",
+"Adjustable sheet width"
+]
+},
+{
+"id": "INT-8d08e6a5",
+"_h": "f224d405",
+"question": "Why are SEM and TEM cross-sections used to analyze step coverage, and what are each technique's pros and cons?",
+"follow_up": "When is SEM enough, and when is TEM truly necessary?",
+"follow_up_answer": "SEM is enough for checking features like voids or seams in films tens of nanometers thick or more. TEM is needed when you must precisely confirm the thickness and interface condition of ALD films or barrier layers just a few nanometers thick.",
+"interview_answer": "Step coverage is evaluated as sidewall and bottom film thickness as a percentage of the top thickness in a stepped structure, so the cross-section must be observed directly. SEM has relatively simple sample preparation and can view wide areas quickly, suiting routine process monitoring, but its resolution is lower than TEM's, making it hard to measure films a few nanometers thick accurately. TEM can measure the thickness and interfaces of very thin films such as ALD layers with atomic-level resolution, but the sample must be thinned, which takes a long time and destroys the sample. AFM, which looks at surface roughness, struggles to measure the sidewalls of deep, narrow trenches, so it isn't suited to step-coverage analysis.",
+"key_points": [
+"Cross-section observation",
+"SEM",
+"TEM",
+"Sidewall and bottom thickness"
+]
+},
+{
+"id": "INT-5e1dae08",
+"_h": "04e60d5f",
+"question": "What reliability and electrical problems can poor step coverage cause, and how would you improve it?",
+"follow_up": "Why does ALD give better step coverage than CVD or PVD on the same structure?",
+"follow_up_answer": "ALD deposits through self-limiting surface reactions, so it grows the same thickness on every surface the precursor reaches. PVD, by contrast, is strongly directional with particles arriving from above, so less builds up on sidewalls and bottoms, and in CVD the reaction depends on gas supply, so the entrance can end up thicker.",
+"interview_answer": "With poor step coverage, film builds up thinly on trench sidewalls and bottoms, or the opening closes first and leaves a void inside. In metal wiring, thin spots raise resistance or cause opens, and current crowding shortens electromigration (EM) lifetime. A thin barrier may fail to stop copper diffusion, causing leakage or failures. Changing the deposition method is effective: use ionized PVD or CVD instead of strongly directional PVD, and for narrower structures apply ALD, which has the best step coverage. Optimizing pressure and temperature, and softening the etch profile to lower the aspect ratio, are used alongside.",
+"key_points": [
+"Thin sidewall and bottom films",
+"Voids and seams",
+"Opens / higher resistance",
+"Switch to ALD or CVD"
+]
+},
+{
+"id": "INT-7dc7935e",
+"_h": "d3edc902",
+"question": "Could you explain how temperature affects DRAM data retention time and suggest practical ways to manage it?",
+"follow_up": "What are the side effects of refreshing more often at high temperature?",
+"follow_up_answer": "During refresh, the bank can't be read or written, so bandwidth and latency suffer, and the refresh itself consumes power, which can add more heat. So it's important to increase refresh only as much as needed and to lower temperature with heat dissipation.",
+"interview_answer": "A DRAM cell stores charge in a capacitor, so charge slowly leaks away through the junction and the transistor. As temperature rises, thermally generated carriers and subthreshold leakage increase, so charge drains faster and retention time shortens. The typical remedy is shortening the refresh interval at high temperature, and the actual standards specify a shorter refresh interval in the high-temperature range. Temperature-compensated refresh, which senses temperature and adjusts the refresh interval automatically, is applied along with package- and system-level thermal design. More frequent refresh raises power and lowers performance, so lowering temperature is the fundamental fix.",
+"key_points": [
+"More cell-capacitor leakage",
+"Shorter retention time",
+"Shorter refresh interval",
+"Temperature compensation"
+]
+},
+{
+"id": "INT-79caed2f",
+"_h": "2d02a791",
+"question": "Could you explain why DRAM needs refresh and how to optimize the refresh interval?",
+"follow_up": "DRAM reads are said to destroy the data — how does that relate to refresh?",
+"follow_up_answer": "A DRAM read is destructive: the cell capacitor's charge is shared with the bit line, blurring the value. The sense amplifier amplifies it and writes the original value back, and refresh works on the same principle, reading and rewriting row by row.",
+"interview_answer": "A DRAM cell consists of one transistor and one capacitor (1T1C), and the capacitor's charge slowly disappears through leakage, so refresh — reading and rewriting every cell within a set time — is required. The standard refresh period is typically about 64 ms. A shorter period keeps data safe, but access is blocked during refresh and power rises, hurting performance and power. Optimization methods include temperature compensation that lengthens the period when it's cool, partial-array self-refresh that refreshes only areas in use, and, since leakage varies by cell, refreshing only weak cells more often.",
+"key_points": [
+"Capacitor leakage",
+"64 ms period",
+"Weak cells",
+"Temperature-compensated refresh"
+]
+},
+{
+"id": "INT-5ce3093e",
+"_h": "1d65e077",
+"question": "In EDS (Electrical Die Sorting) testing, how do test conditions such as temperature and voltage affect the results?",
+"follow_up": "How are EDS results used to improve the process?",
+"follow_up_answer": "Looking at the distribution of failing dies on the wafer map, patterns clustered at the edge, center or particular spots let you infer the responsible process or tool. That information is fed back to the process to improve yield, and failing dies are screened out before packaging to cut cost.",
+"interview_answer": "EDS is a test that contacts each die on the wafer with a probe card, checks its electrical operation and separates good from bad. Results vary with test temperature, voltage and timing: high temperature worsens leakage and retention, while low temperature exposes speed failures, so you must test under different conditions to screen weak dies. Lowering voltage or tightening timing catches dies with insufficient margin, but overly strict conditions increase overkill — good dies judged bad — while loose conditions increase escapes, where defects slip through past packaging. Misjudgments from contact problems such as probe-tip contamination must be managed too.",
+"key_points": [
+"Test conditions",
+"Hot and cold testing",
+"Voltage margin",
+"Overkill and escapes"
+]
+},
+{
+"id": "INT-ae61efe7",
+"_h": "d11aa79f",
+"question": "Why is EDS (Electrical Die Sorting) testing needed in semiconductor manufacturing, and how does it contribute to yield management?",
+"follow_up": "How does EDS differ from the final test after packaging?",
+"follow_up_answer": "EDS targets dies still on the wafer, aiming to catch defects early and cut cost, while the final test after packaging checks for defects introduced during assembly and confirms the final specs are met.",
+"interview_answer": "EDS is a test that electrically checks every die before the wafer is diced and packaged. Screening out failing dies at this stage avoids wasting packaging cost, and good dies can also be binned by grade. For products with redundant cells, such as memory, a repair step swaps failing cells for spare ones to recover them and raise yield. The wafer map showing the defect distribution on the wafer also serves as a clue to trace which process or tool is at fault, feeding back into process improvement.",
+"key_points": [
+"Screening failing dies",
+"Wafer map",
+"Repair",
+"Process feedback"
+]
+},
+{
+"id": "INT-949705ef",
+"_h": "08f5fbb7",
+"question": "Explain how the Fermi level affects electron and hole concentrations, and give examples of how this is used in processing.",
+"follow_up": "What happens to the Fermi level when N-type and P-type are joined?",
+"follow_up_answer": "In thermal equilibrium, the Fermi level becomes a single, common level across the whole junction. To align it, electrons and holes move and form a depletion region, and the energy bands bend, creating a built-in potential.",
+"interview_answer": "The Fermi level is the reference energy at which the probability of an electron occupying a level is 1/2. The closer the Fermi level is to the conduction band, the more electron concentration grows exponentially; the closer to the valence band, the more hole concentration grows. In pure silicon it sits near the middle of the band gap, but doping with donors such as phosphorus moves it toward the conduction band, and acceptors such as boron move it toward the valence band. Processing uses this principle: ion implantation sets doping concentration to define the conductivity type of source/drain and channel, channel doping adjusts a MOSFET's threshold voltage, and PN junctions are formed where N-type and P-type meet.",
+"key_points": [
+"E_F position and carrier concentration",
+"N-type and P-type doping",
+"Threshold voltage tuning",
+"PN junction"
+]
+},
+{
+"id": "INT-002",
+"_h": "ecd829cf",
+"question": "Could you explain the pros and cons of plasma etching and how you'd optimize the process with them in mind?",
+"follow_up": "What gets better and what gets worse when you raise ion energy?",
+"follow_up_answer": "Raising ion energy strengthens physical etching, improving anisotropy and etch rate. On the other hand, more of the underlying film is etched, worsening selectivity, and substrate damage increases. So you balance it against the goal.",
+"interview_answer": "Plasma etching's biggest advantage is anisotropic etching, where ions strike vertically so etching is directional. That makes vertical fine patterns possible that wet etching struggles with, and there's less liquid waste. The downsides are that ion bombardment can damage the substrate, selectivity is harder to secure than with wet etching, the equipment is expensive, and residues such as polymers can remain. Optimization means adjusting ion energy and anisotropy with RF power and pressure, tuning selectivity and sidewall protection with gas type and composition, and preventing over-etch with endpoint detection. Residues are removed with post-etch cleaning.",
+"key_points": [
+"Anisotropic etching",
+"Plasma damage",
+"Selectivity",
+"Process-parameter optimization"
+]
+},
+{
+"id": "INT-001",
+"_h": "9dc473c7",
+"question": "If etch uniformity across the wafer is poor in plasma etching, how would you find and fix the cause?",
+"follow_up": "What does the focus ring do, and why is it a problem when it wears?",
+"follow_up_answer": "It's a part that surrounds the wafer edge so the plasma continues evenly to the very edge of the wafer. When it wears and its height changes, the electric field and plasma distribution at the edge change, skewing edge etch rate and profile, so it's replaced periodically.",
+"interview_answer": "Etch rate is set by the amount of reactive ions and radicals and by wafer surface temperature, so first I'd measure etch-rate differences by position on the wafer to see whether the pattern is center-to-edge or directional. As causes, I'd check for non-uniform plasma density, gas supply and exhaust flow skewed to one side, uneven temperature distribution on the electrostatic chuck, and changed edge conditions from focus-ring wear. Responses include adjusting RF power, pressure, gas flow and distribution ratios, zone-by-zone temperature control on the chuck, and replacing consumables. If there's a loading effect, where etch rate varies with pattern density, process conditions are adjusted to compensate.",
+"key_points": [
+"Plasma density distribution",
+"Gas flow and pressure",
+"Wafer temperature distribution",
+"Loading effect"
+]
+},
+{
+"id": "INT-35182",
+"_h": "a3296ffd",
+"question": "Explain how rising temperature affects leakage current and how it can be controlled.",
+"follow_up": "Which leakage is reduced by switching the gate oxide to high-k?",
+"follow_up_answer": "When the oxide gets too thin, electrons tunnel directly through and gate leakage grows. A high-k material has a higher dielectric constant, so it can deliver the same capacitance with a thicker physical film, reducing gate leakage.",
+"interview_answer": "As temperature rises, thermally generated carriers increase exponentially and the transistor's threshold voltage drops, so subthreshold leakage — current that flows even in the off state — rises sharply. PN junction reverse leakage also increases, and more leakage means more heat, which can feed a vicious cycle where that heat drives more leakage. On the device side, control methods include FinFET and GAA structures with stronger gate control and high-k gate dielectrics to cut leakage, multi-Vt design that uses devices with different threshold voltages by purpose, and power gating that shuts off unused blocks. On the system side, thermal design lowers the temperature itself.",
+"key_points": [
+"More thermal carriers",
+"Subthreshold leakage",
+"Junction leakage",
+"Multi-Vt and gate structures"
+]
+},
+{
+"id": "INT-12522",
+"_h": "724dd29d",
+"question": "After DUV (KrF) exposure, during development, photoresist patterns are lifting off or collapsing from the substrate. How would you approach the cause and the fix?",
+"follow_up": "Why does HMDS treatment improve adhesion?",
+"follow_up_answer": "Because it reacts with the hydrophilic OH groups on the wafer surface, making the surface hydrophobic and removing moisture. Photoresist, being organic, sticks better to a hydrophobic surface, which reduces developer seeping under the pattern.",
+"interview_answer": "Pattern lifting is mostly an adhesion problem between resist and substrate, so I'd check the substrate surface condition before exposure parameters. Moisture or organic contamination on the wafer surface weakens adhesion, so before coating, a dehydration bake and HMDS priming make the surface hydrophobic to improve adhesion. Next I'd confirm the soft-bake temperature and time are appropriate and that development time isn't excessive. With high-aspect-ratio patterns, surface tension during post-development rinse and drying can collapse the pattern, so I'd thin the resist or improve rinse and drying conditions. Too little exposure dose can leave the bottom under-dissolved, so dose and focus are checked as well, but raising laser intensity or exposure time doesn't directly improve adhesion.",
+"key_points": [
+"Resist adhesion",
+"HMDS priming",
+"Pattern collapse",
+"Development and drying conditions"
+]
+},
+{
+"id": "INT-48496",
+"_h": "5f1437ba",
+"question": "Fine cracks or voids have been found inside copper interconnects made by the damascene process. How would you approach the cause and the fix?",
+"follow_up": "Why is a barrier layer essential for copper interconnects?",
+"follow_up_answer": "Because copper diffuses easily into silicon and dielectrics, becoming a contaminant that ruins device characteristics. A tantalum-based barrier blocks copper diffusion and also improves adhesion. A thin or broken barrier leads to reliability failures.",
+"interview_answer": "Copper interconnects are made by the damascene process: a barrier and copper seed are formed in the trench, it's filled by electroplating, then planarized with CMP. Cracks and voids mainly come from three sources. First, thermal stress from the expansion mismatch between copper and the surrounding dielectric; second, weak adhesion between barrier and copper causing delamination at the interface; and third, voids inside the trench when it pinches off at the opening during plating. So I'd optimize post-plating anneal temperature and ramp rates to reduce stress, improve adhesion with barrier and seed deposition conditions and interface cleaning, and tune plating additives and seed uniformity so filling proceeds bottom-up. The cause is confirmed with cross-sectional SEM/TEM and stress measurement.",
+"key_points": [
+"Thermal stress",
+"Barrier and seed adhesion",
+"Electroplating voids",
+"Anneal conditions"
+]
+},
+{
+"id": "INT-22540",
+"_h": "7a6d6a6c",
+"question": "The defect rate of a particular memory product has spiked recently. In what order would you find the cause and respond?",
+"follow_up": "What would you do if the cause can't be pinned down right away?",
+"follow_up_answer": "I'd list the changes and verify them one at a time, most likely first. I'd isolate effects with experiments that change only one variable, such as tool-to-tool comparisons, and if needed run reproduction experiments on small lots to confirm the cause.",
+"interview_answer": "First I'd confirm when the increase started and which failure types rose, and look at the distribution with wafer maps and fail-bit maps. Clustering at the edge or center points to a specific process or tool, while random distribution suggests contamination such as particles. Then I'd trace what the failing lots have in common: whether they went through the same tool or chamber, whether there was maintenance or a recipe change in the same period, and whether they used the same material lot. Once suspects are narrowed, cross-sectional analysis (FIB, SEM, TEM) confirms the actual defect form. Before the cause is confirmed, I'd take interim measures — restricting the suspect tool and tightening pre-shipment screening — and once confirmed, revise process conditions or tool-management standards and add recurrence-prevention items to the inspection criteria.",
+"key_points": [
+"Failure pattern analysis",
+"Tracing commonalities",
+"Physical analysis",
+"Interim and root-cause fixes"
+]
+},
+{
+"id": "INT-94173",
+"_h": "1a0ae31e",
+"question": "Recently produced devices are failing during high-temperature operation. What analysis procedure and technical approach would you use?",
+"follow_up": "What does an HTOL test check?",
+"follow_up_answer": "It's a reliability test that runs devices for a long time at high temperature and high voltage to accelerate failures that would occur over their lifetime. Because temperature accelerates failure progression, long-term reliability can be predicted in a short time.",
+"interview_answer": "First I'd reproduce under which temperature and voltage conditions which symptoms (malfunction, rising leakage, slowdown) appear, to define the failure condition precisely. Then I'd measure electrical characteristics while varying temperature, seeing how threshold voltage, leakage current and contact resistance change with temperature, and compare against good devices. Once the failure location is narrowed, I'd observe cross-sections with FIB and SEM and analyze elemental composition with SEM-mounted EDX to check for contamination or abnormal diffusion. Typical causes are contacts or interconnect interfaces vulnerable to thermal stress, increased leakage, and package thermal stress. After improving process and material conditions, I'd verify whether it recurs with reliability tests such as high-temperature operating life (HTOL).",
+"key_points": [
+"High-temperature reproduction",
+"Electrical characterization",
+"Physical analysis",
+"Reliability testing"
+]
+},
+{
+"id": "INT-21625",
+"_h": "e6cb5d21",
+"question": "The defect rate of recently produced devices is 20% higher than usual. In what order would you approach it?",
+"follow_up": "How do you tell random variation from a real abnormality in defect-rate data?",
+"follow_up_answer": "Set the normal range of variation with a control chart, and treat it as a real abnormality when data falls outside that range or a trend drifts to one side. With small samples, results can swing by chance, so confirm with a sufficient quantity.",
+"interview_answer": "First I'd define the scope: whether the 20% is relative to the usual defect rate or in percentage points, and whether it's limited to a specific product or lot. Next I'd classify which failure types increased and compare failing and good devices to find differences in the process data. I'd also check whether recent changes — tool maintenance, material changes, recipe changes — line up with when the increase began. When a suspect emerges, I'd first take an interim measure such as restricting that tool, and after confirming the cause, correct the process conditions and add monitoring criteria to prevent recurrence.",
+"key_points": [
+"Classifying failure types",
+"Checking changes",
+"Common-factor analysis",
+"Recurrence prevention"
+]
+},
+{
+"id": "INT-9c45336d",
+"_h": "05e33653",
+"question": "Could you walk through the manufacturing flow from wafer to finished chip?",
+"follow_up": "Which part of it repeats the same steps many times, and why?",
+"follow_up_answer": "Photo, etch, deposition and ion implantation, and metallization repeat for every layer. Transistors and interconnects are built in many stacked layers, so they can't be shaped all at once; each layer has to go through making a mask, etching and filling again. That's why a wafer returns to the same tools many times.",
+"interview_answer": "Semiconductor manufacturing is a flow of making the wafer, stacking layers and patterning circuits on it, then testing and packaging the chips. After wafer fabrication, an oxide film is grown, photolithography forms a circuit-shaped mask, etching removes what the mask doesn't cover, deposition and ion implantation add films or set electrical properties, and metallization connects the devices. Photo through metallization repeats for each layer; the finished wafer is tested chip by chip in EDS, then diced and packaged. The order is fixed because each step's output becomes the next step's input.",
+"key_points": [
+"Order of the 8 steps",
+"Photo→etch→deposition repeated per layer",
+"Each step's output feeds the next",
+"Front-end and back-end"
+]
+},
+{
+"id": "INT-d738119a",
+"_h": "aa45e4cf",
+"question": "With hundreds of process steps, why is yield managed separately at each step?",
+"follow_up": "Could you explain how practices like the cleanroom and metrology connect to yield?",
+"follow_up_answer": "Particles such as dust are a leading cause of defects that break or short circuits, so reducing particles with a cleanroom raises the good rate at each step. Measuring thickness and line width at each step catches abnormalities right there, keeping defects from passing downstream. Because step rates multiply, even a small rise in each step's rate shows up strongly in overall yield.",
+"interview_answer": "Because overall yield is the product of each step's good rate. Simplifying by assuming the steps are independent, even if each step is 99% good, after 100 steps overall yield falls to about 37%. Conversely, at 99.9% per step, about 90% remains. So even 1% lost at one step can't be taken lightly, and managing every step individually to raise each step's rate is how overall yield goes up.",
+"key_points": [
+"Product of per-step good rates",
+"99% × 100 steps ≈ 37%",
+"Cleanroom",
+"Per-step metrology"
+]
+},
+{
+"id": "INT-b2f293cb",
+"_h": "2f1083d9",
+"question": "Could you explain how a transistor works as a switch, using the MOSFET as the example?",
+"follow_up": "Why is it an advantage that a MOSFET is controlled by voltage rather than current?",
+"follow_up_answer": "The gate sits on a thin insulating film and is electrically separated from the substrate, so almost no current flows into the gate. That puts little load on whatever drives the signal and uses little energy while a value is held. This property is what lets billions of transistors fit on one chip.",
+"interview_answer": "A MOSFET has three terminals — source, drain and gate — and the voltage on the gate opens and closes the path between source and drain. When gate voltage exceeds the threshold voltage, carriers gather at the surface under the gate, forming a channel, and current flows from source to drain. Remove the voltage and the channel disappears, cutting off the current. These on and off states correspond to 1 and 0, so it serves as a switch, and pairing NMOS with PMOS builds logic circuits.",
+"key_points": [
+"Source, drain and gate",
+"Channel forms above threshold voltage",
+"Voltage control",
+"NMOS and PMOS"
+]
+},
+{
+"id": "INT-e437c9b1",
+"_h": "929420af",
+"question": "Could you compare DRAM, SRAM and NAND flash by how they store information?",
+"follow_up": "Where is each memory mainly used, and why?",
+"follow_up_answer": "DRAM cells are small, making large capacities easy, so it's used for main memory. SRAM is fast, but with six transistors per cell it takes a lot of area, so it's used in small, fast places such as CPU caches. NAND flash keeps its values with the power off and is highly dense, so it's used in storage such as SSDs. In the end, the balance of speed, capacity and non-volatility decides the use.",
+"interview_answer": "It's easiest to sort them by where the information is held. DRAM holds charge in a capacitor, and because the charge slowly leaks, it needs periodic refresh. SRAM holds the value with two cross-coupled inverters, so it needs no refresh and is fast. NAND flash traps electrons in a floating gate inside the gate stack to shift the threshold voltage, and keeps its value even with the power off. DRAM and SRAM are volatile, and NAND is non-volatile.",
+"key_points": [
+"Capacitor, inverters, floating gate",
+"Refresh",
+"Volatile vs non-volatile",
+"Uses: main memory, cache, storage"
+]
+},
+{
+"id": "INT-b74f4bba",
+"_h": "cb89bb4e",
+"question": "Could you explain, in broad terms, why next-generation semiconductor technology is needed?",
+"follow_up": "Could you break down the ways of solving that problem by category?",
+"follow_up_answer": "There are four broad branches. Transistors go from FinFET to GAA and later CFET, improving gate control and area. Lithography uses EUV and High-NA EUV to print finer lines in one pass. Memory moves closer to the processor with HBM and stacks up like 3D NAND. Packaging uses chiplets and 3D stacking to get past the limits of large chips.",
+"interview_answer": "Because the approach of boosting performance by shrinking devices has hit its limits. The main ones are the scaling limit, where shrinking further gets harder and more expensive; the power wall, where power and heat approach their limits; and the memory wall, where data supply can't keep up with compute speed. Growing AI workloads have made these walls more pronounced, and no single technology solves them, so device structures, lithography and interconnects, memory and packaging are all changing together.",
+"key_points": [
+"Scaling limit, power wall, memory wall",
+"Transistors, lithography, memory, packaging",
+"From planar to 3D",
+"AI demand"
+]
+},
+{
+"id": "INT-b4578733",
+"_h": "a2a44793",
+"question": "Could you explain why CFET is discussed as the step after GAA, and why backside power comes up alongside it?",
+"follow_up": "How do these technologies connect to each other?",
+"follow_up_answer": "GAA improved gate control, but n-type and p-type sit side by side, which limits cell area. CFET stacks them vertically to shrink that area. As area shrinks, front-side wiring gets more congested, and backside power moves the power lines to the back to free up room on the front. So the two are discussed as technologies used together.",
+"interview_answer": "GAA wraps the channel on four sides to reduce leakage, but because n-type and p-type transistors sit side by side, there's a limit to how small the cell can get. CFET aims to stack the two vertically to fit more devices in the same area; it's currently at the research stage, with adoption expected in the 2030s. As cells shrink, front-side wiring becomes more congested, so backside power, which moves power lines to the back of the wafer, is discussed alongside it.",
+"key_points": [
+"GAA's control and its area limit",
+"CFET's vertical stacking",
+"Wiring room from backside power",
+"Research and adoption stage"
+]
+}
+]

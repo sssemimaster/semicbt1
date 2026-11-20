@@ -1,0 +1,936 @@
+[
+  {
+    "id": "pe",
+    "_h": "3e1623da",
+    "name": "Process Engineer (Manufacturing)",
+    "one": "Manages and improves process conditions so each step on the high-volume line runs stably at the required quality.",
+    "todo": [
+      "Optimizes process conditions (recipes) and evaluates how changes affect quality.",
+      "When process variation or abnormalities appear, analyzes the data statistically to find the cause and fix it.",
+      "Works with equipment engineering on tool setup and improvements, and takes part in yield improvement."
+    ],
+    "flow": "Takes over finished processes from process development and integration and tunes them for volume production. Works side by side with equipment engineering, and results flow on to yield management and the analysis labs.",
+    "know": [
+      "Principles of the 8 major processes",
+      "SPC and DOE statistics",
+      "Yield and defects"
+    ],
+    "ask": [
+      "Explain what you check first when changing a process condition.",
+      "How do you verify the effect of a condition change on yield?"
+    ]
+  },
+  {
+    "id": "eq",
+    "_h": "573e44fe",
+    "name": "Equipment Engineer",
+    "one": "Maintains tools so they run to spec without stopping, and pushes their performance higher.",
+    "todo": [
+      "Keeps tool uptime high through preventive and corrective maintenance.",
+      "Analyzes equipment data to spot warning signs and improves maintenance and automation.",
+      "Verifies performance and sets operating conditions when new tools come in."
+    ],
+    "flow": "Delivers the tool performance process engineers need, and solves major breakdowns together with the equipment vendor's field service. Once maintenance is done, the tool goes back into production.",
+    "know": [
+      "Vacuum and plasma",
+      "Fluid, electrical and mechanical basics",
+      "Equipment interlocks and safety"
+    ],
+    "ask": [
+      "Walk through, step by step, how you narrow down the cause when the same alarm keeps repeating.",
+      "What metrics do you watch to raise tool uptime?"
+    ]
+  },
+  {
+    "id": "yield",
+    "_h": "ddb2ab02",
+    "name": "Yield Engineer",
+    "one": "Monitors the share of good chips coming off each wafer (yield), finds out why yield drops, and brings it back up.",
+    "todo": [
+      "Overlays wafer maps, defect types and process/equipment data to find patterns behind yield loss.",
+      "Designs split experiments that run process conditions in groups, and uses the results to set process margins and targets.",
+      "Analyzes the distribution of electrical test (EDS) results to set specs, and narrows defects down to specific process steps.",
+      "Once the cause is pinned down, agrees on fixes with process and equipment owners and confirms the effect."
+    ],
+    "flow": "Analyzes the process/equipment data and test results built up by process and equipment engineering. Asks the analysis labs to confirm root causes and process development to improve margins.",
+    "know": [
+      "The EDS test flow",
+      "Defects and yield models",
+      "Statistics (distributions, correlation, design of experiments)"
+    ],
+    "ask": [
+      "When yield suddenly drops, in what order do you narrow down the cause?",
+      "If two process conditions changed at the same time, how do you separate their effects?"
+    ]
+  },
+  {
+    "id": "pc",
+    "_h": "386a90bb",
+    "name": "Production Planning & Control",
+    "one": "Plans when and how many wafers to start and how fast to move them through each step, balancing delivery dates and line efficiency.",
+    "todo": [
+      "Sets wafer start plans and production targets based on orders and inventory.",
+      "Watches work-in-progress (WIP) and throughput at each step to find bottlenecks and adjust the flow.",
+      "Coordinates the order of hot lots versus regular lots.",
+      "Revises plans ahead of time for production disruptions from maintenance and breakdowns."
+    ],
+    "flow": "Connects demand from sales and product planning to the fab's process/equipment owners and IT's scheduling system. When the plan slips, this is the first desk to get the call.",
+    "know": [
+      "How wafers move through the fab",
+      "Cycle time, WIP and bottlenecks",
+      "Tool utilization"
+    ],
+    "ask": [
+      "Where do you look first when cycle time gets longer?",
+      "Explain why raising tool utilization can actually increase wait time."
+    ]
+  },
+  {
+    "id": "procdev",
+    "_h": "b693223e",
+    "name": "Process Development Engineer",
+    "one": "Develops individual unit processes such as lithography, etching and thin films to meet the needs of new devices.",
+    "todo": [
+      "Sets the conditions and materials of the unit processes a new device needs.",
+      "Runs test wafers, measures thickness, line width, uniformity and defects, and tunes them to target.",
+      "Checks process margins and stabilizes conditions so the volume line gets the same results.",
+      "Works with equipment and materials teams to evaluate any tool modifications or new materials needed."
+    ],
+    "flow": "Takes targets from device development, builds the unit processes, fits them into the overall flow with process integration, then hands them over to manufacturing.",
+    "know": [
+      "Principles of the 8 major processes",
+      "Plasma etching",
+      "Thin-film deposition",
+      "Design of experiments (DOE)"
+    ],
+    "ask": [
+      "Explain why it's hard to hit etch rate and selectivity at the same time.",
+      "Why can process conditions set in the R&D lab behave differently in volume production?"
+    ]
+  },
+  {
+    "id": "devdev",
+    "_h": "99d221f1",
+    "name": "Device Engineer",
+    "one": "Designs the structure and materials of devices such as transistors and memory cells to meet speed, power and density targets.",
+    "todo": [
+      "Chooses device structures (gate structure, cell structure, etc.) and candidate materials.",
+      "Measures test wafers' electrical characteristics (threshold voltage, drive current, leakage current) and compares them with targets.",
+      "Traces poor characteristics back to structure and process variables and revises the design.",
+      "Matches simulation against measurement to evaluate next-generation structures."
+    ],
+    "flow": "Turns performance requirements from systems and design into device targets, and aligns structures with process development and integration. Modeling engineers turn the device data into models for design.",
+    "know": [
+      "The PN junction",
+      "Transistor devices",
+      "Leakage current",
+      "Memory cell operation"
+    ],
+    "ask": [
+      "Explain why leakage current grows as transistors shrink, and how structure can reduce it.",
+      "What do you gain and what do you lose by lowering the threshold voltage?"
+    ]
+  },
+  {
+    "id": "pi",
+    "_h": "a1880d12",
+    "name": "Process Integration (PI) Engineer",
+    "one": "Chains hundreds of unit processes in the right order to build the process flow that completes a device from start to finish.",
+    "todo": [
+      "Sets the process sequence and target values (thickness, line width, etc.) for each step based on device requirements.",
+      "Analyzes how changes in earlier steps affect later steps and final device characteristics.",
+      "Runs test wafers to check the electrical characteristics and yield of finished devices.",
+      "Identifies problem layers and re-aligns conditions with the responsible process engineers."
+    ],
+    "flow": "Bridges device development, which sets targets, and process development, which tunes the unit processes. The finished flow is handed to manufacturing.",
+    "know": [
+      "Principles of the 8 major processes",
+      "Interactions between process steps",
+      "Device electrical metrics",
+      "Yield and defects"
+    ],
+    "ask": [
+      "Give an example of a change that boosts device performance but could hurt yield.",
+      "When you change one step's conditions, how do you find the later steps it affects?"
+    ]
+  },
+  {
+    "id": "tcad",
+    "_h": "a8b09b06",
+    "name": "TCAD & Modeling Engineer",
+    "one": "Predicts device and process outcomes with computer simulation, and turns measurements into models designers can use.",
+    "todo": [
+      "Simulates processes (doping, annealing) and device electrical characteristics to compare candidate structures.",
+      "Calibrates the physical model parameters in simulation to match measurements.",
+      "Builds the device models circuit designers use (compact models) from measured device data.",
+      "Narrows down candidates before test wafers are run, saving experiments."
+    ],
+    "flow": "Gives predictions to device and process development and takes their measurement data back for calibration. The models end up in the design center's circuit design.",
+    "know": [
+      "Semiconductor physics",
+      "The PN junction",
+      "Transistor devices",
+      "Numerical analysis basics"
+    ],
+    "ask": [
+      "When simulation and measurement disagree, what do you suspect first?",
+      "Which experiments can simulation replace, and which can't it?"
+    ]
+  },
+  {
+    "id": "mask",
+    "_h": "975095e9",
+    "name": "Photomask Design & Manufacturing",
+    "one": "Converts circuit design data into mask data the exposure tool can use, and builds the pattern on a glass plate without defects.",
+    "todo": [
+      "Converts design layouts into mask data and pre-corrects for pattern blurring during exposure (OPC, etc.).",
+      "Writes patterns with e-beam tools and etches them to make the mask.",
+      "Inspects line width, placement accuracy and defects, and repairs those that can be fixed.",
+      "Attaches pellicles to keep out dust and manages contamination and distortion during use."
+    ],
+    "flow": "Builds masks from the design center's layouts and the line-width and alignment specs lithography requires. Finished masks go to the fab's lithography area, and whether a wafer defect came from the mask is checked together with the analysis labs and yield management.",
+    "know": [
+      "Photolithography",
+      "Optics (diffraction, resolution)",
+      "OPC concepts",
+      "EUV lithography"
+    ],
+    "ask": [
+      "Explain why a single mask defect can turn into defects across an entire wafer.",
+      "Explain why OPC is needed."
+    ]
+  },
+  {
+    "id": "pkgdev",
+    "_h": "9244f51c",
+    "name": "Package Development Engineer",
+    "one": "Designs and validates package structures that mount and connect the chip to a substrate, exchange signals and power with the outside world, and shed heat.",
+    "todo": [
+      "Chooses package structure, materials and interconnect methods to meet product requirements (performance, power, size).",
+      "Checks signal quality, power delivery, heat and warpage through simulation and test samples.",
+      "Confirms that samples pass reliability evaluations (temperature cycling, humidity) and traces the cause when problems appear.",
+      "Hands finished structures and processes to manufacturing and helps solve early production issues."
+    ],
+    "flow": "Aligns chip size and pin layout with the design center, and works out new materials and processes with materials and equipment teams. Package manufacturing engineering takes over the finished structure.",
+    "know": [
+      "The packaging process",
+      "Advanced packaging",
+      "Thermal expansion and stress",
+      "Signal integrity basics"
+    ],
+    "ask": [
+      "Explain how the thermal expansion mismatch between chip and substrate causes warpage and cracks.",
+      "How does package structure affect signal speed?"
+    ]
+  },
+  {
+    "id": "adv",
+    "_h": "3f2ab6be",
+    "name": "Advanced Packaging Engineer (2.5D, 3D, HBM)",
+    "one": "Develops packages that link multiple chips side by side (2.5D) or stacked (3D) so they work like one high-performance system.",
+    "todo": [
+      "Evaluates and develops structures that shorten chip-to-chip distance and add more connections (TSVs, micro bumps, hybrid bonding, etc.).",
+      "Tests the heat and stress problems that come with stacking chips, and changes structures and materials.",
+      "Finds bonding defects and voids in stacked chips with inspection tools and improves process conditions.",
+      "Works with design and materials teams on structures that meet product specs."
+    ],
+    "flow": "Moves as one team with the design center and the materials and equipment groups. Developed structures and processes go to package manufacturing, and post-stacking test methods are aligned with test engineers.",
+    "know": [
+      "Advanced packaging",
+      "HBM structure",
+      "Heat and stress",
+      "Bonding basics"
+    ],
+    "ask": [
+      "Explain the structural reason HBM delivers higher bandwidth than conventional memory.",
+      "What gets harder the more chips you stack?"
+    ]
+  },
+  {
+    "id": "pkgmfg",
+    "_h": "ed986a82",
+    "name": "Package Manufacturing Engineer",
+    "one": "Runs the assembly steps — cutting, attaching, connecting and sealing chips — stably in volume and raises yield.",
+    "todo": [
+      "Manages conditions for assembly steps such as wafer dicing, die attach, interconnect (wire bonding or flip chip) and molding.",
+      "Tracks trends in defects such as cracks, bonding failures, warpage and voids, finds the responsible step and improves it.",
+      "Sets volume conditions when a new package comes over from development and stabilizes early yield.",
+      "Evaluates the quality impact when tools or materials change."
+    ],
+    "flow": "Takes over structures and processes from package development and works with equipment, materials, analysis and quality labs. Assembled products go to test engineers.",
+    "know": [
+      "The packaging process",
+      "SPC and statistics",
+      "Defect types and causes"
+    ],
+    "ask": [
+      "Explain the difference between wire bonding and flip chip and how you'd choose between them.",
+      "Where do you look first when post-assembly defects rise?"
+    ]
+  },
+  {
+    "id": "test",
+    "_h": "7c4affac",
+    "name": "Test Engineer",
+    "one": "Uses test equipment and programs to screen whether finished wafers and chips work to spec, and cuts test time and cost.",
+    "todo": [
+      "Defines test items and pass criteria and writes test programs.",
+      "Manages the condition of testers and contact hardware such as probe cards and sockets to reduce measurement error.",
+      "Analyzes result distributions to screen out failures and bin parts by grade, minimizing good parts rejected and bad parts passed.",
+      "Finds ways to shorten test time and lower cost."
+    ],
+    "flow": "Uses the test structures DFT engineers built into the design. Results go to yield management and the analysis labs, and equipment issues are solved with equipment engineering.",
+    "know": [
+      "The EDS test flow",
+      "The EDS process",
+      "DFT concepts",
+      "Statistical distributions"
+    ],
+    "ask": [
+      "Explain how to cut test time while keeping defect coverage.",
+      "When the same chip gives different results on different testers, what do you check?"
+    ]
+  },
+  {
+    "id": "fa",
+    "_h": "9944d10f",
+    "name": "Failure Analysis (FA) Engineer",
+    "one": "Opens up failed chips or wafers and uncovers, with physical evidence, where and why the failure happened.",
+    "todo": [
+      "Narrows the failure location roughly from electrical test results, then pinpoints it with tools that detect hot spots or light emission.",
+      "Cuts a cross-section at the failure site with a focused ion beam (FIB) and examines the structure and foreign material with electron microscopes (SEM, TEM).",
+      "Identifies the composition of particles or contaminants with elemental analysis.",
+      "Explains findings to process and design owners and agrees on measures to prevent recurrence."
+    ],
+    "flow": "Receives failed samples from yield management, manufacturing and reliability, confirms the root cause and sends it back. Results lead to process improvements, design fixes or equipment maintenance.",
+    "know": [
+      "Transistor devices",
+      "Leakage current, opens and shorts",
+      "How electron microscopes work",
+      "Principles of the 8 major processes"
+    ],
+    "ask": [
+      "Explain the steps for tracing an electrically failing chip to its physical cause.",
+      "When would you use SEM and when TEM?"
+    ]
+  },
+  {
+    "id": "rel",
+    "_h": "1c3db221",
+    "name": "Reliability Engineer",
+    "one": "Confirms ahead of time, under harsh test conditions, that chips will keep working without failure for a set period under set conditions.",
+    "todo": [
+      "Sets evaluation items (high-temperature operating life, temperature cycling, humidity, etc.) and pass criteria based on the product's use environment.",
+      "Compresses time with harsh conditions such as high temperature and voltage (accelerated testing) to predict lifetime.",
+      "When a failure occurs during testing, finds the cause with failure analysis and decides whether design, process or package needs fixing.",
+      "Compiles pre-production and periodic production evaluation results statistically to judge whether they meet the criteria."
+    ],
+    "flow": "Evaluates samples from process and package development, reports pass or fail, and finds causes together with failure analysis. Test methods follow the industry-wide standards (JEDEC) to align criteria with customers.",
+    "know": [
+      "Reliability basics (failure rate, bathtub curve)",
+      "Accelerated testing",
+      "Lifetime distributions such as Weibull",
+      "The packaging process"
+    ],
+    "ask": [
+      "Explain why accelerated tests can confirm years of lifetime in a short time.",
+      "What kinds of failures can show up in temperature-cycling tests?"
+    ]
+  },
+  {
+    "id": "qa",
+    "_h": "e6863ce4",
+    "name": "Quality Assurance (QA) Engineer",
+    "one": "Checks that processes, materials and products meet quality standards, and manages problems all the way through root cause and prevention.",
+    "todo": [
+      "Sets quality standards (specs) for processes and products and continuously monitors whether measurement data stays within them.",
+      "When out-of-spec products appear, blocks shipment and asks the relevant teams to investigate and fix the cause.",
+      "Evaluates and audits the quality of material and component suppliers.",
+      "When customers report defects, analyzes the cause and prepares the response and corrective actions."
+    ],
+    "flow": "The desk where data from every process and lab comes together. Works with yield management, failure analysis and reliability, and often serves as the direct point of contact with customers.",
+    "know": [
+      "Statistical process control (SPC)",
+      "Process capability (Cp, Cpk)",
+      "Quality system concepts",
+      "Failure analysis methods"
+    ],
+    "ask": [
+      "Why might customers still see defects even when process data is within spec?",
+      "When a defect is found, in what order do you handle containment, root-cause investigation and prevention?"
+    ]
+  },
+  {
+    "id": "metro",
+    "_h": "58112d4c",
+    "name": "Metrology & Materials Analysis Engineer",
+    "one": "Measures thickness, line width and defects on the wafer and analyzes material structure and composition to confirm processes and materials came out as intended.",
+    "todo": [
+      "Measures dimensions such as film thickness, line width and layer-to-layer alignment with metrology tools, and confirms the measurement methods are trustworthy.",
+      "Inspects the wafer surface for defects and particles to determine their location, count and type.",
+      "Analyzes film crystal structure, composition and impurities with X-ray, electron-beam and mass-spectrometry methods.",
+      "Chooses the analysis methods needed to evaluate new processes or materials and interprets the results."
+    ],
+    "flow": "Analyzes samples from process development and manufacturing and returns the results, and evaluates materials together with materials development. Tool measurement-error issues are solved with equipment engineering.",
+    "know": [
+      "Thin-film deposition",
+      "Optics and X-ray basics",
+      "How electron microscopes work",
+      "Measurement error and repeatability"
+    ],
+    "ask": [
+      "Explain why a measured value can differ from the real one.",
+      "Why use methods that don't cut the wafer when measuring thickness?"
+    ]
+  },
+  {
+    "id": "facility",
+    "_h": "507bf04e",
+    "name": "Fab Facilities Engineer (Utilities)",
+    "one": "Designs the foundations a fab runs on — cleanroom air, power, cooling water and ultrapure water — and supplies them without interruption, 24 hours a day.",
+    "todo": [
+      "Designs and operates the HVAC systems that hold cleanroom temperature, humidity and cleanliness.",
+      "Supplies power and cooling water without interruption and checks redundancy against outages and equipment failures.",
+      "Operates the water-treatment systems that produce and supply ultrapure water, along with wastewater treatment.",
+      "Monitors facility status and plans preventive maintenance, and manages design and construction of new systems during expansions."
+    ],
+    "flow": "If supply wavers, process tools stop, so this role stays in closest contact with equipment and manufacturing engineering. During expansions, it coordinates construction and tool move-in schedules.",
+    "know": [
+      "Cleanrooms and contamination control",
+      "Thermal and fluid basics",
+      "Electrical systems basics",
+      "Water treatment basics"
+    ],
+    "ask": [
+      "Explain why cleanroom temperature, humidity and vibration are controlled so strictly.",
+      "What facilities does a fab need to protect itself during a power outage?"
+    ]
+  },
+  {
+    "id": "gas",
+    "_h": "eb11be63",
+    "name": "Gas & Chemical Engineer",
+    "one": "Stores the specialty gases and chemicals used in processing safely and delivers them to the tools at the required purity.",
+    "todo": [
+      "Operates gas cabinets, piping and chemical delivery systems and manages purity, pressure and flow.",
+      "Checks safety systems such as leak detection and shutoff, and responds immediately to any abnormality.",
+      "Manages the exhaust, abatement and waste-liquid systems that safely treat used gases and chemicals.",
+      "When bringing in new chemicals or gases, checks safety data and regulatory requirements and decides how to supply them."
+    ],
+    "flow": "Supplies the types and quantities process and equipment teams request. Handles regulations and inspections together with EHS, and works out quality issues with material suppliers.",
+    "know": [
+      "Thin-film deposition",
+      "Gases used in etching",
+      "Chemical safety basics",
+      "Piping and fluid basics"
+    ],
+    "ask": [
+      "How do you prepare for leaks when handling toxic or flammable gases?",
+      "What happens to the process when gas purity drops?"
+    ]
+  },
+  {
+    "id": "ehs",
+    "_h": "2402951a",
+    "name": "Environment, Health & Safety (EHS)",
+    "one": "Prevents accidents, keeps the plant compliant and manages environmental impact in a factory full of hazardous gases, chemicals and equipment.",
+    "todo": [
+      "Reviews risks and checks regulatory requirements in advance when new equipment, materials or processes are introduced.",
+      "Checks that management-of-change procedures are actually followed on the floor when equipment changes.",
+      "Finds hazards through pre-startup and periodic inspections, and prepares required permits and filings.",
+      "Runs worker training and emergency drills, and analyzes the causes of incidents and near misses to prevent recurrence.",
+      "Monitors environmental items such as air emissions and wastewater to keep them within limits."
+    ],
+    "flow": "In daily contact with process, equipment and gas/chemical teams, and also handles inspections and audits by outside agencies.",
+    "know": [
+      "Overview of occupational safety regulations",
+      "Process safety management (PSM) concepts",
+      "Chemical handling basics",
+      "Overview of environmental regulations"
+    ],
+    "ask": [
+      "When bringing in a new chemical, what's the first thing to check from a safety standpoint?",
+      "Explain why near misses are recorded and shared."
+    ]
+  },
+  {
+    "id": "install",
+    "_h": "27c0ce30",
+    "name": "Equipment Installation & Setup Engineer",
+    "one": "Brings new tools into a customer's fab, assembles and hooks them up, and gets them ready for first operation.",
+    "todo": [
+      "Assembles the tool's mechanical parts after move-in and connects electrical, gas, vacuum and cooling-water lines.",
+      "Powers up, configures the software and checks basic operation.",
+      "Calibrates the tool to meet spec and confirms it with measurements.",
+      "Runs acceptance tests with the customer and documents the installation."
+    ],
+    "flow": "The customer fab's facilities team prepares power, gas and cooling water, and once installation is done, the customer's equipment engineers take over the tool. Field service handles maintenance from then on, with headquarters engineers supporting when things get stuck.",
+    "know": [
+      "Vacuum and plasma",
+      "Electrical and mechanical basics",
+      "Equipment interlocks and safety",
+      "Reading technical manuals"
+    ],
+    "ask": [
+      "If you can't pull vacuum during installation, what do you check and in what order?",
+      "What do you verify in an acceptance test?"
+    ]
+  },
+  {
+    "id": "fae",
+    "_h": "f26d9d55",
+    "name": "Applications Engineer (Technical Support)",
+    "one": "Helps a tool reach target performance in the customer's process by tuning process conditions and interpreting results.",
+    "todo": [
+      "Sets the tool's process conditions to meet customer requirements (etch rate, uniformity, thickness, etc.).",
+      "Runs demos and evaluations on test or customer wafers and organizes the measurement results.",
+      "When process problems arise on a customer's line, determines whether the tool or the process conditions are to blame and responds.",
+      "Relays customer requirements and field issues to the development team at headquarters."
+    ],
+    "flow": "Talks directly with the customer's process engineers and bridges headquarters development and field service. Also supports sales with technical explanations when meeting new customers.",
+    "know": [
+      "Principles of the 8 major processes",
+      "Process knowledge for the specific tool (plasma, deposition)",
+      "Design of experiments (DOE)",
+      "Measurement and analysis"
+    ],
+    "ask": [
+      "Explain why the same tool gives different results at different customers.",
+      "When a customer complains, how do you tell a tool problem from a process problem?"
+    ]
+  },
+  {
+    "id": "eqrd",
+    "_h": "cf4b314f",
+    "name": "Equipment R&D Engineer",
+    "one": "Designs and develops the structure, controls and software of tools that enable next-generation processes.",
+    "todo": [
+      "Translates process requirements (uniformity, throughput, etc.) into tool specs and designs reaction chambers, wafer handling and vacuum structures.",
+      "Develops the control logic and tool software that drive sensors and actuators.",
+      "Builds prototypes, evaluates process performance and fixes shortfalls.",
+      "Revises designs with reliability and ease of maintenance in mind."
+    ],
+    "flow": "Improves the tool based on customer requirements and field issues passed along by applications and field service. Works with materials and process researchers to keep up with process changes, and hands finished tools to production and quality.",
+    "know": [
+      "Mechanical design basics",
+      "Vacuum, plasma and thermal-fluid systems",
+      "Control engineering basics",
+      "Principles of the 8 major processes"
+    ],
+    "ask": [
+      "What design factors do you look at to improve uniformity inside a chamber?",
+      "Why do you need process knowledge to develop equipment?"
+    ]
+  },
+  {
+    "id": "matrd",
+    "_h": "d6f66f0f",
+    "name": "Materials R&D Scientist",
+    "one": "Researches the composition and synthesis of process materials such as photoresists, gases, chemicals and slurries, and develops them to perform in customer processes.",
+    "todo": [
+      "Designs and synthesizes candidate materials that meet process requirements (resolution, etch selectivity, purity, etc.).",
+      "Analyzes material properties such as purity, particles and metal impurities.",
+      "Evaluates process performance on test wafers and improves the formulation.",
+      "Prepares samples for customer evaluation and feeds the results back into development."
+    ],
+    "flow": "Receives requirements from customer process engineers through technical sales. When moving to volume production, aligns synthesis conditions with manufacturing engineering and evaluates together with process development.",
+    "know": [
+      "Chemistry (organic, inorganic, polymer)",
+      "Analytical chemistry",
+      "Principles of the 8 major processes",
+      "Purity and contamination"
+    ],
+    "ask": [
+      "Explain why trace impurities in a material can lead to device failures.",
+      "What evaluations does a new material go through before it's used in a customer's process?"
+    ]
+  },
+  {
+    "id": "matqa",
+    "_h": "a864f2bd",
+    "name": "Materials Quality & Technical Sales",
+    "one": "Manages the quality of supplied materials and handles customer evaluations and technical questions to get the material adopted.",
+    "todo": [
+      "Manages pre-shipment test results for purity, particles and composition, and blocks shipment when specs aren't met.",
+      "Keeps customer evaluation schedules and results on track through to qualification.",
+      "Analyzes the cause of customer defect inquiries and prepares responses and countermeasures.",
+      "Passes customer requirements to the development team and explains development status to customers."
+    ],
+    "flow": "Sits between materials R&D, production and the customer's process engineers, typically handling both technical and contract discussions.",
+    "know": [
+      "Statistical process control (SPC)",
+      "Analysis method basics",
+      "Material properties",
+      "Quality systems"
+    ],
+    "ask": [
+      "When material properties vary slightly from lot to lot, how does that affect the customer's process and how do you respond?",
+      "Walk through the stages a new material goes through to win customer qualification."
+    ]
+  },
+  {
+    "id": "arch",
+    "_h": "568fc754",
+    "name": "System Architect",
+    "one": "Defines what a chip must do and sets its overall structure — how it splits into blocks and at what performance, power and size.",
+    "todo": [
+      "Analyzes product requirements (performance, power, cost) to define the chip's functional blocks and interconnect.",
+      "Compares candidate architectures in advance with performance models (simulators).",
+      "Balances memory bandwidth, power and area.",
+      "Hands specs out to each block's design team."
+    ],
+    "flow": "Turns customer requirements gathered by product planning into design specs, and aligns specs with the circuit design, verification and physical design teams. The architecture set here is the starting point for all design that follows.",
+    "know": [
+      "Computer architecture basics",
+      "Memory hierarchy and bandwidth",
+      "Low-power design concepts",
+      "Performance modeling"
+    ],
+    "ask": [
+      "Explain why memory bandwidth can become the bottleneck when compute is sufficient but real performance falls short.",
+      "How do you judge the trade-off between performance and power?"
+    ]
+  },
+  {
+    "id": "analog",
+    "_h": "48a9e349",
+    "name": "Analog Circuit Designer",
+    "one": "Designs, at the transistor level, circuits that handle continuous signals such as voltage and current (amplifiers, power supplies, data converters and more).",
+    "todo": [
+      "Sizes transistors and sets operating points to design amplifiers, voltage references, power circuits and more.",
+      "Checks gain, bandwidth, noise and power with simulators.",
+      "Verifies that specs still hold as process, voltage and temperature vary.",
+      "Works with layout engineers to minimize how placement affects performance."
+    ],
+    "flow": "Receives block specs from system architecture and works most closely with physical design (layout). Finished blocks are combined with digital blocks and go through design verification.",
+    "know": [
+      "Transistor devices",
+      "Amplifiers and feedback",
+      "Noise and linearity",
+      "Device models"
+    ],
+    "ask": [
+      "How do you design for the same performance across process, voltage and temperature variation?",
+      "Explain how tiny differences between transistors (mismatch) affect a circuit."
+    ]
+  },
+  {
+    "id": "rtl",
+    "_h": "0da33245",
+    "name": "Digital Design Engineer (RTL)",
+    "one": "Designs compute blocks (CPUs, controllers, etc.) by describing in a hardware description language (RTL) how they behave every clock cycle.",
+    "todo": [
+      "Describes register-to-register data flow in RTL (Verilog, SystemVerilog) from the functional spec.",
+      "Generates gate-level circuits with logic synthesis tools and checks area, speed and power.",
+      "Solves timing issues to meet the target clock speed, along with signal crossings between different clock domains.",
+      "Fixes bugs found by the verification team."
+    ],
+    "flow": "Translates system architecture specs into RTL, which design verification (DV) checks and physical design places and routes.",
+    "know": [
+      "Digital logic (combinational and sequential circuits)",
+      "Timing (setup and hold)",
+      "Hardware description languages",
+      "Memory basics"
+    ],
+    "ask": [
+      "What are setup and hold violations, and how do you fix them?",
+      "Explain why signals can get corrupted between two blocks on different clocks."
+    ]
+  },
+  {
+    "id": "dv",
+    "_h": "ec5efab4",
+    "name": "Design Verification (DV) Engineer",
+    "one": "Builds test environments (testbenches) to confirm by simulation, before the chip is made, that the design works to spec.",
+    "todo": [
+      "Lists the items and scenarios to verify from the spec.",
+      "Writes testbenches that generate a wide range of inputs and situations.",
+      "Compares simulation results against a reference model and measures how thoroughly things have been checked (coverage).",
+      "Reports bugs to designers along with the conditions to reproduce them."
+    ],
+    "flow": "Talks most with RTL designers. Checks back with architecture when spec interpretations differ, and serves as the last gate before the chip goes to manufacturing.",
+    "know": [
+      "Digital logic",
+      "Verification methodology (UVM, etc.)",
+      "Programming basics",
+      "Reading specs"
+    ],
+    "ask": [
+      "What's your criterion for deciding verification is done?",
+      "Explain why not finding bugs doesn't mean there are none."
+    ]
+  },
+  {
+    "id": "pd",
+    "_h": "854664d0",
+    "name": "Physical Design Engineer (Layout)",
+    "one": "Turns logic circuits into actual positions and wiring on the chip, producing the final layout that meets area, speed and power targets.",
+    "todo": [
+      "Designs block placement (floorplan) and the power grid.",
+      "Places gates and builds the clock network and routing.",
+      "Checks timing, power and signal interference to hit targets.",
+      "Checks that no manufacturing rules are violated and finalizes the layout."
+    ],
+    "flow": "Takes synthesized circuits from RTL for digital and layouts from circuit designers for analog, and merges them into a single chip layout. The final layout goes on to mask making.",
+    "know": [
+      "Timing and wire delay",
+      "Power integrity (IR drop)",
+      "Design rules (DRC)",
+      "The metal interconnect process"
+    ],
+    "ask": [
+      "How does longer wiring affect speed?",
+      "Why are design rules necessary?"
+    ]
+  },
+  {
+    "id": "dft",
+    "_h": "96e948ba",
+    "name": "DFT Engineer",
+    "one": "Builds test structures into the design up front so defects in manufactured chips are easy to find with testing.",
+    "todo": [
+      "Inserts test structures (scan chains, etc.) that make the chip's internal state readable and writable.",
+      "Inserts circuits that let memories test themselves (MBIST).",
+      "Generates test patterns and checks how many defects they catch (coverage).",
+      "Adjusts structures to fit constraints such as test time and pin count."
+    ],
+    "flow": "Coordinates area and timing impact with RTL design and physical design, and test engineers build test programs on top of these structures.",
+    "know": [
+      "Digital logic",
+      "Fault models (stuck-at faults, etc.)",
+      "The EDS test flow",
+      "Test cost concepts"
+    ],
+    "ask": [
+      "How do you check a chip's internal state through external pins?",
+      "What burden do DFT circuits place on area and performance?"
+    ]
+  },
+  {
+    "id": "fw",
+    "_h": "b285e8d1",
+    "name": "Firmware & Embedded Software Engineer",
+    "one": "Writes the software that runs on the processor inside the chip and controls the hardware.",
+    "todo": [
+      "Writes low-level code for booting, initial configuration and controlling hardware blocks.",
+      "Implements algorithms that manage functions such as storage and communication inside the chip.",
+      "Develops on models or emulators first, before hardware exists.",
+      "Once silicon arrives, confirms behavior on the real chip and determines whether a problem comes from hardware or software."
+    ],
+    "flow": "Aligns register definitions with circuit design and verification, and reproduces problems together with test and analysis teams.",
+    "know": [
+      "C and assembly",
+      "Processor architecture and interrupts",
+      "Memory maps and registers",
+      "Real-time operating system (RTOS) basics"
+    ],
+    "ask": [
+      "Explain how you tell a hardware bug from a software bug.",
+      "How do interrupts differ from polling?"
+    ]
+  },
+  {
+    "id": "sf",
+    "_h": "8a1919c5",
+    "name": "Smart Factory & Automation Software Engineer",
+    "one": "Builds systems that link the factory's tools, material handling and production flow through software so it runs automatically.",
+    "todo": [
+      "Implements communication between tools and higher-level systems (the manufacturing execution system).",
+      "Builds dashboards showing equipment status and abnormality alerts.",
+      "Develops automation rules such as dispatching, lot tracking and automated transport.",
+      "When outages occur, finds the cause and keeps systems running reliably around the clock."
+    ],
+    "flow": "Aligns tool connectivity with equipment engineering and implements production planning's dispatch rules in the system. The data collected feeds data and AI analysis.",
+    "know": [
+      "Programming (Python, Java, etc.)",
+      "Database basics",
+      "Networking basics",
+      "Equipment communication standards (SECS/GEM)"
+    ],
+    "ask": [
+      "How do you avoid losing in-progress lot information when communication with a tool drops?",
+      "Explain why an error in an automation rule can lead to mass defects."
+    ]
+  },
+  {
+    "id": "data",
+    "_h": "ccaabf12",
+    "name": "Data & AI Analyst",
+    "one": "Gathers process, equipment and quality data to detect anomalies and find causes and directions for improvement.",
+    "todo": [
+      "Collects and cleans large volumes of time-series data from process and equipment sensors.",
+      "Develops models that detect warning signs early (equipment anomaly detection, defect prediction, etc.).",
+      "Presents analysis results in a form process engineers can understand.",
+      "Watches whether models are actually used on the floor and updates them when performance drops."
+    ],
+    "flow": "Process, equipment and yield owners provide the problems and domain knowledge, and smart-factory software provides the data pipelines and service dashboards.",
+    "know": [
+      "Statistics and machine learning",
+      "Python and SQL",
+      "Time-series data",
+      "Process and yield basics"
+    ],
+    "ask": [
+      "Why might a highly accurate defect-prediction model still go unused on the floor?",
+      "How do you approach a situation with lots of data but very rare defects?"
+    ]
+  },
+  {
+    "id": "itinfra",
+    "_h": "dd07c291",
+    "name": "IT Infrastructure & AMHS Engineer",
+    "one": "Reliably operates servers, networks, storage and the automated material handling system (AMHS) that moves wafers around the fab.",
+    "todo": [
+      "Builds and runs servers, networks and data storage 24/7.",
+      "Manages flow and congestion in the automated system that carries wafer carriers between process steps.",
+      "Monitors for outages and checks redundancy so service can be restored quickly.",
+      "Forecasts usage to plan and expand capacity."
+    ],
+    "flow": "Aligns transport rules with smart-factory software and tool load-port connections with equipment engineering.",
+    "know": [
+      "Server and network basics",
+      "Availability and redundancy",
+      "How material handling systems work",
+      "Cleanroom contamination control"
+    ],
+    "ask": [
+      "What happens to production when the material handling system stops?",
+      "Explain how servers are made redundant."
+    ]
+  },
+  {
+    "id": "sec",
+    "_h": "a69663b7",
+    "name": "Security Engineer",
+    "one": "Protects core technology such as design data, process information and factory control systems, and reviews the chip's own security features.",
+    "todo": [
+      "Runs access-control and monitoring systems to keep process and design technology from leaking.",
+      "Protects the factory equipment network by isolating it from the outside and from the office network.",
+      "Analyzes vulnerabilities in the chip's security features (cryptography, secure boot, etc.).",
+      "Responds to security incidents and runs regular audits and training."
+    ],
+    "flow": "Works with IT infrastructure, smart-factory software, the design center (chip security features) and the patent team.",
+    "know": [
+      "Network security",
+      "Cryptography basics",
+      "Access control",
+      "Hardware and software vulnerability analysis"
+    ],
+    "ask": [
+      "Explain why the factory equipment network is kept separate from the regular office network.",
+      "Why review a chip's security features at the design stage?"
+    ]
+  },
+  {
+    "id": "sales",
+    "_h": "68d11c16",
+    "name": "Sales & Marketing",
+    "one": "Analyzes markets and customers, proposes products, and negotiates volume, price and delivery to turn them into revenue.",
+    "todo": [
+      "Analyzes customers' products and market trends to build proposals.",
+      "Negotiates price, volume and delivery and closes contracts.",
+      "Passes customer requirements to product planning and design.",
+      "Serves as the point of coordination with technical teams for customer inquiries and defect responses."
+    ],
+    "flow": "Product planning and applications provide technical support, and volume and delivery are aligned with production planning. When defects occur, responds to customers together with quality assurance.",
+    "know": [
+      "Product knowledge (memory, logic, etc.)",
+      "Market demand cycles",
+      "Contract and negotiation basics",
+      "Cross-cultural communication"
+    ],
+    "ask": [
+      "Explain why the semiconductor market cycles between booms and busts.",
+      "How do you close the gap between what customers want and what your product offers?"
+    ]
+  },
+  {
+    "id": "plan",
+    "_h": "67c3b153",
+    "name": "Product Planning & Applications Engineering",
+    "one": "Defines the chip specs customers and the market want, and provides technical support so customers can use the chip well in their own products.",
+    "todo": [
+      "Gathers market trends and customer needs to set target specs and schedules for new chips.",
+      "Negotiates specs with the design center and tracks development progress.",
+      "Helps customers evaluate the chip in their products and solves problems (applications engineering).",
+      "Prepares materials such as evaluation boards and datasheets."
+    ],
+    "flow": "Passes customer needs gathered by sales to system architecture, acting as an interpreter between customers and the design center.",
+    "know": [
+      "Understanding product architecture",
+      "Reading datasheets",
+      "Market analysis",
+      "System-level knowledge"
+    ],
+    "ask": [
+      "How do you set specs when customer requirements conflict?",
+      "When a chip doesn't deliver the expected performance in a customer's product, where do you look first?"
+    ]
+  },
+  {
+    "id": "patent",
+    "_h": "e5b367f8",
+    "name": "Patent Engineer",
+    "one": "Protects the company's technology with patents and makes sure it doesn't infringe other companies' patents.",
+    "todo": [
+      "Turns researchers' and engineers' ideas into inventions and prepares filing documents.",
+      "Handles the examination process after filing.",
+      "Searches competitors' patents to check that products in development don't infringe.",
+      "Manages the patent portfolio and supports dispute response."
+    ],
+    "flow": "Shapes inventions together with engineers in development, and collaborates with outside patent attorneys and legal.",
+    "know": [
+      "Patent system basics",
+      "Domain knowledge (process, device, package)",
+      "Technical writing",
+      "Prior-art searching"
+    ],
+    "ask": [
+      "What's the difference between a good invention and a simple improvement?",
+      "Explain why patent disputes are so common in semiconductors."
+    ]
+  },
+  {
+    "id": "admin",
+    "_h": "3a3607eb",
+    "name": "Business Support (Finance, Procurement, HR)",
+    "one": "Manages money, purchasing and people to keep the company running.",
+    "todo": [
+      "Finance: plans budgets and capital investment and manages profit and loss.",
+      "Procurement: selects suppliers of tools, materials and parts and negotiates price and delivery.",
+      "HR: runs hiring, training, evaluation and compensation programs.",
+      "Shared: handles regulatory compliance and external reporting."
+    ],
+    "flow": "Touches every department. In large capital investments, finance and procurement work especially closely with process and equipment teams.",
+    "know": [
+      "Accounting and finance basics",
+      "Contracts and negotiation",
+      "Employment law basics",
+      "Supply chain concepts"
+    ],
+    "ask": [
+      "Explain why capital investment in the chip business is so large and takes so long to pay back.",
+      "Why keep multiple material suppliers?"
+    ]
+  },
+  {
+    "id": "cs",
+    "_h": "6f72e86d",
+    "name": "Field Service Engineer",
+    "one": "Works for an equipment maker inside customers' fabs, installing tools and handling maintenance and breakdowns.",
+    "todo": [
+      "Installs tools and sets initial operating conditions.",
+      "Performs preventive and corrective maintenance on electrical, vacuum, mechanical, plasma and gas systems.",
+      "Analyzes the causes of breakdowns and guides customer staff on fixes and proper use."
+    ],
+    "flow": "Works on site with technical support from headquarters engineers and communicates directly with the customer's equipment engineers. Shift work or travel may be involved.",
+    "know": [
+      "Vacuum and plasma",
+      "How the equipment works",
+      "Reading technical manuals"
+    ],
+    "ask": [
+      "Explain what you'd do in the first 30 minutes when a tool goes down in a customer's fab."
+    ]
+  }
+]

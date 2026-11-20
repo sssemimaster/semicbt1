@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SemiCBT - 통합 관리자 대시보드</title>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <!-- 토큰이 외부로 새지 않도록 통신 대상을 GitHub API / Supabase 로만 제한 -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net data:; img-src 'self' data:; connect-src https://api.github.com https://hyqsrajudsymexxuekfb.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+  
+  <!-- ✨ Tailwind & Typography 플러그인 (마크다운 렌더링용) -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <!-- ✨ marked.js (마크다운 변환) — 외부 CDN 대신 이 저장소의 vendor/ 파일을 쓴다 (CDN·캐시 문제로 미리보기가 깨지는 것을 막기 위함) -->
+  <script src="vendor/marked.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+  <script src="vendor/purify.min.js"></script>
+
+  <!-- 수식 렌더링 (KaTeX) : 사용자 페이지와 동일하게 보이도록 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <style>
+    /* 사용자 페이지(index.html)와 같은 모양의 미리보기 (관리자 페이지는 라이트 전용) */
+    .custom-highlight-box { background-color: #ecfdf5; border: 1px solid #a7f3d0; border-left: 6px solid #10b981; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; color: #1f2937; display: flex; gap: 12px; font-size: 0.9rem; line-height: 1.6; }
+    .custom-highlight-box::before { content: '💡'; font-size: 1.15rem; }
+    .th-term { color: #4338ca; border-bottom: 1.5px dotted #6366f1; cursor: help; }
+    .th-toggle { margin: .9rem 0; border: 1px solid #cbd5e1; border-radius: .7rem; background: #eef2ff; } .th-toggle > summary { cursor: pointer; padding: .6rem .85rem; font-weight: 700; font-size: .9rem; } .th-tg-body { padding: 0 .85rem .75rem; font-size: .88rem; line-height: 1.75; color: #475569; }
+    .custom-highlight-box { display: block; position: relative; padding-left: calc(1.25rem + 1.15rem + 10px); overflow-wrap: anywhere; } .custom-highlight-box::before { position: absolute; left: 1.25rem; top: 1rem; } .custom-highlight-box .katex { overflow-wrap: normal; }
+    .custom-badge-heading { display: flex; align-items: center; gap: 10px; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.05rem; font-weight: 800; color: #0f172a; }
+    .custom-badge { background-color: #d1fae5; color: #047857; font-size: 0.7rem; padding: 4px 10px; border-radius: 9999px; white-space: nowrap; }
+    .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.35rem 0; margin: 1rem 0 !important; }
+    .katex-display > .katex { font-size: 1.25em; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+
+  <header class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center flex-wrap gap-2">
+    <h1 class="text-xl font-bold">🛠️ SemiCBT 통합 검수소 (Admin)</h1>
+    <button id="logoutBtn" onclick="logoutAdmin()" class="hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition">로그아웃</button>
+    <div class="text-xs text-slate-300 bg-slate-800 px-3 py-1.5 rounded-lg flex gap-3">
+      <span>📝 시험: <span id="draftQCount" class="font-bold text-indigo-400">0</span></span>
+      <span>🗣️ 면접: <span id="draftICount" class="font-bold text-rose-400">0</span></span>
+      <span>📖 이론: <span id="draftTCount" class="font-bold text-emerald-400">0</span></span>
+      <span>💼 직무: <span id="draftCCount" class="font-bold text-amber-400">0</span></span>
+    </div>
+  </header>
+
+  <main class="max-w-2xl w-full mx-auto p-4 py-8">
+    
+    <!-- 1차 보안: Supabase 계정 로그인 (서버에서 검증) -->
+    <div id="loginSection" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 text-center mt-10">
+      <h2 class="text-xl font-bold mb-4">1차 보안: 관리자 로그인</h2>
+      <input type="email" id="adminEmail" autocomplete="username" placeholder="이메일" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl mb-3 outline-none focus:border-indigo-500">
+      <input type="password" id="adminPin" autocomplete="current-password" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkAdmin()" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 outline-none focus:border-indigo-500">
+      <button id="loginBtn" onclick="checkAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white py-3.5 rounded-xl font-bold transition shadow-md">로그인</button>
+      <p id="loginMsg" class="text-xs text-rose-600 font-bold mt-3 min-h-[1rem]"></p>
+    </div>
+
+    <!-- 2차 보안 (GitHub 토큰) -->
+    <div id="authSection" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 mt-10 text-center">
+      <h2 class="text-xl font-bold mb-4">2차 보안: GitHub 토큰 검증</h2>
+      <input type="password" id="ghToken" placeholder="GitHub 토큰 (github_pat_ / ghp_)" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 text-center tracking-wide outline-none focus:border-indigo-500">
+      <button onclick="loadAdminData()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold transition shadow-md">대시보드 입장</button>
+    </div>
+
+    <!-- 메인 대시보드 뷰 -->
+    <div id="dashboardSection" class="hidden space-y-6">
+      
+      <!-- ✨ 3단 탭 전환 메뉴 -->
+      <div class="flex bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 flex-wrap">
+        <button onclick="switchTab('quiz')" id="tabQuizBtn" class="flex-1 py-3 font-bold text-sm rounded-xl bg-indigo-600 text-white transition shadow-md">📝 객관식</button>
+        <button onclick="switchTab('interview')" id="tabInterviewBtn" class="flex-1 py-3 font-bold text-sm rounded-xl text-slate-500 hover:bg-slate-50 transition">🗣️ 주관식(면접)</button>
+        <button onclick="switchTab('theory')" id="tabTheoryBtn" class="flex-1 py-3 font-bold text-sm rounded-xl text-slate-500 hover:bg-slate-50 transition">📖 이론(백과)</button>
+        <button onclick="switchTab('career')" id="tabCareerBtn" class="flex-1 py-3 font-bold text-sm rounded-xl text-slate-500 hover:bg-slate-50 transition">💼 직무</button>
+      </div>
+
+      <div class="flex justify-end -mt-3"><button onclick="refreshDrafts()" class="text-xs bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg font-semibold transition">🔄 대기열 새로고침</button></div>
+
+      <!-- 실시간 제보함 (기존 동일) -->
+      <div class="bg-white rounded-2xl shadow-sm border border-rose-200 p-6">
+        <h2 class="text-xl font-bold text-rose-600 mb-4 flex justify-between items-center">
+          <span>🚨 유저 오류 제보함</span>
+          <button onclick="loadReports()" class="text-xs bg-rose-50 text-rose-600 px-3 py-1 rounded-md font-semibold hover:bg-rose-100 transition">새로고침</button>
+        </h2>
+        <div id="reportsList" class="space-y-3"><p class="text-sm text-slate-500 text-center py-2">불러오는 중...</p></div>
+      </div>
+
+      <!-- 📝 객관식 렌더러 -->
+      <div id="reviewQuizContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-xl font-bold text-slate-800 mb-4">📝 객관식 시험 검수</h2>
+        <div id="qBox"></div>
+      </div>
+
+      <!-- 🗣️ 주관식 렌더러 -->
+      <div id="reviewInterviewContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hidden">
+        <h2 class="text-xl font-bold text-slate-800 mb-4">🗣️ 면접 시나리오 검수</h2>
+        <div id="iBox"></div>
+      </div>
+
+      <!-- 💼 직무 지도 렌더러 -->
+      <div id="reviewCareerContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hidden">
+        <h2 class="text-xl font-bold text-slate-800 mb-4">💼 직무 지도 검수</h2>
+        <div id="cBox"></div>
+      </div>
+
+      <!-- 📖 ✨ 신규: 이론 백과사전 렌더러 ✨ -->
+      <div id="reviewTheoryContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hidden">
+        <h2 class="text-xl font-bold text-slate-800 mb-4">📖 이론 백과사전 검수 (미리보기)</h2>
+        <div id="tBox"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // 🔴 설정 정보
+    const REPO_OWNER = "sssemimaster"; 
+    const REPO_NAME = "semicbt";
+    const SUPABASE_URL = "https://hyqsrajudsymexxuekfb.supabase.co"; 
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5cXNyYWp1ZHN5bWV4eHVla2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxMzA0MDEsImV4cCI6MjEwOTcwNjQwMX0.6OPx9ClxjCnIfGcCFwYhgbWICcpgBI1cvx1QcAyVvIY"; 
+    
+    let supabaseClient;
+    // 세션은 탭을 닫으면 사라지도록 sessionStorage 에만 보관
+    try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true } }); } catch(e) {}
+
+    let token = "";
+    let draftQuizzes = [];
+    let draftInterviews = [];
+    let draftTheories = []; // ✨ 이론 대기소
+    
+    let currentQuizIndex = 0;
+    let currentInterviewIndex = 0;
+    let currentTheoryIndex = 0; // ✨ 이론 인덱스
+    let draftCareers = [];      // 💼 직무 대기소
+    let currentCareerIndex = 0;
+    const CAREER_BLD_NAMES = { design: '설계센터', rnd: 'R&D센터', fab: 'FAB (웨이퍼 제조)', hq: '본사 사무동', sub: '서브팹·유틸리티', pkg: '후공정동', supply: '장비·소재 구역', it: 'IT·데이터센터', lab: '분석·품질 랩' };
+
+    // ---- 로그인 시도 제한 (같은 브라우저에서 5회 실패 시 5분 잠금) ----
+    const LOCK_KEY = 'adminLock';
+    function lockState() { try { return JSON.parse(localStorage.getItem(LOCK_KEY) || '{"n":0,"until":0}'); } catch (e) { return { n: 0, until: 0 }; } }
+    function saveLock(v) { try { localStorage.setItem(LOCK_KEY, JSON.stringify(v)); } catch (e) {} }
+    function setLoginMsg(t) { document.getElementById('loginMsg').textContent = t || ''; }
+
+    async function checkAdmin() {
+      const email = document.getElementById('adminEmail').value.trim();
+      const pw = document.getElementById('adminPin').value;
+      if (!supabaseClient) return setLoginMsg('서버 연결에 실패했어요. 새로고침 해 주세요.');
+      if (!email || !pw) return setLoginMsg('이메일과 비밀번호를 입력해 주세요.');
+      const st = lockState();
+      if (st.until > Date.now()) return setLoginMsg(`너무 많이 틀렸어요. ${Math.ceil((st.until - Date.now()) / 60000)}분 뒤에 다시 시도하세요.`);
+      const btn = document.getElementById('loginBtn'); btn.disabled = true; setLoginMsg('확인 중...');
+      try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pw });
+        if (error) {
+          const n = (st.n || 0) + 1;
+          saveLock({ n: n >= 5 ? 0 : n, until: n >= 5 ? Date.now() + 5 * 60000 : 0 });
+          document.getElementById('adminPin').value = '';
+          return setLoginMsg(n >= 5 ? '5회 실패: 5분간 잠겼어요.' : `로그인 정보가 맞지 않아요. (${n}/5)`);
+        }
+        saveLock({ n: 0, until: 0 }); setLoginMsg(''); document.getElementById('adminPin').value = '';
+        showTokenStep();
+      } catch (e) { console.error(e); setLoginMsg('로그인 중 오류가 발생했어요.'); }
+      finally { btn.disabled = false; }
+    }
+    function showTokenStep() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('authSection').classList.remove('hidden');
+      document.getElementById('logoutBtn').classList.remove('hidden');
+      armIdleLogout();
+    }
+    async function logoutAdmin() {
+      token = ""; try { await supabaseClient.auth.signOut(); } catch (e) {}
+      try { sessionStorage.clear(); } catch (e) {}
+      location.reload();
+    }
+    // 15분 동안 아무 조작이 없으면 자동 로그아웃
+    let idleTimer = null;
+    function armIdleLogout() {
+      const reset = () => { clearTimeout(idleTimer); idleTimer = setTimeout(() => { alert('15분 동안 조작이 없어 자동 로그아웃돼요.'); logoutAdmin(); }, 15 * 60 * 1000); };
+      ['click', 'keydown', 'mousemove', 'touchstart'].forEach(ev => window.addEventListener(ev, reset, { passive: true })); reset();
+    }
+    // 새로고침 시 세션이 남아 있으면 비밀번호 단계는 건너뜀 (토큰은 다시 입력)
+    (async () => {
+      try { if (supabaseClient) { const { data } = await supabaseClient.auth.getSession(); if (data && data.session) showTokenStep(); } } catch (e) {}
+    })();
+
+    // ⚠️ 대기열 파일을 고칠 때는 항상 GitHub 의 '최신본'을 읽어 그 위에서 수정한다.
+    //    (화면에 열려 있던 옛 목록으로 덮어쓰면, 그사이 AI가 새로 넣은 문항이 사라진다)
+    // 재검수 때 해설이 두 겹으로 감싸진 초안("정답 해설\n정답 해설\n...")을 한 겹으로 정리
+    function fixExpl(e) {
+      e = String(e || '');
+      if (!/^정답 해설\s*\n\s*정답 해설\s*\n/.test(e)) return e;
+      const parts = e.split(/\n\s*오답 체크\s*\n/);
+      const wc = parts[0].replace(/^정답 해설\s*\n\s*정답 해설\s*\n/, '').split('\n💡 기억 포인트')[0].trim();
+      return parts.length < 2 ? '정답 해설\n' + wc : '정답 해설\n' + wc + '\n\n오답 체크\n' + parts[parts.length - 1];
+    }
+    async function draftMutate(path, mutator, msg) {
+      const f = await fetchGitHubFile(path);
+      const next = mutator(f ? JSON.parse(f.content) : []);
+      await updateGitHubFile(path, f ? f.sha : null, JSON.stringify(next, null, 2), msg);
+      return next;
+    }
+    async function refreshDrafts() {
+      try {
+        const [q, i, t, c] = await Promise.all(["data/draft_questions.json", "data/draft_interviews.json", "data/draft_theories.json", "data/draft_careers.json"].map(fetchGitHubFile));
+        draftCareers = c ? JSON.parse(c.content) : []; document.getElementById('draftCCount').innerText = draftCareers.length;
+        draftQuizzes = (q ? JSON.parse(q.content) : []).map(x => ({ ...x, explanation: fixExpl(x.explanation) })); draftInterviews = i ? JSON.parse(i.content) : []; draftTheories = t ? JSON.parse(t.content) : [];
+        currentQuizIndex = currentInterviewIndex = currentTheoryIndex = 0;
+        document.getElementById('draftQCount').innerText = draftQuizzes.length; document.getElementById('draftICount').innerText = draftInterviews.length; document.getElementById('draftTCount').innerText = draftTheories.length;
+        renderQuizReview(); renderInterviewReview(); renderTheoryReview(); renderCareerReview();
+      } catch (e) { console.error(e); alert('새로고침 실패 (토큰/권한 확인)'); }
+    }
+
+    async function loadAdminData() {
+      token = document.getElementById('ghToken').value.trim();
+      if(!/^(github_pat_|ghp_)/.test(token)) return alert("유효한 토큰이 아닙니다.");
+      document.getElementById('ghToken').value = "";
+      
+      try {
+        // 객관식 로드
+        const qFile = await fetchGitHubFile("data/draft_questions.json");
+        draftQuizzes = (qFile ? JSON.parse(qFile.content) : []).map(q => ({ ...q, explanation: fixExpl(q.explanation) }));
+        document.getElementById('draftQCount').innerText = draftQuizzes.length;
+
+        // 면접 로드
+        const iFile = await fetchGitHubFile("data/draft_interviews.json");
+        draftInterviews = iFile ? JSON.parse(iFile.content) : [];
+        document.getElementById('draftICount').innerText = draftInterviews.length;
+
+        // ✨ 이론 로드
+        const tFile = await fetchGitHubFile("data/draft_theories.json");
+        draftTheories = tFile ? JSON.parse(tFile.content) : [];
+        document.getElementById('draftTCount').innerText = draftTheories.length;
+
+        // 💼 직무 로드
+        const cFile = await fetchGitHubFile("data/draft_careers.json");
+        draftCareers = cFile ? JSON.parse(cFile.content) : [];
+        document.getElementById('draftCCount').innerText = draftCareers.length;
+
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+
+        renderQuizReview();
+        renderInterviewReview();
+        renderTheoryReview(); // ✨ 이론 렌더링 호출
+        renderCareerReview();
+        
+        if(supabaseClient) loadReports();
+      } catch (e) { alert("데이터 접근 권한이 없거나 토큰이 만료되었습니다."); console.error(e); }
+    }
+
+    // ✨ 3단 탭 전환 로직 개선
+    function switchTab(tab) {
+      const tabs = ['quiz', 'interview', 'theory', 'career'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
+        const container = document.getElementById(`review${t.charAt(0).toUpperCase() + t.slice(1)}Container`);
+        if (t === tab) {
+          btn.className = "flex-1 py-3 font-bold text-sm rounded-xl bg-indigo-600 text-white transition shadow-md";
+          container.classList.remove('hidden');
+        } else {
+          btn.className = "flex-1 py-3 font-bold text-sm rounded-xl text-slate-500 hover:bg-slate-50 transition";
+          container.classList.add('hidden');
+        }
+      });
+    }
+
+    // ==========================================
+    // 📝 객관식 검수
+    // ==========================================
+    function renderQuizReview() {
+      if(draftQuizzes.length === 0) { 
+        document.getElementById('qBox').innerHTML = "<p class='text-center py-6 text-slate-500 font-bold'>대기 중인 시험 문제가 없습니다.</p>"; return; 
+      }
+      const q = draftQuizzes[currentQuizIndex];
+      let html = `
+        ${q.report_note ? `<div class="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">${q.replaces ? '🔍 기존 문항 재검수 (승인하면 기존 문항을 이 문항으로 교체)' : '🚨 제보로 이동됨'}: ${escHtml(q.report_note)}${q.before ? `<div class="mt-1.5 text-slate-500">원래 문제: ${escHtml(q.before)}</div>` : ''}</div>` : ''}
+        <div class="mb-4"><span class="bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded">${escHtml(q.category)} > ${escHtml(q.topic)}</span></div>
+        <h2 class="text-lg font-bold text-slate-900 mb-6 leading-snug">${escHtml(q.question)}</h2>
+        <div id="adminOptContainer" class="space-y-3"></div>
+        <div id="adminExpBox" class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-xl hidden">
+          <div id="adminResStatus" class="font-bold text-sm mb-2"></div><p id="adminExpText" class="text-sm text-slate-600 leading-relaxed whitespace-pre-line"></p>
+        </div>
+        <button onclick="editDraft('quiz')" class="w-full mt-4 bg-amber-50 hover:bg-amber-100 transition text-amber-800 font-bold py-3 rounded-xl border border-amber-200">✏️ 내용 수정</button>
+        <div class="grid grid-cols-2 gap-4 mt-6">
+          <button onclick="rejectContent('quiz')" class="bg-rose-100 hover:bg-rose-200 transition text-rose-700 font-bold py-4 rounded-xl border border-rose-200">🗑️ 폐기</button>
+          <button onclick="approveQuiz()" class="bg-emerald-600 hover:bg-emerald-700 transition text-white font-bold py-4 rounded-xl shadow-md">✅ 시험 등재</button>
+        </div>`;
+      
+      document.getElementById('qBox').innerHTML = html;
+
+      const optContainer = document.getElementById('adminOptContainer');
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm flex items-center transition";
+        btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs mr-3 font-bold text-slate-500">${idx + 1}</span> <span>${escHtml(opt)}</span>`;
+        btn.onclick = () => {
+          document.getElementById('adminExpBox').classList.remove('hidden');
+          const res = document.getElementById('adminResStatus');
+          if(idx === q.answer) { res.className = "font-bold text-sm mb-1 text-emerald-600"; res.innerText = "⭕ 정답입니다!"; } 
+          else { res.className = "font-bold text-sm mb-1 text-rose-600"; res.innerText = `❌ 오답 (정답: ${q.answer + 1}번)`; }
+          document.getElementById('adminExpText').innerText = q.explanation;
+        };
+        optContainer.appendChild(btn);
+      });
+    }
+
+    async function approveQuiz() {
+      if(!confirm("이 시험 문제를 정식 등재하시겠습니까?")) return;
+      try {
+        const q = draftQuizzes[currentQuizIndex]; q.explanation = fixExpl(q.explanation); const repId = q.replaces; delete q.report_note; delete q.replaces; delete q.before;
+        const live = await fetchGitHubFile("data/questions.json");
+        let data = live ? JSON.parse(live.content) : []; if (repId) data = data.filter(x => String(x.id) !== String(repId)); data.unshift(q);
+        await updateGitHubFile("data/questions.json", live ? live.sha : null, JSON.stringify(data, null, 2), `Approve quiz ${q.id}`);
+        
+        draftQuizzes = await draftMutate("data/draft_questions.json", a => a.filter(x => x.id !== q.id), "Remove draft");
+        currentQuizIndex = Math.min(currentQuizIndex, Math.max(0, draftQuizzes.length - 1));
+        
+        alert("✅ 등재 완료!"); document.getElementById('draftQCount').innerText = draftQuizzes.length; renderQuizReview();
+      } catch(e) { alert("등재 실패: " + (e && e.message || e)); }
+    }
+
+    // ==========================================
+    // 🗣️ 면접 검수
+    // ==========================================
+    function renderInterviewReview() {
+      if(draftInterviews.length === 0) { document.getElementById('iBox').innerHTML = "<p class='text-center py-6 text-slate-500 font-bold'>대기 중인 면접 문항이 없습니다.</p>"; return; }
+      const i = draftInterviews[currentInterviewIndex];
+      let html = `${i.report_note ? `<div class="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">${i.replaces ? '🔍 기존 문항 재검수 (승인하면 기존 문항을 이 문항으로 교체)' : '🚨 제보로 이동됨'}: ${escHtml(i.report_note)}${i.before ? `<div class="mt-1.5 text-slate-500">원래 문제: ${escHtml(i.before)}</div>` : ''}</div>` : ''}<div class="mb-4"><span class="bg-rose-100 text-rose-700 text-xs font-semibold px-2.5 py-1 rounded">${escHtml(i.category)} > ${escHtml(i.topic)}</span></div><h2 class="text-lg font-bold text-slate-900 mb-4">${escHtml(i.question)}</h2><div class="p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4"><span class="text-xs font-bold text-rose-700 block mb-1">키워드: ${(i.key_points || []).map(escHtml).join(', ')}</span><p class="text-sm text-slate-700 mt-2 leading-relaxed">${escHtml(i.interview_answer)}</p></div>${i.follow_up ? `<div class="p-4 border border-dashed border-rose-200 rounded-xl mb-4"><span class="text-xs font-bold text-rose-700 block mb-1">꼬리 질문</span><p class="text-sm font-bold text-slate-800">${escHtml(i.follow_up)}</p><p class="text-sm text-slate-600 mt-1 leading-relaxed">${escHtml(i.follow_up_answer || '')}</p></div>` : ''}<button onclick="editDraft('interview')" class="w-full mt-4 bg-amber-50 hover:bg-amber-100 transition text-amber-800 font-bold py-3 rounded-xl border border-amber-200">✏️ 내용 수정</button>
+        <div class="grid grid-cols-2 gap-4 mt-6"><button onclick="rejectContent('interview')" class="bg-rose-100 hover:bg-rose-200 transition text-rose-700 font-bold py-4 rounded-xl border border-rose-200">🗑️ 폐기</button><button onclick="approveInterview()" class="bg-emerald-600 hover:bg-emerald-700 transition text-white font-bold py-4 rounded-xl shadow-md">✅ 면접 등재</button></div>`;
+      document.getElementById('iBox').innerHTML = html;
+    }
+
+    async function approveInterview() {
+      if(!confirm("면접 문항을 정식 등재하시겠습니까?")) return;
+      try {
+        const i = draftInterviews[currentInterviewIndex]; const repId = i.replaces; delete i.report_note; delete i.replaces; delete i.before;
+        const live = await fetchGitHubFile("data/interviews.json");
+        let data = live ? JSON.parse(live.content) : []; if (repId) data = data.filter(x => String(x.id) !== String(repId)); data.unshift(i);
+        await updateGitHubFile("data/interviews.json", live ? live.sha : null, JSON.stringify(data, null, 2), `Approve interview ${i.id}`);
+        
+        draftInterviews = await draftMutate("data/draft_interviews.json", a => a.filter(x => x.id !== i.id), "Remove draft");
+        currentInterviewIndex = Math.min(currentInterviewIndex, Math.max(0, draftInterviews.length - 1));
+        
+        alert("✅ 등재 완료!"); document.getElementById('draftICount').innerText = draftInterviews.length; renderInterviewReview();
+      } catch(e) { alert("등재 실패: " + (e && e.message || e)); console.error(e); }
+    }
+
+    // ==========================================
+    // 📖 ✨ 신규: 이론 검수 (마크다운 렌더링) ✨
+    // ==========================================
+    // ==========================================
+    // 💼 직무 지도 검수 (data/draft_careers.json -> data/careers.json)
+    // ==========================================
+    function renderCareerReview() {
+      const box = document.getElementById('cBox');
+      if (!draftCareers.length) { box.innerHTML = "<p class='text-center py-6 text-slate-500 font-bold'>대기 중인 직무가 없습니다.</p>"; return; }
+      if (currentCareerIndex >= draftCareers.length) currentCareerIndex = draftCareers.length - 1;
+      if (currentCareerIndex < 0) currentCareerIndex = 0;
+      const j = draftCareers[currentCareerIndex], bn = CAREER_BLD_NAMES[j.building] || j.building;
+      const same = draftCareers.filter(x => x.building === j.building).length;
+      const opts = draftCareers.map((x, i) => `<option value="${i}" ${i === currentCareerIndex ? 'selected' : ''}>${escHtml(CAREER_BLD_NAMES[x.building] || x.building)} · ${escHtml(x.name)}</option>`).join('');
+      const know = (j.know || []).map(k => `<span class="inline-block text-xs bg-amber-50 border border-amber-200 text-amber-800 font-semibold px-2 py-1 rounded mr-1 mb-1">${escHtml(k.label)}${k.theory_hint ? ` <span class="font-normal text-amber-600">→ 이론: ${escHtml(k.theory_hint)}</span>` : ' <span class="font-normal text-slate-400">(연결 이론 없음)</span>'}</span>`).join('');
+      const src = (j.sources || []).map(s => `<li><a href="${escHtml(s.url)}" target="_blank" rel="noopener noreferrer" class="underline text-indigo-600">${escHtml(s.title || s.url)}</a></li>`).join('');
+      const li = (a) => (a || []).map(x => `<li>${escHtml(x)}</li>`).join('');
+      box.innerHTML = `
+        <div class="flex items-center gap-2 mb-3"><select onchange="currentCareerIndex=Number(this.value);renderCareerReview()" class="flex-1 min-w-0 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2">${opts}</select><span class="text-xs text-slate-400 shrink-0">${currentCareerIndex + 1} / ${draftCareers.length}</span></div>
+        <div class="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">${escHtml(j.basis || '검수 필요')}${src ? '' : '<br><b>참고 자료가 없는 초안이에요. 사실관계를 꼭 확인해 주세요.</b>'}</div>
+        <div class="mb-3"><span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded">${escHtml(bn)}</span></div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">${escHtml(j.name)}</h3>
+        <p class="text-sm text-slate-700 mb-4 leading-relaxed">${escHtml(j.one)}</p>
+        <p class="text-xs font-bold text-indigo-600 mb-1">하는 일</p><ul class="list-disc pl-5 text-sm text-slate-700 space-y-1 mb-4">${li(j.todo)}</ul>
+        <p class="text-xs font-bold text-indigo-600 mb-1">앞뒤 직무와의 협업</p><p class="text-sm text-slate-700 mb-4 leading-relaxed">${escHtml(j.flow)}</p>
+        <p class="text-xs font-bold text-indigo-600 mb-1">알아야 할 지식 (이론 연결)</p><div class="mb-4">${know}</div>
+        <p class="text-xs font-bold text-indigo-600 mb-1">면접에서 묻는 것</p><ul class="list-disc pl-5 text-sm text-slate-700 space-y-1 mb-4">${li(j.ask)}</ul>
+        ${src ? `<p class="text-xs font-bold text-slate-400 mb-1">참고한 자료</p><ul class="text-xs text-slate-500 mb-4 space-y-0.5">${src}</ul>` : ''}
+        <button onclick="editDraft('career')" class="w-full mt-2 bg-amber-50 hover:bg-amber-100 transition text-amber-800 font-bold py-3 rounded-xl border border-amber-200">✏️ 내용 수정</button>
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <button onclick="rejectContent('career')" class="bg-rose-100 hover:bg-rose-200 transition text-rose-700 font-bold py-4 rounded-xl border border-rose-200">🗑️ 폐기</button>
+          <button onclick="approveCareer()" class="bg-emerald-600 hover:bg-emerald-700 transition text-white font-bold py-4 rounded-xl shadow-md">✅ 직무 등재</button>
+        </div>
+        ${same > 1 ? `<button onclick="approveCareerBuilding()" class="w-full mt-3 text-xs font-bold text-slate-500 hover:text-slate-800 border border-dashed border-slate-300 rounded-xl py-2.5">이 건물(${escHtml(bn)})의 대기 직무 ${same}개 한꺼번에 등재</button>` : ''}`;
+    }
+    async function publishCareers(list) {
+      const ids = new Set(list.map(x => x.id)), today = new Date().toISOString().slice(0, 10);
+      const clean = list.map(x => { const c = { ...x }; delete c.status; delete c.basis; c.reviewed_at = today; return c; });
+      const live = await fetchGitHubFile("data/careers.json");
+      let data = live ? JSON.parse(live.content) : [];
+      data = data.filter(x => !ids.has(x.id)).concat(clean).sort((a, b) => (a.order == null ? 1e9 : a.order) - (b.order == null ? 1e9 : b.order));
+      await updateGitHubFile("data/careers.json", live ? live.sha : null, JSON.stringify(data, null, 2), `Approve career ${clean.map(x => x.id).join(',')}`);
+      draftCareers = await draftMutate("data/draft_careers.json", a => a.filter(x => !ids.has(x.id)), "Remove approved career drafts");
+      currentCareerIndex = Math.min(currentCareerIndex, Math.max(0, draftCareers.length - 1));
+      document.getElementById('draftCCount').innerText = draftCareers.length; renderCareerReview();
+    }
+    async function approveCareer() {
+      const j = draftCareers[currentCareerIndex]; if (!j) return;
+      if (!confirm(`'${j.name}' 직무를 정식 등재하시겠습니까?`)) return;
+      try { await publishCareers([j]); alert("✅ 직무 등재 완료!"); } catch (e) { alert("등재 실패: " + (e && e.message || e)); console.error(e); }
+    }
+    async function approveCareerBuilding() {
+      const j = draftCareers[currentCareerIndex]; if (!j) return;
+      const list = draftCareers.filter(x => x.building === j.building), bn = CAREER_BLD_NAMES[j.building] || j.building;
+      if (!confirm(`${bn} 건물의 대기 직무 ${list.length}개를 한꺼번에 등재할까요?\n내용을 하나씩 확인하지 않고 올리는 것이니, 이미 검토를 마친 경우에만 눌러 주세요.`)) return;
+      try { await publishCareers(list); alert(`✅ ${list.length}개 직무 등재 완료!`); } catch (e) { alert("등재 실패: " + (e && e.message || e)); console.error(e); }
+    }
+
+    function renderTheoryReview() {
+      if(draftTheories.length === 0) { 
+        document.getElementById('tBox').innerHTML = "<p class='text-center py-6 text-slate-500 font-bold'>대기 중인 이론 데이터가 없습니다.</p>"; return; 
+      }
+      
+      const t = draftTheories[currentTheoryIndex];
+      const tagsHtml = (t.tags || []).map(tag => `<span class="inline-block bg-emerald-50 text-emerald-600 font-bold text-[10px] px-2 py-1 rounded mr-1">#${escHtml(tag)}</span>`).join('');
+      
+      // 마크다운 파싱 (수식 보호 + 뱃지/팁 박스까지 사용자 페이지와 동일하게)
+      const parsedMarkdown = renderTheoryMarkdown(t.content);
+
+      // 이 이론에 연결된 문제·면접이 목표(문제 3, 면접 2)보다 적으면 눈에 띄게 알린다 (재검수/문체 변환 초안은 기존 문항이 정식 목록에 있으므로 제외)
+      const nQ = draftQuizzes.filter(x => x.theory_id === t.id).length, nI = draftInterviews.filter(x => x.theory_id === t.id).length;
+      const shortWarn = (!t.replaces && (nQ < 3 || nI < 2))
+        ? `<div class="mb-3 p-3 rounded-lg bg-rose-50 border border-rose-300 text-xs text-rose-800 font-bold">⚠️ 연결된 문항이 모자랍니다 — 문제 ${nQ}/3, 면접 ${nI}/2<br><span class="font-normal">등재하기 전에 Fill Missing Items 워크플로를 실행하면 모자란 만큼 채워집니다.</span></div>` : '';
+
+      let html = `
+        ${shortWarn}
+        ${t.report_note ? `<div class="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">${t.replaces ? '🔍 기존 이론 재검수 (승인하면 기존 이론이 이 내용으로 교체됩니다)' : '🔍 검수 메모'}<br>${escHtml(t.report_note)}</div>` : ''}
+        <div class="mb-4">
+          <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded">${escHtml(t.category)} > ${escHtml(t.subject)}</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 mb-2">${escHtml(t.title)}</h2>
+        <div class="mb-4">${tagsHtml}</div>
+        
+        <!-- 미리보기 렌더링 박스 (높이 제한 없이 전체 표시) -->
+        <div class="p-4 sm:p-6 bg-slate-50 border border-slate-200 rounded-xl mb-6">
+          <div id="theoryPreview" class="prose prose-slate prose-sm max-w-none prose-headings:text-indigo-800 prose-a:text-emerald-600 prose-table:border-collapse prose-th:bg-slate-100 prose-th:p-2 prose-td:border prose-td:border-slate-200 prose-td:p-2">
+            ${parsedMarkdown}
+          </div>
+        </div>
+
+        <button onclick="editDraft('theory')" class="w-full mt-4 bg-amber-50 hover:bg-amber-100 transition text-amber-800 font-bold py-3 rounded-xl border border-amber-200">✏️ 내용 수정</button>
+        <div class="grid grid-cols-2 gap-4">
+          <button onclick="rejectContent('theory')" class="bg-rose-100 hover:bg-rose-200 transition text-rose-700 font-bold py-4 rounded-xl border border-rose-200">🗑️ 폐기</button>
+          <button onclick="approveTheory()" class="bg-emerald-600 hover:bg-emerald-700 transition text-white font-bold py-4 rounded-xl shadow-md">✅ 이론 정식 등재</button>
+        </div>
+      `;
+      document.getElementById('tBox').innerHTML = html;
+      renderAdminMath();
+    }
+
+    // 수식($...$, $$...$$)을 marked가 건드리지 못하게 잠시 빼 두었다가 되돌림
+    function stashMath(md) {
+      const stash = [];
+      const hold = (m) => { stash.push(m); return `@@MATH${stash.length - 1}@@`; };
+      const text = String(md || '').replace(/\$\$[\s\S]+?\$\$/g, hold).replace(/\$[^$\n]+?\$/g, hold);
+      const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return { text, restore: (html) => html.replace(/@@MATH(\d+)@@/g, (_, i) => esc(stash[Number(i)])) };
+    }
+    function renderTheoryMarkdown(content) {
+      const math = stashMath(content);
+      let md = math.text;
+      // '**용어(영문)**는' 처럼 괄호 뒤에 한글이 바로 붙으면 marked가 굵게 처리를 못 하므로 직접 변환
+      md = md.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+      // {{term:용어|풀이}} 는 점선 밑줄 용어(사이트에서는 눌러서 풀이를 봄), {{toggle:제목|내용}} 줄은 접는 설명 상자. 여기서는 풀이를 마우스를 올려 보거나 펼쳐 볼 수 있게 한다.
+      md = md.replace(/\{\{\s*term:([^|}\n]+)\|([^}\n]+)\}\}/g, (m, w, d) => `<span class="th-term" title="${escHtml(d.trim())}">${escHtml(w.trim())}</span>`);
+      md = md.replace(/^[ \t]*\{\{\s*toggle:([^|}\n]+)\|([^}\n]+)\}\}[ \t]*$/gm, (m, ti, body) => `\n\n<details class="th-toggle" open><summary>${escHtml(ti.trim())}</summary><div class="th-tg-body">${marked.parseInline(body.trim())}</div></details>\n\n`);
+      // {{diagram:id|캡션}} 줄은 사이트에서 눌러 보는 그림으로 바뀐다. 여기서는 자리를 알아보게 표시만 한다.
+      md = md.replace(/^[ \t]*\{\{\s*diagram:([^|}\s]+)(?:\|([^}\n]*))?\}\}[ \t]*$/gm, (m, id, cap) => `\n\n<div class="my-3 rounded-lg border-2 border-dashed border-indigo-300 bg-indigo-50 px-3 py-2 text-xs text-indigo-700">🖼 눌러 보는 그림 자리: <b>${escHtml(id)}</b>${cap ? ' — ' + escHtml(cap) : ''} (사이트에서 그림으로 표시됨)</div>\n\n`);
+      md = md.replace(/>\s*💡\s*(.*?)(?=\n\n|\n###|$)/gs, (m, p1) => `<div class="custom-highlight-box">${marked.parseInline(p1.trim())}</div>\n\n`);
+      md = md.replace(/###\s*\[(.*?)\]\s*(.*)/g, (m, badge, title) => `<div class="custom-badge-heading"><span class="custom-badge">${escHtml(badge)}</span>${escHtml(title)}</div>`);
+      const clean = (window.DOMPurify ? DOMPurify.sanitize(marked.parse(md), { FORBID_TAGS: ['style', 'form', 'iframe', 'object', 'embed'], FORBID_ATTR: ['style'] }) : '<p class="text-rose-600 font-bold">미리보기 도구(DOMPurify)를 불러오지 못했어요. 페이지를 새로고침해 주세요.</p><div style="white-space:pre-wrap">' + escHtml(md) + '</div>');
+      return math.restore(clean);
+    }
+    function renderAdminMath() {
+      const run = () => {
+        if (typeof renderMathInElement !== 'function') return setTimeout(run, 150);
+        const el = document.getElementById('theoryPreview');
+        if (el) renderMathInElement(el, { delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ], throwOnError: false });
+      };
+      setTimeout(run, 30);
+    }
+
+    async function approveTheory() {
+      { const cur = draftTheories[currentTheoryIndex] || {}; const nQ = draftQuizzes.filter(x => x.theory_id === cur.id).length, nI = draftInterviews.filter(x => x.theory_id === cur.id).length;
+        if (!cur.replaces && (nQ < 3 || nI < 2) && !confirm(`⚠️ 이 이론에 연결된 문항이 모자랍니다 (문제 ${nQ}/3, 면접 ${nI}/2).\n그래도 등재하시겠습니까?`)) return; }
+      if(!confirm("이 이론을 정식 백과사전에 등재하시겠습니까?")) return;
+      let published = false;
+      try {
+        const t = { ...draftTheories[currentTheoryIndex] }; const repId = t.replaces; delete t.report_note; delete t.replaces; delete t.before;
+        // 자동 생성 커밋과 겹치면(409) 최신본을 다시 받아 몇 번 더 시도한다
+        for (let k = 0; ; k++) {
+          try {
+            const live = await fetchGitHubFile("data/theories.json");
+            let data = live ? JSON.parse(live.content) : []; 
+            const at = repId ? data.findIndex(x => String(x.id) === String(repId)) : data.findIndex(x => x.id === t.id);
+            if (at >= 0) data[at] = t; // 문체 변환 등 재검수 초안(또는 이미 올라간 같은 id): 같은 자리에서 교체 (id·연결된 문제 유지)
+            else data.unshift(t); // 새 이론은 맨 앞에 배치
+            await updateGitHubFile("data/theories.json", live ? live.sha : null, JSON.stringify(data, null, 2), `Approve theory ${t.id}`);
+            break;
+          } catch (e) { if (e.status === 409 && k < 3) { await new Promise(r => setTimeout(r, 1000)); continue; } throw e; }
+        }
+        published = true;
+        
+        draftTheories = await draftMutate("data/draft_theories.json", a => a.filter(x => x.id !== t.id), "Remove draft theory");
+        currentTheoryIndex = Math.min(currentTheoryIndex, Math.max(0, draftTheories.length - 1));
+        
+        alert("✅ 이론 등재 완료!"); 
+        document.getElementById('draftTCount').innerText = draftTheories.length; 
+        renderTheoryReview();
+      } catch(e) { console.error(e); alert((published ? "이론은 등재됐지만 초안 목록 정리에 실패했어요(새로고침하세요): " : "등재 실패: ") + (e && e.message || e)); }
+    }
+
+    // ==========================================
+    // 🗑️ 폐기 통합 처리
+    // ==========================================
+    async function rejectContent(type) {
+      if(!confirm("이 문항을 폐기하시겠습니까?")) return;
+      
+      try {
+        // 재검수 초안이면, 기존 정식 문항도 함께 지울지 묻는다 (취소 = 기존 문항 유지)
+        const cur = type === 'quiz' ? draftQuizzes[currentQuizIndex] : type === 'interview' ? draftInterviews[currentInterviewIndex] : type === 'career' ? draftCareers[currentCareerIndex] : draftTheories[currentTheoryIndex];
+        if (!cur) return;
+        if (cur && cur.replaces && type !== 'theory' && confirm("기존 정식 문항도 함께 삭제할까요?\n확인 = 기존 문항까지 삭제 / 취소 = 기존 문항은 그대로 유지")) {
+          const lp = type === 'quiz' ? "data/questions.json" : "data/interviews.json", lf = await fetchGitHubFile(lp);
+          if (lf) { const arr = JSON.parse(lf.content).filter(x => String(x.id) !== String(cur.replaces)); await updateGitHubFile(lp, lf.sha, JSON.stringify(arr, null, 2), `Remove reviewed ${cur.replaces}`); }
+          liveCache = null;
+        }
+        if(type === 'quiz') {
+          draftQuizzes = await draftMutate("data/draft_questions.json", a => a.filter(x => x.id !== cur.id), "Reject quiz");
+          currentQuizIndex = Math.min(currentQuizIndex, Math.max(0, draftQuizzes.length - 1));
+          document.getElementById('draftQCount').innerText = draftQuizzes.length; renderQuizReview();
+        } else if(type === 'interview') {
+          draftInterviews = await draftMutate("data/draft_interviews.json", a => a.filter(x => x.id !== cur.id), "Reject interview");
+          currentInterviewIndex = Math.min(currentInterviewIndex, Math.max(0, draftInterviews.length - 1));
+          document.getElementById('draftICount').innerText = draftInterviews.length; renderInterviewReview();
+        } else if(type === 'career') {
+          draftCareers = await draftMutate("data/draft_careers.json", a => a.filter(x => x.id !== cur.id), "Reject career");
+          currentCareerIndex = Math.min(currentCareerIndex, Math.max(0, draftCareers.length - 1));
+          document.getElementById('draftCCount').innerText = draftCareers.length; renderCareerReview();
+        } else if(type === 'theory') {
+          draftTheories = await draftMutate("data/draft_theories.json", a => a.filter(x => x.id !== cur.id), "Reject theory");
+          currentTheoryIndex = Math.min(currentTheoryIndex, Math.max(0, draftTheories.length - 1));
+          document.getElementById('draftTCount').innerText = draftTheories.length; renderTheoryReview();
+        }
+      } catch(e) { alert("폐기 중 오류 발생"); console.error(e); }
+    }
+
+
+    // ==========================================
+    // ✏️ 초안 내용 수정 (객관식 / 면접 / 이론)
+    // ==========================================
+    const INP = 'w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-indigo-400';
+    const fld = (label, html) => `<label class="block text-xs font-bold text-slate-500 mb-1 mt-3">${label}</label>${html}`;
+    const tin = (id, v, rows) => rows ? `<textarea id="${id}" rows="${rows}" class="${INP}">${escHtml(v)}</textarea>` : `<input id="${id}" value="${escHtml(v)}" class="${INP}">`;
+    const editCtl = (type) => `<div class="grid grid-cols-2 gap-3 mt-5"><button onclick="cancelEdit('${type}')" class="border border-slate-300 text-slate-600 font-bold py-3 rounded-xl">취소</button><button onclick="saveEdit('${type}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md">💾 저장</button></div>`;
+    const DRAFT = {
+      quiz: { box: 'qBox', file: 'data/draft_questions.json', list: () => draftQuizzes, idx: () => currentQuizIndex, render: () => renderQuizReview() },
+      interview: { box: 'iBox', file: 'data/draft_interviews.json', list: () => draftInterviews, idx: () => currentInterviewIndex, render: () => renderInterviewReview() },
+      theory: { box: 'tBox', file: 'data/draft_theories.json', list: () => draftTheories, idx: () => currentTheoryIndex, render: () => renderTheoryReview() },
+      career: { box: 'cBox', file: 'data/draft_careers.json', list: () => draftCareers, idx: () => currentCareerIndex, render: () => renderCareerReview() }
+    };
+    const lines = (a) => (a || []).join('\n');
+    const toLines = (id) => val(id).split('\n').map(x => x.trim()).filter(Boolean);
+    function editDraft(type) {
+      const d = DRAFT[type], it = d.list()[d.idx()]; if (!it) return;
+      let h = '<div class="mb-2 text-sm font-bold text-amber-700">✏️ 내용 수정 중</div>';
+      if (type === 'quiz') {
+        h += fld('대분류(category)', tin('e_category', it.category)) + fld('주제(topic)', tin('e_topic', it.topic)) + fld('난이도', tin('e_difficulty', it.difficulty || '')) + fld('문제', tin('e_question', it.question, 3));
+        (it.options || []).forEach((o, n) => { h += fld(`보기 ${n + 1}`, tin('e_opt' + n, o, 2)); });
+        h += fld('정답 번호', `<select id="e_answer" class="${INP}">${(it.options || []).map((_, n) => `<option value="${n}" ${n === it.answer ? 'selected' : ''}>${n + 1}번</option>`).join('')}</select>`) + fld('해설', tin('e_explanation', it.explanation, 5));
+      } else if (type === 'interview') {
+        h += fld('대분류(category)', tin('e_category', it.category)) + fld('주제(topic)', tin('e_topic', it.topic)) + fld('질문', tin('e_question', it.question, 3)) + fld('핵심 키워드 (쉼표로 구분)', tin('e_keys', (it.key_points || []).join(', '))) + fld('모범 답안', tin('e_answer', it.interview_answer, 8)) + fld('꼬리 질문', tin('e_follow', it.follow_up || '', 2)) + fld('꼬리 질문 모범 답', tin('e_followa', it.follow_up_answer || '', 4));
+      } else if (type === 'career') {
+        h += fld('직무 이름', tin('e_name', it.name)) + fld('한 줄 정의', tin('e_one', it.one, 2)) + fld('하는 일 (한 줄에 하나)', tin('e_todo', lines(it.todo), 6)) + fld('협업', tin('e_flow', it.flow, 3))
+          + fld('알아야 할 지식 (한 줄에 하나: 이름 | 연결할 이론 제목 — 연결할 이론이 없으면 | 뒤를 비움)', tin('e_know', (it.know || []).map(k => k.label + ' | ' + (k.theory_hint || '')).join('\n'), 5)) + fld('면접 질문 (한 줄에 하나)', tin('e_ask', lines(it.ask), 4));
+      } else {
+        h += fld('대분류(category)', tin('e_category', it.category)) + fld('소분류(subject)', tin('e_subject', it.subject)) + fld('제목', tin('e_title', it.title)) + fld('태그 (쉼표로 구분)', tin('e_tags', (it.tags || []).join(', '))) + fld('본문 (마크다운)', tin('e_content', it.content, 20));
+      }
+      document.getElementById(d.box).innerHTML = h + editCtl(type);
+    }
+    function cancelEdit(type) { DRAFT[type].render(); }
+    const val = (id) => document.getElementById(id).value.trim();
+    const csv = (id) => val(id).split(',').map(x => x.trim()).filter(Boolean);
+    async function saveEdit(type) {
+      const d = DRAFT[type], it = d.list()[d.idx()];
+      try {
+        if (type === 'quiz') {
+          const opts = (it.options || []).map((_, n) => val('e_opt' + n));
+          if (!val('e_question') || opts.some(o => !o)) return alert('문제와 모든 보기를 채워 주세요.');
+          Object.assign(it, { category: val('e_category'), topic: val('e_topic'), difficulty: val('e_difficulty'), question: val('e_question'), options: opts, answer: Number(document.getElementById('e_answer').value), explanation: val('e_explanation') });
+        } else if (type === 'interview') {
+          if (!val('e_question') || !val('e_answer')) return alert('질문과 모범 답안을 채워 주세요.');
+          Object.assign(it, { category: val('e_category'), topic: val('e_topic'), question: val('e_question'), key_points: csv('e_keys'), interview_answer: val('e_answer'), follow_up: val('e_follow'), follow_up_answer: val('e_followa') });
+        } else if (type === 'career') {
+          if (!val('e_name') || !val('e_one') || !toLines('e_todo').length) return alert('직무 이름, 한 줄 정의, 하는 일을 채워 주세요.');
+          const know = toLines('e_know').map(l => { const p = l.split('|'); return { label: p[0].trim(), theory_hint: (p[1] || '').trim() || null }; }).filter(k => k.label);
+          Object.assign(it, { name: val('e_name'), one: val('e_one'), todo: toLines('e_todo'), flow: val('e_flow'), know, ask: toLines('e_ask') });
+        } else {
+          if (!val('e_title') || !val('e_content')) return alert('제목과 본문을 채워 주세요.');
+          Object.assign(it, { category: val('e_category'), subject: val('e_subject'), title: val('e_title'), tags: csv('e_tags'), content: document.getElementById('e_content').value });
+        }
+        let found = true;
+        await draftMutate(d.file, a => { const k = a.findIndex(x => x.id === it.id); if (k < 0) { found = false; return a; } a[k] = it; return a; }, `Edit draft ${it.id}`);
+        if (!found) return alert('이 초안이 대기열에서 이미 사라졌어요. 대기열 새로고침을 눌러 주세요.');
+        d.render(); alert('💾 수정 내용을 저장했어요. (내용이 맞으면 이어서 등재하세요)');
+      } catch (e) { console.error(e); alert('저장 실패: ' + (e.message || e)); }
+    }
+
+    // ==========================================
+    // 🚨 제보함 & GitHub 통신 유틸리티
+    // ==========================================
+    function escHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    async function loadReports() {
+      const list = document.getElementById('reportsList');
+      if (!supabaseClient) { list.innerHTML = '<p class="text-sm text-rose-600 font-bold text-center py-2">Supabase 연결 실패</p>'; return; }
+      const { data, error } = await supabaseClient.from('error_reports').select('*').eq('status', 'pending').order('created_at', { ascending: false });
+      if (error) { console.error(error); list.innerHTML = `<p class="text-sm text-rose-600 font-bold text-center py-2">제보 불러오기 실패: ${escHtml(error.message)}</p>`; return; }
+      if (!data || data.length === 0) { list.innerHTML = '<p class="text-sm text-emerald-600 font-bold text-center py-2">새로운 제보가 없습니다.</p>'; return; }
+      list.innerHTML = data.map(r => `<div class="bg-rose-50 p-3 rounded-xl text-sm border border-rose-200">
+        <div class="flex justify-between items-start gap-2">
+          <div class="min-w-0"><span class="font-bold text-rose-800">[ID: ${escHtml(r.question_id)}]</span> ${r.question_text ? `<span class="text-xs text-slate-500">(${escHtml(String(r.question_text).slice(0, 40))})</span> ` : ''}<div class="mt-1 text-slate-800 break-words">${escHtml(r.content)}</div></div>
+          <div class="flex flex-col gap-1 shrink-0">
+            <button onclick="toggleReportQuestion(${Number(r.id)}, '${escHtml(r.question_id)}')" class="bg-white border border-rose-300 text-rose-700 hover:bg-rose-100 transition px-3 py-1 rounded text-xs font-bold whitespace-nowrap">🔍 문제 펼치기</button>
+            <button onclick="moveReportToReview(${Number(r.id)}, '${escHtml(r.question_id)}', this)" class="bg-amber-500 hover:bg-amber-600 transition text-white px-3 py-1 rounded text-xs font-bold whitespace-nowrap">📤 검수로 이동</button>
+            <button onclick="resolveReport(${Number(r.id)})" class="bg-rose-600 hover:bg-rose-700 transition text-white px-3 py-1 rounded text-xs font-bold whitespace-nowrap">무시/삭제</button>
+          </div>
+        </div>
+        <div id="rq-${Number(r.id)}" class="hidden mt-3"></div></div>`).join('');
+      reportContent = Object.fromEntries(data.map(r => [r.id, r.content]));
+    }
+    // ---- 제보된 문제 보기 / 검수 대기열로 이동 ----
+    let reportContent = {}; let liveCache = null;
+    async function loadLive(force) {
+      if (liveCache && !force) return liveCache;
+      const q = await fetchGitHubFile("data/questions.json"), i = await fetchGitHubFile("data/interviews.json");
+      liveCache = { q: q ? JSON.parse(q.content) : [], i: i ? JSON.parse(i.content) : [] };
+      return liveCache;
+    }
+    // id 로 문제(객관식) 또는 면접 문항을 찾음. 같은 ID 가 여러 개면 첫 번째
+    function findLive(live, id) {
+      let k = live.q.findIndex(x => String(x.id) === id); if (k >= 0) return { kind: 'q', idx: k, item: live.q[k] };
+      k = live.i.findIndex(x => String(x.id) === id); if (k >= 0) return { kind: 'i', idx: k, item: live.i[k] };
+      return null;
+    }
+    async function toggleReportQuestion(rid, qid) {
+      const box = document.getElementById('rq-' + rid);
+      if (!box.classList.contains('hidden')) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden'); box.innerHTML = '<p class="text-xs text-slate-500">불러오는 중...</p>';
+      try {
+        const f = findLive(await loadLive(), qid);
+        if (!f) { box.innerHTML = '<p class="text-xs text-rose-600 font-bold">현재 등재된 문제에서 이 ID를 찾지 못했어요. (이미 이동/삭제됐거나 검수 대기 중일 수 있어요)</p>'; return; }
+        const it = f.item;
+        const opts = f.kind === 'q' ? `<ol class="mt-2 space-y-1">${it.options.map((o, n) => `<li class="px-3 py-2 rounded-lg border text-xs ${n === it.answer ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-slate-200 text-slate-700'}">${n + 1}. ${escHtml(o)}${n === it.answer ? ' ✔ 정답' : ''}</li>`).join('')}</ol>` : `<p class="mt-2 text-xs text-slate-600">${(it.key_points || []).map(k => '#' + escHtml(k)).join(' ')}</p>`;
+        const exp = f.kind === 'q' ? it.explanation : it.interview_answer;
+        box.innerHTML = `<div class="bg-white rounded-xl border border-slate-200 p-3"><p class="text-[11px] text-slate-400 mb-1">${escHtml(it.category)} > ${escHtml(it.topic || '')} · ${f.kind === 'q' ? '객관식' : '면접'}</p><p class="font-bold text-slate-900 text-sm">${escHtml(it.question)}</p>${opts}<p class="mt-2 text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-2">${escHtml(exp)}</p></div>`;
+      } catch (e) { console.error(e); box.innerHTML = '<p class="text-xs text-rose-600 font-bold">불러오기 실패 (토큰/권한 확인)</p>'; }
+    }
+    // 제보된 문제를 정식 목록에서 빼서 '검수 대기'로 옮기고(제보 내용 메모 첨부), 제보는 처리 완료로 표시
+    async function moveReportToReview(rid, qid, btn) {
+      if (!confirm('이 문제를 정식 목록에서 빼서 검수 대기열로 옮길까요?\n(검수에서 다시 등재하거나 폐기할 수 있어요)')) return;
+      btn.disabled = true;
+      try {
+        const live = await loadLive(true); const f = findLive(live, qid);
+        if (!f) { btn.disabled = false; return alert('정식 목록에서 해당 ID를 찾지 못했어요.'); }
+        const item = { ...f.item, report_note: String(reportContent[rid] || '').slice(0, 300) };
+        const liveName = f.kind === 'q' ? 'data/questions.json' : 'data/interviews.json', draftName = f.kind === 'q' ? 'data/draft_questions.json' : 'data/draft_interviews.json';
+        // 1) 임시 보관(검수 대기)에 먼저 추가 → 2) 정식 목록에서 제거 (중간에 실패해도 문제가 사라지지 않게)
+        const df = await fetchGitHubFile(draftName); const drafts = df ? JSON.parse(df.content) : []; drafts.unshift(item);
+        await updateGitHubFile(draftName, df ? df.sha : null, JSON.stringify(drafts, null, 2), `Report -> review ${qid}`);
+        const lf = await fetchGitHubFile(liveName); const arr = JSON.parse(lf.content); const k = arr.findIndex(x => String(x.id) === qid);
+        if (k >= 0) arr.splice(k, 1);
+        await updateGitHubFile(liveName, lf.sha, JSON.stringify(arr, null, 2), `Remove reported ${qid}`);
+        if (f.kind === 'q') { draftQuizzes = drafts; currentQuizIndex = 0; document.getElementById('draftQCount').innerText = drafts.length; renderQuizReview(); }
+        else { draftInterviews = drafts; currentInterviewIndex = 0; document.getElementById('draftICount').innerText = drafts.length; renderInterviewReview(); }
+        liveCache = null;
+        await supabaseClient.from('error_reports').update({ status: 'resolved' }).eq('id', rid);
+        alert('✅ 검수 대기열로 옮겼어요. 위 탭에서 확인하세요.'); loadReports();
+      } catch (e) { console.error(e); btn.disabled = false; alert('이동 실패: ' + (e.message || e)); }
+    }
+    async function resolveReport(id) {
+      const { error } = await supabaseClient.from('error_reports').update({ status: 'resolved' }).eq('id', id);
+      if (error) { console.error(error); return alert('처리 실패: ' + error.message); }
+      loadReports();
+    }    
+    async function fetchGitHubFile(path) {
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`, { headers: { "Authorization": `token ${token}` } });
+      if(res.status === 404) return null; 
+      const data = await res.json(); if(!res.ok) throw new Error(data.message);
+      return { sha: data.sha, content: decodeURIComponent(escape(atob(data.content))) };
+    }
+
+    async function updateGitHubFile(path, sha, contentStr, msg) {
+      const encoded = btoa(unescape(encodeURIComponent(contentStr)));
+      const body = { message: msg, content: encoded }; if(sha) body.sha = sha;
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`, {
+        method: "PUT", headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(body)
+      });
+      if(!res.ok) { let m = ''; try { m = (await res.json()).message || ''; } catch (e) {} const err = new Error(res.status + ' ' + (m || '업데이트 실패')); err.status = res.status; throw err; }
+    }
+  </script>
+</body>
+</html>

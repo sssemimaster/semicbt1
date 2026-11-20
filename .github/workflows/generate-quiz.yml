@@ -1,0 +1,71 @@
+name: Auto Content Generator (OpenAI)
+
+on:
+  # 도메인 이전(새 레포로 서비스 전환) 때 아래 세 줄의 # 을 지워 켠다. (옛 레포 쪽 예약 실행은 먼저 끈다)
+  # schedule:
+  #   # 6시간마다 (UTC 기준). 더 자주/덜 자주 돌리고 싶으면 이 줄만 바꾸세요.
+  #     - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      preset:
+        description: "품질/비용 프리셋 (비워두면 저장소 Variables의 QUALITY_PRESET, 그것도 없으면 balanced)"
+        default: ""
+        type: choice
+        options: ["", high, balanced, economy]
+
+# 같은 워크플로가 동시에 두 개 돌지 않도록 한 줄로 세움
+concurrency:
+  group: auto-content-generator
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install openai
+
+    # 이론 -> 퀴즈 -> 면접 연쇄 생성 (검수 대기가 쌓여 있으면 스크립트가 알아서 건너뜀)
+    - name: Run Unified Generator
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        QUALITY_PRESET: ${{ github.event.inputs.preset || vars.QUALITY_PRESET || 'balanced' }}
+      run: python scripts/generate_all.py
+
+    - name: Commit and Push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add data/questions.json data/draft_questions.json data/interviews.json data/draft_interviews.json data/theories.json data/draft_theories.json
+        if git diff --staged --quiet; then
+          echo "변경 사항 없음 - 커밋 생략"
+          exit 0
+        fi
+        git commit -m "Auto-generated Unified Contents"
+        # 관리자 페이지에서 같은 시간에 승인/삭제해 원격이 앞서 있어도 재시도
+        for i in 1 2 3; do
+          if git pull --rebase && git push; then
+            exit 0
+          fi
+          echo "push 실패 ($i/3), 5초 후 재시도"
+          git rebase --abort 2>/dev/null || true
+          sleep 5
+        done
+        echo "::error::3번 시도했지만 push에 실패했습니다 (관리자 승인과 충돌했을 가능성)"
+        exit 1

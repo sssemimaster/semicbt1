@@ -1,0 +1,65 @@
+name: Translate to English (OpenAI)
+
+# 영어 모드용 번역을 data/en/ 에 만듭니다. 이미 번역된 항목은 건너뛰고, 새로 생기거나 바뀐 항목만 번역해요.
+# 수동 실행만 (OpenAI 비용 절약: 번역은 평소 Claude가 직접 하고, 필요할 때만 이걸로 빠진 것을 채운다).
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: "번역할 종류 (쉼표로 구분: questions, interviews, theories, glossary, careers, majors)"
+        default: "questions,interviews,theories,glossary,careers,majors"
+      limit:
+        description: "종류별 이번에 번역할 최대 개수 (비용 조절용)"
+        default: "400"
+      preset:
+        description: "품질/비용 프리셋 (비워두면 balanced = gpt-4o)"
+        default: ""
+        type: choice
+        options: ["", high, balanced, economy]
+
+concurrency:
+  group: auto-content-generator
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: true
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install openai
+    - name: Translate
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        QUALITY_PRESET: ${{ github.event.inputs.preset || vars.QUALITY_PRESET || 'balanced' }}
+      run: python scripts/translate_en.py --targets "${{ github.event.inputs.targets || 'questions,interviews,theories,glossary,careers,majors' }}" --limit "${{ github.event.inputs.limit || '60' }}"
+    - name: Commit and Push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add data/en
+        if git diff --staged --quiet; then
+          echo "변경 사항 없음 - 커밋 생략"
+          exit 0
+        fi
+        git commit -m "Translate content to English (data/en)"
+        for i in 1 2 3; do
+          if git pull --rebase && git push; then
+            exit 0
+          fi
+          echo "push 실패 ($i/3), 5초 후 재시도"
+          git rebase --abort 2>/dev/null || true
+          sleep 5
+        done
+        echo "::error::push 실패"
+        exit 1
