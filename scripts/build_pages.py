@@ -217,7 +217,7 @@ def main():
         it["lastmod"] = old["lastmod"] if old.get("hash") == h else today
         new_manifest[slug] = {"hash": h, "lastmod": it["lastmod"]}
         url = f"{base}/{OUT_DIR}/{slug}/" if base else ""
-        minutes = max(1, round(len(str(t.get("content", ""))) / 650))
+        minutes = int(t["mins"]) if t.get("mins") else max(1, round(len(str(t.get("content", ""))) / 650))   # 유료 글은 본문을 비워 두므로 미리 잰 분량(mins)을 쓴다
         rel = [r for r in items if r is not it and r["sub"] == it["sub"]][:4] or [r for r in items if r is not it and r["cat"] == it["cat"]][:4]
         ld = [{"@context": "https://schema.org", "@type": "Article", "headline": t["title"], "description": it["desc"], "inLanguage": "ko", "articleSection": it["cat"],
                "dateModified": it["lastmod"], "publisher": {"@type": "Organization", "name": SITE_NAME}},
