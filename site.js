@@ -50,6 +50,7 @@
     const safeHtml = (h) => (window.DOMPurify ? DOMPurify.sanitize(String(h), { ADD_ATTR: ['data-dg', 'data-cap'] }) : String(h).replace(/<[^>]*>/g, ''));
     const escH = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     
+    let pmGateId = null, pmGateOpener = null;   // 해금 팝업: 이번 방문에서 이미 띄운 콘텐츠 / 닫을 때 돌아갈 곳
     const ADV_CAT = "심화 이론";   // 장비 사용 가이드 등 실무 심화 글. 다른 분류와 다른 테마(.adv-*)로 보인다
     const FIXED_CATEGORIES = ["반도체 기초 이론", "반도체 소자", "반도체 8대 공정", "차세대 첨단 기술", ADV_CAT, "기타"];
     // 📁 백과사전 폴더 구조 (문서가 없어도 항상 보임 / 새 이론은 category·subject 가 일치하는 폴더에 들어감)
@@ -546,6 +547,7 @@
       if (viewId !== 'view-fab') fabStop();
       if (viewId === 'view-fab') enterFab();
       if (viewId !== 'view-lab') labStop();
+      if (!(viewId === 'view-lab' || (viewId === 'view-learning' && state && state.level === 'detail'))) { pmGateId = null; pmGateClose(); }   // 유료 화면을 떠나면 해금 팝업도 닫는다
       if (viewId === 'view-lab') enterLab();
       if (viewId === 'view-flow') enterFlow();
       if (viewId === 'view-glossary') enterGlossary();
@@ -568,7 +570,7 @@
         if (cat === ADV_CAT) {   // 심화 이론: 어두운 기술 문서 테마의 넓은 카드
           const n = allTheories.filter(t => t.category === cat).length;
           btn.className = 'adv-folder'; btn.onclick = () => navTo('view-learning', { level: 'category', category: cat });
-          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED</span><h3>${escH(cat)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
+          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">🔒 토큰 해금</span></span><h3>${escH(cat)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
           container.appendChild(btn); return;
         }
         btn.className = "group bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-2xl text-left transition flex items-center gap-4 shadow-sm";
@@ -590,7 +592,7 @@
         if (category === ADV_CAT) {
           const n = allTheories.filter(t => t.category === category && t.subject === sub).length;
           btn.className = 'adv-sub'; btn.onclick = () => navTo('view-learning', { level: 'subject', category: category, subject: sub });
-          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">▣</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>FOLDER</span><h3>${escH(sub)}</h3><p>장비마다 개요 · 구조 · 레시피 · 트러블슈팅을 한 편에 담았어요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
+          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">▣</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>FOLDER<span class="pm-lk">🔒 토큰 해금</span></span><h3>${escH(sub)}</h3><p>장비마다 개요 · 구조 · 레시피 · 트러블슈팅을 한 편에 담았어요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
           container.appendChild(btn); return;
         }
         btn.className = "group bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-2xl text-left transition flex items-center gap-4 shadow-sm";
@@ -615,7 +617,7 @@
       const btn = document.createElement('button');
       if (t.category === ADV_CAT) {
         btn.className = 'adv-title-card'; btn.onclick = () => navTo('view-learning', { level: 'detail', theoryId: t.id });
-        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">${t.lab ? '🔧' : '📘'}</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>${escH(t.equip || 'GUIDE')}</span><h3>${escH(t.title)}</h3><p>약 ${Math.max(1, Math.round(String(t.content).length / 650))}분 읽기${t.lab && LABS[t.lab] ? ' · 연계 체험: ' + escH(LABS[t.lab].title) : ''}</p></div><span class="adv-folder-n">읽기 →</span>`;
+        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">${t.lab ? '🔧' : '📘'}</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>${escH(t.equip || 'GUIDE')}${t.premium ? pmLk(t.id) : ''}</span><h3>${escH(t.title)}</h3><p>약 ${t.mins || Math.max(1, Math.round(String(t.content).length / 650))}분 읽기${t.lab && LABS[t.lab] ? ' · 연계 체험: ' + escH(LABS[t.lab].title) : ''}</p></div><span class="adv-folder-n">읽기 →</span>`;
         container.appendChild(btn); return;
       }
       btn.className = "bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-xl text-left transition flex items-center w-full shadow-sm";
@@ -6184,6 +6186,7 @@
       if (t0.premium) {   // 유료 글: 공개 데이터에는 개요만 있다. 해금한 계정만 서버에서 본문을 받는다
         if (PRM.cache[t0.id]) t = Object.assign({}, t0, { content: PRM.cache[t0.id] }); else { locked = true; if (PRM.unlocked.has(t0.id)) premiumFetch(t0.id); }
       }
+      if (locked && !PRM.unlocked.has(t0.id)) { try { pmGateMaybe(t0.id, 'theory'); } catch (e) {} }   // 들어올 때 해금 팝업
       if (!locked) { addPoints(2, theoryId, { k: 'th', cat: t.category, label: t.title, id: theoryId }); pathMarkRead(theoryId); }
       renderBreadcrumb();
       const container = document.getElementById('learningContainer'); container.className = "flex flex-col space-y-4"; container.innerHTML = '';
@@ -7121,6 +7124,7 @@
       const on = !!(acct.user && PRM.loaded);
       if (chip) chip.classList.toggle('hidden', !on); if (tx) tx.textContent = PRM.free + PRM.paid;
       if (typeof renderAcct === 'function') renderAcct();
+      pmBadges();
     }
     async function walletLoad() {
       if (!acct.user) { PRM.loaded = false; PRM.free = PRM.paid = 0; PRM.unlocked = new Set(); PRM.bundles = []; PRM.cache = {}; PRM.queue = []; tokenRender(); return; }
@@ -7195,17 +7199,97 @@
       premiumRefresh();
     }
     // 잠금 카드: 로그인 전 / 로그인 후(잔액 표시 · 해금 버튼) / 해금됨(불러오는 중)
-    // 이론 + 체험 번들 안내: 짝이 되는 콘텐츠도 아직 없을 때만 보여 준다 (하나라도 가졌으면 번들이 단품과 같아져서 필요 없다)
-    function bundleBlock(id, have) {
-      const bd = (PRM.bundles || []).find((b) => !b.owned && b.items.includes(id));
-      if (!bd) return '';
-      const rest = bd.items.filter((x) => !PRM.unlocked.has(x));
-      if (rest.length < 2) return '';
+    // 짝이 되는 콘텐츠도 아직 없을 때만 번들을 권한다 (하나라도 가졌으면 번들이 단품과 같아져서 필요 없다)
+    function bundleOf(id) {
+      const bd = (PRM.bundles || []).find((b) => !b.owned && b.items.includes(id)); if (!bd) return null;
+      const rest = bd.items.filter((x) => !PRM.unlocked.has(x)); if (rest.length < 2) return null;
       const sum = rest.reduce((a, x) => a + (String(x).indexOf('lab-') === 0 ? PRICE_HINT.lab : PRICE_HINT.theory), 0);
-      const save = sum - bd.price;
-      const head = `<div class="pm-bundle"><p><b>📦 이론 + 장비 체험 번들</b> · ${bd.price}토큰${save > 0 ? ` <span class="pm-sub">(따로 사면 ${sum}토큰 · ${save}토큰 할인)</span>` : ''}</p>`;
+      return { id: bd.id, price: bd.price, sum, save: sum - bd.price };
+    }
+    function bundleBlock(id, have) {
+      const bd = bundleOf(id); if (!bd) return '';
+      const head = `<div class="pm-bundle"><p><b>📦 이론 + 장비 체험 번들</b> · ${bd.price}토큰${bd.save > 0 ? ` <span class="pm-sub">(따로 사면 ${bd.sum}토큰 · ${bd.save}토큰 할인)</span>` : ''}</p>`;
       return head + (have >= bd.price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${bd.id}')">🪙 ${bd.price}개로 둘 다 해금하기</button>` : `<p class="pm-sub">번들은 토큰이 ${bd.price - have}개 모자라요.</p>`) + `</div>`;
     }
+    // 잠금 배지: 이론 카드·장비 체험 카드에 🔒 / 🔓 해금됨. 상태가 바뀔 때마다 pmBadges 가 다시 맞춘다.
+    function pmLk(id) {
+      let on = false; try { on = !!(acct.user && PRM.loaded && PRM.unlocked.has(id)); } catch (e) {}
+      return `<span class="pm-lk${on ? ' on' : ''}" data-pm="${id}" title="${on ? '해금됨' : '토큰으로 해금'}">${on ? '🔓 해금됨' : '🔒'}</span>`;
+    }
+    function pmBadges() {
+      document.querySelectorAll('[onclick^="labOpen("]').forEach((b) => {
+        const m = /labOpen\('([a-z]+)'\)/.exec(b.getAttribute('onclick') || ''); if (!m || !LABS[m[1]] || b.querySelector('.pm-lk')) return;
+        const tmp = document.createElement('span'); tmp.innerHTML = pmLk('lab-' + m[1]); const el = tmp.firstChild, tg = b.querySelector('.ex-tg');
+        if (tg) b.insertBefore(el, tg); else b.appendChild(el);
+      });
+      document.querySelectorAll('.pm-lk[data-pm]').forEach((el) => {
+        let on = false; try { on = !!(acct.user && PRM.loaded && PRM.unlocked.has(el.dataset.pm)); } catch (e) {}
+        el.classList.toggle('on', on); el.textContent = on ? '🔓 해금됨' : '🔒'; el.title = on ? '해금됨' : '토큰으로 해금';
+      });
+    }
+    setTimeout(pmBadges, 0);
+
+    // 해금 팝업: 유료 이론·장비 체험에 들어갈 때 한 번 띄운다. 닫으면 미리보기 + 잠금 카드가 그대로 보인다.
+    function pmGateClose() {
+      const o = document.getElementById('pmg'); if (!o) return;
+      o.id = ''; o.classList.remove('on'); setTimeout(() => o.remove(), 230);
+      if (pmGateOpener && pmGateOpener.focus) { try { pmGateOpener.focus({ preventScroll: true }); } catch (e) {} } pmGateOpener = null;
+    }
+    function pmGateMaybe(id, kind) {
+      if (!acct.user && hintGet()) return;   // 로그인 복원 중이면 기다린다 (이미 로그인한 사람에게 로그인 안내가 번쩍이지 않게)
+      if (acct.user && !PRM.loaded) return;  // 잔액 확인 중
+      if (PRM.unlocked.has(id)) { pmGateClose(); return; }
+      const cur = document.getElementById('pmg');
+      if (cur) { if (cur.dataset.id === id) { pmGateFill(cur, id, kind); return; } cur.remove(); }
+      if (pmGateId === id) return;           // 이번 방문에서 이미 닫았다
+      pmGateId = id; pmGateOpener = document.activeElement;
+      const o = document.createElement('div'); o.id = 'pmg'; o.className = 'pmg'; o.dataset.id = id;
+      o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-labelledby', 'pmgT');
+      o.addEventListener('click', (e) => { if (e.target === o) pmGateClose(); });
+      document.body.appendChild(o); pmGateFill(o, id, kind);
+      requestAnimationFrame(() => { o.classList.add('on'); const f = o.querySelector('.pmg-cta') || o.querySelector('.pmg-of:not(:disabled)') || o.querySelector('.pmg-later'); if (f) f.focus({ preventScroll: true }); });
+    }
+    function pmGateFill(o, id, kind) {
+      let title, sub, tick, ic, pts;
+      if (kind === 'lab') {
+        const k = id.slice(4), L = LABS[k], gt = allTheories.find((x) => x.category === ADV_CAT && x.lab === k);
+        title = L.title; sub = L.desc; tick = 'EQUIPMENT LAB'; ic = '🧪';
+        pts = ['<b>직접 조작</b> — 공정 조건을 바꿔 가며 결과가 어떻게 달라지는지 바로 확인해요', '<b>단면과 수치로 확인</b> — 읽기만으로는 잡히지 않는 장비 감각을 손으로 익혀요']
+          .concat(gt ? [`<b>짝이 되는 가이드</b> — “${escH(gt.title)}”와 같은 조건으로 따라 해 볼 수 있어요`] : []);
+      } else {
+        const t = allTheories.find((x) => x.id === id) || { title: '', lab: '' };
+        title = t.title; tick = 'ADVANCED · FIELD GUIDE'; ic = '📘';
+        sub = '장비를 실제로 다루는 사람의 눈으로 정리한 글이에요. 교과서 개념을 넘어 현장에서 쓰는 판단 순서까지 담았어요.';
+        pts = ['<b>한 편에 끝까지</b> — 개요 · 구조 · 레시피 · 결과 읽기 · 트러블슈팅' + (t.mins ? ` (약 ${t.mins}분 분량)` : ''), '<b>상황별 대처</b> — 현장에서 마주치는 상황마다 어떻게 대응하는지 정리했어요']
+          .concat(t.lab && LABS[t.lab] ? [`<b>바로 실습</b> — 읽은 뒤 “${escH(LABS[t.lab].title)}”에서 같은 조건으로 따라 해 볼 수 있어요`] : []);
+      }
+      const price = PRICE_HINT[kind], have = PRM.free + PRM.paid;
+      let body;
+      if (!acct.user) body = `<button type="button" class="pmg-cta" onclick="pmGateLogin()">구글 로그인하고 시작하기</button><p class="pmg-wallet">로그인하고 하루 학습 미션을 채우면 토큰을 1개씩 받아요</p>`;
+      else {
+        const bd = bundleOf(id);
+        const mk = (cid, label, note, pr, rec) => `<button type="button" class="pmg-of${rec ? ' rec' : ''}"${have >= pr ? '' : ' disabled'} onclick="pmGateUnlock('${cid}')"><span><b>${label}</b><small>${note}</small></span><span class="pr">🪙 ${pr}</span></button>`;
+        const offers = (bd ? mk(bd.id, '이론 + 장비 체험 번들', `<em>${bd.save}토큰 할인</em> · 따로 사면 ${bd.sum}토큰`, bd.price, true) : '')
+          + mk(id, kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
+        const min = bd ? Math.min(bd.price, price) : price;
+        body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요</p>` : '')
+          + `<p class="pmg-wallet">내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid})</p>`;
+      }
+      o.innerHTML = `<div class="pmg-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="pmGateClose()">✕</button>`
+        + `<div class="pmg-ic" aria-hidden="true">${ic}</div><span class="pmg-tick"><i></i>${tick}</span><h3 id="pmgT">${escH(title)}</h3><p class="pmg-sub">${escH(sub)}</p>`
+        + `<ul class="pmg-pts">${pts.map((x) => `<li>${x}</li>`).join('')}</ul>${body}`
+        + `<p class="pmg-fine">한 번 해금하면 이 계정에서 계속 볼 수 있고, 이후 개정본도 추가 비용이 없어요.</p><button type="button" class="pmg-later" onclick="pmGateClose()">나중에 볼게요</button></div>`;
+    }
+    function pmGateLogin() { pmGateId = null; pmGateClose(); openAcct(); }
+    async function pmGateUnlock(cid) {
+      const o = document.getElementById('pmg'); if (o) o.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+      await premiumUnlock(cid);
+      const cur = document.getElementById('pmg'); if (!cur) return;
+      const id = cur.dataset.id;
+      if (PRM.unlocked.has(id)) pmGateClose(); else pmGateFill(cur, id, id.indexOf('lab-') === 0 ? 'lab' : 'theory');   // 실패(잔액 부족 등)면 최신 상태로 다시 그린다
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pmg')) pmGateClose(); });
+
     function premiumLock(id, kind) {
       const el = document.createElement('div'); el.className = 'pm-lock';
       const what = kind === 'lab' ? '이 장비 체험' : '이 글의 나머지';
@@ -7760,7 +7844,7 @@
       const t = document.getElementById('labTitle'), d = document.getElementById('labDesc'); if (t) t.textContent = L.title; if (d) d.textContent = L.desc;
       const gb = document.getElementById('labGuideBtn'), gt = allTheories.find(x => x.category === ADV_CAT && x.lab === kind); if (gb) { gb.classList.toggle('hidden', !gt); gb.dataset.id = gt ? gt.id : ''; }
       Object.keys(LABS).forEach((k) => { if (k !== kind && window[LABS[k].g]) window[LABS[k].g].stop(); });
-      if (!window[L.g] && !PRM.unlocked.has('lab-' + kind)) { if (el) { el.style.display = 'flex'; el.innerHTML = ''; el.appendChild(premiumLock('lab-' + kind, 'lab')); } return; }   // 해금 전: 잠금 화면
+      if (!window[L.g] && !PRM.unlocked.has('lab-' + kind)) { if (el) { el.style.display = 'flex'; el.innerHTML = ''; el.appendChild(premiumLock('lab-' + kind, 'lab')); } try { pmGateMaybe('lab-' + kind, 'lab'); } catch (e) {} return; }   // 해금 전: 잠금 화면 + 해금 팝업
       if (!window[L.g] && el) { el.style.display = 'flex'; el.textContent = '장비를 불러오는 중…'; }
       labLoad(kind).then(() => { if (currentViewId === 'view-lab' && labKind === kind) window[L.g].start(); })
         .catch(() => { if (el) { el.style.display = 'flex'; el.textContent = '체험 화면을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.'; } });
