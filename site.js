@@ -7104,7 +7104,7 @@
     // =====================================================
     // 🪙 토큰 · 유료 콘텐츠 (잔액·가격·해금은 전부 서버가 정한다. 화면은 요청만 보내고 결과를 보여 준다)
     // =====================================================
-    const PRM = { free: 0, paid: 0, unlocked: new Set(), cache: {}, loaded: false, queue: [], pumpP: null, lastSent: 0, welcomed: false, busy: false };
+    const PRM = { free: 0, paid: 0, unlocked: new Set(), bundles: [], cache: {}, loaded: false, queue: [], pumpP: null, lastSent: 0, welcomed: false, busy: false };
     const PRICE_HINT = { theory: 15, lab: 10 };   // 화면 안내용일 뿐, 실제 가격은 서버 카탈로그가 정한다
     async function apiJson(path, method, body) {
       const r = await apiFetch(path, { method: method || 'GET', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
@@ -7123,10 +7123,10 @@
       if (typeof renderAcct === 'function') renderAcct();
     }
     async function walletLoad() {
-      if (!acct.user) { PRM.loaded = false; PRM.free = PRM.paid = 0; PRM.unlocked = new Set(); PRM.cache = {}; PRM.queue = []; tokenRender(); return; }
+      if (!acct.user) { PRM.loaded = false; PRM.free = PRM.paid = 0; PRM.unlocked = new Set(); PRM.bundles = []; PRM.cache = {}; PRM.queue = []; tokenRender(); return; }
       try {
         const r = await apiJson('/me');
-        if (r.status === 200) { PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.unlocked = new Set(r.body.unlocked || []); PRM.loaded = true; }
+        if (r.status === 200) { PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.unlocked = new Set(r.body.unlocked || []); PRM.bundles = r.body.bundles || []; PRM.loaded = true; }
       } catch (e) {}
       tokenRender(); premiumRefresh();
       if (PRM.loaded && !PRM.welcomed) { PRM.welcomed = true; tokenWelcome(); }
@@ -7181,13 +7181,31 @@
       if (PRM.busy) return; PRM.busy = true;
       try {
         const r = await apiJson('/unlock', 'POST', { contentId: id });
-        if (r.status === 200 && r.body.unlocked) { PRM.free = r.body.free; PRM.paid = r.body.paid; PRM.unlocked.add(id); tokenRender(); pmToast('🔓 해금했어요'); }
+        if (r.status === 200 && r.body.unlocked) {
+          PRM.free = r.body.free; PRM.paid = r.body.paid;
+          (Array.isArray(r.body.items) ? r.body.items : [id]).forEach((x) => PRM.unlocked.add(x));   // 번들이면 묶인 콘텐츠가 모두 열린다
+          tokenRender(); pmToast(r.body.already ? '이미 해금돼 있어요' : '🔓 해금했어요');
+        }
         else if (r.status === 402) { PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); pmToast('토큰이 모자라요 (필요 ' + r.body.price + ')'); }
+        else if (r.status === 409) pmToast('그 사이 상태가 바뀌어서 다시 계산했어요. 한 번 더 눌러 주세요.');
         else pmToast('해금하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
       } catch (e) { pmToast('서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'); }
-      PRM.busy = false; premiumRefresh();
+      PRM.busy = false;
+      try { await walletLoad(); } catch (e) {}   // 잔액·해금·번들 가격을 서버 기준으로 다시 맞춘다 (premiumRefresh 도 여기서 불린다)
+      premiumRefresh();
     }
     // 잠금 카드: 로그인 전 / 로그인 후(잔액 표시 · 해금 버튼) / 해금됨(불러오는 중)
+    // 이론 + 체험 번들 안내: 짝이 되는 콘텐츠도 아직 없을 때만 보여 준다 (하나라도 가졌으면 번들이 단품과 같아져서 필요 없다)
+    function bundleBlock(id, have) {
+      const bd = (PRM.bundles || []).find((b) => !b.owned && b.items.includes(id));
+      if (!bd) return '';
+      const rest = bd.items.filter((x) => !PRM.unlocked.has(x));
+      if (rest.length < 2) return '';
+      const sum = rest.reduce((a, x) => a + (String(x).indexOf('lab-') === 0 ? PRICE_HINT.lab : PRICE_HINT.theory), 0);
+      const save = sum - bd.price;
+      const head = `<div class="pm-bundle"><p><b>📦 이론 + 장비 체험 번들</b> · ${bd.price}토큰${save > 0 ? ` <span class="pm-sub">(따로 사면 ${sum}토큰 · ${save}토큰 할인)</span>` : ''}</p>`;
+      return head + (have >= bd.price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${bd.id}')">🪙 ${bd.price}개로 둘 다 해금하기</button>` : `<p class="pm-sub">번들은 토큰이 ${bd.price - have}개 모자라요.</p>`) + `</div>`;
+    }
     function premiumLock(id, kind) {
       const el = document.createElement('div'); el.className = 'pm-lock';
       const what = kind === 'lab' ? '이 장비 체험' : '이 글의 나머지';
@@ -7199,7 +7217,8 @@
       else {
         const have = PRM.free + PRM.paid;
         h = `<h4>🔒 ${what}을 보려면 토큰 ${price}개가 필요해요</h4><p>내 토큰 🪙 ${have}개 (무료 ${PRM.free} · 유료 ${PRM.paid}) · 해금하면 이 계정에서 계속 볼 수 있어요.</p>`
-          + (have >= price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${id}')">🪙 ${price}개로 해금하기</button>` : `<p class="pm-sub">토큰이 ${price - have}개 모자라요. 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요.</p>`);
+          + (have >= price ? `<button type="button" class="pbtn" onclick="premiumUnlock('${id}')">🪙 ${price}개로 해금하기</button>` : `<p class="pm-sub">토큰이 ${price - have}개 모자라요. 오늘의 학습 미션을 채워 출석하면 하루 1개씩 받아요.</p>`)
+          + bundleBlock(id, have);
       }
       el.innerHTML = h; return el;
     }
