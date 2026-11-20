@@ -7477,7 +7477,20 @@
     }
     async function acctDelete() {
       if (!fb || !acct.user) return;
-      if (!confirm('계정에 저장된 학습 기록을 모두 삭제할까요?\n이 기기에 있는 기록은 그대로 남지만, 다른 기기와의 동기화는 끊겨요.\n삭제한 기록은 되돌릴 수 없어요.')) return;
+      // 서버 기록(학습 기록·남은 토큰)부터 지운다. 서버가 거부하면(환불 처리 중·잔액 변경) 아무것도 지우지 않고 멈춘다.
+      try { await walletLoad(); } catch (e) {}
+      const paid = PRM.paid, free = PRM.free;
+      const tokenMsg = (paid + free) > 0 ? `\n\n⚠ 남은 토큰 🪙 ${paid + free}개(무료 ${free} · 유료 ${paid})는 모두 사라져요.${paid > 0 ? '\n미사용 유료 토큰의 환불은 삭제 전에 「토큰 충전 · 결제 내역」에서 신청해 주세요. 삭제하면 환불받을 수 없어요.' : ''}` : '';
+      if (!confirm('계정에 저장된 학습 기록을 모두 삭제할까요?\n이 기기에 있는 기록은 그대로 남지만, 다른 기기와의 동기화는 끊겨요.\n삭제한 기록은 되돌릴 수 없어요.' + tokenMsg + '\n\n결제·해금 기록은 법령에 따라 5년간 보관돼요.')) return;
+      try {
+        const r = await apiJson('/account/delete', 'POST', { confirm: true, paid });
+        if (r.status !== 200 || !r.body.ok) {
+          acct.err = r.status === 409 && r.body.error === 'refund_in_progress' ? '환불이 처리 중이에요. 완료된 뒤 다시 시도해 주세요.'
+            : r.status === 409 ? '토큰 잔액이 방금 바뀌었어요. 다시 눌러 확인해 주세요.' : '서버 기록을 삭제하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+          if (r.status === 409) { try { await walletLoad(); } catch (e) {} }
+          renderAcct(); return;
+        }
+      } catch (e) { acct.err = '서버와 연결하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.'; renderAcct(); return; }
       try { await fbStore(); await fb.deleteDoc(fb.doc(fb.db, 'users', acct.user.uid)); try { await acct.user.delete(); } catch (e) {} try { await fb.U.signOut(fb.auth); } catch (e) {} hintSet(false); closeAcct(); alert('계정에 저장된 기록을 삭제했어요.'); }
       catch (e) { acct.err = acctErr(e); renderAcct(); }
     }
