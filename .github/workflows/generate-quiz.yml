@@ -1,10 +1,9 @@
 name: Auto Content Generator (OpenAI)
 
 on:
-  # 도메인 이전(새 레포로 서비스 전환) 때 아래 세 줄의 # 을 지워 켠다. (옛 레포 쪽 예약 실행은 먼저 끈다)
-  # schedule:
-  #   # 6시간마다 (UTC 기준). 더 자주/덜 자주 돌리고 싶으면 이 줄만 바꾸세요.
-  #     - cron: '*/30 * * * *'
+  schedule:
+    # UTC 기준 30분마다. 더 자주/덜 자주 돌리고 싶으면 아래 cron 줄만 바꾸세요.
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     inputs:
       preset:
