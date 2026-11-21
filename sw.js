@@ -1,7 +1,7 @@
 /* 반도체 새김 서비스 워커 — 오프라인에서도 열리게 한다.
    - 이 사이트의 파일(화면·데이터): 네트워크 우선(항상 최신), 느리거나 끊기면 저장해 둔 것을 보여 준다.
    - 글꼴·수식·마크다운 같은 외부 라이브러리: 저장해 둔 것 우선. 사이트가 바뀌면 VERSION 을 올리면 옛 저장분이 지워진다. */
-const VERSION = 'semicbt-v16';
+const VERSION = 'semicbt-v17';
 const SHELL = ['./', 'index.html', 'site.js', 'i18n.js', 'tw.css', 'manifest.webmanifest', 'data/questions.json', 'data/interviews.json', 'data/theories.json', 'data/theory_pages.json', 'data/careers.json', 'data/majors.json', 'data/glossary.json', 'data/course.json'];
 const EXTERNAL = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.tailwindcss.com'];
 
