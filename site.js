@@ -6404,6 +6404,2169 @@
         }
       }
     });
+    // ===== 습식 세정 장비 가이드용 그림 (pvd* 도우미를 같이 쓴다) =====
+    const wtLiq = { spm: '#fbbf24', sc1: '#7dd3fc', hf: '#a5f3fc', sc2: '#86efac', ri: '#60a5fa' };
+    const wtDrop = (x, y, c = '#60a5fa', k = 1) => `<path d="M${x} ${y - 7 * k} C${x + 5 * k} ${y - 1 * k} ${x + 5.5 * k} ${y + 3 * k} ${x} ${y + 5.5 * k} C${x - 5.5 * k} ${y + 3 * k} ${x - 5 * k} ${y - 1 * k} ${x} ${y - 7 * k} Z" fill="${c}" fill-opacity=".85" stroke="${c}" stroke-width=".8"/>`;
+
+    Object.assign(DIAGRAMS, {
+      // ---------- 1. 웨이퍼 표면의 오염 네 종류 ----------
+      'wet-contam': {
+        title: '웨이퍼 표면의 오염 네 종류',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '실리콘 웨이퍼 표면을 크게 확대해 옆에서 본 모습이다. 표면에는 입자, 유기물, 금속, 그리고 공기 중 산소가 만든 얇은 자연 산화막이 함께 있다. 이 넷은 성질이 달라서 한 가지 약액으로는 다 지워지지 않고, 그래서 약액을 차례로 바꿔 가며 쓴다.' },
+          { id: 'p', label: '① 입자', focus: ['p'], desc: '먼지, 연마 입자, 공정 중 떨어진 막 조각이다. 크기가 회로 선폭의 절반만 되어도 패턴을 막거나 단락을 만든다. 표면에 정전기와 반데르발스 힘으로 붙어 있으므로, 표면을 살짝 깎아 밑을 파고(언더컷) 약액 속에서 서로 밀어내게 만들어 떼어 낸다. 대표 약액은 SC-1이고 메가소닉이 거든다.' },
+          { id: 'o', label: '② 유기물', focus: ['o'], desc: '레지스트 찌꺼기, 사람 손과 포장재에서 나온 기름기, 공기 중 탄화수소다. 막 아래에 갇히면 접착을 망치고 산화막 품질을 해친다. 강한 산화제로 태워 이산화탄소와 물로 바꿔 없앤다. 두꺼운 것은 황산과 과산화수소를 섞은 SPM, 얇은 것은 SC-1이 맡는다.' },
+          { id: 'm', label: '③ 금속', focus: ['m'], desc: '철, 구리, 나트륨 같은 금속 이온이다. 표면에 얹히기도 하고 산화막 속이나 실리콘 안쪽까지 들어가기도 한다. 소자 안에서 누설 전류를 만들고 수명을 줄이므로 가장 엄격하게 관리한다. 산 용액인 SC-2와 묽은 불산(DHF)이 금속을 이온 상태로 녹여 내보낸다.' },
+          { id: 'ox', label: '④ 자연 산화막', focus: ['ox'], desc: '실리콘은 공기에 닿는 순간 약 1 nm 두께의 산화막이 생긴다. 이 막은 금속을 가두고 있어서 뒤에 오는 공정의 계면 품질을 해친다. 묽은 불산(DHF)이 이 막을 녹여 없애면 표면이 수소로 덮인 깨끗한 실리콘이 된다. 이때 막 속에 갇혀 있던 금속도 함께 떨어져 나간다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('wc');
+          // 실리콘 기판 + 산화막
+          o += pvdR(24, 188, 352, 66, 'url(#wcSi)', { so: .5 });
+          o += pvdG(f, ['ox'], pvdR(24, 180, 352, 8, '#a78bfa', { sw: .8, so: .6 }));
+          o += pvdTx(200, 232, '실리콘 웨이퍼 (Si)', { a: 'middle', st: 'font-size:11px;font-weight:700;opacity:.9' });
+          // 입자
+          o += pvdG(f, ['p'], [[70, 9], [150, 6], [262, 11], [336, 7]].map(([x, r]) => `<circle cx="${x}" cy="${180 - r}" r="${r}" fill="rgba(248,113,113,.22)" stroke="#f87171" stroke-width="1.8"/>`).join(''));
+          // 유기물 (찌꺼기 덩어리)
+          const bl = (x, w) => `<path d="M${x} 180 q${w * .1} -13 ${w * .3} -6 q${w * .15} -11 ${w * .3} -1 q${w * .2} -8 ${w * .3} 7 z" fill="rgba(251,146,60,.55)" stroke="#fb923c" stroke-width="1.4"/>`;
+          o += pvdG(f, ['o'], bl(104, 34) + bl(208, 42) + bl(292, 28));
+          // 금속 (표면 · 산화막 속 · 실리콘 속)
+          const mt = [[190, 177], [199, 179], [126, 178], [320, 178], [84, 184], [236, 184], [352, 184], [112, 204], [170, 220], [258, 208], [300, 242]];
+          o += pvdG(f, ['m'], mt.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3" fill="#fbbf24" stroke="#92400e" stroke-width=".6"/>`).join(''));
+          // 호출선
+          o += pvdCall(f, ['p'], '1', '#f87171', 40, 74, 54, 78, ['입자', 'SC-1 · 메가소닉'], 70, 170);
+          o += pvdCall(f, ['o'], '2', '#fb923c', 140, 74, 154, 78, ['유기물', 'SPM · SC-1'], 122, 172);
+          o += pvdCall(f, ['m'], '3', '#fbbf24', 240, 74, 254, 78, ['금속', 'SC-2 · DHF'], 198, 176);
+          o += pvdCall(f, ['ox'], '4', '#a78bfa', 40, 262, 54, 266, ['자연 산화막', 'DHF'], 60, 184, 'start');
+          o += pvdTx(376, 266, '그림은 크기를 과장했다', { a: 'end', st: 'font-size:9.5px;opacity:.55' });
+          return dgSvg('웨이퍼 표면의 오염: ' + s.label, o, '0 54 400 238');
+        }
+      },
+      // ---------- 2. 공정 중 세정이 들어가는 자리 ----------
+      'wet-where': {
+        title: '공정 흐름 속에서 세정이 들어가는 자리',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 흐름', desc: '칩 제조 중 세정은 한 번만 하지 않는다. 거의 모든 공정의 앞이나 뒤에 들어가서 웨이퍼를 매번 깨끗한 상태로 되돌린다. 전체 공정 시간의 상당 부분이 세정과 헹굼이다. 자리마다 막아야 할 오염이 달라서 약액 순서도 다르다.' },
+          { id: 'in', label: '입고·초기', focus: ['in'], desc: '웨이퍼가 공장에 들어오면 먼저 RCA 세정으로 입자·유기물·금속을 모두 지운다. 이후 모든 공정이 이 깨끗한 표면을 출발점으로 삼는다.' },
+          { id: 'gate', label: '게이트 산화 전', focus: ['gate'], desc: '트랜지스터의 가장 중요한 막인 게이트 산화막을 키우기 직전에는 가장 철저히 닦는다. 마지막에 DHF로 자연 산화막을 벗기고 바로 확산로에 넣는다. 여기에 남은 금속이나 입자는 산화막 불량으로 곧바로 이어진다.' },
+          { id: 'etch', label: '식각·레지스트 뒤', focus: ['etch'], desc: '식각 뒤에는 폴리머 잔여물이, 이온 주입 뒤에는 변성된 레지스트가 남는다. 레지스트를 애싱으로 태운 뒤 SPM 같은 강한 약액으로 남은 유기물과 잔여물을 지운다.' },
+          { id: 'cmp', label: '증착·CMP 전후', focus: ['dep', 'cmp'], desc: '막을 쌓기 직전에는 DHF로 자연 산화막을 벗겨 계면을 깨끗이 한다. CMP 직후에는 웨이퍼 전체에 슬러리 입자와 금속이 덮여 있어 전용 세정기로 바로 씻는다. 마르면 입자가 굳어붙기 때문에 젖은 채로 옮긴다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          const rows = [
+            ['웨이퍼 입고', '초기 세정 (RCA)', 'in'],
+            ['게이트 산화 직전', 'RCA + 마지막 DHF', 'gate'],
+            ['식각 · 포토 뒤', '식각 잔여물 세정', 'etch'],
+            ['레지스트 제거 (애싱)', 'SPM으로 유기물 제거', 'etch'],
+            ['막 증착 직전', 'DHF로 산화막 벗기기', 'dep'],
+            ['CMP 직후', '슬러리 입자·금속 제거', 'cmp'],
+          ];
+          let o = pvdDefs('ww');
+          rows.forEach(([a, b, g], i) => {
+            const y = 14 + i * 44, on = pvdOn(f, g);
+            o += pvdG(f, [g], pvdR(16, y, 170, 32, 'var(--tbl-bg)', { rx: 6, so: .6 }) + pvdTx(26, y + 20, a, { st: 'font-size:11.5px;font-weight:700;opacity:1' })
+              + pvdL(`M186 ${y + 16} H214`, { dash: '3 3', so: .6 })
+              + pvdR(214, y, 170, 32, on && f ? 'rgba(96,165,250,.16)' : 'rgba(96,165,250,.07)', { rx: 16, sw: on && f ? 1.8 : 1.2, so: on && f ? .95 : .55, c: '#60a5fa' })
+              + wtDrop(232, y + 16, '#60a5fa', 1.05) + pvdTx(246, y + 20, b, { st: 'font-size:11px;font-weight:600;opacity:1' }));
+            if (i < rows.length - 1) o += pvdG(f, [g], pvdL(`M101 ${y + 32} V${y + 44}`, { so: .4, dash: '2 3' }));
+          });
+          return dgSvg('세정이 들어가는 자리: ' + s.label, o, '0 0 400 280');
+        }
+      },
+      // ---------- 3. 배치식과 싱글 웨이퍼식 ----------
+      'wet-types': {
+        title: '배치 웨트 벤치와 싱글 웨이퍼 세정기',
+        wide: true,
+        states: [
+          { id: 'all', label: '두 방식 비교', desc: '왼쪽은 약액조에 웨이퍼 여러 장을 한꺼번에 담그는 배치식이고, 오른쪽은 웨이퍼를 한 장씩 돌리며 약액을 뿌리는 싱글 웨이퍼식이다. 한 번에 몇 장을 씻느냐와 한 장을 얼마나 깨끗이 씻느냐를 맞바꾼다.' },
+          { id: 'b', label: '배치 웨트 벤치', focus: ['b'], desc: '카세트에 웨이퍼 25~50장을 세워 꽂고 약액조에 통째로 담근다. 한 번에 많이 처리해 처리량이 높고 약액 순환·가열을 모아서 할 수 있다. 대신 약액조가 크고 약액을 많이 쓰며, 웨이퍼 사이 간격이 좁아 떨어진 입자가 옆 웨이퍼에 다시 붙을 수 있다. RCA 같은 표준 세정에 널리 쓴다.' },
+          { id: 's', label: '싱글 웨이퍼', focus: ['s'], desc: '웨이퍼를 척에 올려 돌리면서 위에서 약액을 뿌린다. 매번 새 약액이 닿아 교차 오염이 적고 한 장 단위로 조건을 바꿀 수 있어서 미세 공정에 많이 쓴다. 대신 한 장 처리 시간이 길어 챔버를 여러 개 두어 처리량을 맞춘다. 약액은 한 번 쓰고 버리거나 짧게 재사용한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('wy');
+          // 배치
+          let b = pvdR(18, 70, 168, 150, 'var(--tbl-bg)', { rx: 5 }) + pvdR(22, 96, 160, 120, 'rgba(125,211,252,.28)', { so: .35, sw: 1 });
+          b += pvdL('M22 96 q20 -5 40 0 t40 0 t40 0 t40 0', { c: '#7dd3fc', sw: 1.4, so: .9 });
+          b += pvdR(34, 112, 136, 8, 'none', { so: .6, dash: '3 3' }) + pvdL('M34 196 H170', { sw: 1.6, so: .8 });
+          for (let i = 0; i < 9; i++) b += pvdR(42 + i * 15, 108, 3, 84, 'url(#wyMt)', { so: .7, sw: .8 });
+          b += pvdL('M96 60 V108 M84 60 H108', { sw: 1.6, so: .8 }) + pvdTx(102, 54, '로봇이 카세트를 통째로', { a: 'middle', st: 'font-size:10px;opacity:.8' });
+          b += pvdTx(102, 238, '배치 웨트 벤치', { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' }) + pvdTx(102, 254, '한 번에 25~50장 · 처리량 우선', { a: 'middle', st: 'font-size:10px;opacity:.8' });
+          b += `<path d="M60 206 v-8 M102 206 v-8 M144 206 v-8" class="dg-line" style="stroke:#7dd3fc;stroke-width:1.4"/>` + pvdTx(102, 214, '약액 순환 · 필터', { a: 'middle', st: 'font-size:9.5px;opacity:.65' });
+          o += pvdG(f, ['b'], b);
+          // 싱글
+          let c = pvdR(220, 130, 164, 90, 'var(--tbl-bg)', { rx: 4 }) + pvdR(236, 150, 132, 5, 'url(#wySi)', { so: .8 }) + pvdR(296, 155, 12, 52, 'url(#wyMt)', { so: .7 }) + pvdR(284, 205, 36, 8, 'url(#wyMt)', { so: .7 });
+          c += pvdR(244, 92, 8, 24, 'url(#wyMt)', { so: .7, rx: 2 }) + pvdL('M248 116 V128', { c: '#7dd3fc', sw: 2.4, so: .95 }) + `<ellipse cx="248" cy="146" rx="6" ry="3" fill="#7dd3fc" fill-opacity=".7"/>`;
+          c += pvdL('M370 146 q10 6 10 20', { c: '#7dd3fc', dash: '2 3', so: .8 }) + pvdL('M234 146 q-10 6 -10 20', { c: '#7dd3fc', dash: '2 3', so: .8 });
+          c += pvdL('M326 134 q8 -6 16 0', { so: .8 }) + dgArrow(330, 132, 340, 126) + pvdTx(352, 126, '회전', { st: 'font-size:10px;opacity:.8' });
+          c += pvdTx(302, 238, '싱글 웨이퍼 세정기', { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' }) + pvdTx(302, 254, '한 장씩 · 교차 오염 적음', { a: 'middle', st: 'font-size:10px;opacity:.8' });
+          c += pvdTx(266, 104, '노즐', { st: 'font-size:9.5px;opacity:.7' }) + pvdTx(318, 184, '척', { st: 'font-size:9.5px;opacity:.7' });
+          o += pvdG(f, ['s'], c);
+          return dgSvg('세정 장비 방식: ' + s.label, o, '0 44 400 222');
+        }
+      },
+    });
+    Object.assign(DIAGRAMS, {
+      // ---------- 4. 웨트 벤치 전체 배치 (위에서 본 모습) ----------
+      'wet-bench': {
+        title: '웨트 벤치를 위에서 본 모습: 카세트가 지나가는 길',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 배치', desc: '약액조와 린스조가 한 줄로 늘어선 장비다. 지면 관계로 두 줄로 접어 그렸고, 실제로는 긴 한 줄이거나 2열이다. 천장의 겐트리 로봇이 카세트를 집어 조에서 조로 옮기므로 사람 손이 웨이퍼에 닿지 않는다.' },
+          { id: 'path', label: '카세트 이동 순서', focus: ['io', 'chem', 'rinse', 'dry'], path: true, desc: '로더에서 카세트를 받아 SPM → 린스 → SC-1 → 린스 → DHF → 린스 → SC-2 → 최종 린스 → 건조 순으로 담그고 언로더로 내보낸다. 약액조 사이마다 린스를 끼우는 것이 핵심이다. 앞 약액이 다음 약액에 섞이면 반응이 틀어지고 오염이 옮겨 가기 때문이다.' },
+          { id: 'chem', label: '약액조', focus: ['chem'], desc: '네 개의 약액조가 각자 다른 오염을 맡는다. SPM은 유기물, SC-1은 입자와 유기물, DHF는 산화막과 금속, SC-2는 남은 금속이다. 조마다 온도와 농도가 다르고, 약액은 쓰는 만큼 소모되어 주기적으로 갈거나 보충한다.' },
+          { id: 'rinse', label: '린스조', focus: ['rinse'], desc: '초순수로 약액을 씻어 내는 조다. 위에서 계속 넘쳐 흐르게 하거나 한꺼번에 물을 빼고 다시 채우는 방식을 쓴다. 헹굼이 모자라면 다음 조에 약액이 섞이거나 웨이퍼에 얼룩이 남는다.' },
+          { id: 'dry', label: '건조기', focus: ['dry', 'io'], desc: '마지막은 건조다. 웨이퍼가 젖은 채로 마르면 물방울 자국과 입자가 남으므로 알코올(IPA) 증기나 회전으로 물을 빠르게 걷어 낸다. 건조가 끝난 카세트는 언로더에서 FOUP으로 돌아간다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          const st = [['로더', 'io', null], ['SPM', 'chem', wtLiq.spm], ['린스', 'rinse', wtLiq.ri], ['SC-1', 'chem', wtLiq.sc1], ['린스', 'rinse', wtLiq.ri], ['DHF', 'chem', wtLiq.hf],
+            ['린스', 'rinse', wtLiq.ri], ['SC-2', 'chem', wtLiq.sc2], ['최종 린스', 'rinse', wtLiq.ri], ['건조', 'dry', '#e2e8f0'], ['언로더', 'io', null]];
+          const pos = (i) => i < 6 ? [14 + i * 63, 64] : [14 + (5 - (i - 6)) * 63, 178];
+          let o = pvdDefs('wb');
+          // 겐트리 레일
+          o += pvdL('M10 40 H392', { sw: 2.2, so: .55 }) + pvdL('M10 154 H392', { sw: 2.2, so: .55 });
+          o += pvdTx(12, 32, '겐트리 로봇 레일', { st: 'font-size:9.5px;opacity:.65' });
+          st.forEach(([nm, g, c], i) => {
+            const [x, y] = pos(i);
+            let b = pvdR(x, y, 56, 62, 'var(--tbl-bg)', { rx: 4 });
+            if (c) { b += pvdR(x + 4, y + 18, 48, 40, c, { sw: .6, so: .4, rx: 2 }).replace('style="fill:' + c, 'style="fill-opacity:.32;fill:' + c); b += pvdL(`M${x + 4} ${y + 18} q6 -3 12 0 t12 0 t12 0 t12 0`, { c, sw: 1.2, so: .9 }); for (let k = 0; k < 4; k++) b += pvdR(x + 14 + k * 9, y + 24, 2.4, 28, 'url(#wbSi)', { sw: .5, so: .6 }); }
+            else b += pvdR(x + 8, y + 12, 40, 40, 'rgba(148,163,184,.18)', { rx: 3, so: .5 }) + pvdTx(x + 28, y + 36, g === 'io' ? 'FOUP' : '', { a: 'middle', st: 'font-size:9px;opacity:.7' });
+            if (g === 'dry') b += pvdL(`M${x + 12} ${y + 12} q4 -6 0 -10 M${x + 28} ${y + 12} q4 -6 0 -10 M${x + 44} ${y + 12} q4 -6 0 -10`, { c: '#cbd5e1', sw: 1.1, so: .85 });
+            b += pvdTx(x + 28, y + 76, nm, { a: 'middle', st: 'font-size:10.5px;font-weight:700;opacity:1' });
+            b += `<circle cx="${x + 10}" cy="${y - 10}" r="7" fill="${f && f.includes(g) ? 'var(--hl-accent)' : 'rgba(148,163,184,.55)'}"/><text class="dg-t dg-lb" x="${x + 10}" y="${y - 6.5}" text-anchor="middle" style="fill:#0b1220;font-size:9px;font-weight:800">${i + 1}</text>`;
+            o += pvdG(f, [g], b);
+          });
+          // 카세트 이동 경로
+          if (s.path) {
+            const cx = (i) => pos(i)[0] + 28;
+            let p = '';
+            for (let i = 0; i < 5; i++) p += dgArrow(cx(i) + 8, 40, cx(i + 1) - 8, 40, 'dg-line dg-hl');
+            p += pvdL('M' + (cx(5) + 8) + ' 40 H386 V154 H' + (cx(6) + 8), { c: 'var(--hl-accent)', sw: 2.2, so: .95 });
+            for (let i = 6; i < 10; i++) p += dgArrow(cx(i) - 8, 154, cx(i + 1) + 8, 154, 'dg-line dg-hl');
+            o += p;
+          }
+          o += pvdTx(200, 282, 'SPM → SC-1 → DHF → SC-2 는 약액조, 사이마다 린스', { a: 'middle', st: 'font-size:10px;opacity:.7' });
+          return dgSvg('웨트 벤치 배치: ' + s.label, o, '0 8 400 286');
+        }
+      },
+      // ---------- 5. 약액조 단면 (핵심 구조도) ----------
+      'wet-bath': {
+        title: '세정 약액조 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '카세트가 잠기는 석영 내조를 바깥 오버플로 외조가 감싸고, 오른쪽의 순환 배관이 약액을 걸러 데워 바닥에서 다시 올려 보내는 구조다. 약액은 계속 아래에서 위로 흘러 넘치면서 웨이퍼 표면을 쓸고, 넘친 약액은 외조로 흘러 필터를 지나 돌아온다. 번호는 아래 본문의 부품 설명과 같다.' },
+          { id: 'tank', label: '조와 카세트', focus: ['in', 'out', 'cas', 'inj'], desc: '웨이퍼를 담는 곳이다. 내조는 약액에 녹지 않는 석영이나 불소수지로 만들고, 가장자리를 넘친 약액은 외조가 받는다. 바닥의 구멍 뚫린 분사판이 약액을 고르게 올려 보내서 웨이퍼 사이를 아래에서 위로 흐르게 한다.' },
+          { id: 'loop', label: '순환 · 가열 · 여과', focus: ['pipe', 'pump', 'htr', 'flt', 'out', 'inj'], flow: true, desc: '외조로 넘친 약액을 펌프가 빨아올려 히터로 데우고 필터로 입자를 걸러 다시 내조 바닥으로 보낸다. 이 순환이 온도를 균일하게 맞추고, 세정 중에 떨어져 나온 입자가 다시 웨이퍼에 앉는 것을 막는다. 필터가 막히면 유량이 줄고 입자가 늘어난다.' },
+          { id: 'mega', label: '메가소닉 · 센서', focus: ['mega', 'sens', 'in', 'cas'], desc: '조 벽에 붙인 진동판이 1 MHz 안팎의 초음파(메가소닉)를 보내 약액 속에서 표면의 입자를 떨어낸다. 온도 센서와 액면 센서는 약액이 정해진 온도와 높이에 있는지 감시해서 히터와 보충 밸브를 제어한다. 액면이 낮아져 웨이퍼가 공기에 드러나면 얼룩과 입자가 생긴다.' },
+          { id: 'sup', label: '공급 · 배수 · 배기', focus: ['sup', 'drn', 'exh', 'bot'], desc: '약액과 초순수는 밸브 박스를 거쳐 정해진 비율로 들어오고, 오래된 약액은 바닥의 배수 밸브로 빠진다. 약액 증기는 조 가장자리의 배기구가 즉시 빨아들여 작업 공간과 웨이퍼를 보호한다. 천장의 겐트리 로봇은 카세트를 위에서 잡아 내려놓고 건져 올린다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, L = '#7dd3fc';
+          let o = pvdDefs('wb2');
+          let g = '';
+          // 겐트리 로봇 · 손잡이
+          g += pvdG(f, ['bot'], pvdL('M70 40 H330', { sw: 2.2, so: .55 }) + pvdR(190, 30, 30, 18, 'url(#wb2Mt)', { rx: 2 }) + pvdL('M205 48 V176 M190 176 H220', { sw: 1.8, so: .8 }) + pvdTx(76, 34, '겐트리 로봇', { st: 'font-size:9.5px;opacity:.7' }));
+          // 배기 덕트(오른쪽 위)
+          g += pvdG(f, ['exh'], pvdL('M292 136 H310', { sw: 1.4 }) + pvdR(310, 80, 16, 60, 'url(#wb2Mt)', { rx: 2 }) + dgArrow(318, 126, 318, 92) + pvdTx(318, 72, '배기', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.9' }));
+          // 외조
+          g += pvdG(f, ['out'], pvdR(108, 126, 184, 202, 'url(#wb2Mt)', { so: .7 }) + pvdR(114, 132, 172, 190, 'var(--tbl-bg)', { so: .3, sw: .8 }) + pvdR(114, 196, 172, 126, 'rgba(125,211,252,.18)', { so: 0, sw: 0 }) + pvdL('M114 196 H132 M268 196 H286', { c: L, sw: 1.2, so: .8 }));
+          // 내조(석영) + 약액
+          g += pvdG(f, ['in'], pvdR(130, 146, 140, 168, 'url(#wb2Mt)', { so: .75 }) + pvdR(136, 152, 128, 156, 'var(--tbl-bg)', { so: 0, sw: 0 }) + pvdR(136, 152, 128, 156, 'rgba(125,211,252,.30)', { so: .25, sw: .8 }) + pvdL('M136 152 q16 -5 32 0 t32 0 t32 0', { c: L, sw: 1.5, so: .95 })
+            + pvdTx(200, 166, '약액', { a: 'middle', st: 'font-size:9.5px;opacity:.7' }));
+          // 오버플로 화살표
+          g += pvdG(f, ['in', 'out'], dgFlow('M134 150 Q122 140 120 176') + dgFlow('M266 150 Q278 140 280 176'));
+          // 카세트 + 웨이퍼
+          let w = '';
+          for (let i = 0; i < 8; i++) w += pvdR(163 + i * 11, 180, 3, 92, 'url(#wb2Si)', { sw: .7, so: .7 });
+          g += pvdG(f, ['cas'], w + pvdL('M156 276 H252', { sw: 2, so: .8 }) + pvdL('M160 276 v10 M248 276 v10', { sw: 1.6, so: .8 }) + pvdR(158, 172, 96, 6, 'none', { so: .55, dash: '3 3' }));
+          // 분사판 + 하부 입구
+          g += pvdG(f, ['inj'], pvdL('M140 298 H260', { sw: 2, so: .8, dash: '5 3' }) + [160, 200, 240].map((x) => dgArrow(x, 296, x, 284)).join('') + pvdR(194, 310, 12, 18, 'url(#wb2Mt)', { so: .7 }));
+          // 메가소닉 진동판
+          g += pvdG(f, ['mega'], pvdR(262, 196, 8, 72, 'url(#wb2Cu)', { so: .8 }) + [0, 1, 2].map((k) => pvdL(`M${252 - k * 12} 218 q-7 16 0 32`, { c: '#f59e0b', sw: 1.5, so: .9 - k * .2 })).join('') + pvdTx(246, 190, '초음파', { a: 'middle', st: 'font-size:9px;opacity:.7;fill:#f59e0b' }));
+          // 센서
+          g += pvdG(f, ['sens'], pvdR(250, 146, 4, 70, 'url(#wb2Mt)', { so: .7 }) + `<circle cx="252" cy="216" r="3.5" fill="#fb7185"/>` + pvdTx(242, 144, 'T', { a: 'end', st: 'font-size:10px;font-weight:800;opacity:.9' }));
+          // 순환 배관: 외조 → 펌프 → 히터 → 필터 → 내조 바닥
+          const fl = f && s.flow;
+          g += pvdG(f, ['pipe'], pvdL('M292 316 H326 V292', { sw: 2.4, so: .7 }) + pvdL('M326 308 V332', { sw: 2.4, so: .7 }) + pvdL('M326 352 V374', { sw: 2.4, so: .7 }) + pvdL('M326 400 V430 H200 V328', { sw: 2.4, so: .7 })
+            + (fl ? dgFlow('M292 316 H326 V430 H200 V316') : ''));
+          g += pvdG(f, ['pump'], `<circle cx="326" cy="300" r="14" fill="url(#wb2Mt)" stroke="currentColor" stroke-opacity=".7" stroke-width="1.2"/>` + pvdL('M319 304 L326 295 L333 304', { sw: 1.4, so: .9 }));
+          g += pvdG(f, ['htr'], pvdR(306, 332, 40, 20, 'rgba(248,113,113,.25)', { rx: 3, c: '#f87171' }) + pvdL('M312 342 l4 -5 l4 10 l4 -10 l4 10 l4 -10 l4 5', { c: '#f87171', sw: 1.4, so: .95 }));
+          g += pvdG(f, ['flt'], pvdR(306, 374, 40, 26, 'var(--tbl-bg)', { rx: 3 }) + [312, 320, 328, 336].map((x) => pvdL(`M${x} 378 v18`, { sw: 1.3, so: .55 })).join(''));
+          // 공급 · 배수
+          g += pvdG(f, ['sup'], pvdL('M98 420 H200', { sw: 2.4, so: .7 }) + dgArrow(120, 420, 150, 420));
+          g += pvdG(f, ['drn'], pvdL('M150 312 V392', { sw: 2.4, so: .7 }) + `<path d="M143 348 L157 362 V348 L143 362 Z" fill="rgba(148,163,184,.4)" stroke="currentColor" stroke-width="1.1" stroke-opacity=".8"/>` + pvdTx(150, 408, '배수', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.9' }));
+          o += `<g transform="translate(-38 0)">${g}</g>`;
+          // 공급 박스 (그룹 밖)
+          o += pvdG(f, ['sup'], pvdR(10, 402, 76, 44, 'var(--tbl-bg)', { rx: 4 }) + pvdTx(48, 420, '약액 공급', { a: 'middle', st: 'font-size:10.5px;font-weight:700;opacity:1' }) + pvdTx(48, 434, 'NH₄OH·H₂O₂·DI', { a: 'middle', st: 'font-size:8.5px;opacity:.7' }) + pvdL('M86 424 H124', { sw: 2.4, so: .7 }));
+          // 호출선 (왼쪽: 조 · 오른쪽: 순환과 센서)
+          o += pvdCall(f, ['in'], '1', '#7dd3fc', 16, 160, 28, 164, ['내조'], 94, 170);
+          o += pvdCall(f, ['out'], '2', '#a78bfa', 16, 206, 28, 210, ['외조'], 80, 236);
+          o += pvdCall(f, ['cas'], '3', '#f59e0b', 16, 252, 28, 256, ['카세트'], 125, 240);
+          o += pvdCall(f, ['inj'], '4', '#34d399', 16, 298, 28, 302, ['분사판'], 106, 298);
+          o += pvdCall(f, ['pump'], '5', '#34d399', 326, 294, 338, 298, ['순환 펌프'], 296, 296);
+          o += pvdCall(f, ['htr'], '6', '#f87171', 326, 342, 338, 346, ['히터'], 310, 342);
+          o += pvdCall(f, ['flt'], '7', '#38bdf8', 326, 388, 338, 392, ['필터'], 310, 388);
+          o += pvdCall(f, ['mega'], '8', '#f59e0b', 326, 232, 338, 236, ['메가소닉'], 226, 236);
+          o += pvdCall(f, ['sens'], '9', '#fb7185', 326, 176, 338, 180, ['온도 · 액면', '센서'], 216, 176);
+          o += pvdCall(f, ['sup', 'drn', 'exh'], '10', '#2dd4bf', 28, 458, 42, 462, ['공급 · 배수 · 배기'], 46, 448);
+          return dgSvg('세정 약액조 단면: ' + s.label, o, '0 22 440 452');
+        }
+      },
+    });
+    // 그래프 도우미: 값 범위를 그림 좌표로 바꾼다 (가이드의 모델 값은 체험 장비와 같은 식을 쓴다)
+    const wtFT = (T) => Math.exp(0.55 / 8.617e-5 * (1 / 343.15 - 1 / (T + 273.15)));   // SC-1 반응 속도(70℃ = 1)
+    const wtPlot = (x0, x1, y0, y1, L = 52, R = 372, T = 34, B = 196) => ({
+      x: (v) => L + (v - x0) / (x1 - x0) * (R - L), y: (v) => B - (v - y0) / (y1 - y0) * (B - T), L, R, T, B,
+      axes: () => pvdL(`M${L} ${T} V${B} H${R}`, { sw: 1.4, so: .7 }),
+      curve: (fn, a, b, c, o = {}) => pvdL(Array.from({ length: 41 }, (_, i) => { const v = a + (b - a) * i / 40; return (i ? 'L' : 'M') + (L + (v - x0) / (x1 - x0) * (R - L)).toFixed(1) + ' ' + (B - (fn(v) - y0) / (y1 - y0) * (B - T)).toFixed(1); }).join(' '), { c, sw: o.sw || 2.2, so: o.so || .95, dash: o.dash }),
+    });
+
+    Object.assign(DIAGRAMS, {
+      // ---------- 6. RCA 약액별 표면 반응 ----------
+      'wet-rca': {
+        title: 'RCA 세정: 약액마다 하는 일',
+        wide: true,
+        states: [
+          { id: 'all', label: '네 약액 한눈에', k: 'all', desc: '세정은 약액 하나가 아니라 역할이 다른 약액을 차례로 쓰는 것이다. SPM이 두꺼운 유기물을, SC-1이 입자를, DHF가 산화막과 금속을, SC-2가 남은 금속을 맡는다. 순서에도 이유가 있다. 입자와 유기물을 먼저 지우고, 산화막을 벗겨 금속을 풀어낸 다음, 마지막에 남은 금속을 잡는다.' },
+          { id: 'spm', label: 'SPM', k: 'spm', desc: '진한 황산에 과산화수소를 섞으면 뜨겁고 산화력이 아주 강한 용액이 된다. 약 120 ℃에서 레지스트 찌꺼기 같은 두꺼운 유기물을 이산화탄소와 물로 분해한다. 유기물은 덩어리가 작아질수록 빨리 사라지고, 표면에는 얇은 화학 산화막이 새로 생긴다. 황산이 남으면 오염이 되므로 뒤의 린스가 중요하다.' },
+          { id: 'sc1', label: 'SC-1', k: 'sc1', desc: '암모니아수, 과산화수소, 물을 섞은 약액으로 입자를 떨어내는 핵심 단계다. 과산화수소는 표면에 산화막을 만들고 암모니아는 그 막을 아주 조금씩 녹인다. 그 결과 입자 밑이 파이면서 입자가 들려 올라가고, 입자와 표면이 같은 음전하를 띠어 서로 밀어내므로 다시 붙지 않는다. 대신 표면이 조금 깎이고 금속이 새로 묻을 수 있다.' },
+          { id: 'dhf', label: 'DHF', k: 'dhf', desc: '묽은 불산 용액이다. 실리콘 산화막만 골라 녹이고 실리콘 자체는 거의 건드리지 않는다. 산화막이 녹으면서 그 속에 갇혀 있던 금속도 함께 약액으로 풀려난다. 끝난 표면은 수소로 덮인 깨끗한 실리콘이라 물을 튕기는 소수성이 되고, 공기에 닿으면 빨리 다시 산화되므로 곧바로 다음 공정으로 넘긴다.' },
+          { id: 'sc2', label: 'SC-2', k: 'sc2', desc: '염산, 과산화수소, 물을 섞은 산성 약액이다. SC-1의 암모니아 환경에서 잘 안 지워지는 금속과 DHF 뒤에 남은 금속을 염화물로 바꿔 약액에 녹여 낸다. 금속 이온은 산성 용액 속에서 잘 녹기 때문이다. 입자나 유기물은 거의 건드리지 않는다.' },
+        ],
+        svg(s) {
+          const K = s.k;
+          let o = pvdDefs('wr');
+          if (K === 'all') {
+            const cs = [['SPM', wtLiq.spm, '≈ 120 ℃', '두꺼운 유기물', 'H₂SO₄ + H₂O₂'], ['SC-1', wtLiq.sc1, '70~80 ℃', '입자 · 유기물', 'NH₄OH + H₂O₂ + H₂O'], ['DHF', wtLiq.hf, '상온', '산화막 · 금속', 'HF + H₂O (묽게)'], ['SC-2', wtLiq.sc2, '70~80 ℃', '남은 금속', 'HCl + H₂O₂ + H₂O']];
+            cs.forEach(([n, c, t, w, ch], i) => {
+              const x = 10 + i * 98;
+              o += pvdR(x, 20, 88, 196, 'var(--tbl-bg)', { rx: 8 }) + pvdR(x, 20, 88, 34, c, { rx: 8, so: .4 }).replace('style="fill:' + c, 'style="fill-opacity:.35;fill:' + c);
+              o += pvdTx(x + 44, 43, n, { a: 'middle', st: 'font-size:15px;font-weight:800;opacity:1' }) + wtDrop(x + 44, 80, c, 1.6);
+              o += pvdTx(x + 44, 112, '지우는 것', { a: 'middle', st: 'font-size:9.5px;opacity:.6' }) + pvdTx(x + 44, 128, w, { a: 'middle', st: 'font-size:11.5px;font-weight:700;opacity:1' });
+              o += pvdTx(x + 44, 154, '온도', { a: 'middle', st: 'font-size:9.5px;opacity:.6' }) + pvdTx(x + 44, 170, t, { a: 'middle', st: 'font-size:11.5px;font-weight:700;opacity:1' });
+              o += pvdTx(x + 44, 196, ch, { a: 'middle', st: 'font-size:8.5px;opacity:.7' });
+              if (i < 3) o += dgArrow(x + 90, 118, x + 106, 118);
+            });
+            o += pvdTx(200, 244, '각 단계 사이에는 초순수 린스가 들어간다', { a: 'middle', st: 'font-size:10.5px;opacity:.75' });
+            return dgSvg('RCA 세정 약액: ' + s.label, o, '0 0 400 260');
+          }
+          const c = { spm: wtLiq.spm, sc1: wtLiq.sc1, dhf: wtLiq.hf, sc2: wtLiq.sc2 }[K];
+          const hd = { spm: 'H₂SO₄ + H₂O₂  ·  약 120 ℃', sc1: 'NH₄OH + H₂O₂ + H₂O  ·  70~80 ℃', dhf: 'HF + H₂O (묽게)  ·  상온', sc2: 'HCl + H₂O₂ + H₂O  ·  70~80 ℃' }[K];
+          o += pvdR(20, 10, 360, 30, c, { rx: 15, so: .5 }).replace('style="fill:' + c, 'style="fill-opacity:.25;fill:' + c);
+          o += pvdTx(200, 30, ({ spm: 'SPM', sc1: 'SC-1', dhf: 'DHF', sc2: 'SC-2' }[K]) + '   ' + hd, { a: 'middle', st: 'font-size:12.5px;font-weight:800;opacity:1' });
+          o += pvdR(20, 48, 360, 140, c, { so: 0, sw: 0 }).replace('style="fill:' + c, 'style="fill-opacity:.10;fill:' + c);
+          o += pvdR(20, 196, 360, 56, 'url(#wrSi)', { so: .5 }) + pvdTx(200, 236, '실리콘 웨이퍼', { a: 'middle', st: 'font-size:10.5px;font-weight:700;opacity:.8' });
+          const ox = (x, w, op = .55, dash) => pvdR(x, 188, w, 8, '#a78bfa', { sw: .8, so: op, dash }).replace('style="fill:#a78bfa', 'style="fill-opacity:' + op + ';fill:#a78bfa');
+          const dotM = (x, y) => `<circle cx="${x}" cy="${y}" r="3.2" fill="#fbbf24" stroke="#92400e" stroke-width=".6"/>`;
+          if (K === 'spm') {
+            o += ox(20, 360);
+            const bl = (x, w, sc = 1, dash) => `<path d="M${x} 188 q${w * .1} ${-16 * sc} ${w * .3} ${-8 * sc} q${w * .15} ${-14 * sc} ${w * .3} ${-1 * sc} q${w * .2} ${-10 * sc} ${w * .3} ${8 * sc} z" fill="rgba(251,146,60,${dash ? 0 : .6})" stroke="#fb923c" stroke-width="1.4" ${dash ? 'stroke-dasharray="3 3"' : ''}/>`;
+            o += bl(60, 70) + bl(160, 70, 1, 1) + bl(166, 58, .55) + bl(290, 60, 1, 1);
+            [[188, 140, 30], [238, 112, 36], [318, 130, 28]].forEach(([x, y, d]) => { o += `<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="1.2"/><text class="dg-t dg-lb dg-xs" x="${x}" y="${y + 3}" text-anchor="middle" style="font-size:7.5px">CO₂</text>` + dgArrow(x, y - 12, x, y - 28); });
+            o += pvdTx(95, 172, '유기물 덩어리', { a: 'middle', st: 'font-size:10px;font-weight:700;fill:#fb923c;opacity:1' }) + dgArrow(95, 176, 95, 168 + 4);
+            o += pvdTx(200, 266, '유기물 → CO₂ + H₂O   (점선: 분해되어 사라지는 중)', { a: 'middle', st: 'font-size:10.5px;opacity:.85' });
+          } else if (K === 'sc1') {
+            o += ox(20, 106) + ox(154, 226) + ox(126, 28, .35, '2 2');
+            o += `<circle cx="140" cy="158" r="12" fill="rgba(248,113,113,.22)" stroke="#f87171" stroke-width="1.8"/>` + dgArrow(140, 142, 140, 118) + pvdTx(140, 110, '들려 올라감', { a: 'middle', st: 'font-size:10px;font-weight:700;fill:#f87171;opacity:1' });
+            o += `<circle cx="260" cy="176" r="12" fill="rgba(248,113,113,.22)" stroke="#f87171" stroke-width="1.8"/>` + dgArrow(236, 186, 250, 186) + dgArrow(284, 186, 270, 186) + pvdTx(260, 150, '밑이 파이는 중', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' });
+            o += pvdTx(140, 163, '−', { a: 'middle', st: 'font-size:13px;fill:#f87171;opacity:1;font-weight:800' }) + pvdTx(140, 205, '− − −', { a: 'middle', st: 'font-size:9.5px;fill:#f87171;opacity:.95;font-weight:800' });
+            o += pvdTx(70, 118, 'H₂O₂ 가 새 산화막', { a: 'middle', st: 'font-size:10px;opacity:.9' }) + pvdTx(70, 131, 'NH₄OH 가 조금씩 녹임', { a: 'middle', st: 'font-size:10px;opacity:.9' });
+            o += pvdTx(320, 118, '입자와 표면이 같은', { a: 'middle', st: 'font-size:10px;opacity:.9' }) + pvdTx(320, 131, '음전하 → 서로 밀어냄', { a: 'middle', st: 'font-size:10px;opacity:.9' });
+            o += pvdTx(200, 266, '입자 제거 + 표면이 약간 깎임 (온도·시간이 길수록 더 깎임)', { a: 'middle', st: 'font-size:10.5px;opacity:.85' });
+          } else if (K === 'dhf') {
+            o += ox(20, 120) + ox(140, 120, .22, '3 3');
+            o += dotM(60, 192) + dotM(100, 192) + [[170, 192], [214, 192]].map(([x, y]) => dotM(x, y - 10) + dgArrow(x, y - 16, x, y - 50)).join('') + pvdTx(192, 128, '금속도 함께 풀려남', { a: 'middle', st: 'font-size:10px;font-weight:700;fill:#fbbf24;opacity:1' });
+            for (let x = 276; x < 372; x += 12) o += pvdTx(x, 192, 'H', { a: 'middle', st: 'font-size:8.5px;opacity:.75;fill:#e2e8f0' });
+            o += pvdTx(80, 176, '산화막 + 금속', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' }) + pvdTx(200, 176, '녹는 중', { a: 'middle', st: 'font-size:10px;opacity:.9' });
+            o += pvdTx(324, 172, '수소로 덮인 Si', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' }) + pvdTx(324, 160, '(물을 튕김)', { a: 'middle', st: 'font-size:9.5px;opacity:.7' });
+            o += pvdTx(200, 266, '산화막 SiO₂ + 6HF → H₂SiF₆ + 2H₂O  (실리콘은 거의 안 깎음)', { a: 'middle', st: 'font-size:10.5px;opacity:.85' });
+          } else {
+            o += ox(20, 360);
+            [[70, 1], [110, 1], [230, 1], [330, 1]].forEach(([x]) => { o += dotM(x, 184); });
+            [[150, 0], [290, 0]].forEach(([x]) => { o += dotM(x, 184) + `<circle cx="${x}" cy="130" r="11" fill="rgba(134,239,172,.2)" stroke="#86efac" stroke-width="1.5" stroke-dasharray="3 2"/>` + dotM(x, 130) + dgArrow(x, 170, x, 148) + pvdTx(x, 108, 'MClₓ', { a: 'middle', st: 'font-size:9.5px;font-weight:700;fill:#86efac;opacity:1' }); });
+            o += pvdTx(70, 168, '표면의 금속 이온', { a: 'middle', st: 'font-size:10px;opacity:.9' });
+            o += pvdTx(200, 266, '금속 + Cl⁻ → 녹는 염화물 (산성 용액에 용해)', { a: 'middle', st: 'font-size:10.5px;opacity:.85' });
+          }
+          return dgSvg('RCA 약액 반응: ' + s.label, o, '0 0 400 274');
+        }
+      },
+      // ---------- 7. 공정 변수 그래프 ----------
+      'wet-knobs': {
+        title: '세정 변수: 온도 · 시간 · 린스 · 농도',
+        wide: true,
+        states: [
+          { id: 'T', label: '온도', k: 'T', desc: '화학 반응은 온도가 오를수록 지수적으로 빨라진다. SC-1은 70 ℃보다 10 ℃ 높으면 대략 1.5~2배 빠르다. 같은 시간에 더 많이 지우지만 같은 비율로 표면도 더 깎인다. 그래서 온도는 오염 제거 속도와 실리콘 손실을 함께 움직이는 변수다. 그림의 점선은 표면 깎임 한도(1 nm)다.' },
+          { id: 'time', label: '시간', k: 'time', desc: '제거율은 처음에 빨리 오르다가 포화하는데 표면 깎임은 시간에 거의 비례해 계속 는다. 제거율이 거의 다 찬 뒤에 시간을 늘리면 깎임만 늘어난다. 그래서 목표(예: 99% 제거)를 넘는 순간부터는 아껴야 하는 구간이다.' },
+          { id: 'rinse', label: '린스', k: 'rinse', desc: '헹굼 시간이 길수록 남은 약액이 지수적으로 줄어든다. 약액조를 여러 번 거친 레시피는 남는 양이 더 많아 린스가 더 오래 필요하다. 점선(0.6) 아래로 내려가야 얼룩과 약액 잔류 위험이 낮다. 린스는 처리량을 가장 많이 갉아먹는 단계이기도 하다.' },
+          { id: 'conc', label: '농도', k: 'conc', desc: 'SC-1에서 암모니아 비율을 올리면 입자 제거가 빨라지지만 표면이 더 거칠어진다. 거친 표면은 게이트 산화막의 품질과 이동도를 해친다. 이 그림은 경향만 보인 개념도이고 실제 곡선은 약액 조성과 온도에 따라 다르다. 현장은 정해진 조성(예: 1:1:5)을 쓰고 레시피로 함부로 바꾸지 않는다.' },
+        ],
+        svg(s) {
+          const K = s.k;
+          let o = '';
+          const ax = (p, xl, yl) => p.axes() + pvdTx(p.R, p.B + 31, xl, { a: 'end', st: 'font-size:10px;opacity:.8' }) + pvdTx(p.L + 4, p.T - 8, yl, { st: 'font-size:10px;opacity:.8' });
+          if (K === 'T') {
+            const p = wtPlot(40, 85, 0, 1.4);
+            o += ax(p, '온도 (℃)', '표면 깎임 (nm)');
+            [40, 50, 60, 70, 80].forEach((t) => { o += pvdL(`M${p.x(t)} ${p.B} v4`, { so: .6 }) + pvdTx(p.x(t), p.B + 15, String(t), { a: 'middle', st: 'font-size:9.5px;opacity:.7' }); });
+            [0, .5, 1].forEach((v) => { o += pvdTx(p.L - 6, p.y(v) + 3, String(v), { a: 'end', st: 'font-size:9.5px;opacity:.7' }); });
+            o += pvdL(`M${p.L} ${p.y(1)} H${p.R}`, { c: '#f87171', dash: '5 4', so: .85 }) + pvdTx(p.L + 6, p.y(1) + 14, '깎임 한도 1 nm', { a: 'start', st: 'font-size:10px;fill:#f87171;opacity:1;font-weight:700' });
+            o += p.curve((t) => 0.06 * 10 * wtFT(t), 40, 85, '#f59e0b');
+            [50, 70, 80].forEach((t) => { o += `<circle cx="${p.x(t)}" cy="${p.y(.6 * wtFT(t))}" r="3.6" fill="#f59e0b"/>` + pvdTx(p.x(t) - 6, p.y(.6 * wtFT(t)) - 6, (.6 * wtFT(t)).toFixed(1) + ' nm', { a: 'end', st: 'font-size:9.5px;font-weight:700;fill:#f59e0b;opacity:1' }); });
+            o += pvdTx(p.x(41), p.y(1.22), '곡선: 10분 세정 때 표면이 깎이는 양', { st: 'font-size:10px;font-weight:700;fill:#f59e0b;opacity:1' });
+          } else if (K === 'time') {
+            const p = wtPlot(0, 15, 0, 100);
+            o += ax(p, '세정 시간 (분)', '제거율 (%)  /  표면 깎임 (nm)');
+            [0, 3, 6, 9, 12, 15].forEach((t) => { o += pvdL(`M${p.x(t)} ${p.B} v4`, { so: .6 }) + pvdTx(p.x(t), p.B + 15, String(t), { a: 'middle', st: 'font-size:9.5px;opacity:.7' }); });
+            [0, 50, 100].forEach((v) => { o += pvdTx(p.L - 6, p.y(v) + 3, String(v), { a: 'end', st: 'font-size:9.5px;opacity:.7' }); });
+            const t99 = -1.3 * Math.log(.01);
+            o += pvdR(p.x(t99), p.T, p.x(10) - p.x(t99), p.B - p.T, 'rgba(52,211,153,.12)', { so: .4, c: '#34d399', dash: '3 3', sw: 1 }) + pvdTx((p.x(t99) + p.x(10)) / 2, p.T + 14, '적정', { a: 'middle', st: 'font-size:10px;font-weight:700;fill:#34d399;opacity:1' });
+            o += pvdL(`M${p.L} ${p.y(99)} H${p.R}`, { so: .4, dash: '3 3' });
+            o += p.curve((t) => 100 * (1 - Math.exp(-t / 1.3)), 0, 15, '#5ad1e6') + p.curve((t) => 100 * (0.07 * t) / 1.5, 0, 15, '#f59e0b');
+            o += pvdTx(p.x(11), p.y(98) - 6, '제거율', { st: 'font-size:10px;font-weight:700;fill:#5ad1e6;opacity:1' }) + pvdTx(p.x(11.2), p.y(60), '표면 깎임', { st: 'font-size:10px;font-weight:700;fill:#f59e0b;opacity:1' });
+            [0, .5, 1, 1.5].forEach((v) => { o += pvdTx(p.R + 6, p.y(v / 1.5 * 100) + 3, v.toFixed(1), { st: 'font-size:9px;opacity:.65;fill:#f59e0b' }); });
+          } else if (K === 'rinse') {
+            const p = wtPlot(0, 10, 0, 8.6);
+            o += ax(p, '린스 시간 (분)', '남은 약액 지수');
+            [0, 2, 4, 6, 8, 10].forEach((t) => { o += pvdL(`M${p.x(t)} ${p.B} v4`, { so: .6 }) + pvdTx(p.x(t), p.B + 15, String(t), { a: 'middle', st: 'font-size:9.5px;opacity:.7' }); });
+            [0, 2, 4, 6, 8].forEach((v) => { o += pvdTx(p.L - 6, p.y(v) + 3, String(v), { a: 'end', st: 'font-size:9.5px;opacity:.7' }); });
+            const rs = (nb) => (r) => 4 * Math.exp(-r / 1.5) * Math.sqrt(nb) + .1;
+            o += pvdL(`M${p.L} ${p.y(.6)} H${p.R}`, { c: '#34d399', dash: '5 4', so: .9 }) + pvdTx(p.R - 2, p.y(.6) - 6, '기준 0.6', { a: 'end', st: 'font-size:10px;fill:#34d399;opacity:1;font-weight:700' });
+            o += p.curve(rs(1), 0, 10, '#5ad1e6') + p.curve(rs(4), 0, 10, '#f59e0b');
+            const r1 = -1.5 * Math.log(.5 / 4), r4 = -1.5 * Math.log(.5 / 8);
+            o += `<circle cx="${p.x(r1)}" cy="${p.y(.6)}" r="3.6" fill="#5ad1e6"/><circle cx="${p.x(r4)}" cy="${p.y(.6)}" r="3.6" fill="#f59e0b"/>`;
+            o += pvdTx(p.x(r1) - 5, p.y(.6) - 8, r1.toFixed(1) + '분', { a: 'end', st: 'font-size:10px;font-weight:700;fill:#5ad1e6;opacity:1' }) + pvdTx(p.x(r4) + 7, p.y(.6) - 8, r4.toFixed(1) + '분', { st: 'font-size:10px;font-weight:700;fill:#f59e0b;opacity:1' });
+            o += pvdTx(p.x(5), p.y(7.4), '── 약액조 1개 지난 뒤', { st: 'font-size:10px;font-weight:700;fill:#5ad1e6;opacity:1' }) + pvdTx(p.x(5), p.y(6.2), '── 약액조 4개 지난 뒤', { st: 'font-size:10px;font-weight:700;fill:#f59e0b;opacity:1' });
+          } else {
+            const p = wtPlot(0, 10, 0, 10);
+            o += ax(p, 'NH₄OH 비율 (낮음 → 높음)', '상대 크기 (개념도)');
+            o += p.curve((v) => 10 * (1 - Math.exp(-v / 2.2)), 0, 10, '#5ad1e6') + p.curve((v) => .08 * v * v + .3, 0, 10, '#f87171');
+            o += pvdTx(p.x(5.6), p.y(7.6), '입자 제거 속도', { st: 'font-size:10px;font-weight:700;fill:#5ad1e6;opacity:1' }) + pvdTx(p.x(7.0), p.y(4.2), '표면 거칠기', { st: 'font-size:10px;font-weight:700;fill:#f87171;opacity:1' });
+            o += pvdR(p.x(2.2), p.T, p.x(5) - p.x(2.2), p.B - p.T, 'rgba(52,211,153,.12)', { so: .4, c: '#34d399', dash: '3 3', sw: 1 }) + pvdTx((p.x(2.2) + p.x(5)) / 2, p.T + 14, '타협 구간', { a: 'middle', st: 'font-size:10px;font-weight:700;fill:#34d399;opacity:1' });
+          }
+          return dgSvg('세정 변수: ' + s.label, o, '0 6 400 244');
+        }
+      },
+    });
+    Object.assign(DIAGRAMS, {
+      // ---------- 8. 건조 방식 ----------
+      'wet-dry': {
+        title: '건조: 물을 남기지 않고 걷어 내기',
+        wide: true,
+        states: [
+          { id: 'spin', label: '스핀 건조', desc: '웨이퍼를 빠르게 돌려 원심력으로 물을 털어 낸다. 빠르고 구조가 단순해서 싱글 웨이퍼 세정기에 기본으로 쓴다. 다만 마지막까지 남은 물방울이 가장자리나 패턴 사이에 맺혀 마르면 입자와 물얼룩이 생기기 쉽다. 질소를 불어 말림을 돕는다.' },
+          { id: 'ipa', label: 'IPA 마랑고니', desc: '린스조 위를 알코올(IPA)과 질소 증기로 채운 채 웨이퍼를 천천히 들어 올리거나 물을 천천히 빼낸다. 물과 증기가 만나는 자리에 IPA가 녹아 표면장력이 낮아지고, 그 차이가 물을 웨이퍼에서 끌어내린다(마랑고니 효과). 물방울이 남지 않아 물얼룩이 거의 없지만 시간이 더 걸리고 IPA는 인화성이 있어 안전 관리가 필요하다.' },
+          { id: 'mark', label: '물얼룩이 생기는 길', desc: '물방울이 표면에서 마르는 동안 물에 녹은 산소가 실리콘을 아주 조금 산화시키고, 그 산화물이 물에 녹았다가 물이 사라지면 고리 모양으로 남는다. 수소로 덮인 소수성 표면(DHF 뒤)은 물방울이 맺히기 쉬워 더 위험하다. 이 얼룩은 뒤에 올라가는 막의 접착과 두께를 망친다.' },
+        ],
+        svg(s) {
+          const id = s.id;
+          let o = pvdDefs('wd');
+          if (id === 'spin') {
+            o += pvdL('M30 60 V190 H60 M370 60 V190 H340', { sw: 1.6, so: .55 }) + pvdTx(34, 54, '컵', { st: 'font-size:9.5px;opacity:.65' });
+            o += pvdR(176, 172, 48, 30, 'url(#wdMt)', { so: .7 }) + pvdR(190, 150, 20, 22, 'url(#wdMt)', { so: .7 });
+            o += pvdR(80, 142, 240, 8, 'url(#wdSi)', { so: .8 });
+            o += `<ellipse cx="200" cy="140" rx="60" ry="2.5" fill="rgba(96,165,250,.5)"/>`;
+            [[70, 130], [52, 110], [60, 150], [330, 130], [348, 108], [340, 152]].forEach(([x, y]) => { o += wtDrop(x, y, '#60a5fa', .8); });
+            o += dgArrow(76, 140, 46, 128, 'dg-line dg-hl') + dgArrow(324, 140, 354, 128, 'dg-line dg-hl');
+            o += pvdL('M150 120 q50 -30 100 0', { sw: 1.6, so: .8 }) + dgArrow(244, 114, 252, 120) + pvdTx(200, 96, '회전', { a: 'middle', st: 'font-size:11px;font-weight:700;opacity:.95' });
+            o += pvdTx(200, 224, '원심력으로 물을 가장자리 밖으로 털어 냄', { a: 'middle', st: 'font-size:11px;font-weight:700;opacity:1' }) + pvdTx(200, 240, '마지막 물방울이 남기 쉬움 → 질소로 보조', { a: 'middle', st: 'font-size:10px;opacity:.75' });
+          } else if (id === 'ipa') {
+            o += pvdR(40, 152, 190, 66, 'rgba(96,165,250,.25)', { so: .5 }) + pvdL('M40 152 q24 -5 48 0 t48 0 t48 0 t46 0', { c: '#60a5fa', sw: 1.4, so: .9 });
+            o += pvdR(40, 70, 190, 82, 'rgba(251,146,60,.10)', { so: .25, dash: '3 3' }) + pvdTx(135, 88, 'IPA + N₂ 증기', { a: 'middle', st: 'font-size:10.5px;font-weight:700;fill:#fb923c;opacity:1' });
+            [70, 110, 150, 190].forEach((x, i) => { o += `<circle cx="${x + (i % 2 ? 10 : 0)}" cy="${108 + (i % 2 ? 12 : 0)}" r="2.6" fill="#fb923c" opacity=".7"/>`; });
+            [96, 136, 176].forEach((x) => { o += pvdR(x, 100, 4, 100, 'url(#wdSi)', { sw: .7, so: .7 }); });
+            o += dgArrow(115, 126, 115, 112) + pvdTx(115, 238, '웨이퍼를 천천히 올림', { a: 'middle', st: 'font-size:10px;opacity:.8' });
+            // 확대 패널
+            o += pvdR(244, 20, 146, 200, 'var(--tbl-bg)', { rx: 8, so: .55 }) + pvdTx(317, 38, '확대: 물선에서', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:1' });
+            o += pvdR(286, 50, 6, 160, 'url(#wdSi)', { sw: .7, so: .7 }) + pvdR(292, 136, 92, 74, 'rgba(96,165,250,.25)', { so: 0, sw: 0 }) + pvdL('M292 136 q8 -10 14 -2 t16 -6 t24 4 t30 -2', { c: '#60a5fa', sw: 1.4 });
+            [[304, 108], [330, 96], [358, 112], [318, 76]].forEach(([x, y]) => { o += `<circle cx="${x}" cy="${y}" r="3" fill="#fb923c"/>`; });
+            o += dgArrow(300, 128, 300, 150, 'dg-line dg-hl') + dgArrow(300, 70, 300, 96) + pvdTx(306, 160, '물이 표면에서', { st: 'font-size:9.5px;opacity:.9' }) + pvdTx(306, 173, '끌려 내려감', { st: 'font-size:9.5px;opacity:.9' }) + pvdTx(306, 190, '(표면장력 차이)', { st: 'font-size:9px;opacity:.7' });
+            o += pvdTx(262, 74, '건조', { st: 'font-size:9.5px;font-weight:700;opacity:.9' });
+          } else {
+            const pnl = (x, n, t) => pvdR(x, 30, 118, 176, 'var(--tbl-bg)', { rx: 8, so: .55 }) + pvdTx(x + 59, 50, n, { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' }) + pvdR(x + 6, 164, 106, 36, 'url(#wdSi)', { so: .5 }) + pvdTx(x + 59, 225, t, { a: 'middle', st: 'font-size:10px;opacity:.85' });
+            o += pnl(10, '① 물방울', '표면에 물방울이 남음') + pnl(141, '② 증발', '녹아든 실리콘이 농축') + pnl(272, '③ 얼룩', '고리 모양 잔여물');
+            o += `<path d="M44 164 q0 -50 26 -50 q26 0 26 50 z" fill="rgba(96,165,250,.28)" stroke="#60a5fa" stroke-width="1.4"/>` + pvdTx(70, 150, 'O₂ ← 공기', { a: 'middle', st: 'font-size:8.5px;opacity:.8' });
+            o += `<path d="M178 164 q0 -26 22 -26 q22 0 22 26 z" fill="rgba(96,165,250,.28)" stroke="#60a5fa" stroke-width="1.4"/>` + dgArrow(160, 120, 180, 142) + pvdTx(152, 112, 'Si 산화·용해', { a: 'start', st: 'font-size:9px;opacity:.9' });
+            [[298, 12, 9], [322, 9, 7], [346, 12, 9]].forEach(([x, h, w]) => { o += `<path d="M${x - w} 164 q${w} ${-h * 2} ${w * 2} 0 z" fill="rgba(167,139,250,.55)" stroke="#a78bfa" stroke-width="1.2"/>`; });
+            o += pvdL('M290 164 H358', { c: '#a78bfa', sw: 2, so: .9 }) + pvdTx(322, 138, '규산 잔여물', { a: 'middle', st: 'font-size:9.5px;font-weight:700;fill:#a78bfa;opacity:1' });
+            o += dgArrow(130, 120, 142, 120) + dgArrow(261, 120, 273, 120);
+          }
+          return dgSvg('건조 방식: ' + s.label, o, '0 6 400 242');
+        }
+      },
+      // ---------- 9. 대표 불량의 단면 ----------
+      'wet-defects': {
+        title: '세정이 잘못되면 생기는 불량의 단면',
+        wide: true,
+        states: [
+          { id: 'p', label: '입자 잔류', desc: '입자가 남은 채로 다음 공정에 들어가면 그 자리는 가려진다. 식각에서는 입자 밑이 깎이지 않고 기둥(브리지)으로 남아 이웃한 배선을 잇는 단락이 된다. 증착에서는 입자 위로 막이 덮여 구멍이나 돌기가 생긴다.' },
+          { id: 'm', label: '금속 오염', desc: '게이트 산화막 속에 금속 원자가 들어가면 그 자리가 전류가 새는 통로가 된다. 소자가 처음에는 정상이다가 쓰다 보면 문턱 전압이 변하거나 누설이 늘어난다. 눈에 보이지 않아서 검사로 막기 어렵고, 세정이 가장 중요한 이유다.' },
+          { id: 's', label: '물얼룩', desc: '마른 자국 위에 다음 막이 올라가면 얼룩 부분만 두께와 계면이 달라진다. 막이 들뜨거나 부분적으로 두꺼워지고, 뒤의 식각이 그 자리에서 다르게 진행된다. 건조 방식과 마지막 린스, 물이 닿는 시간을 의심한다.' },
+          { id: 'l', label: '과식각 · 거칠기', desc: '온도를 높이거나 시간을 늘리면 표면이 정해진 양보다 더 깎인다. 산화막이 얇아져 목표 두께를 벗어나고, 실리콘 표면은 미세하게 거칠어진다. 한 번 깎인 것은 되돌릴 수 없어서 레시피 변경에서 가장 조심하는 불량이다.' },
+        ],
+        svg(s) {
+          const id = s.id;
+          let o = pvdDefs('wf');
+          const lab = (t, x = 200, y = 246) => pvdTx(x, y, t, { a: 'middle', st: 'font-size:10.5px;font-weight:700;opacity:1' });
+          o += pvdR(30, 196, 340, 28, 'url(#wfSi)', { so: .5 }) + pvdTx(352, 214, 'Si', { a: 'end', st: 'font-size:10px;opacity:.7' });
+          if (id === 'p') {
+            o += pvdR(30, 190, 340, 6, '#a78bfa', { so: .6, sw: .7 }).replace('style="fill:#a78bfa', 'style="fill-opacity:.55;fill:#a78bfa');
+            o += pvdR(60, 146, 100, 44, 'rgba(52,211,153,.35)', { so: .8, c: '#34d399' }) + pvdR(240, 146, 100, 44, 'rgba(52,211,153,.35)', { so: .8, c: '#34d399' });
+            o += pvdR(160, 174, 80, 16, 'rgba(52,211,153,.35)', { so: .8, c: '#34d399' }) + pvdR(186, 156, 28, 18, 'rgba(52,211,153,.35)', { so: .9, c: '#34d399' });
+            o += `<circle cx="200" cy="144" r="13" fill="rgba(248,113,113,.25)" stroke="#f87171" stroke-width="1.8"/>`;
+            o += pvdTx(110, 130, '배선', { a: 'middle', st: 'font-size:10px;opacity:.8' }) + pvdTx(290, 130, '배선', { a: 'middle', st: 'font-size:10px;opacity:.8' });
+            o += pvdTx(200, 110, '입자', { a: 'middle', st: 'font-size:10px;font-weight:700;fill:#f87171;opacity:1' }) + dgArrow(200, 112, 200, 128);
+            o += lab('입자 밑이 안 깎여 기둥이 남음 → 이웃 배선 단락');
+          } else if (id === 'm') {
+            o += pvdR(60, 140, 280, 40, 'rgba(52,211,153,.30)', { so: .8, c: '#34d399' }) + pvdTx(100, 164, '게이트 (폴리실리콘)', { st: 'font-size:10px;opacity:.9' });
+            o += pvdR(60, 180, 280, 14, '#a78bfa', { so: .6, sw: .8 }).replace('style="fill:#a78bfa', 'style="fill-opacity:.5;fill:#a78bfa') + pvdTx(346, 190, 'SiO₂', { st: 'font-size:9px;opacity:.75' });
+            [[130, 187], [200, 185], [270, 188]].forEach(([x, y]) => { o += `<circle cx="${x}" cy="${y}" r="3.6" fill="#fbbf24" stroke="#92400e" stroke-width=".7"/>`; });
+            o += pvdL('M200 142 V178', { c: '#f87171', dash: '3 3', sw: 2, so: .95 }) + pvdL('M200 178 L200 196', { c: '#f87171', sw: 2, so: .95 }) + dgArrow(200, 182, 200, 200, 'dg-line dg-hl');
+            o += pvdTx(224, 120, '누설 전류', { st: 'font-size:11px;font-weight:700;fill:#f87171;opacity:1' }) + pvdTx(130, 130, '금속 원자', { a: 'middle', st: 'font-size:9.5px;fill:#fbbf24;opacity:1;font-weight:700' }) + dgArrow(130, 134, 130, 180);
+            o += lab('산화막 속 금속이 전류가 새는 길이 됨');
+          } else if (id === 's') {
+            o += pvdR(30, 190, 340, 6, '#a78bfa', { so: .6, sw: .7 }).replace('style="fill:#a78bfa', 'style="fill-opacity:.55;fill:#a78bfa');
+            o += `<path d="M30 190 H370 V164 H292 q-30 -30 -62 0 H150 q-26 -30 -52 0 H30 Z" fill="rgba(52,211,153,.35)" stroke="#34d399" stroke-width="1.4"/>`;
+            o += `<path d="M120 190 q10 -14 22 0 z M240 190 q14 -16 30 0 z" fill="rgba(167,139,250,.6)" stroke="#a78bfa" stroke-width="1.2"/>`;
+            o += pvdTx(131, 208, '', { a: 'middle' }) + pvdTx(131, 120, '얼룩 자리', { a: 'middle', st: 'font-size:10px;fill:#a78bfa;opacity:1;font-weight:700' }) + dgArrow(131, 124, 131, 174) + pvdTx(255, 120, '얼룩 자리', { a: 'middle', st: 'font-size:10px;fill:#a78bfa;opacity:1;font-weight:700' }) + dgArrow(255, 124, 255, 170);
+            o += pvdTx(60, 150, '다음에 쌓은 막', { st: 'font-size:10px;fill:#34d399;opacity:1;font-weight:700' });
+            o += lab('얼룩 위의 막이 불룩하거나 들떠 두께가 고르지 않음');
+          } else {
+            o += pvdR(30, 176, 340, 14, 'none', { so: .55, dash: '4 3', c: '#a78bfa' }) + pvdTx(352, 172, '목표 두께', { a: 'end', st: 'font-size:9px;opacity:.7;fill:#a78bfa' });
+            o += pvdR(30, 184, 340, 6, '#a78bfa', { so: .7, sw: .8 }).replace('style="fill:#a78bfa', 'style="fill-opacity:.55;fill:#a78bfa') + pvdTx(352, 204, '', { a: 'end' });
+            { let d = ''; for (let k = 0; k <= 68; k++) { const x = 30 + k * 5, y = 192 + 3.2 * Math.sin(k * 1.3) + 1.8 * Math.sin(k * 2.9 + 1); d += (k ? 'L' : 'M') + x + ' ' + y.toFixed(1); } o += pvdL(d, { c: '#fbbf24', sw: 1.6, so: .95 }); }
+            o += dgArrow(200, 168, 200, 182, 'dg-line dg-hl') + pvdTx(200, 160, '깎여서 얇아짐', { a: 'middle', st: 'font-size:10.5px;font-weight:700;fill:#f59e0b;opacity:1' });
+            o += pvdTx(100, 136, '거친 표면', { a: 'middle', st: 'font-size:10px;fill:#fbbf24;opacity:1;font-weight:700' }) + dgArrow(100, 140, 100, 185);
+            o += lab('목표보다 얇아진 산화막 + 거칠어진 실리콘 표면');
+          }
+          return dgSvg('세정 불량의 단면: ' + s.label, o, '0 76 400 182');
+        }
+      },
+    });
+    // ===== 확산로(열산화) 장비 가이드용 그림 (pvd* 도우미를 같이 쓴다) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 1. 열산화가 들어가는 자리 (트랜지스터 단면) ----------
+      'furn-where': {
+        title: '열산화가 쓰이는 자리 (트랜지스터 단면)',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '트랜지스터 한 개를 옆에서 본 모습이다. 확산로는 이 단면 곳곳의 산화막을 키우고 불순물을 열로 퍼뜨리는 데 쓰인다. 산화막은 웨이퍼 위에 쌓는 것이 아니라 실리콘 표면을 직접 산화시켜 얻으므로 계면이 깨끗하고 치밀하다. 이 품질은 CVD로 쌓은 막이 따라오기 어렵다.' },
+          { id: 'sti', label: '① 소자 분리 산화', focus: ['sti'], desc: '트랜지스터 사이를 전기적으로 갈라 놓는 소자 분리 영역(STI)을 만들 때, 파낸 홈의 벽면을 얇게 산화시켜 식각 손상을 낫게 한다. 이 라이너 산화막 위에 CVD 산화막을 채운다. 옛 방식(LOCOS)에서는 질화막으로 가린 채 두꺼운 필드 산화막을 열로 키웠다.' },
+          { id: 'gate', label: '② 게이트 산화', focus: ['gate'], desc: '게이트 전극 아래의 얇은 절연막으로, 확산로가 만드는 가장 정밀한 막이다. 두께가 수 nm 이하여서 두께 오차 몇 Å도 문턱 전압과 누설 전류에 바로 드러난다. 산화 직전에 세정으로 입자·금속·자연 산화막을 모두 벗기고, 계면 결함이 적도록 건식 산화와 어닐을 쓴다. 최신 소자는 여기에 고유전율(High-k) 막을 올리지만 그 밑의 얇은 계면 산화막은 여전히 열로 만든다.' },
+          { id: 'sac', label: '③ 희생 산화', focus: ['sac'], desc: '이온 주입이나 식각으로 상처 입은 실리콘 표면을 일부러 산화시킨 뒤 불산으로 벗겨 낸다. 상처 입은 층이 산화막에 흡수되어 함께 사라지고 새 표면이 나온다. 산화막이 소모하는 실리콘 두께는 막 두께의 약 44 %다.' },
+          { id: 'anl', label: '④ 어닐·확산', focus: ['anl'], desc: '이온 주입으로 넣은 불순물을 고온에서 활성화하고 결정 손상을 고친다. 소스·드레인(S/D)의 불순물이 열을 받으면 원하는 깊이까지 퍼진다. 같은 확산로에서 질소 분위기로 열처리하며, 열을 오래 받을수록 불순물이 많이 번지므로 시간과 온도를 엄격히 줄인다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('fw');
+          // 실리콘 기판
+          o += pvdR(20, 150, 360, 80, 'url(#fwSi)', { so: .5 });
+          o += pvdTx(200, 214, '실리콘 기판 (p형)', { a: 'middle', st: 'font-size:10.5px;font-weight:700;opacity:.85' });
+          // S/D (n+)
+          o += pvdG(f, ['anl'], pvdR(96, 150, 48, 26, 'rgba(96,165,250,.5)', { so: .5, sw: 1 }) + pvdR(256, 150, 48, 26, 'rgba(96,165,250,.5)', { so: .5, sw: 1 })
+            + pvdTx(104, 169, 'n⁺', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' }) + pvdTx(264, 169, 'n⁺', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' }));
+          if (pvdOn(f, ['anl']) && f) o += [[112, 160], [124, 164], [136, 158], [268, 160], [282, 166], [294, 158]].map(([x, y]) => dgArrow(x, y - 10, x, y + 2, 'dg-line dg-hl')).join('') + pvdL('M96 176 q24 14 48 0 M256 176 q24 14 48 0', { c: acc, dash: '3 3', so: .95, sw: 1.6 });
+          // STI 라이너 + 채움
+          const sti = (x) => pvdR(x, 128, 60, 72, 'rgba(167,139,250,.28)', { so: .45 }) + pvdL(`M${x} 150 V200 H${x + 60} V150`, { c: '#a78bfa', sw: 1.6, so: .9 });
+          o += pvdG(f, ['sti'], sti(24) + sti(316) + pvdTx(54, 172, 'CVD 산화막', { a: 'middle', st: 'font-size:9px;opacity:.75' }) + pvdTx(346, 172, 'CVD 산화막', { a: 'middle', st: 'font-size:9px;opacity:.75' }));
+          if (pvdOn(f, ['sti']) && f) o += pvdL('M24 150 V200 H84 V150 M316 150 V200 H376 V150', { c: acc, sw: 3.2, so: .95 });
+          // 희생 산화(표면 점선 띠)
+          o += pvdG(f, ['sac'], pvdR(84, 144, 232, 6, 'rgba(251,146,60,.35)', { so: .8, dash: '3 2', sw: 1 }) + pvdTx(200, 140, '', {}));
+          // 게이트 산화 + 폴리
+          o += pvdG(f, ['gate'], pvdR(150, 145, 100, 5, '#34d399', { so: .8, sw: 1 }));
+          o += pvdG(f, ['gate', 'sac'], pvdR(150, 108, 100, 37, 'rgba(148,163,184,.4)', { so: .55 }) + pvdTx(200, 130, '게이트 (폴리 Si)', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.9' }));
+          o += pvdG(f, ['gate'], pvdR(142, 120, 8, 30, 'rgba(167,139,250,.35)', { so: .5, sw: 1 }) + pvdR(250, 120, 8, 30, 'rgba(167,139,250,.35)', { so: .5, sw: 1 }));
+          // 호출선
+          o += pvdCall(f, ['sti'], '1', '#a78bfa', 28, 40, 42, 44, ['소자 분리 라이너', '산화'], 54, 150);
+          o += pvdCall(f, ['gate'], '2', '#34d399', 176, 40, 190, 44, ['게이트 산화', '가장 얇고 가장 중요'], 200, 147);
+          o += pvdCall(f, ['sac'], '3', '#fb923c', 318, 40, 332, 44, ['희생 산화', '(손상층 제거)'], 296, 146);
+          o += pvdCall(f, ['anl'], '4', '#60a5fa', 372, 252, 358, 256, ['S/D 활성화·확산'], 290, 170, 'end');
+          o += pvdTx(24, 256, '그림은 두께를 크게 과장했다', { st: 'font-size:9.5px;opacity:.55' });
+          return dgSvg('열산화가 쓰이는 자리: ' + s.label, o, '0 22 400 250');
+        }
+      },
+      // ---------- 2. 장비 종류: 수평로·수직로·RTP ----------
+      'furn-types': {
+        title: '수평로 · 수직로 · RTP',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 방식 비교', desc: '같은 열산화라도 장비 모양이 셋이다. 수평로와 수직로는 웨이퍼 수십~100여 장을 한 번에 데우는 배치식이고, RTP는 램프로 한 장씩 짧게 데우는 싱글 웨이퍼식이다. 한 번에 얼마나 많이 돌리느냐, 열을 얼마나 짧게 주느냐를 맞바꾼다.' },
+          { id: 'h', label: '수평로', focus: ['h'], desc: '석영 튜브가 누워 있고 웨이퍼를 세운 보트가 옆으로 밀려 들어간다. 구조가 단순하지만 보트가 튜브 바닥에 닿아 입자가 생기기 쉽고, 웨이퍼가 클수록 아래 처짐과 온도 차가 커진다. 그래서 150 mm 이하의 구형 라인에서 볼 수 있다.' },
+          { id: 'v', label: '수직로', focus: ['v'], desc: '튜브가 서 있고 웨이퍼가 수평으로 층층이 쌓인 보트가 아래에서 위로 올라간다. 웨이퍼가 자기 무게로 고르게 받쳐져 처짐이 적고, 설치 면적이 작으며, 로봇이 웨이퍼를 자동으로 옮기기 쉽다. 200 mm와 300 mm 라인의 표준이다. 이 가이드가 다루는 구조도 수직로다.' },
+          { id: 'r', label: 'RTP', focus: ['r'], desc: '웨이퍼 한 장을 위아래 할로겐 램프로 초당 수십~수백 ℃씩 올려 짧게 달군다. 열을 받는 시간이 몇 초~수십 초라 불순물이 거의 번지지 않는다. 대신 장당 처리 시간이 길고 온도 재기가 까다롭다. 아주 얇은 막이나 활성화 어닐에 쓴다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('ft');
+          const col = (x, id, title, sub) => pvdG(f, [id], pvdR(x, 10, 122, 226, 'var(--tbl-bg)', { rx: 8, so: .35 }) + pvdTx(x + 61, 28, title, { a: 'middle', st: 'font-size:13px;font-weight:800;opacity:1' }) + pvdTx(x + 61, 42, sub, { a: 'middle', st: 'font-size:9.5px;opacity:.65' }));
+          // 수평로
+          o += col(8, 'h', '수평로', '웨이퍼 세움 · 옆으로 투입');
+          o += pvdG(f, ['h'], pvdR(24, 82, 90, 28, 'rgba(125,211,252,.1)', { rx: 8, so: .7 }) + pvdR(30, 92, 78, 8, 'url(#ftMt)', { so: .4, sw: .8 })
+            + [0, 1, 2, 3, 4, 5, 6, 7].map((i) => pvdR(36 + i * 8, 84, 2.4, 14, 'url(#ftSi)', { sw: .6 })).join('')
+            + pvdR(114, 78, 6, 36, 'url(#ftMt)', {}) + dgArrow(14, 96, 30, 96) + pvdL('M26 76 q6 -8 14 0 M52 76 q6 -8 14 0 M78 76 q6 -8 14 0', { c: '#f87171', so: .6, sw: 1.2 }));
+          o += pvdTx(69, 142, '튜브 누움', { a: 'middle', st: 'font-size:10px;font-weight:600' }) + pvdTx(69, 156, '150 mm 이하 구형', { a: 'middle', st: 'font-size:9.5px;opacity:.7' });
+          // 수직로
+          o += col(139, 'v', '수직로', '웨이퍼 눕힘 · 아래서 위로');
+          o += pvdG(f, ['v'], pvdR(178, 54, 44, 82, 'rgba(125,211,252,.1)', { rx: 8, so: .7 }) + [0, 1, 2, 3, 4, 5, 6].map((i) => pvdR(184, 62 + i * 10, 32, 2.6, 'url(#ftSi)', { sw: .6 })).join('')
+            + pvdR(176, 138, 48, 7, 'url(#ftMt)', { so: .6 }) + dgArrow(200, 166, 200, 150) + pvdL('M170 62 q-8 8 0 16 M170 90 q-8 8 0 16 M170 118 q-8 8 0 12 M230 62 q8 8 0 16 M230 90 q8 8 0 16 M230 118 q8 8 0 12', { c: '#f87171', so: .6, sw: 1.2 }));
+          o += pvdTx(200, 178, '튜브 섬 · 200·300 mm 표준', { a: 'middle', st: 'font-size:8.8px;font-weight:600' });
+          // RTP
+          o += col(270, 'r', 'RTP', '웨이퍼 1장 · 램프로 가열');
+          o += pvdG(f, ['r'], pvdR(292, 58, 78, 10, 'rgba(248,113,113,.3)', { so: .6 }) + [0, 1, 2, 3, 4, 5].map((i) => `<circle cx="${299 + i * 13}" cy="63" r="3" fill="#f87171" opacity=".85"/>`).join('')
+            + pvdL('M300 70 v18 M313 70 v18 M326 70 v18 M339 70 v18 M352 70 v18 M365 70 v18', { c: '#f87171', dash: '2 3', so: .7, sw: 1.2 })
+            + pvdR(300, 96, 62, 4, 'url(#ftSi)', { sw: .8 }) + pvdR(292, 112, 78, 8, 'url(#ftMt)', { so: .5 }) + pvdL('M300 100 v12 M362 100 v12', { so: .6 }));
+          o += pvdTx(331, 142, '램프 · 웨이퍼 한 장', { a: 'middle', st: 'font-size:10px;font-weight:600' }) + pvdTx(331, 156, '수 초~수십 초 가열', { a: 'middle', st: 'font-size:9.5px;opacity:.7' });
+          // 비교 줄
+          const rows = [['처리', '25~50장', '100~150장', '1장'], ['열 이력', '길다', '길다', '매우 짧다'], ['균일도', '보통', '좋음', '장당 맞춤']];
+          rows.forEach(([a, b, c2, d], i) => {
+            const y = 188 + i * 15;
+            o += [[69, b, 'h'], [200, c2, 'v'], [331, d, 'r']].map(([x, t, g]) => pvdG(f, [g], pvdTx(x - 40, y + 12, a, { st: 'font-size:8.5px;opacity:.55' }) + pvdTx(x + 44, y + 12, t, { a: 'end', st: 'font-size:10.5px;font-weight:700;opacity:.95' }))).join('');
+          });
+          return dgSvg('수평로·수직로·RTP: ' + s.label, o, '0 0 400 244');
+        }
+      },
+      // ---------- 3. 수직 확산로 단면 (핵심 구조도) ----------
+      'furn-structure': {
+        title: '수직 확산로 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '석영 튜브 안에 웨이퍼를 꽂은 보트가 서 있고, 튜브 바깥을 여러 구역으로 나뉜 히터가 감싼다. 아래쪽에서 가스가 들어와 웨이퍼 사이를 지나 위로 올랐다가 바깥 통로로 내려가 배기된다. 보트는 엘리베이터가 올리고 내려 웨이퍼를 넣고 뺀다.' },
+          { id: 'heat', label: '가열·온도', focus: ['heat', 'tube', 'tc'], desc: '히터는 위·가운데·아래 등 여러 구역으로 나뉘어 따로 제어된다. 튜브 바깥의 열전대(스파이크)와 안쪽의 열전대(프로파일)가 온도를 재서 구역별 출력을 조절하고, 웨이퍼가 놓이는 길이 전체의 온도를 ±0.5 ℃ 안팎으로 맞춘다. 튜브는 순수한 석영으로 고온에서도 웨이퍼를 오염시키지 않는다.' },
+          { id: 'wafer', label: '보트·웨이퍼', focus: ['boat', 'cap'], desc: '보트는 석영(또는 실리콘 카바이드)으로 만들며 웨이퍼 100장 안팎을 수평으로 꽂는다. 보트 아래의 단열 캡은 튜브 아랫부분으로 열이 새는 것을 막아 아래쪽 웨이퍼의 온도가 떨어지지 않게 한다. 양 끝에는 더미 웨이퍼를 놓아 가스·온도 조건을 맞춘다.' },
+          { id: 'gas', label: '가스·토치', focus: ['gas', 'torch'], desc: '가스 박스에서 산소, 질소, 염화수소(HCl) 등이 유량 조절기(MFC)를 거쳐 들어온다. 습식 산화에는 토치에서 수소와 산소를 태워 만든 수증기를 쓴다. 가스는 석영 주입관을 따라 튜브 위로 올라가 웨이퍼 사이를 지난다.' },
+          { id: 'seal', label: '씰·배기·엘리베이터', focus: ['flange', 'ex', 'elev'], desc: '보트가 올라가면 도어가 튜브 아랫부분의 매니폴드(플랜지)를 막아 O링으로 밀봉한다. 배기구로 나간 가스는 스크러버에서 중화되거나 태워진 뒤 버려진다. 엘리베이터는 보트를 정해진 속도로 올리고 내리며, 이 속도가 웨이퍼 휨과 두께 차에 영향을 준다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('fs');
+          const hot = (g) => f && pvdOn(f, g);
+          // 히터 외곽(단열) + 코일
+          o += pvdG(f, ['heat'], pvdR(150, 26, 160, 206, 'rgba(248,113,113,.08)', { rx: 6, so: .5 }) + pvdR(150, 26, 18, 206, 'url(#fsMt)', { so: .5 }) + pvdR(292, 26, 18, 206, 'url(#fsMt)', { so: .5 })
+            + [70, 110, 150, 190].map((y) => pvdL(`M150 ${y} H310`, { dash: '2 3', so: .4 })).join('')
+            + [0, 1, 2, 3, 4].map((i) => pvdL(`M154 ${34 + i * 40} l10 4 l-10 4 l10 4 l-10 4 l10 4 M296 ${34 + i * 40} l10 4 l-10 4 l10 4 l-10 4 l10 4`, { c: '#f87171', sw: 1.4, so: .85 })).join('')
+            + ['U', 'CU', 'C', 'CL', 'L'].map((t, i) => pvdTx(179, 52 + i * 40, t, { a: 'middle', st: 'font-size:8.5px;opacity:.6' })).join(''));
+          // 바깥 튜브
+          o += pvdG(f, ['tube'], pvdL('M174 232 V56 Q174 36 194 36 H266 Q286 36 286 56 V232', { fill: 'rgba(125,211,252,.07)', c: '#7dd3fc', sw: 2.4, so: .9 }) + pvdL('M188 232 V50 M272 232 V50', { c: '#7dd3fc', sw: 2, so: .8 }));
+          // 가스 흐름: 주입관 → 위로 → 바깥 통로로 내려감
+          o += pvdG(f, ['gas', 'ex'], (hot(['gas']) || hot(['ex']) ? dgFlow('M262 212 V54 Q230 38 181 56 V240') : pvdL('M262 212 V54 Q230 38 181 56 V240', { c: '#38bdf8', dash: '2 4', so: .5 })));
+          // 주입관(석영)
+          o += pvdG(f, ['gas'], pvdL('M262 238 V58', { c: '#7dd3fc', sw: 3, so: .55 }) + `<circle cx="262" cy="58" r="2.4" fill="#7dd3fc"/>`);
+          // 열전대(프로파일): 안쪽 + 스파이크: 바깥
+          o += pvdG(f, ['tc'], pvdL('M280 232 V70', { c: '#fbbf24', sw: 1.6, so: .9 }) + [80, 120, 160, 200].map((y) => `<circle cx="280" cy="${y}" r="2.6" fill="#fbbf24" stroke="#92400e" stroke-width=".6"/>`).join('')
+            + [64, 104, 144, 184, 224].map((y) => pvdR(170, y - 3, 4, 6, '#fbbf24', { sw: .5, so: .5 })).join(''));
+          // 보트 + 웨이퍼
+          o += pvdG(f, ['boat'], pvdL('M198 70 V196 M262 70 V196', { c: '#94a3b8', sw: 3, so: .9 }) + pvdR(196, 196, 68, 4, 'url(#fsMt)', { so: .6 })
+            + Array.from({ length: 15 }, (_, i) => pvdR(200, 72 + i * 8, 60, 2.6, i < 1 || i > 13 ? 'rgba(148,163,184,.45)' : 'url(#fsSi)', { sw: .6, so: .5 })).join('')
+            + pvdTx(230, 134, '웨이퍼', { a: 'middle', st: 'font-size:8.5px;font-weight:700;opacity:.0' }));
+          // 단열 캡
+          o += pvdG(f, ['cap'], pvdR(196, 200, 68, 26, 'rgba(226,232,240,.12)', { so: .55 }) + pvdL('M200 224 l10 -22 M214 224 l10 -22 M228 224 l10 -22 M242 224 l10 -22 M256 224 l6 -14', { so: .35 }));
+          // 플랜지(매니폴드) + 도어
+          o += pvdG(f, ['flange'], pvdR(168, 232, 124, 18, 'url(#fsMt)', { so: .7 }) + pvdR(176, 252, 108, 9, 'url(#fsMt)', { so: .7 }) + pvdL('M180 252 h100', { c: '#34d399', sw: 1.6, so: .9 }));
+          // 엘리베이터
+          o += pvdG(f, ['elev'], pvdR(222, 261, 16, 56, 'url(#fsMt)', { so: .6 }) + dgArrow(250, 296, 250, 276) + dgArrow(250, 280, 250, 300) + pvdTx(262, 290, '위·아래', { st: 'font-size:8.5px;opacity:.7' }));
+          // 배기(왼쪽) + 스크러버
+          o += pvdG(f, ['ex'], pvdL('M168 242 H108 V270', { c: '#94a3b8', sw: 3.2, so: .75 }) + pvdR(66, 270, 84, 30, 'rgba(45,212,191,.12)', { rx: 5, so: .6 }) + pvdTx(108, 289, '스크러버', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' }));
+          // 가스 입구(오른쪽) + 토치
+          o += pvdG(f, ['gas'], pvdL('M292 242 H336', { c: '#94a3b8', sw: 3.2, so: .75 }) + pvdR(336, 206, 86, 30, 'rgba(250,204,21,.1)', { rx: 5, so: .6 }) + pvdTx(379, 225, '가스 박스 · MFC', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:.95' }));
+          o += pvdG(f, ['torch'], pvdR(336, 246, 86, 30, 'rgba(248,113,113,.12)', { rx: 5, so: .6 }) + pvdTx(379, 265, '토치 H₂ + O₂ → H₂O', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:.95' }) + `<path d="M326 266 q6 -8 10 0 q-4 10 -10 0z" fill="#f59e0b" opacity=".9"/>` + pvdL('M336 262 H300 V248', { c: '#94a3b8', sw: 2.4, so: .65 }));
+          // 호출선 (왼쪽 열)
+          o += pvdCall(f, ['heat'], '1', '#f87171', 16, 56, 30, 60, ['히터', '(다구역)'], 158, 96);
+          o += pvdCall(f, ['tube'], '2', '#7dd3fc', 16, 118, 30, 122, ['프로세스 튜브', '(석영 이중관)'], 176, 130);
+          o += pvdCall(f, ['boat'], '3', '#94a3b8', 16, 164, 30, 168, ['보트 · 웨이퍼'], 200, 136);
+          o += pvdCall(f, ['cap'], '4', '#e2e8f0', 16, 204, 30, 208, ['단열 캡'], 198, 214);
+          o += pvdCall(f, ['ex'], '10', '#2dd4bf', 16, 246, 30, 250, ['배기'], 106, 242);
+          // 호출선 (오른쪽 열)
+          o += pvdCall(f, ['tc'], '7', '#fbbf24', 424, 56, 412, 60, ['열전대'], 281, 88, 'end');
+          o += pvdCall(f, ['gas'], '5', '#38bdf8', 424, 100, 412, 104, ['가스 주입관', '· 가스 박스'], 263, 130, 'end');
+          o += pvdCall(f, ['torch'], '6', '#fb923c', 424, 292, 412, 296, ['수증기 토치'], 380, 278, 'end');
+          o += pvdCall(f, ['flange'], '8', '#34d399', 130, 322, 144, 326, ['매니폴드 · 도어'], 200, 261);
+          o += pvdCall(f, ['elev'], '9', '#a78bfa', 300, 322, 314, 326, ['엘리베이터'], 238, 306);
+          return dgSvg('수직 확산로 단면: ' + s.label, o, '0 8 440 340');
+        }
+      },
+    });
+    Object.assign(DIAGRAMS, {
+      // ---------- 4. 가스 계통: 건식 · HCl · 습식(토치) ----------
+      'furn-gas': {
+        title: '가스 계통: 건식 · HCl · 습식',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 계통', desc: '가스통에서 나온 가스가 유량 조절기(MFC)를 거쳐 튜브로 들어간다. 산화제를 무엇으로 쓰느냐에 따라 세 가지 길이 있다. 산소만 쓰는 건식, 산소에 염화수소를 섞는 건식+HCl, 수소와 산소를 태워 수증기를 만드는 습식이다. 질소는 산화가 아닌 때에 튜브를 비우고 어닐하는 데 쓴다.' },
+          { id: 'dry', label: '건식 (O₂)', focus: ['o2', 'bus', 'tube'], desc: '순수한 산소만 흘린다. 산화 속도는 느리지만 막이 치밀하고 계면 결함이 적어서 게이트 산화막처럼 얇고 품질이 중요한 막에 쓴다. 두께 수 nm~수십 nm 막이 이 방식이다.' },
+          { id: 'hcl', label: '건식 + HCl', focus: ['o2', 'hcl', 'bus', 'tube'], desc: '산소에 염화수소(HCl)나 이를 대신하는 염소 계열 가스를 조금 섞는다. 염소가 나트륨 같은 이동성 이온을 붙잡아 막 속에 남지 않게 하고, 계면 결함도 줄여 막 품질이 가장 좋아진다. 산화 속도도 약간 빨라진다. 석영 튜브를 청소하는 용도로도 쓴다.' },
+          { id: 'wet', label: '습식 (수증기)', focus: ['h2', 'o2b', 'torch', 'tube'], desc: '토치에서 수소와 산소를 태워 수증기를 만든다(파이로제닉). 수증기는 산화막 속을 산소보다 훨씬 잘 퍼져서 산화가 수십 배 빠르다. 필드 산화막처럼 수백 nm 이상 두꺼운 막에 쓴다. 대신 막 속에 수소(OH)가 남아 건식보다 덜 치밀하다. 수소는 폭발 위험이 있어 불꽃 감지와 가스 차단 인터락이 필수다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('fg');
+          const src = (y, t, c, g, sub) => pvdG(f, g, pvdR(10, y - 14, 26, 30, c, { rx: 6, so: .7 }) + pvdR(18, y - 18, 10, 5, 'url(#fgMt)', { so: .6 }) + pvdTx(23, y + 4, t, { a: 'middle', st: 'font-size:9.5px;font-weight:800;fill:#0b1220;opacity:1' })
+            + pvdL(`M36 ${y} H54`, { so: .8 }) + pvdR(54, y - 10, 34, 20, 'var(--tbl-bg)', { rx: 4, so: .7 }) + pvdTx(71, y + 4, 'MFC', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:.95' })
+            + (sub ? pvdTx(54, y - 14, sub, { st: 'font-size:8.5px;opacity:.65' }) : ''));
+          o += src(36, 'O₂', '#7dd3fc', ['o2']) + src(76, 'N₂', '#94a3b8', ['n2'], '튜브 비움 · 어닐') + src(116, 'HCl', '#facc15', ['hcl'], '소량') + src(190, 'H₂', '#fb923c', ['h2']) + src(226, 'O₂', '#7dd3fc', ['o2b'], '토치용');
+          // 모음 선(버스) → 튜브
+          const bus = (g, d, c) => pvdG(f, g, pvdL(d, { c: c, sw: 2.6, so: .9 }));
+          const on = (g) => f && pvdOn(f, g);
+          o += pvdG(f, ['bus', 'o2'], pvdL('M88 36 H170 V92', { c: '#7dd3fc', sw: 2.6, so: .9 }));
+          o += pvdG(f, ['n2'], pvdL('M88 76 H170 V92', { c: '#94a3b8', sw: 2.6, so: .9 }));
+          o += pvdG(f, ['hcl'], pvdL('M88 116 H170 V92', { c: '#facc15', sw: 2.6, so: .9 }));
+          o += pvdG(f, ['bus', 'o2', 'hcl', 'n2'], pvdL('M170 92 H290', { c: '#7dd3fc', sw: 3.2, so: .9 }) + (on(['bus']) ? dgFlow('M170 92 H288') : ''));
+          // 토치
+          o += pvdG(f, ['torch', 'h2', 'o2b'], pvdL('M88 190 H150', { c: '#fb923c', sw: 2.6, so: .9 }) + pvdL('M88 226 H150 V210', { c: '#7dd3fc', sw: 2.6, so: .9 }) + pvdL('M150 190 H168', { c: '#fb923c', sw: 2.6, so: .9 }));
+          o += pvdG(f, ['torch', 'h2', 'o2b'], pvdR(168, 168, 82, 64, 'rgba(248,113,113,.1)', { rx: 8, so: .75 }) + pvdTx(209, 183, '토치', { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1' })
+            + `<path d="M196 214 q8 -26 13 -10 q4 -14 12 -2 q8 -2 -2 16 q-12 8 -23 -4z" fill="#f59e0b" opacity=".9"/><path d="M203 214 q5 -12 7 -4 q3 -6 6 0 q-2 6 -7 7 q-6 0 -6 -3z" fill="#fde68a"/>`
+            + pvdTx(209, 244, 'H₂ + ½O₂ → H₂O', { a: 'middle', st: 'font-size:9px;opacity:.85' }));
+          o += pvdG(f, ['torch'], pvdL('M250 200 H270 V92', { c: '#e2e8f0', sw: 3, so: .85 }) + (on(['torch']) ? dgFlow('M250 200 H270 V94') : ''));
+          // 튜브
+          o += pvdG(f, ['tube'], pvdR(290, 40, 100, 200, 'rgba(125,211,252,.07)', { rx: 10, so: .8 }) + pvdTx(340, 58, '튜브', { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' })
+            + Array.from({ length: 11 }, (_, i) => pvdR(306, 72 + i * 14, 68, 2.8, 'url(#fgSi)', { sw: .6 })).join(''));
+          const lab = { dry: ['O₂ · 느림 · 치밀', '#7dd3fc'], hcl: ['O₂+HCl · 품질 최고', '#facc15'], wet: ['H₂O · 매우 빠름 · 덜 치밀', '#e2e8f0'] }[s.id];
+          if (lab) o += pvdTx(340, 258, lab[0], { a: 'middle', st: `font-size:10px;font-weight:700;fill:${lab[1]};opacity:1` });
+          o += pvdG(f, ['n2'], '');
+          return dgSvg('가스 계통: ' + s.label, o, '0 10 400 262');
+        }
+      },
+      // ---------- 5. 한 번의 산화 레시피 (온도·가스·보트 위치) ----------
+      'furn-flow': {
+        title: '산화 한 번의 순서: 온도와 가스',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 순서', desc: '한 배치가 돌아가는 동안 온도, 가스, 보트 위치가 순서대로 바뀐다. 가로축은 시간이며 구간마다 길이가 크게 다르다. 산화 구간만 막 두께를 키우고, 나머지는 웨이퍼를 안전하게 넣고 빼기 위한 준비와 마무리다.' },
+          { id: 'load', label: '① 투입', focus: ['load'], desc: '튜브는 대기 온도(보통 600~800 ℃)에서 질소를 흘리며 기다린다. 이 상태로 보트를 정해진 속도로 천천히 밀어 올린다. 차가운 웨이퍼가 한꺼번에 뜨거운 곳에 들어가면 가운데와 가장자리의 온도 차로 휘어 슬립이 생기므로 속도를 낮춘다.' },
+          { id: 'ramp', label: '② 승온·안정', focus: ['ramp'], desc: '질소 분위기에서 분당 수 ℃ 속도로 공정 온도까지 올린 뒤, 보트 전체가 같은 온도가 되도록 잠시 기다린다. 너무 빨리 올리면 웨이퍼 안의 온도 차로 휘고, 안정 시간이 짧으면 위아래 온도가 안 맞아 두께가 달라진다.' },
+          { id: 'ox', label: '③ 산화', focus: ['ox'], desc: '산화 가스(O₂, O₂+HCl, 습식은 수증기)로 바꿔 정해진 시간 동안 흘린다. 이때만 막이 자란다. 두꺼운 막은 처음에는 습식으로 빠르게 키우고 마지막에 건식으로 마무리해 막 표면의 품질을 높이기도 한다.' },
+          { id: 'anl', label: '④ 어닐', focus: ['anl'], desc: '산화 가스를 끊고 질소로 바꿔 같은 온도에서 열처리한다. 실리콘과 산화막 사이 계면의 결함이 줄고 막 속의 수소가 빠져서 막 품질이 좋아진다. 대신 열을 받는 시간이 늘어 불순물이 더 번지고 한 배치 시간도 길어진다.' },
+          { id: 'out', label: '⑤ 강온·인출', focus: ['out'], desc: '질소를 흘리며 천천히 온도를 낮춘 뒤 보트를 내린다. 꺼낼 때도 온도 차가 크면 휘기 때문에 투입처럼 천천히 내린다. 식은 웨이퍼는 로봇이 FOUP으로 옮기고, 모니터 웨이퍼 한 장은 두께 측정으로 보낸다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('ff');
+          const Y = (T) => 150 - (T - 600) / 500 * 110;
+          const ph = [['load', 60, 100, '투입', '#94a3b8', 'N₂'], ['ramp', 100, 195, '승온·안정', '#94a3b8', 'N₂'], ['ox', 195, 270, '산화', '#38bdf8', 'O₂ / H₂O'], ['anl', 270, 310, '어닐', '#94a3b8', 'N₂'], ['out', 310, 380, '강온·인출', '#94a3b8', 'N₂']];
+          // 축
+          o += pvdL('M40 36 V150 H386', { sw: 1.4, so: .7 });
+          [700, 900, 1000, 1100].forEach((T) => { o += pvdL(`M37 ${Y(T)} H386`, { dash: '2 4', so: .22 }) + pvdTx(34, Y(T) + 3, T, { a: 'end', st: 'font-size:8.5px;opacity:.65' }); });
+          o += pvdTx(40, 28, '온도 (℃)', { st: 'font-size:9px;opacity:.65' }) + pvdTx(386, 166, '시간 →', { a: 'end', st: 'font-size:9px;opacity:.65' });
+          // 구간 띠
+          ph.forEach(([id, a, b, t]) => { o += pvdG(f, [id], `<rect x="${a}" y="36" width="${b - a}" height="114" fill="${f && pvdOn(f, [id]) ? 'rgba(245,185,66,.14)' : 'rgba(148,163,184,.04)'}"/>` + pvdL(`M${b} 36 V150`, { dash: '1 4', so: .25 }) + pvdTx((a + b) / 2, 46, t, { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:.9' })); });
+          // 온도 곡선
+          const pts = [[40, 700], [100, 700], [165, 1000], [195, 1000], [270, 1000], [310, 1000], [355, 700], [386, 700]];
+          o += pvdL(pts.map(([x, T], i) => (i ? 'L' : 'M') + x + ' ' + Y(T).toFixed(1)).join(' '), { c: acc, sw: 2.8, so: 1 });
+          // 가스 띠
+          o += pvdTx(14, 186, '가스', { st: 'font-size:9px;opacity:.65' });
+          [[40, 195, '#94a3b8', 'N₂'], [195, 270, '#38bdf8', 'O₂ · 또는 H₂O'], [270, 386, '#94a3b8', 'N₂']].forEach(([a, b, c, t]) => { const id = a === 195 ? ['ox'] : a === 40 ? ['load', 'ramp'] : ['anl', 'out']; o += pvdG(f, id, pvdR(a, 172, b - a - 1, 18, c, { so: .3, sw: .8 }).replace('style="fill:' + c, 'style="fill-opacity:.35;fill:' + c) + pvdTx((a + b) / 2, 185, t, { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' })); });
+          // 보트 위치 띠
+          o += pvdTx(14, 214, '보트', { st: 'font-size:9px;opacity:.65' });
+          o += pvdL('M40 226 H60 L100 208 H310 L350 226 H386', { c: '#a78bfa', sw: 2.2, so: .9 });
+          o += pvdTx(205, 222, '튜브 안', { a: 'middle', st: 'font-size:9.5px;font-weight:600;opacity:.9' }) + pvdTx(48, 238, '밖', { a: 'middle', st: 'font-size:9px;opacity:.6' }) + pvdTx(372, 238, '밖', { a: 'middle', st: 'font-size:9px;opacity:.6' });
+          o += pvdTx(205, 252, '(구간 길이는 실제 시간 비율이 아니다)', { a: 'middle', st: 'font-size:9px;opacity:.5' });
+          return dgSvg('산화 순서: ' + s.label, o, '0 18 400 262');
+        }
+      },
+      // ---------- 6. 산화막이 자라는 단면 ----------
+      'furn-growth': {
+        title: '산화막이 자라는 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '실리콘 표면을 산화시킨 뒤의 단면이다. 막은 처음 표면(점선) 위로 56 %, 아래로 44 %만큼 자란다. 산화제가 이미 생긴 막을 뚫고 아래 계면까지 내려가 반응하므로, 막은 안쪽(계면)에서 자라고 바깥 표면에서 자라지 않는다.' },
+          { id: 'dif', label: '② 산화제 확산', focus: ['gas', 'dif'], desc: '튜브의 산소나 수증기 분자가 막 표면에 녹아 들어가 막 속을 퍼져 내려간다. 막이 두꺼울수록 가야 할 길이 길어져 산화가 점점 느려진다. 수증기는 산소보다 막 속에서 훨씬 빨리 퍼진다(습식이 빠른 이유).' },
+          { id: 'rxn', label: '③ 계면 반응', focus: ['rxn'], desc: '계면에 도착한 산화제가 실리콘과 만나 SiO₂를 만든다. 반응이 일어나는 곳은 늘 실리콘과 산화막이 맞닿은 계면이다. 이 자리가 막 아래에 숨어 있어서 오염이 계면에 갇히지 않게 산화 전 세정이 중요하다. 반응 속도는 온도와 결정면에 따라 달라진다.' },
+          { id: 'cons', label: '④ 실리콘 소모', focus: ['cons'], desc: '막이 자란 두께의 약 44 %만큼 실리콘이 소모된다. 실리콘이 산화막이 되면서 부피가 약 2.2배로 늘어나 원래 표면 위로 솟기 때문이다. 100 nm 산화막을 키우면 실리콘이 44 nm 줄어든다. 소모되는 층에 있던 불순물과 결함은 막 쪽으로 옮겨 가거나 함께 사라진다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('fgr');
+          const y0 = 130, X = 64, top = y0 - 0.56 * X, ifc = y0 + 0.44 * X;
+          // 실리콘 + 산화막
+          o += pvdR(24, ifc, 300, 252 - ifc, 'url(#fgrSi)', { so: .5 });
+          o += pvdTx(120, 232, '실리콘 웨이퍼', { a: 'middle', st: 'font-size:11px;font-weight:700;opacity:.9' });
+          o += pvdG(f, ['rxn', 'dif', 'cons'], pvdR(24, top, 300, X, 'rgba(167,139,250,.33)', { so: .6 }) + pvdTx(236, top + X / 2 - 8, '산화막 SiO₂', { a: 'middle', st: 'font-size:11px;font-weight:700;opacity:1' }));
+          // 소모된 실리콘 띠 + 처음 표면
+          o += pvdG(f, ['cons'], `<rect x="24" y="${y0}" width="300" height="${ifc - y0}" fill="rgba(251,146,60,.3)"/>`);
+          o += pvdL(`M20 ${y0} H328`, { dash: '5 4', c: '#fbbf24', sw: 1.6, so: .95 });
+          o += pvdTx(322, y0 + 12, '처음 실리콘 표면', { a: 'end', st: 'font-size:9px;fill:#fbbf24;opacity:1' });
+          // 가스 + 산화제 확산 화살표
+          o += pvdG(f, ['gas', 'dif'], [[44, 36], [100, 46], [156, 34], [212, 44]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="rgba(56,189,248,.25)" stroke="#38bdf8" stroke-width="1.4"/><circle cx="${x + 7}" cy="${y + 2}" r="3.4" fill="rgba(56,189,248,.25)" stroke="#38bdf8" stroke-width="1.1"/>`).join('')
+            + '');
+          o += pvdG(f, ['dif'], [80, 140, 200, 260].map((x, i) => (f && pvdOn(f, ['dif']) ? dgFlow(`M${x} ${top - 6} L${x} ${ifc - 3}`) : pvdL(`M${x} ${top - 6} L${x} ${ifc - 3}`, { c: '#38bdf8', dash: '2 5', so: .6 }))).join(''));
+          // 계면 반응 표시
+          o += pvdG(f, ['rxn'], pvdL(`M24 ${ifc} H324`, { c: '#34d399', sw: 3, so: .95 }) + [80, 140, 200, 260].map((x) => `<circle cx="${x}" cy="${ifc}" r="4.5" fill="#34d399" opacity=".85"/>`).join(''));
+          // 치수
+          o += pvdG(f, ['cons', 'dif', 'rxn'], pvdL(`M338 ${top} V${ifc}`, { sw: 1.4, so: .8 }) + pvdL(`M334 ${top} h8 M334 ${y0} h8 M334 ${ifc} h8`, { so: .8 })
+            + pvdTx(348, (top + y0) / 2 + 4, '위로 56 %', { st: 'font-size:9.5px;font-weight:700;opacity:1' }) + pvdTx(348, (y0 + ifc) / 2 + 4, '실리콘 소모 44 %', { st: 'font-size:9.5px;font-weight:700;fill:#fb923c;opacity:1' }));
+          o += pvdCall(f, ['gas'], '1', '#38bdf8', 330, 34, 316, 38, ['산화제 공급', '(O₂ 또는 H₂O)'], 236, 40, 'end');
+          o += pvdCall(f, ['dif'], '2', '#38bdf8', 28, 106, 42, 110, ['막 속 확산'], 80, 112);
+          o += pvdCall(f, ['rxn'], '3', '#34d399', 28, 186, 42, 190, ['계면 반응', 'Si + O₂ → SiO₂'], 142, ifc + 1);
+          o += pvdCall(f, ['cons'], '4', '#fb923c', 252, 186, 266, 190, ['소모된 실리콘'], 240, (y0 + ifc) / 2);
+          return dgSvg('산화막이 자라는 단면: ' + s.label, o, '0 8 440 250');
+        }
+      },
+    });
+    // 그래프 도우미(확산로용): 값 범위를 그림 좌표로 바꾼다
+    const fuPlot = (x0, x1, y0, y1, L = 52, R = 372, T = 34, B = 196) => ({
+      x: (v) => L + (v - x0) / (x1 - x0) * (R - L), y: (v) => B - (v - y0) / (y1 - y0) * (B - T), L, R, T, B,
+      axes: () => pvdL(`M${L} ${T} V${B} H${R}`, { sw: 1.4, so: .7 }),
+      curve: (fn, a, b, c, o = {}) => pvdL(Array.from({ length: 49 }, (_, i) => { const v = a + (b - a) * i / 48; return (i ? 'L' : 'M') + (L + (v - x0) / (x1 - x0) * (R - L)).toFixed(1) + ' ' + (B - (Math.min(fn(v), y1) - y0) / (y1 - y0) * (B - T)).toFixed(1); }).join(' '), { c, sw: o.sw || 2.4, so: o.so || .95, dash: o.dash }),
+    });
+    // Deal–Grove: x² + A·x = B·(t + τ)  (A, x: µm · B: µm²/h · τ: h) — 표준 교재의 대표 상수
+    const fuDG = { dry920: { A: .235, B: .0049, tau: 1.4 }, dry1000: { A: .165, B: .0117, tau: .37 }, dry1100: { A: .09, B: .027, tau: .076 }, wet1000: { A: .226, B: .287, tau: 0 } };
+    const fuX = (k, t) => { const c = fuDG[k]; return 1000 * c.A / 2 * (Math.sqrt(1 + 4 * c.B * (t + c.tau) / (c.A * c.A)) - 1); };   // nm
+    // 두께 d(nm)의 열산화막이 실리콘 위에서 보이는 색(박막 간섭)
+    const fuRGB = (d) => {
+      const lam = [610, 550, 465], nsi = [3.9, 4.08, 4.4], n1 = 1.46, o = [];
+      for (let i = 0; i < 3; i++) {
+        const r01 = (1 - n1) / (1 + n1), r12 = (n1 - nsi[i]) / (n1 + nsi[i]), dl = 4 * Math.PI * n1 * d / lam[i], c = Math.cos(dl), sn = Math.sin(dl);
+        const nr = r01 + r12 * c, ni = -r12 * sn, dr = 1 + r01 * r12 * c, di = -r01 * r12 * sn;
+        o.push(Math.round(Math.max(0, Math.min(255, 255 * Math.pow(((nr * nr + ni * ni) / (dr * dr + di * di)) / 0.6, 0.8)))));
+      }
+      const m = (o[0] + o[1] + o[2]) / 3; return 'rgb(' + o.map((v) => Math.round(Math.max(0, Math.min(255, m + (v - m) * 1.4)))).join(',') + ')';
+    };
+
+    Object.assign(DIAGRAMS, {
+      // ---------- 7. Deal–Grove 성장 곡선 ----------
+      'furn-dg': {
+        title: '산화막 두께는 시간에 따라 이렇게 자란다',
+        wide: true,
+        states: [
+          { id: 'all', label: '건식 vs 습식', k: 'all', desc: '같은 1000 ℃에서 습식이 건식보다 훨씬 빠르다. 두 곡선 모두 직선이 아니라 점점 휘어 눕는데, 막이 두꺼워질수록 산화제가 계면까지 가는 길이 길어지기 때문이다. 이 그래프는 교재에 실린 대표 상수로 그렸으며, 실제 값은 장비와 가스 조건에 따라 달라진다.' },
+          { id: 'reg', label: '선형 · 포물선', k: 'reg', desc: '막이 얇을 때는 계면 반응이 느림목이라 두께가 시간에 비례해 자란다(선형 구간). 막이 두꺼워지면 산화제가 막 속을 퍼지는 속도가 느림목이 되어 두께가 시간의 제곱근에 비례한다(포물선 구간). 습식은 반응이 빨라 곧바로 포물선 구간에 들어서고, 건식은 얇은 막에서 선형 구간이 오래 간다. 게이트 산화막처럼 얇은 막은 선형 구간, 필드 산화막처럼 두꺼운 막은 포물선 구간이다.' },
+          { id: 'temp', label: '온도의 영향', k: 'temp', desc: '건식 산화에서 온도를 920 ℃, 1000 ℃, 1100 ℃로 올리면 4시간 뒤 두께가 약 80 nm, 160 nm, 290 nm가 된다. 온도가 100 ℃ 오르면 속도가 몇 배로 뛰는 아레니우스 관계다. 그래서 온도 균일도 ±1 ℃ 정도의 차이도 두께 차로 바로 이어진다.' },
+          { id: 'tgt', label: '목표 두께까지', k: 'tgt', desc: '목표 두께 100 nm를 1000 ℃에서 키우면 습식은 약 7분, 건식은 약 2시간 걸린다. 산화막이 두꺼워질수록 두께를 두 배로 키우는 데 시간이 두 배보다 훨씬 많이 든다. 레시피 시간은 원하는 두께를 이 곡선(또는 모니터 웨이퍼 실측)에 맞춰 정한다.' },
+        ],
+        svg(s) {
+          const K = s.k, YM = (K === 'temp' || K === 'tgt') ? 400 : 1000, p = fuPlot(0, 4, 0, YM);
+          let o = pvdDefs('fdg') + p.axes();
+          [0, 1, 2, 3, 4].forEach((t) => { o += pvdL(`M${p.x(t)} ${p.B} v4`, { so: .7 }) + pvdTx(p.x(t), p.B + 15, t, { a: 'middle', st: 'font-size:9.5px;opacity:.8' }); });
+          (YM === 400 ? [0, 100, 200, 300, 400] : [0, 250, 500, 750, 1000]).forEach((v) => { o += pvdL(`M${p.L - 4} ${p.y(v)} h4`, { so: .7 }) + pvdTx(p.L - 8, p.y(v) + 3, v, { a: 'end', st: 'font-size:9px;opacity:.8' }) + (v ? pvdL(`M${p.L} ${p.y(v)} H${p.R}`, { dash: '2 5', so: .15 }) : ''); });
+          o += pvdTx(p.L, p.T - 10, '산화막 두께 (nm)', { st: 'font-size:9.5px;font-weight:700;opacity:.85' }) + pvdTx(p.R, p.B + 30, '산화 시간 (시간)', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+          const W = '#e2e8f0', D = '#38bdf8';
+          if (K === 'all') {
+            o += p.curve((t) => fuX('wet1000', t), 0, 4, W) + p.curve((t) => fuX('dry1000', t), 0, 4, D);
+            o += pvdTx(p.x(3.3), p.y(fuX('wet1000', 3.3)) - 8, '습식 1000 ℃', { a: 'middle', st: 'font-size:10.5px;font-weight:700;fill:#e2e8f0;opacity:1' }) + pvdTx(p.x(3.0), p.y(fuX('dry1000', 3.0)) - 8, '건식 1000 ℃', { a: 'middle', st: 'font-size:10.5px;font-weight:700;fill:#38bdf8;opacity:1' });
+          } else if (K === 'reg') {
+            const c = fuDG.wet1000, slope = (t) => 1000 * c.B / c.A * t;   // 초기 접선(선형): x ≈ (B/A)(t+τ)
+            o += pvdR(p.x(0), p.T, p.x(.35) - p.x(0), p.B - p.T, 'rgba(52,211,153,.1)', { so: .0 }).replace('stroke-width:1.2', 'stroke-width:0');
+            o += p.curve(slope, 0, .8, '#34d399', { dash: '4 4', sw: 1.8, so: .85 });
+            o += p.curve((t) => fuX('wet1000', t), 0, 4, W);
+            o += p.curve((t) => 1000 * Math.sqrt(c.B * t), .6, 3.4, '#fbbf24', { dash: '4 4', sw: 1.8, so: .85 });
+            o += pvdTx(p.x(.05), p.T + 10, '선형', { st: 'font-size:10.5px;font-weight:800;fill:#34d399;opacity:1' }) + pvdTx(p.x(.05), p.T + 23, '반응이 느림목', { st: 'font-size:9px;opacity:.8' });
+            o += pvdTx(p.x(2.3), p.y(fuX('wet1000', 2.3)) + 26, '포물선 (x ∝ √t)', { a: 'middle', st: 'font-size:10.5px;font-weight:800;fill:#fbbf24;opacity:1' }) + pvdTx(p.x(2.3), p.y(fuX('wet1000', 2.3)) + 39, '확산이 느림목', { a: 'middle', st: 'font-size:9px;opacity:.8' });
+          } else if (K === 'temp') {
+            [['dry920', '920 ℃', '#60a5fa'], ['dry1000', '1000 ℃', '#38bdf8'], ['dry1100', '1100 ℃', '#f87171']].forEach(([k, t, c], i) => { o += p.curve((u) => fuX(k, u), 0, 4, c) + pvdTx(p.x(4) - 4, p.y(fuX(k, 4)) - 7, '건식 ' + t, { a: 'end', st: `font-size:10px;font-weight:700;fill:${c};opacity:1` }); });
+          } else {
+            o += p.curve((t) => fuX('wet1000', t), 0, .86, W) + p.curve((t) => fuX('dry1000', t), 0, 4, D);
+            o += pvdL(`M${p.L} ${p.y(100)} H${p.R}`, { c: '#fbbf24', dash: '5 4', sw: 1.6, so: .95 }) + pvdTx(p.R - 2, p.y(100) + 12, '목표 100 nm', { a: 'end', st: 'font-size:9.5px;font-weight:700;fill:#fbbf24;opacity:1' });
+            const tw = .114, td = 1.895;
+            o += pvdL(`M${p.x(tw)} ${p.y(100)} V${p.B}`, { c: '#e2e8f0', dash: '3 3', so: .8 }) + pvdL(`M${p.x(td)} ${p.y(100)} V${p.B}`, { c: '#38bdf8', dash: '3 3', so: .8 });
+            o += pvdTx(p.R, p.T + 12, '100 nm 도달 시간', { a: 'end', st: 'font-size:9.5px;opacity:.8' }) + pvdTx(p.R, p.T + 27, '습식 약 7분', { a: 'end', st: 'font-size:11px;font-weight:800;fill:#e2e8f0;opacity:1' }) + pvdTx(p.R, p.T + 42, '건식 약 1시간 54분', { a: 'end', st: 'font-size:11px;font-weight:800;fill:#38bdf8;opacity:1' });
+          }
+          return dgSvg('산화막 성장 곡선: ' + s.label, o, '0 14 400 232');
+        }
+      },
+      // ---------- 8. 보트 안 균일도와 슬립 ----------
+      'furn-uniform': {
+        title: '웨이퍼 사이 균일도와 슬립',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체', desc: '웨이퍼 100장이 한 보트에 같이 들어가므로, 위에서 아래까지 모든 웨이퍼가 같은 온도와 같은 시간의 열을 받아야 두께가 같다. 이를 위협하는 것이 온도가 고르지 않은 구간, 보트를 넣는 데 걸리는 시간 차, 급격한 온도 변화로 인한 웨이퍼 휨(슬립)이다.' },
+          { id: 'flat', label: '평탄 구간', focus: ['flat'], desc: '다구역 히터가 만드는 온도가 거의 일정한 구간(플랫 존)에 웨이퍼를 놓는다. 튜브 끝에 가까울수록 열이 새서 온도가 떨어지므로, 양 끝에는 더미 웨이퍼와 단열 캡을 두고 제품 웨이퍼는 평탄 구간 안에 둔다. 플랫 존 안의 온도 차는 ±0.5 ℃ 안팎이다.' },
+          { id: 'nu', label: '투입 시간 차', focus: ['nu'], desc: '보트를 천천히 넣으면 먼저 들어간 위쪽 웨이퍼가 뜨거운 곳에 더 오래 머물러 더 두껍게 자란다. 투입 속도를 높이면 이 차이가 줄지만, 너무 빠르면 웨이퍼가 휜다. 그래서 속도는 두께 차와 슬립 사이의 균형으로 정한다.' },
+          { id: 'slip', label: '슬립', focus: ['slip'], desc: '급하게 데우거나 식히면 웨이퍼 가장자리가 먼저 뜨거워지거나 식어 가운데와 온도 차가 생긴다. 이 차이로 생긴 응력이 보트와 닿는 점을 중심으로 결정면을 미끄러뜨려 선 모양의 결함(슬립)이 가장자리에서 안쪽으로 번진다. 슬립은 되돌릴 수 없고 소자 누설 불량으로 이어진다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('fu');
+          // 왼쪽: 튜브 + 보트 (평탄 구간 띠)
+          o += pvdR(24, 20, 104, 214, 'rgba(125,211,252,.07)', { rx: 12, so: .8 });
+          o += pvdG(f, ['flat'], pvdR(30, 52, 92, 138, 'rgba(245,185,66,.14)', { so: .6, dash: '3 3', c: acc }) + pvdTx(76, 46, '평탄 구간 (플랫 존)', { a: 'middle', st: 'font-size:8.5px;font-weight:700;fill:#f5b942;opacity:1' }));
+          o += Array.from({ length: 19 }, (_, i) => { const y = 34 + i * 10.4, dummy = i < 2 || i > 16; return pvdG(f, dummy ? ['flat'] : ['flat', 'nu', 'slip'], pvdR(42, y, 68, 2.8, dummy ? 'rgba(148,163,184,.35)' : 'url(#fuSi)', { sw: .6, so: .5 })); }).join('');
+          o += pvdG(f, ['flat'], pvdTx(76, 226, '더미 · 단열 캡', { a: 'middle', st: 'font-size:8.5px;opacity:.75' }));
+          o += pvdG(f, ['nu'], dgArrow(150, 214, 150, 40) + pvdTx(150, 228, '투입', { a: 'middle', st: 'font-size:8.5px;opacity:.7' }));
+          // 오른쪽 그래프들
+          const p = fuPlot(0, 1, 0, 1, 190, 388, 40, 196);
+          const panel = (id, title, inner) => (s.id !== id ? '' : pvdR(176, 20, 216, 214, 'var(--tbl-bg)', { rx: 8, so: .3 }) + pvdTx(284, 36, title, { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1' }) + inner);
+          // (a) 온도 프로파일
+          const ax = (xl, yl) => pvdL(`M196 52 V190 H380`, { sw: 1.3, so: .7 }) + pvdTx(380, 206, xl, { a: 'end', st: 'font-size:8.5px;opacity:.75' }) + pvdTx(196, 46, yl, { st: 'font-size:8.5px;opacity:.75' });
+          const tp = (u) => 1 - 0.55 * Math.pow(Math.abs(u - .5) * 2, 6);
+          const cv = (fn, c, dash) => pvdL(Array.from({ length: 41 }, (_, i) => { const u = i / 40; return (i ? 'L' : 'M') + (200 + u * 176).toFixed(1) + ' ' + (190 - fn(u) * 120).toFixed(1); }).join(' '), { c, sw: 2.4, so: .95, dash });
+          o += panel('flat', '온도 vs 튜브 속 위치', ax('위치 (위 → 아래)', '온도') + pvdR(200 + 176 * .18, 70, 176 * .64, 22, 'rgba(245,185,66,.18)', { so: .0 }).replace('stroke-width:1.2', 'stroke-width:0') + cv(tp, acc) + pvdTx(288, 100, '±0.5 ℃ 안팎', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }) + pvdTx(214, 124, '끝은 열이 샘', { st: 'font-size:8.5px;opacity:.7' }));
+          // (b) 위치별 두께
+          o += panel('nu', '웨이퍼 위치별 산화막 두께', ax('웨이퍼 위치 (위 → 아래)', '두께') + cv((u) => .86 - 0.3 * u, '#f87171') + cv((u) => .62 - 0.04 * u, '#34d399', '5 4')
+            + pvdTx(300, 98, '느린 투입', { st: 'font-size:9.5px;font-weight:700;fill:#f87171;opacity:1' }) + pvdTx(290, 160, '빠른 투입', { st: 'font-size:9.5px;font-weight:700;fill:#34d399;opacity:1' }) + pvdTx(214, 66, '(예시: 보기 쉽게 과장)', { st: 'font-size:8.5px;opacity:.6' }));
+          // (c) 슬립: 웨이퍼 윗면
+          const wx = 284, wy = 118, R = 62;
+          o += panel('slip', '웨이퍼 윗면 (슬립)', `<circle cx="${wx}" cy="${wy}" r="${R}" fill="url(#fuSi)" stroke="currentColor" stroke-opacity=".7" stroke-width="1.4"/><circle cx="${wx}" cy="${wy}" r="${R - 14}" fill="rgba(248,113,113,.0)" stroke="#f87171" stroke-width="1.2" stroke-dasharray="3 3" opacity=".85"/>`
+            + [[-60, 14], [-36, 52], [36, 52], [60, 14]].map(([dx, dy]) => `<circle cx="${wx + dx * .96}" cy="${wy + dy * .96}" r="3.4" fill="#94a3b8" stroke="currentColor" stroke-width=".8"/>`).join('')
+            + [[-46, 50, 14, -24], [-34, 58, 18, -22], [46, 50, -14, -24], [34, 58, -18, -22]].map(([dx, dy, ex, ey]) => `<path d="M${wx + dx} ${wy + dy} l${ex} ${ey}" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>`).join('')
+            + pvdTx(wx, wy + R + 22, '가장자리 · 보트 접촉점에서 시작', { a: 'middle', st: 'font-size:9px;opacity:.85' }) + pvdTx(wx, wy - 4, '가운데는 늦게 데워짐', { a: 'middle', st: 'font-size:9px;opacity:.75' }));
+          if (s.id === 'all') {
+            o += pvdR(176, 20, 216, 214, 'var(--tbl-bg)', { rx: 8, so: .3 }) + pvdTx(284, 38, '균일도를 흔드는 세 가지', { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' });
+            [['1', '#f5b942', '온도가 일정한 구간', '평탄 구간 밖은 온도가 낮아 얇다'], ['2', '#f87171', '보트를 넣는 시간 차', '먼저 들어간 웨이퍼가 더 오래 산화되어 두껍다'], ['3', '#fb923c', '급한 가열·냉각', '온도 차로 웨이퍼가 휘고 결정에 슬립이 생긴다']].forEach(([n, c, t, d], i) => { const y = 66 + i * 54; o += pvdNum(196, y, n, c) + pvdTx(212, y - 2, t, { st: 'font-size:10.5px;font-weight:800;opacity:1' }) + pvdTx(212, y + 13, d, { st: 'font-size:8.8px;opacity:.8' }); });
+          }
+          return dgSvg('보트 안 균일도와 슬립: ' + s.label, o, '0 14 400 232');
+        }
+      },
+      // ---------- 9. 두께와 품질을 재는 법 ----------
+      'furn-meas': {
+        title: '산화막 두께와 품질을 재는 법',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 가지 방법', k: 'all', desc: '산화막은 얇고 투명해서 눈으로는 안 보이지만, 빛의 간섭과 전기적 성질로 읽을 수 있다. 색을 보면 대략의 두께를 가늠하고, 엘립소미터로 nm 단위 두께를 재고, 전기 측정(C–V)으로 막이 소자로서 쓸 만한지 확인한다. 보트의 앞·가운데·뒤에 모니터 웨이퍼를 놓아 한 배치의 균일도도 함께 본다.' },
+          { id: 'color', label: '색 보기', k: 'color', desc: '막 윗면과 아랫면(실리콘 계면)에서 반사된 빛이 서로 간섭해 두께에 따라 웨이퍼 색이 바뀐다. 숙련자는 색으로 두께를 짐작한다. 다만 색은 두께에 따라 순환하며 되풀이되어 서로 다른 두께가 비슷한 색일 수 있고, 몇 nm 차이는 보이지 않는다. 정확한 값은 장비로 잰다.' },
+          { id: 'ell', label: '엘립소미터', k: 'ell', desc: '편광된 빛을 70° 안팎으로 비스듬히 비추고 반사된 빛의 편광이 얼마나 바뀌었는지로 두께를 재는 장비다. 웨이퍼를 파괴하지 않고, 1 nm보다 정밀하게 두께를 잴 수 있으며, 굴절률도 같이 나와 막 성질도 가늠할 수 있다. 웨이퍼의 여러 점(중심, 가장자리 등)을 재서 균일도를 확인한다.' },
+          { id: 'cv', label: '전기 측정 (C–V)', k: 'cv', desc: '산화막 위에 금속 전극을 올려 만든 축전기(MOS)에 전압을 바꿔 가며 정전용량을 잰다. 축전용량에서 산화막 두께를 알 수 있고, 곡선이 옆으로 밀린 정도에서 막 속 전하(고정 전하, 이동성 이온)를, 곡선의 기울기에서 계면 결함을 읽는다. 소자 신뢰성을 가늠하는 가장 직접적인 방법이다.' },
+        ],
+        svg(s) {
+          const K = s.k;
+          let o = pvdDefs('fm');
+          const ell = (g) => {
+            // 엘립소미터 도식 (입사각 약 70°, 법선 기준)
+            const wy = 150;
+            return pvdR(60, wy, 280, 10, 'url(#fmSi)', { so: .5 }) + pvdR(60, wy - 6, 280, 6, 'rgba(167,139,250,.4)', { so: .5, sw: .8 })
+              + pvdL(`M62 94 L200 ${wy - 6} L338 94`, { c: '#fbbf24', sw: 2.2, so: .95 })
+              + pvdR(30, 66, 44, 22, 'var(--tbl-bg)', { rx: 4, so: .8 }) + pvdTx(52, 81, '광원', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }) + pvdTx(98, 78, '편광자', { a: 'middle', st: 'font-size:8.5px;opacity:.7' })
+              + pvdR(326, 66, 48, 22, 'var(--tbl-bg)', { rx: 4, so: .8 }) + pvdTx(350, 81, '검출기', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }) + pvdTx(302, 78, '분석기', { a: 'middle', st: 'font-size:8.5px;opacity:.7' })
+              + pvdL(`M200 ${wy - 6} V54`, { dash: '3 3', so: .5 }) + pvdTx(204, 52, '법선', { st: 'font-size:8.5px;opacity:.6' })
+              + `<path d="M200 104 A40 40 0 0 0 162.4 130.3" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".7"/><path d="M200 104 A40 40 0 0 1 237.6 130.3" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".7"/>` + pvdTx(200, 98, '≈ 70°', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:.9' })
+              + pvdTx(200, 176, '산화막 위·아래에서 반사된 빛의 편광 변화', { a: 'middle', st: 'font-size:9.5px;opacity:.9' }) + pvdTx(200, 190, '→ 두께와 굴절률', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' });
+          };
+          if (K === 'color' || K === 'all') {
+            const ds = [25, 75, 125, 175, 225, 275, 325, 375, 425, 475];
+            if (K === 'color') {
+              o += ds.map((d, i) => pvdR(26 + i * 36, 40, 32, 60, fuRGB(d), { rx: 4, so: .5 }) + pvdTx(42 + i * 36, 114, d, { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' })).join('');
+              o += pvdTx(200, 132, '산화막 두께 (nm) 와 웨이퍼 색', { a: 'middle', st: 'font-size:10px;opacity:.85' });
+              o += pvdTx(200, 160, '색은 두께에 따라 순환하며 되풀이된다', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:1' });
+              o += pvdTx(200, 176, '(다른 두께가 비슷한 색일 수 있다 · 그림 색은 계산 예시)', { a: 'middle', st: 'font-size:9px;opacity:.65' });
+              return dgSvg('색으로 두께 보기', o, '0 16 400 180');
+            }
+            // 전체: 세 칸
+            const cell = (x, t, sub) => pvdR(x, 14, 124, 170, 'var(--tbl-bg)', { rx: 8, so: .35 }) + pvdTx(x + 62, 34, t, { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' }) + pvdTx(x + 62, 48, sub, { a: 'middle', st: 'font-size:9px;opacity:.65' });
+            o += cell(8, '색 보기', '대략 · 즉시') + cell(138, '엘립소미터', 'nm 단위 · 비파괴') + cell(268, 'C–V', '막의 전기 품질');
+            o += [0, 1, 2, 3].map((i) => pvdR(26 + i * 24, 70, 20, 40, fuRGB(60 + i * 55), { rx: 3, so: .5 })).join('') + pvdTx(70, 134, '색으로 대략', { a: 'middle', st: 'font-size:9.5px;font-weight:600' }) + pvdTx(70, 150, '짐작', { a: 'middle', st: 'font-size:9.5px;font-weight:600' });
+            o += pvdR(152, 120, 96, 6, 'url(#fmSi)', { sw: .8 }) + pvdL('M162 68 L200 118 L238 68', { c: '#fbbf24', sw: 1.8 }) + pvdTx(200, 144, '두께 · 굴절률', { a: 'middle', st: 'font-size:9.5px;font-weight:600' }) + pvdTx(200, 158, '1 nm 이하 정밀', { a: 'middle', st: 'font-size:9.5px;opacity:.75' });
+            o += pvdL('M282 150 Q310 150 326 120 Q342 72 384 72', { c: '#34d399', sw: 2.2 }) + pvdL('M290 150 Q322 150 338 120 Q354 72 386 72', { c: '#f87171', sw: 1.6, dash: '3 3' }) + pvdTx(330, 170, '곡선이 밀리면 전하 있음', { a: 'middle', st: 'font-size:9px;opacity:.85' });
+            return dgSvg('산화막 측정: ' + s.label, o, '0 8 400 196');
+          }
+          if (K === 'ell') return dgSvg('엘립소미터', o + ell(), '0 38 400 164');
+          // C–V
+          o += pvdR(26, 40, 100, 14, 'rgba(251,191,36,.5)', { so: .7 }) + pvdR(26, 54, 100, 24, 'rgba(167,139,250,.35)', { so: .7 }) + pvdR(26, 78, 100, 56, 'url(#fmSi)', { so: .6 });
+          o += pvdTx(76, 50, '금속 전극', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1;fill:#0b1220' }) + pvdTx(76, 70, '산화막', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }) + pvdTx(76, 110, '실리콘', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }) + pvdL('M76 40 V28 H40', { so: .8 });
+          o += pvdTx(76, 152, 'MOS 축전기', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.9' });
+          const p = fuPlot(-1, 1, 0, 1, 190, 380, 36, 156);
+          o += pvdL('M190 36 V156 H380', { sw: 1.3, so: .7 }) + pvdTx(190, 28, '정전용량 C', { st: 'font-size:9px;opacity:.8' }) + pvdTx(380, 172, '게이트 전압 V', { a: 'end', st: 'font-size:9px;opacity:.8' });
+          const cv = (sh, c, dash) => pvdL(Array.from({ length: 41 }, (_, i) => { const v = -1 + 2 * i / 40, c0 = .3 + .7 / (1 + Math.exp(-(v - sh) * 6)); return (i ? 'L' : 'M') + (190 + (v + 1) / 2 * 190).toFixed(1) + ' ' + (156 - c0 * 110).toFixed(1); }).join(' '), { c, sw: 2.4, so: .95, dash });
+          o += cv(0, '#34d399') + cv(-.32, '#f87171', '5 4');
+          o += pvdL('M190 46 H380', { dash: '2 4', so: .3 }) + pvdTx(376, 42, 'C = 산화막 용량 → 두께', { a: 'end', st: 'font-size:9px;opacity:.8' });
+          o += pvdTx(236, 192, '이상적', { a: 'middle', st: 'font-size:9px;font-weight:700;fill:#34d399;opacity:1' }) + pvdTx(330, 192, '막 속 전하 있음 (옆으로 밀림)', { a: 'middle', st: 'font-size:9px;font-weight:700;fill:#f87171;opacity:1' }).replace('x="330"', 'x="326"');
+          return dgSvg('C–V 측정', o, '0 16 400 204');
+        }
+      },
+    });
+    Object.assign(DIAGRAMS, {
+      // ---------- 10. 산화막 불량 유형 단면 ----------
+      'furn-defects': {
+        title: '산화막에서 생기는 불량',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '산화막과 실리콘 계면을 옆에서 본 모습에 대표적인 불량 다섯 가지를 한꺼번에 그렸다. 불량은 막 두께, 막 표면, 막 속, 계면, 실리콘 결정으로 나눠 보면 원인을 찾기 쉽다. 실제 웨이퍼 한 장에 이렇게 모두 있는 것은 아니다.' },
+          { id: 'th', label: '① 두께 불균일', focus: ['th'], desc: '웨이퍼 사이 또는 한 웨이퍼 안에서 막 두께가 다르다. 위치별 온도 차, 보트 투입 속도, 가스 흐름 불균일, 산화 시간 오차가 원인이다. 두께는 소자의 문턱 전압과 절연 특성에 직접 영향을 주므로 목표 ±5 % 안 같은 규격이 있다.' },
+          { id: 'pt', label: '② 입자 · 핀홀', focus: ['pt'], desc: '산화 전에 웨이퍼 표면에 있던 입자가 막 속에 갇혀 그 자리의 막이 솟거나 얇아지고, 심하면 구멍(핀홀)이 되어 절연이 깨진다. 세정이 덜 되었거나, 튜브·보트에서 떨어진 입자, 석영에 쌓인 부착물이 원인이다. 입자는 한 번 구워지면 지울 수 없어 산화 전 세정과 튜브 청정 관리가 핵심이다.' },
+          { id: 'ion', label: '③ 이동성 이온', focus: ['ion'], desc: '나트륨(Na⁺), 칼륨 같은 알칼리 이온이 산화막 속에 들어와 전압이나 온도에 따라 움직인다. 이 때문에 문턱 전압이 시간이 지나면서 변해 소자가 불안정해진다. 사람 손, 약액, 석영 튜브, 가스에서 들어오며, 염화수소(HCl) 산화가 이온을 붙잡아 막고 석영 튜브를 정기적으로 염소 세정해 줄인다.' },
+          { id: 'if', label: '④ 계면 전하 · 결함', focus: ['if'], desc: '실리콘과 산화막이 만나는 계면에는 고정 전하와 끊어진 결합(트랩)이 남는다. 산화 직후 막 속 수소가 적고 결합이 안정되도록 산화 뒤 질소 어닐을 하고, 마지막에 수소 분위기 열처리를 하기도 한다. 이 결함이 많으면 트랜지스터의 속도와 잡음이 나빠진다.' },
+          { id: 'slip', label: '⑤ 슬립', focus: ['slip'], desc: '급한 온도 변화로 생긴 응력이 실리콘 결정면을 미끄러뜨려 만든 선 모양의 결함이다. 결정면을 따라 비스듬히 번지며, 보트와 닿는 가장자리에서 시작한다. 투입·인출 속도와 승온·강온 속도를 낮추고 보트 홈의 접촉을 줄여 막는다. 한번 생기면 되돌릴 수 없다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('fd');
+          // 실리콘 + 산화막(오른쪽이 얇은 쐐기)
+          o += pvdR(20, 150, 360, 92, 'url(#fdSi)', { so: .5 });
+          o += pvdTx(200, 228, '실리콘', { a: 'middle', st: 'font-size:11px;font-weight:700;opacity:.85' });
+          o += `<polygon points="20,100 380,114 380,150 20,150" style="fill:rgba(167,139,250,.33);stroke:currentColor;stroke-opacity:.6;stroke-width:1.2"/>`;
+          o += pvdTx(120, 133, '산화막 SiO₂', { a: 'middle', st: 'font-size:10.5px;font-weight:700;opacity:.95' });
+          // ① 두께 차 표시
+          o += pvdG(f, ['th'], dgArrow(40, 100, 40, 150, 'dg-line dg-hl') + dgArrow(360, 114, 360, 150, 'dg-line dg-hl') + pvdTx(48, 124, '두꺼움', { st: 'font-size:9px;font-weight:700;fill:#f5b942;opacity:1' }) + pvdTx(352, 133, '얇음', { a: 'end', st: 'font-size:9px;font-weight:700;fill:#f5b942;opacity:1' }));
+          // ② 입자 + 핀홀
+          o += pvdG(f, ['pt'], `<path d="M168 107 Q190 86 212 109 Z" style="fill:rgba(167,139,250,.45);stroke:currentColor;stroke-opacity:.6;stroke-width:1.2"/><circle cx="190" cy="146" r="7" fill="rgba(248,113,113,.4)" stroke="#f87171" stroke-width="1.8"/>`
+            + pvdL('M226 110 V150', { c: 'var(--tbl-bg)', sw: 3.2, so: 1 }) + pvdL('M226 110 V150', { c: '#f87171', sw: .8, so: .9, dash: '2 2' }) + pvdTx(190, 168, '입자', { a: 'middle', st: 'font-size:9px;opacity:.9' }) + pvdTx(226, 168, '핀홀', { a: 'middle', st: 'font-size:9px;opacity:.9' }));
+          // ③ 이동성 이온
+          o += pvdG(f, ['ion'], [[250, 130], [270, 122], [288, 138], [304, 126], [322, 136]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="rgba(251,191,36,.6)" stroke="#92400e" stroke-width=".8"/><text x="${x}" y="${y + 3.5}" text-anchor="middle" style="font-size:9px;font-weight:800;fill:#0b1220">+</text>`).join('')
+            + pvdL('M250 130 l-10 -2 M288 138 l10 2', { c: '#fbbf24', dash: '2 2', so: .8, sw: 1.2 }));
+          // ④ 계면 전하·트랩
+          o += pvdG(f, ['if'], [44, 62, 80, 98, 116, 134].map((x, i) => `<text x="${x}" y="${i % 2 ? 146 : 158}" text-anchor="middle" style="font-size:12px;font-weight:800;fill:#fb923c">${i % 2 ? '×' : '+'}</text>`).join('') + pvdL('M24 150 H146', { c: '#fb923c', sw: 1.6, so: .8, dash: '3 3' }));
+          // ⑤ 슬립
+          o += pvdG(f, ['slip'], [318, 336, 354].map((x, i) => pvdL(`M${x} 150 l${i === 2 ? 24 : 36} ${i === 2 ? 40 : 61}`, { c: '#f87171', sw: 2, so: .9 })).join('') + pvdL('M300 168 l28 41', { c: '#f87171', sw: 2, so: .9 }));
+          // 호출선
+          o += pvdCall(f, ['th'], '1', '#f5b942', 28, 30, 42, 34, ['두께 불균일'], 60, 112);
+          o += pvdCall(f, ['pt'], '2', '#f87171', 128, 30, 142, 34, ['입자 · 핀홀'], 190, 140);
+          o += pvdCall(f, ['ion'], '3', '#fbbf24', 224, 30, 238, 34, ['이동성 이온 Na⁺'], 270, 118);
+          o += pvdCall(f, ['if'], '4', '#fb923c', 28, 270, 42, 274, ['계면 전하 · 결함'], 80, 158);
+          o += pvdCall(f, ['slip'], '5', '#f87171', 372, 270, 358, 274, ['슬립'], 340, 190, 'end');
+          return dgSvg('산화막 불량: ' + s.label, o, '0 16 400 268');
+        }
+      },
+    });
+    // ===== LPCVD(저압 화학 기상 증착) 장비 가이드용 그림 (pvd* 도우미를 같이 쓴다) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 1. LPCVD 막이 쓰이는 자리 ----------
+      'lpcvd-where': {
+        title: 'LPCVD 막이 쓰이는 자리 (트랜지스터 단면)',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '트랜지스터 한 개를 옆에서 본 모습에 LPCVD로 만드는 막을 표시했다. LPCVD는 낮은 압력의 뜨거운 튜브에서 가스를 분해해 웨이퍼 수십~100여 장에 한꺼번에 막을 쌓는 장비다. 막이 단차를 고르게 덮는 컨포멀 특성과 한 번에 많이 처리하는 처리량이 강점이라, 폴리실리콘·질화막·산화막처럼 소자의 뼈대가 되는 막을 맡는다.' },
+          { id: 'poly', label: '① 폴리실리콘', focus: ['poly'], desc: '게이트 전극과 플러그, 커패시터 전극으로 쓰이는 다결정 실리콘이다. SiH₄를 600 ℃ 안팎에서 분해해 쌓는다. 쌓는 동안 인(PH₃)이나 붕소를 함께 넣어 도핑하기도 한다. 이 글의 장비 체험이 다루는 막이 이것이다.' },
+          { id: 'nit', label: '② 질화막', focus: ['nit'], desc: '실리콘 질화막(Si₃N₄)은 치밀하고 단단하며 산화와 이온 확산을 막는다. 게이트 위의 하드마스크, 게이트 옆의 스페이서, 소자 분리 공정의 패드 마스크로 쓴다. 디클로로실란(SiH₂Cl₂)과 암모니아(NH₃)를 700~800 ℃에서 반응시킨다.' },
+          { id: 'ox', label: '③ 산화막', focus: ['ox'], desc: 'TEOS(규산 에틸)나 HTO로 쌓은 산화막은 단차를 따라 고르게 덮이는 컨포멀 막이다. 게이트 옆 스페이서와 층 사이 절연에 쓴다. 열산화막과 달리 실리콘을 소모하지 않고 어디에나 쌓을 수 있다.' },
+          { id: 'fill', label: '④ 깊은 홈 채움', focus: ['fill'], desc: '메모리 커패시터처럼 깊고 좁은 홈의 안쪽 벽까지 같은 두께로 쌓는 일은 컨포멀한 LPCVD가 잘한다. 낮은 압력에서 가스 분자가 멀리 퍼져 홈 바닥까지 닿기 때문이다. 홈 입구가 먼저 막히면 속에 빈 구멍(키홀)이 남는다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('lw');
+          // 실리콘 + 왼쪽 STI + 오른쪽 깊은 홈
+          o += pvdR(20, 150, 360, 82, 'url(#lwSi)', { so: .5 });
+          o += pvdTx(150, 224, '실리콘 기판', { a: 'middle', st: 'font-size:10.5px;font-weight:700;opacity:.85' });
+          o += pvdR(30, 136, 56, 52, 'rgba(167,139,250,.22)', { so: .35 }) + pvdTx(58, 166, 'STI', { a: 'middle', st: 'font-size:9px;opacity:.6' });
+          // 오른쪽 깊은 홈 (라이너 + 폴리 채움)
+          o += pvdG(f, ['fill'], pvdR(318, 150, 52, 76, 'rgba(34,197,94,.3)', { so: .75, c: '#22c55e' }) + pvdL('M318 150 V226 H370 V150', { c: '#a78bfa', sw: 2.2, so: .9 }) + pvdTx(344, 192, '폴리 Si', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' }));
+          // 게이트 산화(얇은 기준) + 폴리 게이트 + 질화 캡 + 스페이서
+          o += pvdR(150, 146, 100, 4, 'rgba(167,139,250,.6)', { sw: .8, so: .6 });
+          o += pvdG(f, ['poly'], pvdR(150, 112, 100, 34, 'rgba(34,197,94,.34)', { so: .75, c: '#22c55e' }) + pvdTx(200, 133, '폴리 Si 게이트', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }));
+          o += pvdG(f, ['nit'], pvdR(150, 100, 100, 12, 'rgba(96,165,250,.45)', { so: .8, c: '#60a5fa' }) + pvdR(140, 112, 10, 38, 'rgba(96,165,250,.45)', { so: .8, c: '#60a5fa' }) + pvdR(250, 112, 10, 38, 'rgba(96,165,250,.45)', { so: .8, c: '#60a5fa' }));
+          // n+ 소스·드레인
+          o += pvdR(96, 150, 44, 18, 'rgba(96,165,250,.2)', { so: .3, sw: .8 }) + pvdR(260, 150, 44, 18, 'rgba(96,165,250,.2)', { so: .3, sw: .8 });
+          // 컨포멀 산화막 외곽선 (TEOS)
+          o += pvdG(f, ['ox'], pvdL('M90 142 H128 V86 H272 V142 H312', { c: '#fbbf24', sw: 4, so: .9 }));
+          o += pvdG(f, ['ox'], pvdTx(200, 80, 'TEOS · HTO 산화막', { a: 'middle', st: 'font-size:9px;font-weight:700;fill:#fbbf24;opacity:1' }));
+          // 호출선
+          o += pvdCall(f, ['poly'], '1', '#22c55e', 28, 36, 42, 40, ['폴리실리콘', '게이트·전극'], 172, 124);
+          o += pvdCall(f, ['nit'], '2', '#60a5fa', 124, 36, 138, 40, ['질화막', '캡·스페이서'], 256, 130);
+          o += pvdCall(f, ['ox'], '3', '#fbbf24', 232, 36, 246, 40, ['산화막', '컨포멀'], 128, 110);
+          o += pvdCall(f, ['fill'], '4', '#22c55e', 372, 262, 358, 266, ['깊은 홈 채움'], 344, 212, 'end');
+          o += pvdTx(24, 262, '그림은 두께를 크게 과장했다', { st: 'font-size:9.5px;opacity:.55' });
+          return dgSvg('LPCVD 막이 쓰이는 자리: ' + s.label, o, '0 24 400 250');
+        }
+      },
+      // ---------- 2. 대표 LPCVD 막 네 가지 ----------
+      'lpcvd-films': {
+        title: 'LPCVD로 만드는 대표 막',
+        wide: true,
+        states: [
+          { id: 'all', label: '네 가지 한눈에', desc: 'LPCVD는 막마다 쓰는 가스와 온도가 다르다. 모두 열로 가스를 분해하므로 온도가 높은 편이고(수백 ℃), 압력은 0.1~1 Torr 정도의 낮은 압력이다. 같은 튜브라도 막이 바뀌면 가스 배관, 온도, 청소 방법이 전부 달라서 장비는 막 하나에 전용으로 쓰는 것이 보통이다.' },
+          { id: 'poly', label: '폴리실리콘', focus: ['poly'], desc: 'SiH₄ → Si + 2H₂. 580~650 ℃, 수백 mTorr에서 쌓는다. 온도가 낮으면 비정질, 높으면 다결정이 되며 결정립 크기와 저항이 달라진다. PH₃를 섞으면 쌓으면서 n형으로 도핑되고, 대신 증착 속도가 떨어진다.' },
+          { id: 'nit', label: '실리콘 질화막', focus: ['nit'], desc: '3SiH₂Cl₂ + 4NH₃ → Si₃N₄ + 6HCl + 6H₂. 700~800 ℃에서 쌓는다. 반응 부산물로 염화암모늄(NH₄Cl) 가루가 생겨 차가운 배관 벽에 쌓여 막히므로 배기 배관을 데우고 트랩을 둔다. 막의 인장 응력이 커서 너무 두꺼우면 갈라진다.' },
+          { id: 'teos', label: 'TEOS 산화막', focus: ['teos'], desc: 'Si(OC₂H₅)₄를 650~750 ℃에서 열분해해 SiO₂를 쌓는다. 액체 원료를 데워 증기로 보낸다. 단차를 매우 고르게 덮고 SiH₄보다 다루기 안전해서 스페이서와 층간 절연에 널리 쓴다.' },
+          { id: 'hto', label: 'HTO · LTO', focus: ['hto'], desc: 'HTO는 SiH₂Cl₂ + N₂O를 800~900 ℃에서 반응시킨 고온 산화막으로, 치밀하고 품질이 좋아 열산화막 대용으로 쓴다. LTO는 SiH₄ + O₂를 400~450 ℃에서 반응시키는 저온 산화막으로 열 부담이 적지만 막이 덜 치밀하다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('lf');
+          const cards = [
+            ['poly', 8, 10, '폴리실리콘', '#22c55e', ['SiH₄ → Si + 2H₂', '580~650 ℃ · 0.2~1 Torr'], '게이트 · 플러그 · 전극'],
+            ['nit', 204, 10, '실리콘 질화막', '#60a5fa', ['SiH₂Cl₂ + NH₃', '700~800 ℃ · 0.1~1 Torr'], '하드마스크 · 스페이서'],
+            ['teos', 8, 126, 'TEOS 산화막', '#fbbf24', ['Si(OC₂H₅)₄ 열분해', '650~750 ℃ · 0.3~1 Torr'], '스페이서 · 층간 절연'],
+            ['hto', 204, 126, 'HTO · LTO 산화막', '#a78bfa', ['HTO: SiH₂Cl₂ + N₂O', '800~900 ℃ (LTO: 400~450 ℃)'], '치밀한 절연막 · 저온 절연'],
+          ];
+          cards.forEach(([id, x, y, t, c, lines, use]) => {
+            o += pvdG(f, [id], pvdR(x, y, 188, 106, 'var(--tbl-bg)', { rx: 9, so: .4 }) + pvdR(x, y, 188, 28, c, { rx: 9, so: .3 }).replace('style="fill:' + c, 'style="fill-opacity:.3;fill:' + c)
+              + pvdTx(x + 94, y + 19, t, { a: 'middle', st: 'font-size:13px;font-weight:800;opacity:1' })
+              + pvdTx(x + 10, y + 48, '가스', { st: 'font-size:8.5px;opacity:.55' }) + pvdTx(x + 38, y + 48, lines[0], { st: 'font-size:10px;font-weight:700;opacity:1' })
+              + pvdTx(x + 10, y + 68, '조건', { st: 'font-size:8.5px;opacity:.55' }) + pvdTx(x + 38, y + 68, lines[1], { st: 'font-size:10px;font-weight:700;opacity:1' })
+              + pvdTx(x + 10, y + 90, '쓰임', { st: 'font-size:8.5px;opacity:.55' }) + pvdTx(x + 38, y + 90, use, { st: 'font-size:10px;font-weight:700;opacity:1' }));
+          });
+          return dgSvg('LPCVD 대표 막: ' + s.label, o, '0 0 400 242');
+        }
+      },
+      // ---------- 3. 반응 지배 영역 vs 물질 이동 지배 영역 ----------
+      'lpcvd-regime': {
+        title: 'LPCVD가 낮은 압력을 쓰는 이유',
+        wide: true,
+        states: [
+          { id: 'all', label: '두 영역', k: 'all', desc: '증착 속도는 온도를 올릴 때 두 단계로 변한다. 낮은 온도에서는 표면 반응이 느림목이라 온도에 지수적으로 민감하고, 높은 온도에서는 가스가 표면에 도착하는 속도가 느림목이라 온도에 거의 둔감해진다. 가로축은 온도, 세로축은 증착 속도(로그)다.' },
+          { id: 'rxn', label: '반응 지배', k: 'rxn', desc: '표면 반응이 느림목이면 가스가 웨이퍼 어디에나 충분히 있고, 속도는 오직 온도가 정한다. 웨이퍼를 빽빽하게 꽂아도 가스가 고르게 들어가고 단차 안쪽에도 같은 속도로 쌓인다. 대신 온도 차가 곧 두께 차가 되므로 온도를 아주 균일하게 맞춰야 한다. LPCVD가 일하는 영역이다.' },
+          { id: 'mass', label: '물질 이동 지배', k: 'mass', desc: '온도가 높아 반응이 아주 빨라지면 표면에 닿는 가스가 곧바로 소모된다. 이제는 가스가 얼마나 공급되느냐가 속도를 정하고, 웨이퍼 배치나 가스 흐름 모양이 두께 차를 만든다. 웨이퍼를 빽빽하게 꽂으면 안쪽이 굶는다. 대기압 CVD가 이 영역에서 일해서 웨이퍼를 한 장씩 펼쳐 놓는 구조를 쓴다.' },
+          { id: 'lp', label: '압력의 역할', k: 'lp', desc: '압력을 낮추면 가스 분자가 훨씬 빨리 퍼져 물질 이동이 쉬워진다. 그래서 반응 지배 영역이 훨씬 높은 온도까지 늘어난다(파란 곡선이 주황 곡선보다 오른쪽까지 가파르다). 낮은 압력 덕분에 웨이퍼를 수십 장 빽빽하게 세워도 모두 반응 지배 상태로 고르게 쌓이는 것이다.' },
+        ],
+        svg(s) {
+          const K = s.k, acc = 'var(--hl-accent)';
+          let o = pvdDefs('lr');
+          const L = 52, R = 372, T = 30, B = 196, x = (Tc) => L + (Tc - 540) / 360 * (R - L), y = (r) => B - (Math.log10(r) + 1) / 3.6 * (B - T);
+          const ks = (Tc) => Math.exp(1.7 / 8.617e-5 * (1 / 893 - 1 / (Tc + 273))), kmLP = (Tc) => 400 * Math.pow((Tc + 273) / 893, 1.75), kmAP = (Tc) => 8 * Math.pow((Tc + 273) / 893, 1.75);
+          const comb = (a, b) => (Tc) => 1 / (1 / ks(Tc) + 1 / b(Tc));
+          const path = (fn, c, o2 = {}) => pvdL(Array.from({ length: 49 }, (_, i) => { const Tc = 540 + 360 * i / 48; return (i ? 'L' : 'M') + x(Tc).toFixed(1) + ' ' + Math.max(T, y(fn(Tc))).toFixed(1); }).join(' '), { c, sw: o2.sw || 2.6, so: o2.so || .95, dash: o2.dash });
+          o += pvdL(`M${L} ${T} V${B} H${R}`, { sw: 1.4, so: .7 });
+          [600, 700, 800, 900].forEach((Tc) => { o += pvdL(`M${x(Tc)} ${B} v4`, { so: .7 }) + pvdTx(x(Tc), B + 15, Tc, { a: 'middle', st: 'font-size:9.5px;opacity:.8' }); });
+          o += pvdTx(L, T - 10, '증착 속도 (상대값, 로그)', { st: 'font-size:9.5px;font-weight:700;opacity:.85' }) + pvdTx(R, B + 30, '온도 (℃)', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+          // 영역 띠
+          const rx = (a, b, c, t, id) => pvdG(K === 'all' ? null : [K], [id], `<rect x="${x(a)}" y="${T}" width="${x(b) - x(a)}" height="${B - T}" fill="${c}"/>` + pvdTx((x(a) + x(b)) / 2, T + 14, t, { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }));
+          const dimOn = (id) => K === 'all' || K === id || (K === 'lp');
+          if (K === 'rxn') o += `<rect x="${x(540)}" y="${T}" width="${x(700) - x(540)}" height="${B - T}" fill="rgba(34,197,94,.12)"/>` + pvdTx((x(540) + x(700)) / 2, T + 14, '반응 지배', { a: 'middle', st: 'font-size:10.5px;font-weight:800;fill:#22c55e;opacity:1' });
+          if (K === 'mass') o += `<rect x="${x(760)}" y="${T}" width="${x(900) - x(760)}" height="${B - T}" fill="rgba(248,113,113,.12)"/>` + pvdTx((x(760) + x(900)) / 2, T + 14, '물질 이동 지배', { a: 'middle', st: 'font-size:10.5px;font-weight:800;fill:#f87171;opacity:1' });
+          if (K !== 'lp') {
+            o += path((Tc) => ks(Tc), '#94a3b8', { dash: '4 4', sw: 1.6, so: .75 });
+            o += path(comb(ks, kmAP), '#fb923c');
+            o += pvdTx(x(900), y(comb(ks, kmAP)(900)) + 16, '대기압 CVD', { a: 'end', st: 'font-size:10px;font-weight:700;fill:#fb923c;opacity:1' });
+          }
+          if (K === 'lp' || K === 'all') {
+            o += path(comb(ks, kmAP), '#fb923c', { so: K === 'lp' ? .9 : .5, sw: K === 'lp' ? 2.4 : 2 });
+            o += path(comb(ks, kmLP), '#38bdf8');
+            o += pvdTx(x(900), y(comb(ks, kmLP)(900)) - 8, '저압 CVD (LPCVD)', { a: 'end', st: 'font-size:10px;font-weight:700;fill:#38bdf8;opacity:1' });
+            o += pvdTx(x(900), y(comb(ks, kmAP)(900)) + 16, '대기압 CVD', { a: 'end', st: 'font-size:10px;font-weight:700;fill:#fb923c;opacity:1' });
+            o += pvdL(`M${x(620)} ${y(comb(ks, kmLP)(620))} v${B - y(comb(ks, kmLP)(620))}`, { dash: '2 3', so: .5 }) + `<circle cx="${x(620)}" cy="${y(comb(ks, kmLP)(620))}" r="4.5" fill="#22c55e" stroke="#fff" stroke-width="1"/>` + pvdTx(x(620) + 8, y(comb(ks, kmLP)(620)) + 14, '폴리 Si 620 ℃', { st: 'font-size:9px;font-weight:700;opacity:1' });
+          }
+          if (K === 'all') { o += pvdTx(x(560), T + 12, '반응 지배: 온도에 민감', { st: 'font-size:9.5px;font-weight:700;fill:#22c55e;opacity:1' }); o += pvdTx(x(900), B - 12, '고온: 가스 공급 지배', { a: 'end', st: 'font-size:9.5px;font-weight:700;fill:#f87171;opacity:1' }); }
+          if (K === 'rxn') o += `<circle cx="${x(620)}" cy="${y(comb(ks, kmAP)(620))}" r="4.5" fill="#22c55e" stroke="#fff" stroke-width="1"/>` + pvdTx(x(620) + 8, y(comb(ks, kmAP)(620)) + 14, '폴리 Si 620 ℃', { st: 'font-size:9px;font-weight:700;opacity:1' });
+          return dgSvg('증착 영역: ' + s.label, o, '0 8 400 238');
+        }
+      },
+      // ---------- 4. 수평 LPCVD 튜브 단면 (핵심 구조도) ----------
+      'lpcvd-structure': {
+        title: 'LPCVD 튜브 퍼니스 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '석영 튜브 속에 웨이퍼가 꽂힌 보트가 놓이고, 튜브 바깥을 3구역 히터가 감싼다. 가스는 문 쪽에서 들어와 웨이퍼 사이를 지나 반대편 끝으로 흘러 펌프가 빨아 낸다. 튜브 안은 펌프가 만든 낮은 압력(수백 mTorr)이고, 압력계와 스로틀 밸브가 그 압력을 일정하게 맞춘다.' },
+          { id: 'heat', label: '가열·온도', focus: ['heat', 'tube'], desc: '히터는 앞·가운데·뒤 세 구역으로 나뉘어 따로 제어되며, 열전대가 구역마다 온도를 잰다. 가스는 흐르며 소모되므로 뒤쪽을 조금 더 뜨겁게(온도 기울기) 맞춰 앞뒤 두께를 같게 한다. 튜브는 고온과 진공을 견디는 석영이다.' },
+          { id: 'wafer', label: '보트·웨이퍼', focus: ['boat', 'door'], desc: '보트는 웨이퍼 수십~100여 장을 일정한 간격으로 세워 꽂는 틀이다. 간격이 좁을수록 많이 처리하지만 웨이퍼 한 장 안의 두께 균일도에 영향을 준다. 양 끝에는 더미 웨이퍼를 놓는다. 문과 로더가 보트를 넣고 빼며, 닫으면 진공 씰이 된다.' },
+          { id: 'gas', label: '가스 공급', focus: ['gas'], desc: '가스 캐비닛에서 SiH₄, 질소, 도핑 가스가 질량 유량 조절기(MFC)를 거쳐 정해진 양만큼 들어온다. SiH₄는 공기와 닿으면 불이 붙는 위험한 가스라 전용 캐비닛과 감지기, 자동 차단을 갖춘다. 가스는 문 쪽 끝으로 들어온다.' },
+          { id: 'vac', label: '진공·배기', focus: ['gauge', 'valve', 'trap', 'pump', 'scr'], desc: '튜브 끝의 압력계가 압력을 재고, 스로틀 밸브가 열린 정도로 압력을 조절한다. 배기는 트랩에서 부산물 가루를 걸러 진공 펌프를 거쳐 스크러버에서 태우거나 씻어 낸다. 펌프와 트랩의 상태가 곧 입자와 압력 안정성이다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)', hot = (g) => f && pvdOn(f, g);
+          let o = pvdDefs('ls');
+          // 히터 + 구역
+          o += pvdG(f, ['heat'], pvdR(108, 86, 222, 98, 'rgba(248,113,113,.08)', { rx: 6, so: .5 }) + [182, 256].map((xx) => pvdL(`M${xx} 86 V184`, { dash: '2 3', so: .4 })).join('')
+            + [0, 1, 2, 3, 4, 5].map((i) => pvdL(`M${114 + i * 36} 90 l6 -0 M${114 + i * 36} 90 v8 M${114 + i * 36} 172 v8`, { c: '#f87171', sw: 1.6, so: .8 })).join('')
+            + pvdTx(145, 80, '앞', { a: 'middle', st: 'font-size:9px;opacity:.7' }) + pvdTx(219, 80, '가운데', { a: 'middle', st: 'font-size:9px;opacity:.7' }) + pvdTx(293, 80, '뒤', { a: 'middle', st: 'font-size:9px;opacity:.7' })
+            + [145, 219, 293].map((xx) => `<circle cx="${xx}" cy="176" r="3" fill="#fbbf24" stroke="#92400e" stroke-width=".6"/>`).join(''));
+          // 튜브
+          o += pvdG(f, ['tube'], pvdL('M84 104 H330 Q348 104 348 122 V148 Q348 166 330 166 H84', { fill: 'rgba(125,211,252,.07)', c: '#7dd3fc', sw: 2.4, so: .9 }));
+          // 보트 + 웨이퍼
+          o += pvdG(f, ['boat'], pvdL('M122 160 H312', { c: '#94a3b8', sw: 3, so: .9 }) + Array.from({ length: 24 }, (_, i) => pvdR(128 + i * 7.8, 118, 2.6, 40, i < 2 || i > 21 ? 'rgba(148,163,184,.45)' : 'url(#lsSi)', { sw: .6, so: .55 })).join(''));
+          // 문 + 로더
+          o += pvdG(f, ['door'], pvdR(74, 98, 10, 74, 'url(#lsMt)', { so: .75 }) + pvdL('M84 164 H122', { c: '#94a3b8', sw: 2.4, so: .8 }) + pvdL('M78 100 V170', { c: '#34d399', sw: 1.8, so: .9 }));
+          // 가스 캐비닛 + 입구
+          o += pvdG(f, ['gas'], pvdR(8, 196, 86, 52, 'rgba(250,204,21,.1)', { rx: 6, so: .6 }) + pvdTx(51, 210, '가스 캐비닛', { a: 'middle', st: 'font-size:9.5px;font-weight:800;opacity:1' }) + ['SiH₄', 'N₂', 'PH₃'].map((t, i) => pvdR(14 + i * 26, 220, 22, 20, 'var(--tbl-bg)', { rx: 3, so: .6 }) + pvdTx(25 + i * 26, 233, t, { a: 'middle', st: 'font-size:7.5px;font-weight:700;opacity:1' })).join('')
+            + pvdL('M51 196 V135 H84', { c: '#94a3b8', sw: 3, so: .8 }) + (hot(['gas']) ? dgFlow('M51 196 V138 H122') : ''));
+          // 가스 흐름 (튜브 안)
+          o += pvdG(f, ['gas', 'vac'], hot(['gas']) || hot(['gauge']) ? dgFlow('M90 135 H340') : pvdL('M90 135 H340', { c: '#38bdf8', dash: '2 5', so: .45 }));
+          // 배기 쪽: 압력계, 밸브, 트랩, 펌프, 스크러버
+          o += pvdG(f, ['gauge'], pvdL('M348 135 H400', { c: '#94a3b8', sw: 3.2, so: .75 }) + pvdL('M370 135 V104', { c: '#94a3b8', sw: 2, so: .7 }) + `<circle cx="370" cy="94" r="10" fill="var(--tbl-bg)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.4"/>` + pvdTx(370, 98, 'P', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }));
+          o += pvdG(f, ['gauge', 'valve', 'trap', 'pump'], pvdL('M400 135 V250', { c: '#94a3b8', sw: 3.2, so: .75 }));
+          o += pvdG(f, ['valve'], `<path d="M388 154 L412 154 L388 174 L412 174 Z" fill="rgba(52,211,153,.3)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.4"/>`);
+          o += pvdG(f, ['trap'], pvdR(382, 188, 36, 38, 'rgba(45,212,191,.14)', { rx: 4, so: .7 }) + pvdTx(400, 211, '트랩', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' }));
+          o += pvdG(f, ['pump'], `<circle cx="400" cy="262" r="14" fill="rgba(167,139,250,.2)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.4"/>` + pvdTx(400, 266, 'M', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }));
+          o += pvdG(f, ['scr'], pvdL('M386 262 H358', { c: '#94a3b8', sw: 3.2, so: .75 }) + pvdR(300, 246, 58, 32, 'rgba(45,212,191,.12)', { rx: 5, so: .6 }) + pvdTx(329, 266, '스크러버', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }));
+          // 호출선
+          o += pvdCall(f, ['heat'], '1', '#f87171', 20, 36, 34, 40, ['히터 · 열전대', '(3구역)'], 150, 94);
+          o += pvdCall(f, ['tube'], '2', '#7dd3fc', 148, 36, 162, 40, ['석영 튜브'], 200, 105);
+          o += pvdCall(f, ['boat'], '3', '#94a3b8', 236, 36, 250, 40, ['보트 · 웨이퍼'], 240, 128);
+          o += pvdCall(f, ['gas'], '4', '#facc15', 20, 296, 34, 300, ['가스 캐비닛 · MFC'], 40, 246);
+          o += pvdCall(f, ['door'], '5', '#34d399', 20, 70, 34, 74, ['도어 · 로더'], 78, 120);
+          o += pvdCall(f, ['gauge'], '6', '#38bdf8', 452, 52, 466, 56, ['압력계'], 380, 90);
+          o += pvdCall(f, ['valve'], '7', '#34d399', 452, 100, 466, 104, ['스로틀 밸브'], 410, 160);
+          o += pvdCall(f, ['trap'], '8', '#2dd4bf', 452, 148, 466, 152, ['트랩'], 417, 200);
+          o += pvdCall(f, ['pump'], '9', '#a78bfa', 452, 244, 466, 248, ['진공 펌프'], 412, 258);
+          o += pvdCall(f, ['scr'], '10', '#2dd4bf', 300, 296, 316, 300, ['스크러버'], 329, 278);
+          return dgSvg('LPCVD 튜브 단면: ' + s.label, o, '0 22 580 292');
+        }
+      },
+      // ---------- 5. 한 배치의 순서: 온도, 압력, 가스 ----------
+      'lpcvd-flow': {
+        title: 'LPCVD 한 번의 순서: 온도·압력·가스',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 순서', desc: '한 배치는 보트를 넣고, 공기를 빼고, 새는 곳이 없는지 보고, 온도를 맞춘 뒤, 가스를 흘려 막을 쌓고, 가스를 몰아내고, 대기압으로 되돌려 꺼내는 순서로 돈다. 막이 쌓이는 구간은 일부이고 나머지가 준비와 마무리다. 가로축은 시간이며 구간 길이는 실제 비율이 아니다.' },
+          { id: 'load', label: '① 로딩·펌프다운', focus: ['load'], desc: '보트를 튜브에 넣고 문을 닫은 뒤 펌프로 공기를 뺀다. 튜브가 대기압에서 수십 mTorr 이하까지 내려간다. 이때 대기 중의 산소와 수분을 최대한 빼 두어야 막이 깨끗하다.' },
+          { id: 'leak', label: '② 누설 점검', focus: ['leak'], desc: '배기 밸브를 잠그고 압력이 얼마나 빨리 오르는지 본다(누설 속도). 정해진 한도보다 빨리 오르면 문이나 배관에서 공기가 새는 것이므로 막이 산화되거나 오염될 수 있어 공정을 멈춘다.' },
+          { id: 'ramp', label: '③ 승온·안정', focus: ['ramp'], desc: '대기 온도에서 증착 온도로 올리고 보트 전체가 같은 온도가 되도록 기다린다. 온도가 막 두께에 지수적으로 영향을 주므로 안정 시간이 충분해야 한다. 앞·가운데·뒤 구역의 온도 기울기도 이때 맞춘다.' },
+          { id: 'dep', label: '④ 증착', focus: ['dep'], desc: '압력을 정한 값(수백 mTorr)으로 맞춘 채 반응 가스를 정해진 유량으로 흘린다. 이 구간에서만 막이 쌓이고, 두께는 증착 속도와 시간의 곱이다. 압력, 유량, 온도가 흔들리면 두께가 그대로 흔들린다.' },
+          { id: 'purge', label: '⑤ 퍼지·복귀', focus: ['purge'], desc: '반응 가스를 끊고 펌프와 질소를 번갈아 써서(사이클 퍼지) 튜브 속 남은 가스를 몰아낸 뒤 질소로 대기압을 채운다. SiH₄ 같은 위험 가스를 남긴 채 문을 열면 불이 붙거나 중독될 수 있어 충분히 퍼지한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, acc = 'var(--hl-accent)';
+          let o = pvdDefs('lfl');
+          const ph = [['load', 40, 105, '로딩·펌프다운'], ['leak', 105, 140, '누설 점검'], ['ramp', 140, 200, '승온·안정'], ['dep', 200, 270, '증착'], ['purge', 270, 380, '퍼지·복귀']];
+          ph.forEach(([id, a, b, t]) => { o += `<rect x="${a}" y="30" width="${b - a}" height="196" fill="${f && pvdOn(f, [id]) ? 'rgba(245,185,66,.14)' : 'rgba(148,163,184,.04)'}"/>` + pvdL(`M${b} 30 V226`, { dash: '1 4', so: .25 }) + pvdTx((a + b) / 2, 42, t, { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:.9' }); });
+          // 온도 (위)
+          const Ty = (Tc) => 112 - (Tc - 400) / 300 * 54;
+          o += pvdL('M40 54 V112 H386', { sw: 1.3, so: .7 }) + pvdTx(36, 66, '온도', { a: 'end', st: 'font-size:8.5px;opacity:.7' });
+          o += pvdL('M40 ' + Ty(500) + ' H135 L190 ' + Ty(620) + ' H272 L300 ' + Ty(500) + ' H386', { c: acc, sw: 2.6, so: 1 });
+          o += pvdTx(386, 108, '증착 온도 ≈ 620 ℃', { a: 'end', st: 'font-size:8.5px;opacity:.7' }).replace('y="108"', 'y="64"');
+          // 압력 (로그)
+          const Py = (P) => 178 - (Math.log10(P) + 2) / 5 * 56;   // 0.01~760 Torr
+          o += pvdL('M40 122 V178 H386', { sw: 1.3, so: .7 }) + pvdTx(36, 134, '압력', { a: 'end', st: 'font-size:8.5px;opacity:.7' });
+          [[760, '대기압'], [0.3, '0.3 Torr'], [0.01, '10 mTorr']].forEach(([P, t]) => { o += pvdL(`M37 ${Py(P)} H386`, { dash: '2 4', so: .18 }) + pvdTx(386, Py(P) - 3, t, { a: 'end', st: 'font-size:8px;opacity:.6' }); });
+          o += pvdL(`M40 ${Py(760)} H58 L100 ${Py(0.012)} H112 L136 ${Py(0.03)} L142 ${Py(0.012)} H200 L203 ${Py(0.3)} H270 L274 ${Py(0.012)} L284 ${Py(8)} L292 ${Py(0.012)} L302 ${Py(8)} L310 ${Py(0.012)} L336 ${Py(760)} H386`, { c: '#38bdf8', sw: 2.4, so: .95 });
+          // 가스 띠
+          o += pvdTx(36, 198, '가스', { a: 'end', st: 'font-size:8.5px;opacity:.7' });
+          [[40, 200, '#94a3b8', 'N₂ / 진공'], [200, 270, '#22c55e', 'SiH₄'], [270, 386, '#94a3b8', 'N₂ 퍼지']].forEach(([a, b, c, t]) => { o += pvdR(a, 186, b - a - 1, 18, c, { so: .3, sw: .8 }).replace('style="fill:' + c, 'style="fill-opacity:.35;fill:' + c) + pvdTx((a + b) / 2, 199, t, { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }); });
+          // 보트/문
+          o += pvdTx(36, 220, '문', { a: 'end', st: 'font-size:8.5px;opacity:.7' }) + pvdL('M40 216 H386', { c: '#34d399', sw: 3, so: .5 }) + pvdL('M40 216 H100 M320 216 H386', { c: '#f87171', sw: 3, so: .7 }) + pvdTx(100, 224, '열림', { a: 'middle', st: 'font-size:8px;opacity:.6' }) + pvdTx(345, 224, '열림', { a: 'middle', st: 'font-size:8px;opacity:.6' }) + pvdTx(210, 224, '닫힘', { a: 'middle', st: 'font-size:8px;opacity:.6' });
+          o += pvdTx(386, 240, '시간 →', { a: 'end', st: 'font-size:8.5px;opacity:.6' });
+          return dgSvg('LPCVD 순서: ' + s.label, o, '0 22 400 232');
+        }
+      },
+    });
+    // ===== LPCVD 장비 가이드용 그림 2부 (고갈·결정성·균일도·측정·불량) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 6. 가스 고갈과 온도 기울기 ----------
+      'lpcvd-depletion': {
+        title: '가스 고갈과 온도 기울기',
+        wide: true,
+        states: [
+          { id: 'all', label: '고갈 vs 보정', k: 'all', desc: '가스는 튜브 앞쪽 웨이퍼에서 먼저 쓰이므로 뒤쪽으로 갈수록 줄어든다. 그래서 아무 보정이 없으면 뒤쪽 웨이퍼가 얇아진다(주황). 뒤쪽을 24 ℃ 더 뜨겁게 하면 증착 속도가 올라 모자란 가스를 메우고 두께가 고르게 펴진다(초록). 가로축은 보트 안의 웨이퍼 위치, 세로축은 평균 대비 두께다.' },
+          { id: 'none', label: '보정 없음', k: 'none', desc: '온도를 앞뒤 똑같이 두면 가스가 흐르며 줄어드는 만큼 뒤쪽 웨이퍼가 얇아진다. 이 예(620 ℃, 0.3 Torr, 100 sccm)에서는 앞뒤 차이가 평균의 ±30%나 되어 규격(±4%)을 크게 벗어난다. 웨이퍼를 빽빽하게 꽂을수록, 증착이 빠를수록 더 심해진다.' },
+          { id: 'grad', label: '기울기 +24 ℃', k: 'grad', desc: '뒤쪽을 앞쪽보다 24 ℃ 더 뜨겁게 하면 속도가 온도에 지수적으로 늘어나는 효과로 고갈을 거의 정확히 메운다. 620 ℃ 부근에서는 ℃당 속도가 약 2.5%씩 변하므로 24 ℃ 차이가 약 +80%의 보정이 되어, 고갈로 줄어드는 폭(약 45%)과 맞아떨어진다. 두께 곡선이 규격 띠 안으로 들어온다.' },
+          { id: 'over', label: '과보정 +40 ℃', k: 'over', desc: '기울기를 너무 키우면(+40 ℃) 이번에는 뒤쪽이 두꺼워진다. 앞뒤 차이가 다시 규격을 벗어나며 방향만 반대가 된다. 온도 기울기는 많을수록 좋은 값이 아니라 고갈 정도에 맞는 값을 찾는 손잡이다.' },
+          { id: 'flow', label: '유량 2배', k: 'flow', desc: '가스를 두 배 흘리면 웨이퍼가 쓰는 비율이 줄어 뒤쪽에도 가스가 남는다. 기울기 없이도 앞뒤 차이가 절반(±30% → ±15%)으로 줄지만 아직 규격 밖이어서 기울기를 함께 쓴다. 대신 가스 값과 배기 부담이 늘고, 위험 가스(SiH₄)를 더 많이 다루게 된다.' },
+        ],
+        svg(s) {
+          const K = s.k, hl = (id) => K === 'all' || K === id;
+          let o = pvdDefs('ldp');
+          const mk = (G, F) => { const D = .6 * (100 / F), th = []; for (let i = 0; i < 50; i++) { const x = i / 49, Ti = 620 + G * (x - .5); th.push(10 * Math.exp(-1.7 / 8.617e-5 * (1 / (Ti + 273) - 1 / 893)) * Math.exp(-D * x)); } const m = th.reduce((a, b) => a + b) / 50, mx = Math.max(...th), mn = Math.min(...th); return { r: th.map((v) => v / m), w2w: (mx - mn) / (2 * m) * 100 }; };
+          const cv = { none: [mk(0, 100), '#fb923c', '보정 없음'], grad: [mk(24, 100), '#22c55e', '기울기 +24 ℃'], over: [mk(40, 100), '#f87171', '과보정 +40 ℃'], flow: [mk(0, 200), '#38bdf8', '유량 2배'] };
+          const show = K === 'all' ? ['none', 'grad'] : ['none', 'grad', 'over', 'flow'];
+          const L = 54, R = 380, T = 106, B = 214, X = (i) => L + i / 49 * (R - L), Y = (r) => B - (Math.min(1.6, Math.max(.5, r)) - .5) / 1.1 * (B - T);
+          // 위: 튜브 그림 + 가스 농도
+          o += `<defs><linearGradient id="ldpG" x1="0" x2="1"><stop offset="0" stop-color="#22c55e" stop-opacity=".55"/><stop offset="1" stop-color="#22c55e" stop-opacity="${K === 'flow' ? .38 : .1}"/></linearGradient>`
+            + `<linearGradient id="ldpH" x1="0" x2="1"><stop offset="0" stop-color="#f87171" stop-opacity=".18"/><stop offset="1" stop-color="#f87171" stop-opacity="${K === 'grad' || K === 'all' ? .5 : K === 'over' ? .8 : .18}"/></linearGradient></defs>`;
+          o += pvdR(L - 6, 20, R - L + 12, 40, 'url(#ldpG)', { rx: 8, c: '#7dd3fc', so: .8, sw: 1.6 });
+          o += pvdR(L - 6, 64, R - L + 12, 8, 'url(#ldpH)', { rx: 2, so: .2, sw: .6 });
+          for (let i = 0; i < 25; i++) o += pvdR(L + 4 + i * (R - L - 8) / 24, 26, 2.6, 28, 'url(#ldpSi)', { so: .5, sw: .5 });
+          o += pvdTx(L - 4, 14, '가스 →', { st: 'font-size:9px;font-weight:700;opacity:.9;fill:#22c55e' }) + pvdTx(R + 4, 14, '펌프 →', { a: 'end', st: 'font-size:9px;opacity:.7' });
+          o += pvdTx(L - 6, 82, '앞(문)', { st: 'font-size:8.5px;opacity:.7' }) + pvdTx(R + 6, 82, '뒤', { a: 'end', st: 'font-size:8.5px;opacity:.7' });
+          o += pvdTx((L + R) / 2, 82, K === 'grad' || K === 'all' ? '히터: 뒤쪽이 더 뜨거움' : K === 'over' ? '히터: 뒤쪽이 훨씬 뜨거움' : '히터 띠(붉은색)', { a: 'middle', st: 'font-size:8.5px;opacity:.65' });
+          // 축
+          o += pvdL(`M${L} ${T} V${B} H${R}`, { sw: 1.4, so: .7 });
+          o += pvdR(L, Y(1.04), R - L, Y(.96) - Y(1.04), 'rgba(34,197,94,.14)', { so: 0, sw: 0 }).replace(/stroke[^;"]*;?/g, '');
+          o += pvdTx(R, Y(1.04) - 3, '규격 ±4%', { a: 'end', st: 'font-size:8.5px;fill:#22c55e;opacity:.9' });
+          [.6, 1, 1.4].forEach((v) => { o += pvdL(`M${L - 3} ${Y(v)} h3`, { so: .7 }) + pvdTx(L - 6, Y(v) + 3, v.toFixed(1), { a: 'end', st: 'font-size:8.5px;opacity:.75' }); });
+          o += pvdL(`M${L} ${Y(1)} H${R}`, { dash: '2 4', so: .25 });
+          o += pvdTx(L - 2, T - 8, '평균 대비 두께', { st: 'font-size:9px;font-weight:700;opacity:.85' }) + pvdTx(R, B + 18, '웨이퍼 위치 (앞 → 뒤)', { a: 'end', st: 'font-size:9px;font-weight:700;opacity:.85' });
+          ['none', 'grad', 'over', 'flow'].forEach((id) => {
+            if (!show.includes(id)) return;
+            const [d, c, t] = cv[id], on = hl(id);
+            o += pvdL(Array.from({ length: 50 }, (_, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(d.r[i]).toFixed(1)).join(' '), { c, sw: on ? 2.8 : 1.4, so: on ? .98 : .3 });
+          });
+          // 범례/수치
+          const rows = show;
+          rows.forEach((id, j) => { const [d, c, t] = cv[id], on = hl(id); o += pvdL(`M${L + 4} ${B + 36 + j * 0} h0`, {}); });
+          let lx = L;
+          rows.forEach((id) => { const [d, c, t] = cv[id], on = hl(id), lab = t + ' (±' + d.w2w.toFixed(1) + '%)'; o += `<circle cx="${lx + 4}" cy="${B + 36}" r="3.5" fill="${c}" opacity="${on ? 1 : .45}"/>` + pvdTx(lx + 11, B + 39.5, lab, { st: 'font-size:9px;font-weight:' + (on ? 700 : 500) + ';opacity:' + (on ? 1 : .55) }); lx += 11 + lab.length * 6.1 + 12; });
+          return dgSvg('고갈과 보정: ' + s.label, o, '0 4 400 266');
+        }
+      },
+      // ---------- 7. 온도와 결정 구조 ----------
+      'lpcvd-crystal': {
+        title: '증착 온도와 폴리실리콘 결정 구조',
+        wide: true,
+        states: [
+          { id: 'all', label: '온도 창', k: 'all', desc: '같은 SiH₄라도 증착 온도에 따라 막의 결정 구조가 달라진다. 낮으면 결정이 못 자라 비정질이고, 600~650 ℃에서 가늘고 곧은 기둥 모양 결정립의 다결정이 되며, 더 높으면 결정립이 거칠어지고 표면이 울퉁불퉁해진다. 폴리실리콘 게이트용으로는 가운데 창(600~650 ℃)을 쓴다.' },
+          { id: 'amo', label: '비정질 (<580 ℃)', k: 'amo', t: 565, desc: '원자가 질서 없이 쌓인 매끈한 막이다. 표면이 곱고 결정립이 없어 식각이 균일하다는 장점이 있고, 이후 열처리로 결정화하기도 한다. 그러나 증착이 매우 느리고 나중에 열을 받으면 결정화되며 부피가 변해 응력이 생긴다.' },
+          { id: 'mix', label: '혼합 (580~600 ℃)', k: 'mix', t: 590, desc: '비정질 바탕에 결정 핵이 군데군데 생겨 자란다. 결정화 정도가 위치에 따라 들쭉날쭉해서 식각 속도와 저항이 불균일해지기 쉽다. 이 경계의 온도에서 공정을 돌리면 재현성이 나빠 보통 피한다.' },
+          { id: 'poly', label: '다결정 (600~650 ℃)', k: 'poly', t: 625, desc: '기판에서부터 위로 자란 가늘고 곧은 기둥 모양 결정립으로 이루어진다. 증착 속도가 실용적이고, 도핑 후 저항이 안정적이라 게이트·플러그에 쓰는 표준 창이다. 이 모델의 합격 조건도 600~650 ℃다.' },
+          { id: 'coarse', label: '거친 (>650 ℃)', k: 'coarse', t: 685, desc: '결정립이 크고 표면이 울퉁불퉁해진다. 거친 표면은 위에 쌓는 막과 패턴 모양을 해치고, 높은 온도에서는 가스가 튜브 안에서 먼저 반응해 입자(먼지)도 늘어난다. 속도는 빠르지만 품질이 떨어진다.' },
+        ],
+        svg(s) {
+          const K = s.k, acc = 'var(--hl-accent)';
+          let o = pvdDefs('lcr');
+          // 온도 막대
+          const x0 = 40, x1 = 380, tx = (t) => x0 + (t - 540) / 160 * (x1 - x0);
+          const bands = [[540, 580, '#60a5fa', '비정질'], [580, 600, '#a78bfa', '혼합'], [600, 650, '#22c55e', '다결정'], [650, 700, '#f87171', '거친']];
+          bands.forEach(([a, b, c, t]) => { o += `<rect x="${tx(a)}" y="20" width="${tx(b) - tx(a)}" height="18" fill="${c}" opacity="${K === 'all' || (K === 'amo' && a === 540) || (K === 'mix' && a === 580) || (K === 'poly' && a === 600) || (K === 'coarse' && a === 650) ? .55 : .15}"/>` + pvdTx((tx(a) + tx(b)) / 2, 33, t, { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }); });
+          [560, 580, 600, 650, 700].forEach((t) => { o += pvdL(`M${tx(t)} 38 v4`, { so: .7 }) + pvdTx(tx(t), 52, t, { a: 'middle', st: 'font-size:8.5px;opacity:.75' }); });
+          o += pvdTx(x1, 14, '증착 온도 (℃)', { a: 'end', st: 'font-size:9px;font-weight:700;opacity:.85' });
+          const T0 = K === 'all' ? null : s.t;
+          if (T0) o += `<path d="M${tx(T0) - 5} 58 h10 l-5 7 z" fill="#fbbf24"/>`;
+          // 시료 단면: 기판 + 산화막 + 막
+          const prng = (() => { let a = 7; return () => (a = (a * 9301 + 49297) % 233280) / 233280; })();
+          const film = (x, y, w, h, kind, label, c, on) => {
+            let g = pvdR(x, y + h, w, 12, 'rgba(167,139,250,.35)', { so: .3, sw: .6 }) + pvdR(x, y + h + 12, w, 18, 'url(#lcrSi)', { so: .4, sw: .6 });
+            const base = pvdR(x, y, w, h, kind === 'amo' ? 'rgba(96,165,250,.28)' : 'rgba(34,197,94,.22)', { so: .5, sw: 1, c });
+            g += base;
+            const edge = [];
+            if (kind === 'poly') { for (let gx = x + 9; gx < x + w - 4; gx += 9 + Math.floor(prng() * 3)) g += pvdL(`M${gx} ${y + h} L${gx + (prng() - .5) * 3} ${y + 1}`, { c, sw: .9, so: .75 }); }
+            if (kind === 'mix') { g += pvdR(x, y, w, h, 'rgba(96,165,250,.22)', { so: 0, sw: 0 }).replace(/stroke[^;"]*;?/g, ''); [[.2, .8], [.5, .75], [.78, .85], [.36, .55]].forEach(([fx, fy]) => { const cx = x + fx * w, cy = y + fy * h, r = 6 + prng() * 6; g += `<path d="M${cx - r} ${y + h} L${cx} ${cy - r} L${cx + r} ${y + h} Z" fill="rgba(34,197,94,.3)" stroke="${c}" stroke-width=".9" stroke-opacity=".85"/>`; }); }
+            if (kind === 'coarse') { let d = `M${x} ${y + h}`; for (let gx = x; gx <= x + w; gx += 6) d += ` L${gx} ${y + 3 + prng() * 9}`; d += ` L${x + w} ${y + h} Z`; g += `<path d="${d}" fill="rgba(248,113,113,.25)" stroke="${c}" stroke-width="1.4"/>`; [x + 24, x + 52, x + 82].forEach((gx) => { g += pvdL(`M${gx} ${y + h} L${gx + (prng() - .5) * 10} ${y + 8}`, { c, sw: 1, so: .75 }); }); }
+            return g;
+          };
+          const panels = [['amo', 'amo', '비정질', '#60a5fa'], ['mix', 'mix', '혼합', '#a78bfa'], ['poly', 'poly', '다결정', '#22c55e'], ['coarse', 'coarse', '거친 다결정', '#f87171']];
+          if (K === 'all') {
+            panels.forEach(([id, kind, t, c], i) => { const x = 14 + i * 96; o += film(x, 100, 86, 34, kind, t, c, true) + pvdTx(x + 43, 176, t, { a: 'middle', st: 'font-size:10px;font-weight:800;fill:' + c + ';opacity:1' }); });
+            o += pvdTx(14, 198, '막 모양은 단면을 간단히 그린 모식도이며 두께는 과장했다', { st: 'font-size:8.5px;opacity:.55' });
+            o += pvdTx(14, 212, '실리콘(회색) · 산화막(보라) 위에 쌓은 폴리실리콘 단면', { st: 'font-size:8.5px;opacity:.55' });
+          } else {
+            const kind = K, c = panels.find((p) => p[0] === K)[3], t = panels.find((p) => p[0] === K)[2];
+            o += film(60, 80, 210, 60, kind, t, c, true);
+            o += pvdTx(200, 134, '', {});
+            o += pvdCall(null, ['x'], '1', c, 376, 96, 362, 100, [t + ' 막'], 270, 110, 'end');
+            o += pvdTx(66, 187, '폴리실리콘(위)  /  산화막(보라)  /  실리콘 기판(아래)', { st: 'font-size:8.5px;opacity:.6' });
+            o += pvdTx(66, 203, K === 'poly' ? '가는 기둥 모양 결정립이 기판에서 위로 곧게 자란다' : K === 'amo' ? '결정립 경계 없이 매끈하다' : K === 'mix' ? '비정질 바탕에 결정 핵이 불규칙하게 섞인다' : '결정립이 크고 표면이 울퉁불퉁하다', { st: 'font-size:9.5px;font-weight:700;opacity:.95' });
+          }
+          return dgSvg('결정 구조: ' + s.label, o, '0 6 400 230');
+        }
+      },
+      // ---------- 8. 웨이퍼 안 균일도와 압력 ----------
+      'lpcvd-uniform': {
+        title: '압력이 웨이퍼 안 균일도와 먼지에 미치는 영향',
+        wide: true,
+        states: [
+          { id: 'all', label: '압력 올리면', k: 'all', P: .5, desc: '압력을 올리면 증착은 빨라지지만 두 가지 대가가 생긴다. 웨이퍼 사이 좁은 틈의 안쪽(가운데)까지 가스가 닿기 전에 가장자리에서 먼저 쓰여 한 장 안의 두께가 불균일해지고, 가스끼리 공중에서 반응해 입자(먼지)가 늘어난다. 아래 두 막대가 그 변화를 보여 준다.' },
+          { id: 'low', label: '낮은 압력 0.15 Torr', k: 'low', P: .15, desc: '가스 분자가 멀리 퍼져 웨이퍼 사이 틈의 가운데까지 고르게 들어간다. 한 장 안의 두께가 평평하고 먼지도 적다. 대신 증착 속도가 느려 처리 시간이 길어진다.' },
+          { id: 'mid', label: '알맞은 압력 0.30 Torr', k: 'mid', P: .3, desc: '속도와 균일도의 균형이 맞는 구간이다. 이 체험의 규격(웨이퍼 한 장 안 편차 3% 이하, 먼지 20개 이하)을 모두 만족하는 범위의 가운데쯤에 해당한다.' },
+          { id: 'high', label: '높은 압력 0.80 Torr', k: 'high', P: .8, desc: '가스가 틈 안쪽으로 퍼지기 전에 가장자리에서 먼저 쓰여 가운데가 얇은 오목한 두께 분포가 된다. 또 기체 상태의 분자들이 서로 반응해 미세한 실리콘 입자가 생기고, 이것이 웨이퍼에 떨어져 불량이 된다. 처리량을 얻으려 압력을 올릴 때 가장 먼저 부딪히는 한계다.' },
+        ],
+        svg(s) {
+          const P = s.P, K = s.k;
+          let o = pvdDefs('lun');
+          const D = .6 * Math.pow(P / .3, .7), wiw = .8 + 3.2 * Math.pow(P, 1.3) + 1.5 * D, dust = 3 + 120 * Math.pow(Math.max(0, P - .45), 1.2);
+          // 위: 웨이퍼 사이 틈 단면
+          const x0 = 40, x1 = 360, cx = 200;
+          o += pvdR(x0, 18, x1 - x0, 10, 'url(#lunSi)', { so: .6, sw: .8 }) + pvdR(x0, 78, x1 - x0, 10, 'url(#lunSi)', { so: .6, sw: .8 });
+          o += pvdTx(x0, 14, '웨이퍼 (위)', { st: 'font-size:8.5px;opacity:.65' }) + pvdTx(x0, 100, '웨이퍼 (아래)', { st: 'font-size:8.5px;opacity:.65' });
+          // 아래 웨이퍼 위 막 (가운데 오목)
+          const amp = wiw * 1.05, base = 7;
+          let d = `M${x0} 78`;
+          for (let i = 0; i <= 40; i++) { const x = x0 + (x1 - x0) * i / 40, u = (x - cx) / ((x1 - x0) / 2); d += ` L${x.toFixed(1)} ${(78 - (base - amp * (1 - u * u) * 0.9)).toFixed(1)}`; }
+          d += ` L${x1} 78 Z`;
+          o += `<path d="${d}" fill="rgba(34,197,94,.38)" stroke="#22c55e" stroke-width="1.6"/>`;
+          o += pvdTx(x1, 100, '막 두께(과장)', { a: 'end', st: 'font-size:8.5px;fill:#22c55e;opacity:.95' });
+          // 가스 화살표 (양쪽 가장자리에서 안쪽으로)
+          const reach = P < .2 ? 140 : P < .4 ? 110 : P < .6 ? 80 : 55;
+          [[x0 - 2, 1], [x1 + 2, -1]].forEach(([xx, dir]) => { for (let j = 0; j < 3; j++) { const yy = 38 + j * 12; o += pvdL(`M${xx} ${yy} H${xx + dir * reach}`, { c: '#38bdf8', sw: 1.8, so: .9 - j * .1 }) + `<path d="M${xx + dir * reach} ${yy} l${-dir * 6} -3 v6 z" fill="#38bdf8" opacity=".85"/>`; } });
+          o += pvdTx(cx, 118, P >= .6 ? '가운데까지 가스가 모자람' : P <= .2 ? '가운데까지 고르게 닿음' : '가운데도 충분', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:.9' });
+          if (P > .45) { const prng = (() => { let a = 11; return () => (a = (a * 9301 + 49297) % 233280) / 233280; })(); const n = Math.round(Math.min(18, dust / 4)); for (let i = 0; i < n; i++) o += `<circle cx="${x0 + 30 + prng() * (x1 - x0 - 60)}" cy="${34 + prng() * 36}" r="${1.3 + prng() * 1.4}" fill="#f87171" opacity=".9"/>`; o += pvdTx(cx, 112, '', {}); }
+          // 아래: 막대 두 개
+          const bx = 150, bw = 200;
+          const bar = (y, label, v, vmax, spec, unit, c) => {
+            const ok = v <= spec;
+            return pvdTx(40, y + 11, label, { st: 'font-size:9.5px;font-weight:700;opacity:.95' }) + pvdR(bx, y, bw, 14, 'rgba(148,163,184,.12)', { so: .3, sw: .6 }) + `<rect x="${bx}" y="${y}" width="${Math.max(2, Math.min(1, v / vmax) * bw).toFixed(1)}" height="14" fill="${ok ? '#22c55e' : '#f87171'}" opacity=".6"/>`
+              + pvdL(`M${bx + spec / vmax * bw} ${y - 3} v20`, { c: '#fbbf24', sw: 1.6, so: .95 }) + pvdTx(bx + spec / vmax * bw, y - 6, '규격 ' + spec + unit, { a: 'middle', st: 'font-size:8px;fill:#fbbf24;opacity:.95' })
+              + pvdTx(bx + bw + 6, y + 11, (unit === '%' ? v.toFixed(1) : Math.round(v)) + unit, { st: 'font-size:10px;font-weight:800;opacity:1;fill:' + (ok ? '#22c55e' : '#f87171') });
+          };
+          o += bar(140, '웨이퍼 안 편차', wiw, 8, 3, '%') + bar(176, '입자(먼지)', dust, 80, 20, '개');
+          o += pvdTx(40, 214, '압력 ' + P.toFixed(2) + ' Torr · 620 ℃ · 유량 100 sccm 기준 모델값', { st: 'font-size:8.5px;opacity:.6' });
+          return dgSvg('압력의 영향: ' + s.label, o, '0 6 420 224');
+        }
+      },
+    });
+    // ===== LPCVD 장비 가이드용 그림 3부 (측정·불량) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 9. 측정 ----------
+      'lpcvd-meas': {
+        title: 'LPCVD 막 측정: 두께·저항·입자',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 가지 측정', k: 'all', desc: '배치가 끝난 웨이퍼는 세 가지를 잰다. 막 두께(엘립소미터), 도핑한 폴리실리콘의 면저항(4점 탐침), 표면에 떨어진 입자 수(레이저 산란 검사)다. 보트의 웨이퍼를 전부 잴 수 없으므로 앞·가운데·뒤에서 몇 장을 뽑아 잰다.' },
+          { id: 'samp', label: '샘플링', k: 'samp', desc: '보트의 앞·가운데·뒤에서 한 장씩 뽑아 잰다. 양 끝의 더미 웨이퍼는 제품이 아니라 가스 흐름을 고르게 하려는 것이라 재지 않는다. 앞뒤 두께 차(웨이퍼 사이 편차)가 규격 안인지는 이 세 점으로 판단한다. 그림의 두께는 온도 기울기를 맞춘 예시 값이다.' },
+          { id: 'ell', label: '엘립소미터', k: 'ell', desc: '약 70° 비스듬히 편광된 빛을 쏘면 막 위·아래 면에서 반사된 빛이 간섭하며 편광 상태가 달라진다. 그 변화(Ψ, Δ)를 막의 굴절률과 두께를 변수로 한 모델에 맞춰 두께를 구한다. 막을 건드리지 않고 한 점에 수십 µm 크기의 빛 점으로 잰다.' },
+          { id: 'rs', label: '4점 탐침', k: 'rs', desc: '일렬로 늘어선 네 개의 탐침 중 바깥 두 개로 전류를 흘리고 안쪽 두 개로 전압을 잰다. 면저항 Rs ≈ 4.53 × V/I (Ω/□)이다. 도핑한 폴리실리콘의 도핑 정도를 두께와 함께 확인하는 값이며, 두께를 알면 비저항 ρ = Rs × t로 환산한다. 도핑하지 않은 막은 저항이 너무 커서 이 방법을 쓰기 어렵다.' },
+          { id: 'part', label: '입자 검사', k: 'part', desc: '레이저를 웨이퍼 표면에 쏘며 훑으면 입자가 있는 곳에서 빛이 사방으로 흩어진다. 흩어진 빛의 세기로 입자의 크기를, 위치로 지도를 얻는다. 막 두께가 맞아도 입자가 많으면 불량이므로 따로 센다. 정해진 크기 이상의 입자 수를 규격(이 체험은 20개)과 비교한다.' },
+        ],
+        svg(s) {
+          const K = s.k;
+          let o = pvdDefs('lms');
+          const card = (x, y, w, h, t, c) => pvdR(x, y, w, h, 'var(--tbl-bg)', { rx: 9, so: .4 }) + `<rect x="${x}" y="${y}" width="${w}" height="24" rx="9" fill="${c}" opacity=".3"/>` + pvdTx(x + w / 2, y + 17, t, { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' });
+          const wafer = (cx, cy, r, dots) => { let g = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#lmsSi)" stroke="currentColor" stroke-opacity=".7" stroke-width="1.4"/><rect x="${cx - 6}" y="${cy + r - 2}" width="12" height="3" fill="var(--bg,#0b1220)"/>`; if (dots) { const prng = (() => { let a = 5; return () => (a = (a * 9301 + 49297) % 233280) / 233280; })(); for (let i = 0; i < dots; i++) { const a = prng() * 6.283, d = Math.sqrt(prng()) * (r - 5); g += `<circle cx="${(cx + Math.cos(a) * d).toFixed(1)}" cy="${(cy + Math.sin(a) * d).toFixed(1)}" r="1.8" fill="#f87171"/>`; } } return g; };
+          if (K === 'all') {
+            // 1 두께
+            o += card(8, 10, 126, 142, '두께', '#22c55e') + pvdL('M24 112 H118', { c: '#94a3b8', sw: 1.4, so: .7 }) + pvdR(28, 112, 86, 8, 'rgba(34,197,94,.4)', { so: .8, c: '#22c55e' }) + pvdR(28, 120, 86, 6, 'rgba(167,139,250,.4)', { so: .4 }) + pvdR(28, 126, 86, 14, 'url(#lmsSi)', { so: .4 })
+              + pvdL('M42 62 L70 108', { c: '#fbbf24', sw: 1.8, so: .95 }) + pvdL('M70 108 L98 62', { c: '#fbbf24', sw: 1.8, so: .95, dash: '3 2' }) + pvdTx(70, 52, '70° 편광', { a: 'middle', st: 'font-size:9px;opacity:.85' })
+              + pvdTx(71, 150, '', {}) + pvdTx(71, 82, '', {});
+            o += pvdTx(71, 168, '엘립소미터', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdTx(71, 181, '두께·굴절률', { a: 'middle', st: 'font-size:9px;opacity:.75' });
+            // 2 저항
+            o += card(137, 10, 126, 142, '면저항', '#60a5fa') + pvdR(150, 112, 100, 28, 'url(#lmsSi)', { so: .4 }) + pvdR(150, 104, 100, 8, 'rgba(34,197,94,.4)', { so: .8, c: '#22c55e' });
+            [163, 183, 203, 223].forEach((px, i) => { o += pvdL(`M${px} 62 V104`, { c: i === 1 || i === 2 ? '#38bdf8' : '#fbbf24', sw: 2.2, so: .95 }); });
+            o += pvdTx(200, 56, 'I', { a: 'middle', st: 'font-size:9px;fill:#fbbf24;opacity:1' }).replace('x="200"', 'x="163"') + pvdTx(193, 54, 'V', { a: 'middle', st: 'font-size:9px;fill:#38bdf8;opacity:1' });
+            o += pvdTx(200, 168, '4점 탐침', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdTx(200, 181, '도핑 확인 (Ω/□)', { a: 'middle', st: 'font-size:9px;opacity:.75' });
+            // 3 입자
+            o += card(266, 10, 126, 142, '입자', '#f87171') + wafer(329, 92, 40, 7) + pvdL('M290 40 L318 70', { c: '#22c55e', sw: 1.6, so: .9 });
+            o += pvdTx(329, 168, '레이저 산란 검사', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdTx(329, 181, '입자 수·위치', { a: 'middle', st: 'font-size:9px;opacity:.75' });
+          } else if (K === 'samp') {
+            const x0 = 40, x1 = 360;
+            o += pvdL(`M${x0 - 10} 80 H${x1 + 10}`, { c: '#94a3b8', sw: 3, so: .9 });
+            for (let i = 0; i < 25; i++) { const x = x0 + i * (x1 - x0) / 24, smp = [2, 12, 22].includes(i), dm = i < 2 || i > 22; o += pvdR(x - 1.5, 30, 3, 50, smp ? '#fbbf24' : (dm ? 'rgba(148,163,184,.4)' : 'url(#lmsSi)'), { sw: smp ? 1.2 : .5, so: smp ? .95 : .5 }); }
+            o += pvdTx(x0 - 10, 24, '더미', { st: 'font-size:8.5px;opacity:.65' }) + pvdTx(x1 + 10, 24, '더미', { a: 'end', st: 'font-size:8.5px;opacity:.65' });
+            [[2, '앞', 210], [12, '가운데', 200], [22, '뒤', 190]].forEach(([i, t, v], j) => { const x = x0 + i * (x1 - x0) / 24; o += pvdL(`M${x} 84 V${112}`, { c: '#fbbf24', sw: 1.2, so: .8, dash: '2 2' }); const bx = 60 + j * 110; o += pvdTx(bx + 40, 130, t + ' 웨이퍼', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdR(bx, 136, 80, 16, 'rgba(148,163,184,.12)', { so: .3, sw: .6 }) + `<rect x="${bx}" y="136" width="${(v / 260 * 80).toFixed(1)}" height="16" fill="#22c55e" opacity=".6"/>` + pvdTx(bx + 40, 148, v + ' nm', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }); });
+            o += pvdTx(40, 172, '앞·가운데·뒤 세 점의 두께로 웨이퍼 사이 편차를 판단한다 (예시 값)', { st: 'font-size:9px;opacity:.65' });
+          } else if (K === 'ell') {
+            const cx = 200, sy = 146, a = 70 * Math.PI / 180, L = 96, dx = L * Math.sin(a), dy = L * Math.cos(a);
+            o += pvdR(90, sy, 220, 10, 'rgba(34,197,94,.4)', { so: .8, c: '#22c55e' }) + pvdR(90, sy + 10, 220, 6, 'rgba(167,139,250,.4)', { so: .4 }) + pvdR(90, sy + 16, 220, 26, 'url(#lmsSi)', { so: .4 });
+            o += pvdTx(96, sy + 8, '폴리 Si', { st: 'font-size:8.5px;font-weight:700;opacity:1' }) + pvdTx(96, sy + 28, '산화막 / Si 기판', { st: 'font-size:8.5px;opacity:.8' });
+            o += pvdL(`M${cx - dx} ${sy - dy} L${cx} ${sy}`, { c: '#fbbf24', sw: 2.4, so: .95 }) + pvdL(`M${cx} ${sy} L${cx + dx} ${sy - dy}`, { c: '#f87171', sw: 2.4, so: .95 });
+            o += pvdL(`M${cx} ${sy - 44} V${sy - 4}`, { dash: '2 3', so: .45 }) + `<path d="M${cx} ${sy - 30} A30 30 0 0 0 ${cx - 30 * Math.sin(a)} ${sy - 30 * Math.cos(a) - 0}" fill="none" stroke="currentColor" stroke-opacity=".7"/>` + pvdTx(cx - 26, sy - 44, '70°', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' });
+            // 광원, 검출기
+            o += pvdR(cx - dx - 38, sy - dy - 22, 38, 20, 'rgba(251,191,36,.2)', { rx: 4, so: .7, c: '#fbbf24' }) + pvdTx(cx - dx - 19, sy - dy - 9, '광원', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' }) + pvdTx(cx - dx - 19, sy - dy - 28, '편광기', { a: 'middle', st: 'font-size:8.5px;opacity:.8' });
+            o += pvdR(cx + dx, sy - dy - 22, 44, 20, 'rgba(248,113,113,.2)', { rx: 4, so: .7, c: '#f87171' }) + pvdTx(cx + dx + 22, sy - dy - 9, '검출기', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' }) + pvdTx(cx + dx + 22, sy - dy - 28, '검광기', { a: 'middle', st: 'font-size:8.5px;opacity:.8' });
+            o += pvdTx(cx, sy - 58, '편광 변화 Ψ, Δ', { a: 'middle', st: 'font-size:10px;font-weight:800;fill:#f87171;opacity:1' });
+            o += pvdTx(60, 22, '모델에 맞춰 두께 d와 굴절률 n, k를 구한다', { st: 'font-size:9.5px;font-weight:700;opacity:.9' });
+            o += pvdTx(60, 206, '막 속의 물결무늬 간섭이 편광을 바꾼다 (단면은 두께를 과장)', { st: 'font-size:8.5px;opacity:.6' });
+          } else if (K === 'rs') {
+            const x0 = 70, y0 = 120, w = 260;
+            o += pvdR(x0, y0 + 10, w, 36, 'url(#lmsSi)', { so: .4 }) + pvdR(x0, y0, w, 10, 'rgba(34,197,94,.4)', { so: .8, c: '#22c55e' }) + pvdTx(x0 + w + 4, y0 + 8, '폴리 Si', { st: 'font-size:8.5px;opacity:.8' });
+            [100, 160, 220, 280].forEach((px, i) => { const inner = i === 1 || i === 2; o += pvdL(`M${px} ${y0 - 38} V${y0}`, { c: inner ? '#38bdf8' : '#fbbf24', sw: 3, so: .95 }) + `<circle cx="${px}" cy="${y0}" r="2.5" fill="${inner ? '#38bdf8' : '#fbbf24'}"/>`; });
+            o += pvdL(`M100 ${y0 + 4} Q190 ${y0 + 34} 280 ${y0 + 4}`, { c: '#fbbf24', sw: 1.8, so: .85, dash: '4 3' });
+            o += pvdTx(100, y0 - 44, 'I+', { a: 'middle', st: 'font-size:10px;font-weight:800;fill:#fbbf24;opacity:1' }) + pvdTx(280, y0 - 44, 'I−', { a: 'middle', st: 'font-size:10px;font-weight:800;fill:#fbbf24;opacity:1' }) + pvdTx(160, y0 - 44, 'V+', { a: 'middle', st: 'font-size:10px;font-weight:800;fill:#38bdf8;opacity:1' }) + pvdTx(220, y0 - 44, 'V−', { a: 'middle', st: 'font-size:10px;font-weight:800;fill:#38bdf8;opacity:1' });
+            o += pvdTx(70, 22, '바깥 두 탐침: 전류 흘림 / 안쪽 두 탐침: 전압 읽음', { st: 'font-size:9.5px;font-weight:700;opacity:.9' });
+            o += pvdTx(70, 188, 'Rs ≈ 4.53 × V / I  (Ω/□)      ρ = Rs × t', { st: 'font-size:11px;font-weight:800;opacity:1' }) + pvdTx(70, 204, '전류가 막 속을 퍼져 흐르므로 얇을수록 Rs가 커진다', { st: 'font-size:8.5px;opacity:.65' });
+          } else {
+            o += wafer(140, 100, 74, 9) + pvdTx(140, 188, '웨이퍼 위 입자 지도 (예시)', { a: 'middle', st: 'font-size:9px;opacity:.7' });
+            o += pvdL('M236 38 L284 66', { c: '#22c55e', sw: 2.2, so: .95 }) + pvdTx(236, 32, '레이저', { a: 'middle', st: 'font-size:9px;font-weight:700;fill:#22c55e;opacity:1' }) + pvdL('M284 66 L316 44 M284 66 L322 76 M284 66 L306 96', { c: '#f87171', sw: 1.4, so: .85, dash: '2 2' }) + `<circle cx="284" cy="66" r="3.5" fill="#f87171"/>` + pvdTx(300, 114, '입자에서 사방으로', { a: 'middle', st: 'font-size:9px;fill:#f87171;opacity:1' }) + pvdTx(300, 126, '빛이 흩어진다', { a: 'middle', st: 'font-size:9px;fill:#f87171;opacity:1' });
+            o += pvdTx(236, 158, '개수 ≤ 20 → 합격', { st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdTx(236, 172, '크기는 산란 세기로 추정', { st: 'font-size:8.5px;opacity:.7' });
+          }
+          return dgSvg('LPCVD 측정: ' + s.label, o, '0 4 400 ' + (K === 'ell' ? 212 : K === 'rs' ? 214 : 196));
+        }
+      },
+      // ---------- 10. 흔한 불량 ----------
+      'lpcvd-defects': {
+        title: 'LPCVD 대표 불량 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '여섯 가지 불량', desc: 'LPCVD 불량은 대부분 압력·온도·가스 흐름·청소 상태에서 온다. 단면 모식도로 여섯 가지를 모았다. 불량마다 원인이 겹치므로 어느 숫자가 규격을 벗어났는지 보고 가운데 한두 개를 의심하는 것이 순서다.' },
+          { id: 'par', label: '입자', focus: ['par'], desc: '웨이퍼 위에 입자가 떨어지면 그 위로 막이 덮여 돌기가 되고, 식각 때 가림막처럼 작용해 단락이나 불량을 만든다. 원인은 압력이 높아 공중에서 생긴 실리콘 입자, 튜브 벽에서 떨어진 막 조각, 로딩 중의 먼지다.' },
+          { id: 'key', label: '키홀', focus: ['key'], desc: '깊고 좁은 홈의 입구가 안쪽보다 먼저 막히면 속에 빈 구멍(키홀)이 남는다. 온도·압력이 높아 입구 쪽 증착이 빨라지면 심해진다. 나중에 식각하거나 열을 가할 때 이 구멍이 열려 불량이 된다.' },
+          { id: 'rou', label: '거친 표면', focus: ['rou'], desc: '증착 온도가 650 ℃를 넘으면 결정립이 커져 표면이 울퉁불퉁해진다. 위에 올릴 막과 패턴의 모양을 해치고 식각 후 선 가장자리가 거칠어진다. 온도 창을 지키면 막을 수 있다.' },
+          { id: 'w2w', label: '앞뒤 두께 차', focus: ['w2w'], desc: '가스 고갈로 뒤쪽 웨이퍼가 얇아지는 불량이다. 온도 기울기를 맞추거나 유량을 늘려 줄인다. 같은 배치 안에서 제품이 달라지므로 앞뒤 편차 규격이 따로 있다.' },
+          { id: 'flk', label: '벽 박리', focus: ['flk'], desc: '튜브 벽에도 막이 쌓이는데 두꺼워지면 갈라져 떨어진다. 그 조각이 입자가 되어 웨이퍼를 덮친다. 정해진 증착 누적 두께마다 튜브를 세정하고, 압력 급변을 줄이는 것이 예방이다.' },
+          { id: 'oxi', label: '계면 산화', focus: ['oxi'], desc: '로딩 때나 누설로 공기가 들어오면 실리콘 표면에 자연산화막이 생겨 폴리와 기판 사이에 얇은 절연층이 끼어든다. 접촉 저항이 커지는 원인이다. 그래서 누설 점검을 하고 로딩 때 질소를 흘린다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('ldf');
+          const cards = [['par', 6, 6, '입자 돌기', '#f87171'], ['key', 204, 6, '키홀(빈 구멍)', '#fbbf24'], ['rou', 6, 128, '거친 표면', '#fb923c'], ['w2w', 204, 128, '앞뒤 두께 차', '#60a5fa'], ['flk', 6, 250, '벽 박리 조각', '#a78bfa'], ['oxi', 204, 250, '계면 자연산화막', '#2dd4bf']];
+          const scene = {
+            par: (ox, oy) => pvdR(ox, oy + 40, 160, 14, 'url(#ldfSi)', { so: .4, sw: .6 }) + `<path d="M${ox} ${oy + 40} V${oy + 28} H${ox + 56} Q${ox + 80} ${oy + 4} ${ox + 104} ${oy + 28} H${ox + 160} V${oy + 40} Z" fill="rgba(34,197,94,.34)" stroke="#22c55e" stroke-width="1.4"/><circle cx="${ox + 80}" cy="${oy + 32}" r="8" fill="#f87171" stroke="#fff" stroke-width=".8"/>`,
+            key: (ox, oy) => pvdR(ox, oy + 6, 50, 48, 'url(#ldfSi)', { so: .4, sw: .6 }) + pvdR(ox + 110, oy + 6, 50, 48, 'url(#ldfSi)', { so: .4, sw: .6 }) + pvdR(ox + 50, oy + 46, 60, 8, 'url(#ldfSi)', { so: .4, sw: .6 })
+              + `<path d="M${ox} ${oy + 6} V${oy} H${ox + 160} V${oy + 6} H${ox + 110} V${oy + 14} H${ox + 98} V${oy + 8} H${ox + 62} V${oy + 14} H${ox + 50} V${oy + 6} Z" fill="rgba(34,197,94,.34)" stroke="#22c55e" stroke-width="1.2"/>`
+              + pvdR(ox + 50, oy + 14, 12, 32, 'rgba(34,197,94,.34)', { so: .8, c: '#22c55e', sw: 1 }) + pvdR(ox + 98, oy + 14, 12, 32, 'rgba(34,197,94,.34)', { so: .8, c: '#22c55e', sw: 1 }) + pvdR(ox + 62, oy + 40, 36, 6, 'rgba(34,197,94,.34)', { so: .8, c: '#22c55e', sw: 1 })
+              + `<ellipse cx="${ox + 80}" cy="${oy + 26}" rx="6" ry="12" fill="var(--bg,#0b1220)" stroke="#fbbf24" stroke-width="1.2"/>`,
+            rou: (ox, oy) => { let d = `M${ox} ${oy + 40}`; const prng = (() => { let a = 3; return () => (a = (a * 9301 + 49297) % 233280) / 233280; })(); for (let x = 0; x <= 160; x += 6) d += ` L${ox + x} ${oy + 10 + prng() * 12}`; d += ` L${ox + 160} ${oy + 40} Z`; return pvdR(ox, oy + 40, 160, 14, 'url(#ldfSi)', { so: .4, sw: .6 }) + `<path d="${d}" fill="rgba(251,146,60,.28)" stroke="#fb923c" stroke-width="1.4"/>` + pvdL(`M${ox + 40} ${oy + 40} V${oy + 22} M${ox + 88} ${oy + 40} V${oy + 20} M${ox + 124} ${oy + 40} V${oy + 24}`, { c: '#fb923c', sw: 1, so: .7 }); },
+            w2w: (ox, oy) => [[ox + 20, 8, '앞'], [ox + 76, 5, '가운데'], [ox + 132, 2.5, '뒤']].map(([x, t, n]) => pvdR(x - t - 2, oy + 4, t, 44, 'rgba(34,197,94,.4)', { so: .8, c: '#22c55e', sw: .8 }) + pvdR(x - 2, oy + 4, 4, 44, 'url(#ldfSi)', { so: .4, sw: .5 }) + pvdR(x + 2, oy + 4, t, 44, 'rgba(34,197,94,.4)', { so: .8, c: '#22c55e', sw: .8 }) + pvdTx(x, oy + 60, n, { a: 'middle', st: 'font-size:9px;opacity:.85' })).join(''),
+            flk: (ox, oy) => pvdR(ox, oy + 2, 160, 8, 'rgba(125,211,252,.25)', { so: .7, c: '#7dd3fc', sw: 1.2 }) + pvdR(ox, oy + 10, 160, 8, 'rgba(34,197,94,.3)', { so: .6, c: '#22c55e', sw: .8 }) + `<path d="M${ox + 62} ${oy + 18} L${ox + 82} ${oy + 24} L${ox + 98} ${oy + 20} L${ox + 94} ${oy + 30} L${ox + 70} ${oy + 31} Z" fill="rgba(167,139,250,.5)" stroke="#a78bfa" stroke-width="1.2"/>` + pvdL(`M${ox + 84} ${oy + 34} V${oy + 44}`, { c: '#a78bfa', sw: 1.6, so: .9 }) + `<path d="M${ox + 78} ${oy + 42} l6 8 l6 -8" fill="none" stroke="#a78bfa" stroke-width="1.6"/>` + pvdR(ox, oy + 52, 160, 8, 'url(#ldfSi)', { so: .4, sw: .6 }),
+            oxi: (ox, oy) => pvdR(ox, oy + 40, 160, 14, 'url(#ldfSi)', { so: .4, sw: .6 }) + pvdR(ox, oy + 34, 160, 6, 'rgba(45,212,191,.7)', { so: .9, c: '#2dd4bf', sw: 1 }) + pvdR(ox, oy + 8, 160, 26, 'rgba(34,197,94,.3)', { so: .7, c: '#22c55e', sw: 1 }) + pvdTx(ox + 80, oy + 24, '폴리 Si', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' }) + pvdTx(ox + 150, oy + 33, '', {}),
+          };
+          const caps = { par: '압력↑ · 벽 조각 · 로딩 먼지', key: '입구가 먼저 막힘 (고온·고압)', rou: '650 ℃ 초과: 결정립이 커짐', w2w: '가스 고갈 → 뒤쪽이 얇음', flk: '벽 막이 두꺼워져 갈라짐', oxi: '공기 유입 → 접촉 저항↑' };
+          cards.forEach(([id, x, y, t, c]) => {
+            o += pvdG(f, [id], pvdR(x, y, 190, 116, 'var(--tbl-bg)', { rx: 9, so: .4 }) + `<rect x="${x}" y="${y}" width="190" height="24" rx="9" fill="${c}" opacity=".3"/>` + pvdTx(x + 95, y + 17, t, { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' }) + scene[id](x + 15, y + 30) + pvdTx(x + 95, y + 108, caps[id], { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:.95' }));
+          });
+          return dgSvg('LPCVD 불량: ' + s.label, o, '0 0 400 372');
+        }
+      },
+    });
+
+    // ===== ALD(원자층 증착) 장비 가이드용 그림 1부 (사용처·방식 비교·사이클·구조·타이밍) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 1. ALD가 쓰이는 자리 ----------
+      'ald-where': {
+        title: 'ALD 막이 쓰이는 자리',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 가지 자리', desc: 'ALD는 원자 한 층씩 쌓아 두께를 사이클 수로 정하는 증착이다. 아주 얇고(수 nm) 구멍과 단차의 안쪽까지 똑같은 두께로 덮어야 하는 자리에서 쓴다. 대표적으로 트랜지스터의 고유전율 게이트 절연막, 메모리 커패시터의 유전막, 다중 패터닝의 스페이서가 있다.' },
+          { id: 'hk', label: '① 고유전율 게이트', focus: ['hk'], desc: '게이트 전극과 실리콘 사이의 절연막이 수 nm로 얇아지면 전자가 새는 터널링 누설이 커진다. 유전율이 큰 하프늄 산화막(HfO₂)을 쓰면 같은 정전 용량을 더 두껍게 얻어 누설을 줄인다. 이 막은 게이트가 들어갈 홈의 바닥과 옆벽을 같은 두께로 덮어야 해서 ALD로 만든다. 위에는 일함수를 정하는 TiN 같은 금속과 텅스텐 같은 채움 금속이 올라간다.' },
+          { id: 'cap', label: '② 메모리 커패시터', focus: ['cap'], desc: 'DRAM 커패시터는 폭이 좁고 매우 깊은 원통 속에 전극과 유전막을 겹겹이 만든다. 원통 바닥까지 유전막(ZrO₂, Al₂O₃ 등)이 균일하게 덮여야 용량이 확보되고 누설이 막힌다. 종횡비(깊이÷폭)가 수십에 이르러 ALD 외에는 해법이 거의 없다.' },
+          { id: 'spc', label: '③ 스페이서(다중 패터닝)', focus: ['spc'], desc: '심(mandrel)이라는 기둥 모양 패턴을 세우고 그 위에 ALD로 산화막을 균일하게 덮은 뒤 위쪽·바닥의 막을 벗겨 내면 옆벽에만 막이 남는다. 이 스페이서가 새로운 패턴이 되어 노광 한 번으로 만든 간격보다 촘촘한 선을 얻는다. 옆벽 두께가 곧 선 폭이므로 두께 정밀도가 생명이다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('aw');
+          const card = (x, id, t, c) => pvdG(f, [id], pvdR(x, 8, 130, 246, 'var(--tbl-bg)', { rx: 9, so: .4 }) + `<rect x="${x}" y="8" width="130" height="24" rx="9" fill="${c}" opacity=".3"/>` + pvdTx(x + 65, 25, t, { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' }));
+          o += card(4, 'hk', '① 고유전율 게이트', '#fbbf24') + card(140, 'cap', '② 커패시터 유전막', '#2dd4bf') + card(276, 'spc', '③ 스페이서', '#a78bfa');
+          // 1: HKMG
+          o += pvdG(f, ['hk'],
+            pvdR(10, 200, 118, 44, 'url(#awSi)', { so: .4, sw: .8 }) + pvdR(10, 140, 28, 60, 'rgba(148,163,184,.4)', { so: .5, sw: .8 }) + pvdR(100, 140, 28, 60, 'rgba(148,163,184,.4)', { so: .5, sw: .8 })
+            + pvdR(38, 96, 62, 104, 'rgba(251,191,36,.55)', { so: .9, c: '#fbbf24', sw: 1.2 }) + pvdR(43, 101, 52, 94, 'rgba(45,212,191,.5)', { so: .9, c: '#2dd4bf', sw: 1 }) + pvdR(48, 106, 42, 84, 'rgba(148,163,184,.6)', { so: .8, c: '#94a3b8', sw: 1 })
+            + pvdR(38, 196, 62, 4, 'rgba(167,139,250,.6)', { so: .5, sw: .6 })
+            + pvdTx(69, 150, 'W', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdTx(69, 114, 'TiN', { a: 'middle', st: 'font-size:8.5px;font-weight:700;opacity:1' }) + pvdTx(69, 224, '채널(Si)', { a: 'middle', st: 'font-size:8.5px;opacity:.8' }));
+          o += pvdG(f, ['hk'], pvdTx(10, 86, 'HfO₂ (ALD)', { st: 'font-size:9.5px;font-weight:800;fill:#fbbf24;opacity:1' }) + pvdTx(10, 76, '바닥·옆벽 같은 두께', { st: 'font-size:8px;opacity:.75' }));
+          // 2: 커패시터
+          o += pvdG(f, ['cap'],
+            pvdR(146, 58, 24, 170, 'rgba(148,163,184,.35)', { so: .5, sw: .8 }) + pvdR(246, 58, 24, 170, 'rgba(148,163,184,.35)', { so: .5, sw: .8 }) + pvdR(146, 228, 124, 16, 'url(#awSi)', { so: .4, sw: .8 })
+            + pvdR(170, 58, 76, 170, 'rgba(45,212,191,.55)', { so: .9, c: '#2dd4bf', sw: 1 }) + pvdR(175, 58, 66, 165, 'rgba(251,191,36,.55)', { so: .9, c: '#fbbf24', sw: 1 }) + pvdR(180, 58, 56, 160, 'rgba(45,212,191,.55)', { so: .9, c: '#2dd4bf', sw: 1 })
+            + pvdTx(208, 150, '상부 전극', { a: 'middle', st: 'font-size:8.5px;font-weight:700;opacity:1' }) + pvdTx(208, 50, '', {}) + pvdTx(208, 240, '', {}));
+          o += pvdG(f, ['cap'], pvdTx(150, 50, '유전막(ALD)', { st: 'font-size:9.5px;font-weight:800;fill:#fbbf24;opacity:1' }) + pvdTx(150, 44, '', {}) + pvdTx(276, 250, '', {}) + pvdTx(206, 252, '깊이≫폭', { a: 'middle', st: 'font-size:8.5px;opacity:.75' }));
+          // 3: 스페이서
+          o += pvdG(f, ['spc'],
+            pvdR(282, 200, 118 - 12, 44, 'url(#awSi)', { so: .4, sw: .8 }) + pvdR(316, 130, 34, 70, 'rgba(148,163,184,.5)', { so: .6, sw: .8 }) + pvdTx(333, 168, '심', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' })
+            + `<path d="M284 200 V190 H310 V124 H356 V190 H384 V200" fill="none" stroke="#a78bfa" stroke-width="5" stroke-linejoin="round"/>`
+            + pvdL('M356 150 V196', { c: '#a78bfa', sw: 6, so: .2 }));
+          o += pvdG(f, ['spc'], pvdTx(333, 112, 'ALD 막이 모양을 따라 덮음', { a: 'middle', st: 'font-size:8.5px;font-weight:700;fill:#a78bfa;opacity:1' }) + pvdTx(333, 252, '', {}));
+          o += pvdG(f, ['spc'], pvdTx(333, 100, '→ 위·바닥을 벗기면', { a: 'middle', st: 'font-size:8px;opacity:.75' }) + pvdTx(333, 90, '옆벽만 남아 새 패턴', { a: 'middle', st: 'font-size:8px;opacity:.75' }));
+          return dgSvg('ALD가 쓰이는 자리: ' + s.label, o, '0 0 408 262');
+        }
+      },
+      // ---------- 2. 증착 방식별 단차 덮임 ----------
+      'ald-vs': {
+        title: '증착 방식에 따른 깊은 홈 덮임',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 방식 비교', desc: '깊고 좁은 홈 속에 막을 입히면 증착 방식에 따라 모양이 다르다. 방향성이 강한 PVD는 위만 두껍고 바닥은 얇으며 입구가 막힌다. 가스 반응을 쓰는 CVD는 낫지만 입구가 더 빨리 쌓이고, ALD는 표면 한 층씩 반응해 위·옆벽·바닥이 같은 두께다. 단차 덮임은 바닥 두께 ÷ 위쪽 두께로 나타낸다.' },
+          { id: 'pvd', label: 'PVD', focus: ['pvd'], desc: '스퍼터된 원자가 한 방향으로 날아와 홈 위와 입구에 많이 쌓이고 옆벽과 바닥에는 조금만 닿는다. 입구가 튀어나와(오버행) 좁아지면 더욱 속으로 못 들어간다. 단차 덮임은 대략 수십 % 이하다. 평평한 면에 금속을 빠르게 입히는 데는 좋지만 깊은 홈에는 맞지 않는다.' },
+          { id: 'cvd', label: 'PECVD 등 CVD', focus: ['cvd'], desc: '가스가 홈 속으로 퍼져 들어가 막이 쌓이지만, 입구는 가스가 먼저 닿아 더 빨리 쌓이고 바닥은 가스가 늦게 닿아 얇아진다. 플라즈마 CVD는 단차 덮임이 대략 절반 안팎이고, 종횡비가 커질수록 입구가 닫혀 빈 구멍이 남는다. 열 CVD(LPCVD 등)는 이보다 훨씬 좋다.' },
+          { id: 'ald', label: 'ALD', focus: ['ald'], desc: '전구체가 홈 속으로 퍼지며 표면 자리가 다 찰 때까지 붙고 멈춘다(자기 제한). 가스가 충분히 오래 들어가기만 하면 위·옆벽·바닥이 같은 속도로 한 층씩 쌓이므로 두께가 같다. 단차 덮임이 거의 100 %이고 두께를 사이클 수로 정한다. 대신 한 층씩 쌓아 느리다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('av');
+          const cols = [['pvd', 'PVD', '#fb923c', (u) => 2 + 12 * Math.pow(1 - u, 1.8), 14, 6, '≈ 25 %'], ['cvd', 'PECVD 등 CVD', '#60a5fa', (u) => 9 - 3.5 * u, 11, 5, '≈ 55 %'], ['ald', 'ALD', '#22c55e', () => 8, 8, 8, '≈ 100 %']];
+          cols.forEach(([id, name, c, tf, tt, tb, sc], i) => {
+            const x0 = 8 + i * 132, W = 124, tw = 36, xl = x0 + (W - tw) / 2, xr = xl + tw, yT = 56, yB = 196, H = yB - yT;
+            let g = pvdR(x0, 12, W, 238, 'var(--tbl-bg)', { rx: 9, so: .4 }) + pvdTx(x0 + W / 2, 30, name, { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' });
+            g += pvdR(x0 + 4, yT, xl - x0 - 4, 148, 'url(#avSi)', { so: .4, sw: .6 }) + pvdR(xr, yT, x0 + W - 4 - xr, 148, 'url(#avSi)', { so: .4, sw: .6 }) + pvdR(xl, yB, tw, 8, 'url(#avSi)', { so: .4, sw: .6 });
+            // 막: 홈 영역을 막 색으로 채운 뒤 비어 있는 부분을 지운다
+            const film = `rgba(${c === '#fb923c' ? '251,146,60' : c === '#60a5fa' ? '96,165,250' : '34,197,94'},.55)`;
+            g += `<rect x="${x0 + 4}" y="${yT - tt}" width="${xl - x0 - 4}" height="${tt}" fill="${film}" stroke="${c}" stroke-width="1"/><rect x="${xr}" y="${yT - tt}" width="${x0 + W - 4 - xr}" height="${tt}" fill="${film}" stroke="${c}" stroke-width="1"/>`;
+            g += `<rect x="${xl}" y="${yT}" width="${tw}" height="${H}" fill="${film}"/>`;
+            const N = 24, pl = [], pr = [];
+            for (let k = 0; k <= N; k++) { const u = k / N, y = yT + u * (H - tb), t = tf(u); pl.push([xl + t, y]); pr.push([xr - t, y]); }
+            const L1 = pl.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' '), R1 = pr.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
+            g += `<path d="${L1} ${pr.slice().reverse().map((q) => 'L' + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ')} Z" fill="var(--tbl-bg)"/>`;
+            g += `<path d="${L1}" fill="none" stroke="${c}" stroke-width="1.2"/><path d="${R1}" fill="none" stroke="${c}" stroke-width="1.2"/>`;
+            g += pvdTx(x0 + W / 2, 226, '단차 덮임', { a: 'middle', st: 'font-size:8.5px;opacity:.7' }) + pvdTx(x0 + W / 2, 242, sc, { a: 'middle', st: 'font-size:12px;font-weight:800;fill:' + c + ';opacity:1' });
+            o += pvdG(f, [id], g);
+          });
+          return dgSvg('증착 방식 비교: ' + s.label, o, '0 6 404 256');
+        }
+      },
+      // ---------- 3. ALD 한 사이클의 표면 반응 ----------
+      'ald-react': {
+        title: 'ALD 한 사이클: 표면에서 일어나는 일',
+        wide: true,
+        states: [
+          { id: 'all', label: '네 단계', k: 'all', desc: 'ALD 한 사이클은 전구체 → 퍼지 → 반응 가스 → 퍼지의 네 단계다. 알루미늄 산화막(Al₂O₃)은 TMA(트리메틸알루미늄)와 물(H₂O)을 번갈아 넣어 만든다. 한 사이클에 약 0.1 nm씩 쌓여 사이클 수가 곧 두께다.' },
+          { id: 's1', label: '① TMA 흡착', k: 1, desc: '표면은 수산기(–OH)로 덮여 있다. TMA가 들어오면 표면의 –OH와 반응해 –O–Al(CH₃)₂가 되고 메탄(CH₄)이 떨어져 나간다. 표면의 자리가 다 차면 더 붙을 곳이 없어 반응이 멈춘다. 이것이 자기 제한이며, 가스를 더 넣어도 더 쌓이지 않는다.' },
+          { id: 's2', label: '② 퍼지', k: 2, desc: '질소를 흘려 붙지 않은 TMA와 부산물(메탄)을 밀어낸다. 표면에는 한 층의 –Al(CH₃)₂만 남는다. 퍼지가 부족해 남은 TMA가 다음 단계의 물과 공중에서 만나면 입자가 생기고 두께가 불균일해진다.' },
+          { id: 's3', label: '③ H₂O 반응', k: 3, desc: '물이 들어오면 표면의 –CH₃와 반응해 –Al–OH가 되고 메탄이 또 떨어져 나간다. 이렇게 한 층의 알루미늄 산화막이 완성되고 표면은 다시 –OH로 덮여 다음 사이클을 준비한다. 이 단계도 자리가 차면 멈춘다.' },
+          { id: 's4', label: '④ 퍼지', k: 4, desc: '질소로 남은 물과 메탄을 다시 밀어낸다. 한 사이클이 끝났고 막이 약 0.1 nm 두꺼워졌다. 이 네 단계를 수십~수백 번 되풀이해 목표 두께를 만든다. 전체 반응은 2Al(CH₃)₃ + 3H₂O → Al₂O₃ + 6CH₄로 쓴다.' },
+        ],
+        svg(s) {
+          const K = s.k, c1 = '#a78bfa', c2 = '#67e8f9';
+          let o = pvdDefs('ac');
+          const atom = (x, y, r, fill, t, tc) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="rgba(0,0,0,.35)" stroke-width=".6"/>` + (t ? pvdTx(x, y + r * .35, t, { a: 'middle', st: `font-size:${r * 1.1}px;font-weight:800;fill:${tc || '#0b1220'};opacity:1` }) : '');
+          const tma = (x, y, s2 = 1) => { let g = ''; [[-9, 8], [9, 8], [0, -10]].forEach(([dx, dy]) => { g += pvdL(`M${x} ${y} L${x + dx * s2} ${y + dy * s2}`, { sw: 1.4, so: .7 }) + atom(x + dx * s2, y + dy * s2, 3.4 * s2, '#ddd6fe'); }); return g + atom(x, y, 5.5 * s2, c1, 'Al', '#fff'); };
+          const water = (x, y) => atom(x, y, 4.8, c2, 'O') + atom(x - 6, y + 4, 2.4, '#fff') + atom(x + 6, y + 4, 2.4, '#fff');
+          const ch4 = (x, y) => atom(x, y, 3.6, '#94a3b8', 'C') + atom(x - 4, y - 4, 1.6, '#fff') + atom(x + 4, y - 4, 1.6, '#fff') + atom(x - 4, y + 4, 1.6, '#fff') + atom(x + 4, y + 4, 1.6, '#fff');
+          const panel = (step, ox, oy, W, Hh, titleT, formula) => {
+            let g = pvdR(ox, oy, W, Hh, 'var(--tbl-bg)', { rx: 9, so: .4 });
+            const sy = oy + Hh - 40;   // 표면 높이(막 윗면)
+            const layerDone = step >= 4 ? 1 : 0;
+            g += pvdR(ox + 6, sy + 12, W - 12, 28, 'url(#acSi)', { so: .4, sw: .6 }) + pvdR(ox + 6, sy + 4 - layerDone * 8 + 4, W - 12, 8 + layerDone * 8, 'rgba(45,212,191,.35)', { so: .4, c: '#2dd4bf', sw: .8 });
+            const top = sy + 4 - layerDone * 8 + 4 - 4;
+            const sites = [0, 1, 2, 3, 4].map((i) => ox + 22 + i * ((W - 44) / 4));
+            if (step === 0 || step === 4) sites.forEach((x) => { g += atom(x, top - 4, 4, '#f87171', '') + atom(x + 4, top - 9, 1.8, '#fff') + pvdL(`M${x} ${top - 1} v5`, { so: .4 }); });
+            if (step === 1) sites.forEach((x, i) => { if (i < 4) { g += atom(x, top - 4, 4, '#f87171', '') + pvdL(`M${x} ${top - 4} V${top - 14}`, { c: c1, sw: 1.5, so: .9 }) + tma(x, top - 22, .8); } else g += atom(x, top - 4, 4, '#f87171', '') + atom(x + 4, top - 9, 1.8, '#fff'); });
+            if (step === 1) { g += tma(sites[4] - 2, oy + 28, .85) + pvdTx(sites[4] + 14, oy + 22, '✕', { st: 'font-size:12px;font-weight:800;fill:#f87171;opacity:1' }) + ch4(sites[1] + 10, oy + 40) + ch4(sites[3] - 4, oy + 52) + `<path d="M${ox + W - 24} ${oy + 18} v-8" stroke="#94a3b8" stroke-width="1.4"/>`; }
+            if (step === 2) { sites.forEach((x, i) => { if (i < 4) g += atom(x, top - 4, 4, '#f87171', '') + pvdL(`M${x} ${top - 4} V${top - 14}`, { c: c1, sw: 1.5, so: .9 }) + tma(x, top - 22, .8); else g += atom(x, top - 4, 4, '#f87171', '') + atom(x + 4, top - 9, 1.8, '#fff'); });  for (let i = 0; i < 4; i++) g += pvdL(`M${ox + 20 + i * 36} ${oy + 34} h24`, { c: '#94a3b8', sw: 1.4, so: .6, dash: '3 3' }); }
+            if (step === 3) { sites.forEach((x, i) => { if (i < 4) { g += atom(x, top - 4, 4, '#f87171', '') + pvdL(`M${x} ${top - 4} V${top - 12}`, { c: c1, sw: 1.5, so: .9 }) + atom(x, top - 14, 5, c1, 'Al', '#fff') + atom(x - 6, top - 24, 3, '#ddd6fe'); } else g += atom(x, top - 4, 4, '#f87171', '') + atom(x + 4, top - 9, 1.8, '#fff'); }); g += water(sites[0] + 14, oy + 30) + water(sites[2] + 12, oy + 22) + ch4(sites[3] + 12, oy + 44) + ch4(sites[1] + 4, oy + 48); }
+            if (step === 4) { sites.forEach((x) => { g += atom(x, top - 12, 3.4, '#f87171', '') + atom(x + 4, top - 17, 1.6, '#fff'); }); g += pvdL(`M${ox + 8} ${top + 2} h${W - 16}`, { c: '#22c55e', sw: 1.6, so: .9 }) + pvdTx(ox + W - 10, top + 12, '+0.1 nm', { a: 'end', st: 'font-size:8.5px;font-weight:800;fill:#22c55e;opacity:1' }); }
+            if (step === 4) { for (let i = 0; i < 4; i++) g += pvdL(`M${ox + 20 + i * 36} ${oy + 34} h24`, { c: '#94a3b8', sw: 1.4, so: .6, dash: '3 3' }); }
+            g += pvdTx(ox + W / 2, oy + 14, titleT, { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1' }) + pvdTx(ox + W / 2, oy + Hh - 2, formula, { a: 'middle', st: 'font-size:8px;opacity:.8' });
+            return g;
+          };
+          const titles = ['', '① TMA 흡착', '② 퍼지(N₂)', '③ H₂O 반응', '④ 퍼지(N₂)'], forms = ['', '–OH + Al(CH₃)₃ → –O–Al(CH₃)₂ + CH₄', '남은 TMA·CH₄ 제거', '–CH₃ + H₂O → –Al–OH + CH₄', '남은 H₂O·CH₄ 제거 (+1층)'];
+          if (K === 'all') [1, 2, 3, 4].forEach((st, i) => { o += panel(st, 4 + (i % 2) * 200, 6 + Math.floor(i / 2) * 134, 196, 128, titles[st], forms[st]); });
+          else o += panel(K, 60, 8, 280, 156, titles[K], forms[K]);
+          o += K === 'all' ? '' : pvdTx(200, 180, '붉은 점 = 표면 –OH 자리 · 보라 = Al · 하늘 = 물 · 회색 = CH₄ (모식도)', { a: 'middle', st: 'font-size:8.5px;opacity:.6' });
+          return dgSvg('ALD 한 사이클: ' + s.label, o, K === 'all' ? '0 0 404 274' : '0 0 400 190');
+        }
+      },
+    });
+    // ===== ALD 장비 가이드용 그림 2부 (구조·타이밍·온도 창·포화) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 4. ALD 챔버 구조 ----------
+      'ald-structure': {
+        title: 'ALD 장비(싱글 웨이퍼 챔버) 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: 'ALD 장비는 가스를 정확한 순간에 짧게 넣는 공급부, 웨이퍼를 가열하고 가스를 고르게 뿌리는 챔버, 남은 가스를 빨리 빼는 배기부로 이루어진다. 웨이퍼는 이송 챔버의 로봇이 게이트 밸브를 지나 히터 위에 올린다. 번호가 아래 표의 번호와 같다.' },
+          { id: 'src', label: '가스 공급', focus: ['src', 'n2', 'valve'], desc: '전구체(TMA 같은 액체)와 물은 캐니스터에서 증기로 나오고, 질소(N₂)가 그것을 운반하며 퍼지 가스로도 쓰인다. 캐니스터 뒤의 펄스 밸브가 수 밀리초~수 초 단위로 열리고 닫혀 전구체를 정확히 짧은 시간만 끼워 넣는다. 배관은 전구체가 응결하지 않도록 데운다.' },
+          { id: 'chamber', label: '챔버·웨이퍼', focus: ['shower', 'cham', 'heater', 'gate'], desc: '샤워헤드가 가스를 웨이퍼 위에 고르게 뿌린다. 가스를 바꿀 때 빨리 비워지도록 안쪽 공간을 작게 만든다. 히터가 웨이퍼를 ALD 온도 창(150~300 ℃)으로 유지한다. 웨이퍼는 게이트 밸브로 이어진 이송 챔버의 로봇이 넣고 뺀다.' },
+          { id: 'vac', label: '진공·배기', focus: ['gauge', 'pump', 'scr'], desc: '압력계와 스로틀 밸브가 챔버 압력을 일정하게 맞추고, 진공 펌프가 퍼지 때 남은 가스를 빨리 쓸어 낸다. 배기 속의 전구체와 부산물은 트랩과 스크러버에서 처리한다. 배기 속도가 곧 한 사이클의 퍼지 시간을 정한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, hot = (g) => f && pvdOn(f, g);
+          let o = pvdDefs('as');
+          const valve = (x, y) => `<path d="M${x - 8} ${y - 6} L${x + 8} ${y + 6} L${x + 8} ${y - 6} L${x - 8} ${y + 6} Z" fill="rgba(52,211,153,.3)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.3"/>`;
+          // 공급부
+          o += pvdG(f, ['src'], [['TMA', 48], ['H₂O', 98]].map(([t, y]) => pvdR(14, y, 58, 36, 'rgba(250,204,21,.12)', { rx: 5, so: .65 }) + pvdTx(43, y + 22, t, { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' })).join('') + pvdL('M72 66 H190 M72 116 H190', { c: '#94a3b8', sw: 2.6, so: .8 }));
+          o += pvdG(f, ['n2'], pvdR(14, 148, 58, 36, 'rgba(148,163,184,.14)', { rx: 5, so: .6 }) + pvdTx(43, 170, 'N₂ MFC', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdL('M72 166 H190', { c: '#94a3b8', sw: 2.6, so: .8 }));
+          o += pvdG(f, ['valve'], [66, 116, 166].map((y) => valve(112, y)).join(''));
+          o += pvdG(f, ['src', 'n2', 'valve'], pvdL('M190 66 V166 M190 116 H300 V162', { c: '#94a3b8', sw: 2.6, so: .8 }));
+          if (hot(['src', 'n2', 'valve'])) o += dgFlow('M72 66 H190 V116 H300 V160');
+          // 챔버
+          o += pvdG(f, ['cham'], pvdR(230, 150, 140, 104, 'rgba(125,211,252,.06)', { rx: 8, c: '#7dd3fc', sw: 2.2, so: .85 }));
+          o += pvdG(f, ['shower'], pvdR(240, 160, 120, 9, 'url(#asMt)', { so: .7, sw: .9 }) + Array.from({ length: 9 }, (_, i) => `<circle cx="${250 + i * 12}" cy="164.5" r="1.4" fill="var(--bg,#0b1220)"/>`).join('') + (hot(['shower']) ? [256, 280, 300, 320, 344].map((x) => pvdL(`M${x} 172 V204`, { c: '#38bdf8', sw: 1.3, so: .7, dash: '2 3' })).join('') : ''));
+          o += pvdG(f, ['heater'], pvdR(250, 222, 100, 22, 'rgba(248,113,113,.2)', { rx: 3, so: .75, c: '#f87171', sw: 1.2 }) + [262, 280, 298, 316, 334].map((x) => pvdL(`M${x} 228 v10`, { c: '#f87171', sw: 1.6, so: .8 })).join('') + pvdL('M300 244 V254', { c: '#94a3b8', sw: 3, so: .8 }));
+          o += pvdG(f, ['cham'], pvdR(258, 216, 84, 5, 'url(#asSi)', { so: .8, sw: .8 }) + pvdTx(300, 210, '웨이퍼', { a: 'middle', st: 'font-size:9px;opacity:.85' }));
+          o += pvdG(f, ['gate'], pvdR(222, 194, 10, 34, 'url(#asMt)', { so: .75 }) + pvdR(130, 180, 82, 62, 'rgba(52,211,153,.1)', { rx: 5, so: .55 }) + pvdTx(171, 206, '이송 챔버', { a: 'middle', st: 'font-size:9.5px;font-weight:800;opacity:1' }) + pvdTx(171, 220, '(로봇)', { a: 'middle', st: 'font-size:8.5px;opacity:.8' }) + pvdL('M214 212 H258', { c: '#34d399', sw: 2, so: .8, dash: '3 2' }));
+          // 배기부
+          o += pvdG(f, ['gauge', 'pump'], pvdL('M370 238 H520', { c: '#94a3b8', sw: 3.2, so: .75 }));
+          o += pvdG(f, ['gauge'], valve(414, 238) + pvdL('M392 238 V216', { c: '#94a3b8', sw: 2, so: .7 }) + `<circle cx="392" cy="206" r="10" fill="var(--tbl-bg)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.4"/>` + pvdTx(392, 210, 'P', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }));
+          o += pvdG(f, ['pump'], `<circle cx="520" cy="238" r="15" fill="rgba(167,139,250,.2)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.4"/>` + pvdTx(520, 242, 'M', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }));
+          o += pvdG(f, ['scr'], pvdL('M520 253 V272', { c: '#94a3b8', sw: 3.2, so: .75 }) + pvdR(468, 272, 100, 26, 'rgba(45,212,191,.12)', { rx: 5, so: .6 }) + pvdTx(518, 289, '트랩·스크러버', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:1' }));
+          if (hot(['gauge', 'pump'])) o += dgFlow('M370 238 H505');
+          // 호출선
+          o += pvdCall(f, ['src'], '1', '#facc15', 20, 36, 34, 40, ['캐니스터(TMA·H₂O)'], 43, 62);
+          o += pvdCall(f, ['n2'], '2', '#94a3b8', 20, 304, 34, 308, ['N₂ 운반·퍼지'], 43, 188);
+          o += pvdCall(f, ['valve'], '3', '#34d399', 130, 36, 144, 40, ['펄스 밸브'], 112, 62);
+          o += pvdCall(f, ['shower'], '4', '#94a3b8', 256, 36, 270, 40, ['샤워헤드'], 300, 162);
+          o += pvdCall(f, ['cham'], '5', '#7dd3fc', 350, 36, 364, 40, ['반응 챔버', '웨이퍼'], 350, 186);
+          o += pvdCall(f, ['heater'], '6', '#f87171', 240, 304, 254, 308, ['히터(서셉터)'], 282, 236);
+          o += pvdCall(f, ['gate'], '7', '#34d399', 130, 304, 144, 308, ['게이트 밸브·', '이송 챔버'], 226, 232);
+          o += pvdCall(f, ['gauge'], '8', '#38bdf8', 400, 304, 414, 308, ['압력계·스로틀'], 414, 244);
+          o += pvdCall(f, ['pump'], '9', '#a78bfa', 560, 150, 546, 154, ['진공 펌프'], 524, 226, 'end');
+          o += pvdCall(f, ['scr'], '10', '#2dd4bf', 560, 318, 546, 322, ['트랩·스크러버'], 530, 298, 'end');
+          return dgSvg('ALD 챔버 단면: ' + s.label, o, '0 22 584 312');
+        }
+      },
+      // ---------- 5. 펄스 타이밍 ----------
+      'ald-timing': {
+        title: 'ALD 펄스 타이밍',
+        wide: true,
+        states: [
+          { id: 'all', label: '두 사이클', k: 'all', desc: '밸브 두 개를 번갈아 열어 전구체(TMA) 펄스 → 퍼지 → 반응 가스(H₂O) 펄스 → 퍼지를 되풀이한다. 질소는 항상 흐르고 펄스는 그 위에 끼워 넣는다. 표면 점유율은 전구체가 들어오면 포화되고 반응 가스가 들어오면 새 표면으로 되돌아오며, 사이클마다 막이 한 층씩 두꺼워진다. 가로 길이는 실제 시간 비율이 아니다.' },
+          { id: 'a', label: '① TMA 펄스', k: 'a', desc: 'TMA 밸브가 짧게 열리면 전구체가 챔버로 들어와 표면 자리에 붙는다. 자리가 다 차면 점유율이 1에서 멈춘다. 펄스가 너무 짧으면 자리가 덜 차고, 깊은 홈의 바닥은 더 늦게 찬다.' },
+          { id: 'p1', label: '② 퍼지', k: 'p1', desc: '밸브를 닫고 질소만 흘려 붙지 않은 TMA와 메탄을 쓸어낸다. 표면에는 한 층만 남아 점유율이 그대로 유지된다. 이 시간은 챔버 부피와 배기 속도로 정해진다.' },
+          { id: 'b', label: '③ H₂O 펄스', k: 'b', desc: '물 밸브가 열리면 표면의 –CH₃와 반응해 –OH로 바뀐다. 점유율이 다시 0(전구체가 붙을 새 표면)으로 돌아오고 막이 한 층 두꺼워진다.' },
+          { id: 'p2', label: '④ 퍼지', k: 'p2', desc: '남은 물과 메탄을 질소로 쓸어낸다. 이제 한 사이클이 끝나고 다음 TMA 펄스를 받을 준비가 되었다.' },
+          { id: 'short', label: '퍼지 부족', k: 'short', desc: '퍼지가 너무 짧으면 남은 TMA가 다음 물 펄스와 공중(기상)에서 만나 반응한다. 표면 자기 제한이 아닌 CVD 반응이 섞여 두께가 불균일해지고 입자(먼지)가 생긴다. ALD에서 퍼지 시간을 아끼면 안 되는 이유다.' },
+        ],
+        svg(s) {
+          const K = s.k, sh = K === 'short', hlF = (id) => K === 'all' || K === id || (K === 'short' && (id === 'p1' || id === 'p2'));
+          let o = pvdDefs('at');
+          const X0 = 70, PW = 30, UW = sh ? 14 : 50, cyc = 2 * (PW + UW), segs = [['a', PW], ['p1', UW], ['b', PW], ['p2', UW]];
+          const rowY = { tma: 42, h2o: 82, n2: 122, cov: 164, th: 204 };
+          const labs = [['tma', 'TMA 밸브', '#a78bfa'], ['h2o', 'H₂O 밸브', '#67e8f9'], ['n2', 'N₂ 흐름', '#94a3b8'], ['cov', '표면 점유율', '#fbbf24'], ['th', '막 두께', '#22c55e']];
+          labs.forEach(([k, t, c]) => { o += pvdTx(8, rowY[k] + 4, t, { st: `font-size:9.5px;font-weight:700;fill:${c};opacity:1` }) + pvdL(`M${X0} ${rowY[k] + 14} H388`, { so: .2 }); });
+          // 구간 배경
+          [0, 1].forEach((c2) => { let x = X0 + c2 * cyc; segs.forEach(([id, w]) => { const on = c2 === 0 ? hlF(id) : K === 'all'; o += `<rect x="${x}" y="26" width="${w}" height="192" fill="${on && K !== 'all' ? 'rgba(245,185,66,.14)' : 'rgba(148,163,184,.03)'}"/>` + pvdL(`M${x + w} 26 V218`, { dash: '1 4', so: .2 }); if (c2 === 0) o += pvdTx(x + w / 2, 20, ['①', '②', '③', '④'][['a', 'p1', 'b', 'p2'].indexOf(id)], { a: 'middle', st: 'font-size:9.5px;font-weight:800;opacity:.9' }); x += w; }); });
+          // 밸브 펄스
+          const sq = (x, w, y, c, on) => pvdR(x, y - 6, w, 12, c, { so: on ? .9 : .35, sw: .8 }).replace('style="', 'style="fill-opacity:.55;');
+          [0, 1].forEach((c2) => { const base = X0 + c2 * cyc; o += pvdR(base, rowY.tma - 6, PW, 12, '#a78bfa', { so: .5, sw: .8 }) + pvdR(base + PW + UW, rowY.h2o - 6, PW, 12, '#67e8f9', { so: .5, sw: .8 }); });
+          // N2 흐름 (퍼지에서 조금 더 많이)
+          o += pvdL(`M${X0} ${rowY.n2 + 4} H${X0 + 2 * cyc}`, { c: '#94a3b8', sw: 2, so: .8 });
+          [0, 1].forEach((c2) => { const b = X0 + c2 * cyc; o += pvdL(`M${b + PW} ${rowY.n2 + 4} V${rowY.n2 - 6} H${b + PW + UW} V${rowY.n2 + 4} M${b + 2 * PW + UW} ${rowY.n2 + 4} V${rowY.n2 - 6} H${b + cyc} V${rowY.n2 + 4}`, { c: '#94a3b8', sw: 2, so: .8 }); });
+          // 점유율
+          const cy1 = rowY.cov + 12, cy0 = rowY.cov - 10;
+          let d = `M${X0} ${cy1}`;
+          [0, 1].forEach((c2) => { const b = X0 + c2 * cyc; d += ` L${b} ${cy1} Q${b + PW * .35} ${cy0} ${b + PW} ${cy0} H${b + PW + UW + PW * .2} Q${b + PW + UW + PW * .7} ${cy1} ${b + 2 * PW + UW} ${cy1} H${b + cyc}`; });
+          o += `<path d="${d}" fill="none" stroke="#fbbf24" stroke-width="2.4"/>` + pvdTx(X0 - 4, cy0 + 3, '1', { a: 'end', st: 'font-size:8.5px;opacity:.7' }) + pvdTx(X0 - 4, cy1 + 3, '0', { a: 'end', st: 'font-size:8.5px;opacity:.7' });
+          // 두께 계단
+          const y0 = rowY.th + 12, st = 12;
+          let dd = `M${X0} ${y0}`;
+          [0, 1].forEach((c2) => { const b = X0 + c2 * cyc; dd += ` H${b + PW + UW} L${b + PW + UW + PW} ${y0 - (c2 + 1) * st} H${b + cyc}`; });
+          o += `<path d="${dd}" fill="none" stroke="#22c55e" stroke-width="2.4"/>` + pvdTx(X0 + 2, y0 - 30, '사이클마다 +0.1 nm', { st: 'font-size:8.5px;font-weight:700;fill:#22c55e;opacity:1' });
+          // 퍼지 부족 표시
+          if (sh) { const xx = X0 + PW; o += `<rect x="${xx}" y="26" width="${UW + PW}" height="160" fill="rgba(248,113,113,.12)"/>` + pvdTx(xx + (UW + PW) / 2, 236, '남은 TMA + H₂O → 기상 반응(먼지)', { a: 'middle', st: 'font-size:9px;font-weight:800;fill:#f87171;opacity:1' }); }
+          o += pvdTx(388, 238, sh ? '' : '시간 →', { a: 'end', st: 'font-size:8.5px;opacity:.6' });
+          o += pvdTx(X0, 238, sh ? '' : '한 사이클 = 2 × (펄스 + 퍼지)', { st: 'font-size:8.5px;opacity:.6' });
+          return dgSvg('ALD 타이밍: ' + s.label, o, '0 8 400 248');
+        }
+      },
+      // ---------- 6. 온도 창 ----------
+      'ald-window': {
+        title: 'ALD 온도 창',
+        wide: true,
+        states: [
+          { id: 'all', label: '온도 창', k: 'all', desc: 'ALD가 잘 되는 온도 범위를 ALD 창이라 한다. 창 안에서는 사이클당 두께(GPC)가 온도에 거의 상관없이 일정하다. 알루미늄 산화막(TMA + 물)은 대략 150~300 ℃다. 창의 왼쪽에서는 가스가 표면에 응결하고, 오른쪽에서는 전구체가 저절로 분해된다.' },
+          { id: 'low', label: '낮은 온도 (<150 ℃)', k: 'low', desc: '표면이 차가우면 물과 전구체가 표면에 응결하거나 겹겹이 달라붙어, 퍼지로도 다 빠지지 않는다. 자기 제한이 깨져 사이클당 두께가 커지고 균일도가 나빠진다. 반응이 덜 끝나 막 속에 불순물(탄소, 수소)도 많이 남는다.' },
+          { id: 'win', label: 'ALD 창 (150~300 ℃)', k: 'win', desc: '표면 반응이 충분히 일어나고 전구체는 안정한 구간이다. 한 사이클에 한 층씩만 쌓이며 온도를 조금 바꿔도 두께가 변하지 않아 공정이 안정적이다. 이 체험의 모델에서는 사이클당 약 0.11 nm로 본다.' },
+          { id: 'high', label: '높은 온도 (>300 ℃)', k: 'high', desc: '온도가 높아지면 전구체가 표면에서 저절로 분해되기 시작한다. 가스가 들어오는 만큼 계속 쌓이는 CVD 성분이 섞여 사이클당 두께가 늘고, 가스가 먼저 닿는 곳(입구)이 더 두꺼워져 단차 덮임과 균일도가 나빠진다.' },
+        ],
+        svg(s) {
+          const K = s.k, hl = (a) => K === 'all' || K === a;
+          let o = pvdDefs('aw2');
+          const L = 56, R = 380, T = 34, B = 200, X = (t) => L + (t - 100) / 300 * (R - L), Y = (g) => B - (g / .42) * (B - T);
+          const gpc = (t) => t < 140 ? .16 : t < 150 ? .16 - (t - 140) / 10 * .05 : t <= 300 ? .11 : .11 + .003 * (t - 300);
+          const bands = [[100, 150, '#60a5fa', 'low', '응결'], [150, 300, '#22c55e', 'win', 'ALD 창'], [300, 400, '#f87171', 'high', '분해(CVD)']];
+          bands.forEach(([a, b, c, id, t]) => { o += `<rect x="${X(a)}" y="${T}" width="${X(b) - X(a)}" height="${B - T}" fill="${c}" opacity="${hl(id) ? .16 : .04}"/>` + pvdTx((X(a) + X(b)) / 2, T + 14, t, { a: 'middle', st: `font-size:10px;font-weight:800;fill:${c};opacity:${hl(id) ? 1 : .45}` }); });
+          o += pvdL(`M${L} ${T} V${B} H${R}`, { sw: 1.4, so: .7 });
+          [100, 150, 200, 250, 300, 350, 400].forEach((t) => { o += pvdL(`M${X(t)} ${B} v4`, { so: .7 }) + pvdTx(X(t), B + 15, t, { a: 'middle', st: 'font-size:9px;opacity:.8' }); });
+          [0, .1, .2, .3, .4].forEach((g) => { o += pvdL(`M${L - 3} ${Y(g)} h3`, { so: .7 }) + pvdTx(L - 6, Y(g) + 3, g.toFixed(1), { a: 'end', st: 'font-size:9px;opacity:.75' }); });
+          o += pvdTx(L, T - 14, '사이클당 두께 GPC (nm)', { st: 'font-size:9.5px;font-weight:700;opacity:.85' }) + pvdTx(R, B + 30, '웨이퍼 온도 (℃)', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+          let d = ''; for (let t = 100; t <= 400; t += 4) d += (t > 100 ? ' L' : 'M') + X(t).toFixed(1) + ' ' + Y(gpc(t)).toFixed(1);
+          o += pvdL(d, { c: 'var(--hl-accent)', sw: 2.8, so: 1 });
+          const mark = K === 'low' ? 125 : K === 'high' ? 360 : 225;
+          if (K !== 'all') o += `<circle cx="${X(mark)}" cy="${Y(gpc(mark))}" r="5" fill="#fbbf24" stroke="#fff" stroke-width="1.2"/>` + pvdTx(X(mark) + (K === 'high' ? -10 : 10), Y(gpc(mark)) - 10, 'GPC ' + gpc(mark).toFixed(2) + ' nm', { a: K === 'high' ? 'end' : 'start', st: 'font-size:10px;font-weight:800;opacity:1' });
+          o += pvdL(`M${X(150)} ${Y(.11)} H${X(300)}`, { c: '#22c55e', sw: 1, so: .5, dash: '3 3' });
+          return dgSvg('ALD 온도 창: ' + s.label, o, '0 8 400 238');
+        }
+      },
+      // ---------- 7. 포화 곡선 ----------
+      'ald-sat': {
+        title: '자기 제한과 포화 곡선',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 곡선', k: 'all', desc: '전구체 펄스를 길게 하면 표면 자리가 차며 사이클당 두께가 일정한 값으로 포화된다. 평평한 표면은 짧은 펄스에도 거의 다 차지만, 깊은 홈의 바닥은 가스가 늦게 도착해 더 긴 펄스가 필요하다. 홈이 깊을수록(종횡비가 클수록) 포화까지 걸리는 시간이 길다. 세로축은 포화값 대비 비율이다.' },
+          { id: 'flat', label: '평평한 면', k: 'flat', desc: '가스가 바로 닿는 평평한 면은 펄스 0.3초만 되도 92 %가 찬다. 더 오래 넣어도 두께가 거의 안 늘어나는 구간이 포화이며, 이 구간이 ALD의 자기 제한이다. 그래서 펄스를 늘려도 두께가 변하지 않는지로 ALD 조건인지 확인한다.' },
+          { id: 'ar10', label: '깊은 홈 (종횡비 10)', k: 'ar10', desc: '종횡비가 10이면 같은 0.3초 펄스에 바닥은 약 61 %만 찬다. 위쪽은 92 %가 차므로 바닥과 위쪽의 비(단차 덮임)가 약 66 %다. 펄스를 1초로 늘리면 바닥도 96 % 가까이 차서 단차 덮임이 약 96 %가 된다.' },
+          { id: 'ar30', label: '더 깊은 홈 (종횡비 30)', k: 'ar30', desc: '종횡비가 3배가 되면 가스가 바닥에 닿는 시간은 대략 제곱으로(약 9배) 늘어난다. 같은 1초 펄스에 바닥은 약 41 %밖에 안 찬다. 깊은 구멍일수록 펄스를 훨씬 길게 하거나 압력을 높여야 하고, 그만큼 한 사이클이 길어져 처리량이 떨어진다.' },
+        ],
+        svg(s) {
+          const K = s.k, hl = (a) => K === 'all' || K === a;
+          let o = pvdDefs('as2');
+          const L = 56, R = 380, T = 34, B = 196, X = (p) => L + p / 2 * (R - L), Y = (v) => B - v * (B - T);
+          const tau = { flat: .12, ar10: .12 * (1 + 100 / 60), ar30: .12 * (1 + 900 / 60) };
+          const col = { flat: '#22c55e', ar10: '#60a5fa', ar30: '#f87171' }, nm = { flat: '평평한 면', ar10: '홈 종횡비 10 바닥', ar30: '홈 종횡비 30 바닥' };
+          o += pvdL(`M${L} ${T} V${B} H${R}`, { sw: 1.4, so: .7 });
+          [0, .5, 1, 1.5, 2].forEach((p) => { o += pvdL(`M${X(p)} ${B} v4`, { so: .7 }) + pvdTx(X(p), B + 15, p, { a: 'middle', st: 'font-size:9px;opacity:.8' }); });
+          [0, .5, 1].forEach((v) => { o += pvdL(`M${L - 3} ${Y(v)} h3`, { so: .7 }) + pvdTx(L - 6, Y(v) + 3, (v * 100) + '%', { a: 'end', st: 'font-size:9px;opacity:.75' }); });
+          o += pvdL(`M${L} ${Y(1)} H${R}`, { dash: '2 4', so: .3 });
+          o += pvdTx(L, T - 14, '표면 자리가 찬 비율', { st: 'font-size:9.5px;font-weight:700;opacity:.85' }) + pvdTx(R, B + 30, '전구체 펄스 시간 (초)', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+          ['flat', 'ar10', 'ar30'].forEach((id) => {
+            if (K !== 'all' && K !== id && !(id === 'flat' && K !== 'flat')) return;
+            const on = hl(id); let d = ''; for (let i = 0; i <= 60; i++) { const p = i / 30; d += (i ? ' L' : 'M') + X(p).toFixed(1) + ' ' + Y(1 - Math.exp(-p / tau[id])).toFixed(1); }
+            o += pvdL(d, { c: col[id], sw: on ? 2.8 : 1.6, so: on ? 1 : .35 });
+          });
+          // 마커: 0.3초, 1초
+          const pts = K === 'all' ? [] : [.3, 1];
+          pts.forEach((p) => { const v = 1 - Math.exp(-p / tau[K]); o += pvdL(`M${X(p)} ${B} V${Y(v)}`, { dash: '2 3', so: .5 }) + `<circle cx="${X(p)}" cy="${Y(v)}" r="4.5" fill="${col[K]}" stroke="#fff" stroke-width="1"/>` + pvdTx(X(p) + 8, Y(v) + (p < .5 ? 16 : 16), (v * 100).toFixed(0) + '%', { st: 'font-size:10px;font-weight:800;opacity:1' }); });
+          if (K === 'ar10' || K === 'ar30') { const cf = (p) => (1 - Math.exp(-p / tau[K])) / (1 - Math.exp(-p / tau.flat)); o += pvdTx(R, B - 16, '단차 덮임: 0.3초 ' + (cf(.3) * 100).toFixed(0) + '% · 1초 ' + (cf(1) * 100).toFixed(0) + '%', { a: 'end', st: 'font-size:10px;font-weight:800;opacity:1' }); }
+          let lx = L + 6; ['flat', 'ar10', 'ar30'].forEach((id) => { if (K !== 'all' && K !== id && !(id === 'flat' && K !== 'flat')) return; o += `<circle cx="${lx + 4}" cy="${B + 46}" r="3.5" fill="${col[id]}" opacity="${hl(id) ? 1 : .5}"/>` + pvdTx(lx + 11, B + 49.5, nm[id], { st: `font-size:9px;font-weight:700;opacity:${hl(id) ? 1 : .6}` }); lx += 11 + nm[id].length * 6.4 + 14; });
+          return dgSvg('포화 곡선: ' + s.label, o, '0 8 400 258');
+        }
+      },
+    });
+    // ===== ALD 장비 가이드용 그림 3부 (적합성·측정·불량) =====
+    const alHole = (x0, W, yT, H, tw, topT, tf, botT, c, rgb) => {
+      const xl = x0 + (W - tw) / 2, xr = xl + tw, film = `rgba(${rgb},.55)`;
+      let g = pvdR(x0 + 4, yT, xl - x0 - 4, H + 8, 'url(#acfSi)', { so: .4, sw: .6 }) + pvdR(xr, yT, x0 + W - 4 - xr, H + 8, 'url(#acfSi)', { so: .4, sw: .6 }) + pvdR(xl, yT + H, tw, 8, 'url(#acfSi)', { so: .4, sw: .6 });
+      g += `<rect x="${x0 + 4}" y="${yT - topT}" width="${xl - x0 - 4}" height="${topT}" fill="${film}" stroke="${c}" stroke-width="1"/><rect x="${xr}" y="${yT - topT}" width="${x0 + W - 4 - xr}" height="${topT}" fill="${film}" stroke="${c}" stroke-width="1"/><rect x="${xl}" y="${yT}" width="${tw}" height="${H}" fill="${film}"/>`;
+      const N = 24, pl = [], pr = [];
+      for (let k = 0; k <= N; k++) { const u = k / N, y = yT + u * (H - botT), t = tf(u); pl.push([xl + t, y]); pr.push([xr - t, y]); }
+      const L1 = pl.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' '), R1 = pr.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
+      g += `<path d="${L1} ${pr.slice().reverse().map((q) => 'L' + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ')} Z" fill="var(--tbl-bg)"/><path d="${L1}" fill="none" stroke="${c}" stroke-width="1.2"/><path d="${R1}" fill="none" stroke="${c}" stroke-width="1.2"/>`;
+      return g;
+    };
+    Object.assign(DIAGRAMS, {
+      // ---------- 8. 단차 덮임: 펄스와 종횡비 ----------
+      'ald-conformal': {
+        title: '펄스 시간과 종횡비에 따른 깊은 홈 덮임',
+        wide: true,
+        states: [
+          { id: 'all', label: '네 조건 비교', desc: '같은 홈이라도 전구체 펄스가 짧으면 바닥이 덜 덮이고, 홈이 더 깊으면 같은 펄스에도 더 덜 덮인다. 펄스를 충분히 늘리면 바닥까지 거의 같은 두께로 덮인다. 이 그림은 학습용 모델(퍼지는 충분하다고 가정)로 그렸으며 종횡비는 줄여서 그렸다. 두께는 펄스가 충분히 길 때(평평한 면)를 100 %로 놓은 상대값이다.' },
+          { id: 'short', label: '짧은 펄스', k: 0, desc: '종횡비 10인 홈에 0.3초 펄스를 넣으면 위쪽은 92 %가 차지만 바닥은 61 %밖에 못 찬다. 위쪽에 먼저 닿는 가스가 표면에 붙어 소모되고, 바닥에는 느리게 도착하기 때문이다. 단차 덮임이 약 66 %로 합격선(95 %)에 못 미친다.' },
+          { id: 'long', label: '긴 펄스', k: 1, desc: '펄스를 1초로 늘리면 가스가 바닥까지 충분히 퍼져 바닥도 96 %가 찬다. 단차 덮임이 약 96 %로 합격선을 넘는다. 대신 한 사이클이 길어진다. 펄스를 얼마나 길게 할지가 덮임과 처리량 사이의 거래다.' },
+          { id: 'deep', label: '더 깊은 홈', k: 2, desc: '홈이 종횡비 30으로 깊어지면 같은 1초 펄스로는 바닥이 41 %만 찬다. 바닥에 닿는 데 걸리는 시간이 종횡비의 제곱에 가깝게 늘기 때문이다. 깊은 구조일수록 ALD 공정이 느려지고 레시피 튜닝이 어려워진다.' },
+          { id: 'deeplong', label: '더 깊은 홈 + 긴 펄스', k: 3, desc: '종횡비 30에서 펄스를 4초로 늘리면 바닥이 88 %까지 찬다. 가스를 오래 넣을수록 덮임은 좋아지지만 사이클이 길어지고 전구체 소모가 늘어난다. 압력을 높이거나 전구체를 더 많이 공급해 바닥 도달을 빠르게 하기도 한다.' },
+        ],
+        svg(s) {
+          const K = s.k, on = (i) => K === undefined || K === i;
+          let o = pvdDefs('acf');
+          const cases = [[.3, 10, '펄스 0.3초 · 종횡비 10'], [1, 10, '펄스 1초 · 종횡비 10'], [1, 30, '펄스 1초 · 종횡비 30'], [4, 30, '펄스 4초 · 종횡비 30']];
+          const show = K === undefined ? [0, 1, 2, 3] : [K];
+          show.forEach((i, idx) => {
+            const [p, ar, t] = cases[i], tau = .12 * (1 + ar * ar / 60), satF = 1 - Math.exp(-p / .12), satT = 1 - Math.exp(-p / tau), conf = satT / satF;
+            const big = K !== undefined, W = big ? 200 : 98, x0 = big ? 100 : 4 + idx * 100, yT = big ? 50 : 56, H = big ? 130 : 110, tw = big ? 40 : 24, ts = (big ? 15 : 9) * satF;
+            const c = conf >= .95 ? '#22c55e' : '#f87171', rgb = conf >= .95 ? '34,197,94' : '248,113,113';
+            o += pvdR(x0, 10, W, big ? 232 : 214, 'var(--tbl-bg)', { rx: 9, so: .4 });
+            o += pvdTx(x0 + W / 2, 28, t, { a: 'middle', st: `font-size:${big ? 11 : 9}px;font-weight:800;opacity:1` });
+            o += alHole(x0, W, yT, H, tw, ts, (u) => ts * (1 - (1 - conf) * Math.pow(u, 1.4)), ts * conf, c, rgb);
+            // 가스 화살표(위에서 아래로, 깊이에 따라 흐려짐)
+            const gx = x0 + W / 2; for (let j = 0; j < 4; j++) o += `<circle cx="${gx + (j % 2 ? 4 : -4)}" cy="${yT - 14 + j * 14}" r="2" fill="#a78bfa" opacity="${.95 - j * .2}"/>`;
+            o += pvdTx(x0 + W / 2, yT + H + (big ? 34 : 30), '위 ' + (satF * 100).toFixed(0) + ' % · 바닥 ' + (satT * 100).toFixed(0) + ' %', { a: 'middle', st: `font-size:${big ? 10 : 8.5}px;opacity:.85` });
+            o += pvdTx(x0 + W / 2, yT + H + (big ? 54 : 48), '단차 덮임 ' + (conf * 100).toFixed(0) + ' %', { a: 'middle', st: `font-size:${big ? 14 : 11}px;font-weight:800;fill:${c};opacity:1` });
+          });
+          return dgSvg('단차 덮임: ' + s.label, o, K === undefined ? '0 6 404 232' : '0 6 400 250');
+        }
+      },
+      // ---------- 9. 측정 ----------
+      'ald-meas': {
+        title: 'ALD 막 측정: 두께·덮임·균일도',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 가지 측정', k: 'all', desc: 'ALD 막은 10 nm 안팎으로 매우 얇으므로 세 가지를 잰다. 평평한 웨이퍼의 두께(엘립소미터), 깊은 홈 속의 위·바닥 두께 비(단면 전자현미경), 웨이퍼 전체의 두께 균일도(여러 점 맵)다.' },
+          { id: 'lin', label: '두께 = 사이클 수', k: 'lin', desc: 'ALD 창 안에서는 두께가 사이클 수에 비례한다. 사이클당 두께가 약 0.11 nm이면 목표 10 nm에는 약 90사이클이 든다. 이 직선성이 깨지는지(처음 몇 사이클이 안 쌓이는 핵 생성 지연 등)를 사이클 수를 바꿔 가며 확인한다.' },
+          { id: 'step', label: '단차 덮임', k: 'step', desc: '웨이퍼를 쪼개 홈의 단면을 전자현미경으로 보고 홈 위쪽과 바닥의 막 두께를 잰다. 단차 덮임 = 바닥 두께 ÷ 위쪽 두께다. 깊은 홈 구조는 이 값이 규격(예: 95 % 이상)을 넘어야 한다. 엘립소미터로는 홈 속을 잴 수 없어 단면을 본다.' },
+          { id: 'uni', label: '균일도 맵', k: 'uni', desc: '웨이퍼의 중앙·중간·가장자리 여러 점에서 두께를 재고 최대와 최소의 차이로 균일도를 구한다. 균일도 = (최댓값 − 최솟값) ÷ (2 × 평균) × 100(%)이다. 이 체험의 규격은 3 % 이하다. 가스가 한쪽에서 먼저 닿거나 온도가 고르지 않으면 가장자리와 가운데가 달라진다.' },
+        ],
+        svg(s) {
+          const K = s.k;
+          let o = pvdDefs('amt') + pvdDefs('acf');
+          const card = (x, w, t, c) => pvdR(x, 8, w, 150, 'var(--tbl-bg)', { rx: 9, so: .4 }) + `<rect x="${x}" y="8" width="${w}" height="24" rx="9" fill="${c}" opacity=".3"/>` + pvdTx(x + w / 2, 25, t, { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' });
+          const wafer = (cx, cy, r, vals) => { let g = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#amtSi)" stroke="currentColor" stroke-opacity=".7" stroke-width="1.4"/><rect x="${cx - 6}" y="${cy + r - 2}" width="12" height="3" fill="var(--bg,#0b1220)"/>`; const pos = [[0, 0], [.5, 0], [-.5, 0], [0, .5], [0, -.5], [.85, 0], [-.85, 0], [0, .85], [0, -.85]]; pos.forEach(([a, b], i) => { g += `<circle cx="${cx + a * r}" cy="${cy + b * r}" r="${vals ? 9 : 3}" fill="${vals ? 'rgba(34,197,94,.35)' : '#fbbf24'}" stroke="${vals ? '#22c55e' : 'none'}" stroke-width=".8"/>` + (vals ? pvdTx(cx + a * r, cy + b * r + 3, vals[i], { a: 'middle', st: 'font-size:8px;font-weight:700;opacity:1' }) : ''); }); return g; };
+          if (K === 'all') {
+            o += card(6, 128, '두께', '#22c55e') + pvdL('M26 110 H114', { c: '#94a3b8', sw: 1.4, so: .7 }) + pvdR(28, 112, 84, 6, 'rgba(34,197,94,.45)', { so: .8, c: '#22c55e' }) + pvdR(28, 118, 84, 26, 'url(#amtSi)', { so: .4 }) + pvdL('M40 62 L70 110', { c: '#fbbf24', sw: 1.8, so: .95 }) + pvdL('M70 110 L100 62', { c: '#f87171', sw: 1.8, so: .95 }) + pvdTx(70, 52, '엘립소미터', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:.95' });
+            o += card(136, 128, '단차 덮임', '#60a5fa') + alHole(146, 108, 66, 70, 22, 8, (u) => 8 - 3 * u, 5, '#60a5fa', '96,165,250') + pvdTx(200, 154, '단면 전자현미경', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:.95' }).replace('y="154"', 'y="152"');
+            o += card(266, 128, '균일도', '#fbbf24') + wafer(330, 92, 46, null) + pvdTx(330, 152, '9점 두께 맵', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:.95' });
+          } else if (K === 'lin') {
+            const L = 56, R = 380, T = 34, B = 190, X = (n) => L + n / 200 * (R - L), Y = (v) => B - v / 24 * (B - T);
+            o += pvdL(`M${L} ${T} V${B} H${R}`, { sw: 1.4, so: .7 });
+            [0, 50, 100, 150, 200].forEach((n) => { o += pvdL(`M${X(n)} ${B} v4`, { so: .7 }) + pvdTx(X(n), B + 15, n, { a: 'middle', st: 'font-size:9px;opacity:.8' }); });
+            [0, 10, 20].forEach((v) => { o += pvdL(`M${L - 3} ${Y(v)} h3`, { so: .7 }) + pvdTx(L - 6, Y(v) + 3, v, { a: 'end', st: 'font-size:9px;opacity:.75' }); });
+            o += pvdTx(L, T - 12, '막 두께 (nm)', { st: 'font-size:9.5px;font-weight:700;opacity:.85' }) + pvdTx(R, B + 30, '사이클 수', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+            o += `<rect x="${L}" y="${Y(11)}" width="${R - L}" height="${Y(9) - Y(11)}" fill="rgba(34,197,94,.16)"/>` + pvdTx(R, Y(11) - 3, '목표 10 ± 1 nm', { a: 'end', st: 'font-size:9px;font-weight:700;fill:#22c55e;opacity:1' });
+            o += pvdL(`M${X(0)} ${Y(0)} L${X(200)} ${Y(22)}`, { c: '#22c55e', sw: 2.6, so: .95 });
+            o += pvdL(`M${X(0)} ${Y(0)} L${X(12)} ${Y(.2)} L${X(200)} ${Y(0.11 * 188 + .2)}`, { c: '#fb923c', sw: 1.8, so: .85, dash: '4 3' });
+            o += `<circle cx="${X(90)}" cy="${Y(9.9)}" r="5" fill="#fbbf24" stroke="#fff" stroke-width="1.2"/>` + pvdTx(X(90) - 8, Y(9.9) - 14, '90사이클 ≈ 9.9 nm', { a: 'end', st: 'font-size:10px;font-weight:800;opacity:1' });
+            o += pvdTx(X(200) - 4, Y(22) - 8, '기울기 = GPC ≈ 0.11 nm', { a: 'end', st: 'font-size:9.5px;font-weight:800;fill:#22c55e;opacity:1' }) + pvdTx(X(100), Y(3.5), '주황 점선: 핵 생성 지연이면 처음 몇 사이클이 덜 쌓임', { st: 'font-size:8.5px;fill:#fb923c;opacity:1' });
+          } else if (K === 'step') {
+            o += alHole(100, 200, 50, 110, 44, 14, (u) => 14 - 3 * u, 11, '#60a5fa', '96,165,250');
+            o += pvdL('M96 36 V50', { c: '#fbbf24', sw: 1.6, so: .9 }) + pvdTx(94, 34, '위 14 nm', { a: 'end', st: 'font-size:9.5px;font-weight:800;fill:#fbbf24;opacity:1' });
+            o += pvdL('M236 160 V149', { c: '#fbbf24', sw: 1.6, so: .9 }) + pvdTx(240, 158, '바닥 11 nm', { st: 'font-size:9.5px;font-weight:800;fill:#fbbf24;opacity:1' });
+            o += pvdTx(200, 196, '단차 덮임 = 바닥 ÷ 위 = 11 ÷ 14 ≈ 79 % (예시)', { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' }) + pvdTx(200, 212, '단면을 전자현미경으로 보고 두 곳의 두께를 잼', { a: 'middle', st: 'font-size:8.5px;opacity:.65' });
+          } else {
+            const v = ['10.0', '10.1', '9.9', '10.1', '9.9', '10.1', '9.9', '10.2', '9.8'];
+            o += wafer(130, 96, 76, v);
+            o += pvdTx(226, 56, '최대 10.2 nm', { st: 'font-size:11px;font-weight:800;opacity:1' }) + pvdTx(226, 76, '최소 9.8 nm', { st: 'font-size:11px;font-weight:800;opacity:1' }) + pvdTx(226, 96, '평균 10.0 nm', { st: 'font-size:11px;font-weight:800;opacity:1' });
+            o += pvdTx(226, 126, '균일도 = (10.2 − 9.8) ÷ (2 × 10.0)', { st: 'font-size:9.5px;opacity:.9' }) + pvdTx(226, 144, '= 2.0 %  (규격 3 % 이하)', { st: 'font-size:12px;font-weight:800;fill:#22c55e;opacity:1' });
+            o += pvdTx(50, 192, '숫자 = 그 위치의 두께 (nm, 예시)', { st: 'font-size:8.5px;opacity:.6' });
+          }
+          return dgSvg('ALD 측정: ' + s.label, o, '0 4 400 ' + (K === 'step' ? 220 : K === 'lin' ? 224 : K === 'uni' ? 200 : 166));
+        }
+      },
+      // ---------- 10. 불량 ----------
+      'ald-defects': {
+        title: 'ALD 대표 불량 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '여섯 가지 불량', desc: 'ALD 불량은 대부분 자기 제한이 깨지거나(온도, 퍼지), 가스가 바닥까지 못 닿거나(펄스), 시작 표면이 다를 때 생긴다. 불량의 모양을 보고 원인 범위를 좁히는 것이 순서다.' },
+          { id: 'cvd', label: 'CVD 성분', focus: ['cvd'], desc: '온도가 창을 넘거나 전구체가 새면 표면 반응 외에 가스가 분해되어 쌓는 CVD 성분이 섞인다. 가스가 먼저 닿는 쪽이 두꺼워져 균일도와 단차 덮임이 나빠지고 두께가 사이클 수에 비례하지 않는다.' },
+          { id: 'par', label: '입자', focus: ['par'], desc: '퍼지가 부족하면 남은 전구체와 반응 가스가 공중에서 만나 입자를 만들고, 이것이 웨이퍼에 떨어진다. 챔버 벽에 쌓인 막이 떨어져도 입자가 된다. 입자 위로 막이 덮이면 돌기나 핀홀이 생긴다.' },
+          { id: 'bot', label: '바닥이 얇음', focus: ['bot'], desc: '펄스가 짧아 깊은 홈 바닥까지 가스가 충분히 도달하지 못하면 바닥이 얇아진다. 위쪽 두께는 정상이므로 평평한 모니터 웨이퍼로는 발견되지 않고 단면을 봐야 안다.' },
+          { id: 'con', label: '응결', focus: ['con'], desc: '온도가 창 아래로 내려가면 물과 전구체가 표면에 응결하거나 겹겹이 달라붙는다. 퍼지로도 안 빠져 사이클당 두께가 커지고 표면이 거칠어진다.' },
+          { id: 'nuc', label: '핵 생성 지연', focus: ['nuc'], desc: '시작 표면의 반응 자리(–OH)가 부족하면 처음 몇 사이클은 막이 안 쌓이고 섬 모양으로 따로 자라다 합쳐진다. 두께 직선성이 깨지고 아주 얇은 막은 구멍이 남는다. 표면 처리나 시작 레시피로 보완한다.' },
+          { id: 'imp', label: '불순물 잔류', focus: ['imp'], desc: '온도가 낮거나 퍼지·반응이 부족하면 반응하지 못한 메틸기(탄소)와 수소가 막 속에 남는다. 막이 덜 치밀하고 누설이 커지며 식각 속도도 달라진다. 반응 가스 펄스를 늘리거나 온도를 올려 줄인다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('adf') + pvdDefs('acf');
+          const cards = [['cvd', 6, 6, 'CVD 성분 혼입', '#fb923c'], ['par', 204, 6, '입자', '#f87171'], ['bot', 6, 128, '홈 바닥이 얇음', '#60a5fa'], ['con', 204, 128, '저온 응결', '#38bdf8'], ['nuc', 6, 250, '핵 생성 지연', '#a78bfa'], ['imp', 204, 250, '불순물 잔류', '#2dd4bf']];
+          const base = (ox, oy) => pvdR(ox, oy + 42, 160, 14, 'url(#adfSi)', { so: .4, sw: .6 });
+          const scene = {
+            cvd: (ox, oy) => { let d = `M${ox} ${oy + 42}`; for (let x = 0; x <= 160; x += 8) d += ` L${ox + x} ${oy + 42 - (4 + 14 * Math.exp(-x / 55))}`; d += ` L${ox + 160} ${oy + 42} Z`; return base(ox, oy) + `<path d="${d}" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="1.4"/>` + pvdTx(ox + 4, oy + 12, '가스 입구 쪽이 더 두꺼움', { st: 'font-size:8.5px;fill:#fb923c;opacity:1' }); },
+            par: (ox, oy) => base(ox, oy) + pvdR(ox, oy + 34, 160, 8, 'rgba(34,197,94,.35)', { so: .8, c: '#22c55e', sw: 1 }) + `<path d="M${ox + 56} ${oy + 34} Q${ox + 80} ${oy + 12} ${ox + 104} ${oy + 34} Z" fill="rgba(34,197,94,.35)" stroke="#22c55e" stroke-width="1.2"/><circle cx="${ox + 80}" cy="${oy + 32}" r="7" fill="#f87171" stroke="#fff" stroke-width=".8"/>` + [[20, 6], [120, 14], [140, 4], [36, 18]].map(([x, y]) => `<circle cx="${ox + x}" cy="${oy + y}" r="2.2" fill="#f87171" opacity=".8"/>`).join('') + pvdTx(ox + 80, oy + 8, '', {}),
+            bot: (ox, oy) => alHole(ox + 20, 120, oy + 6, 40, 30, 7, (u) => 7 - 5 * u, 2, '#60a5fa', '96,165,250'),
+            con: (ox, oy) => { let d = `M${ox} ${oy + 42}`; const pr = (() => { let a = 5; return () => (a = (a * 9301 + 49297) % 233280) / 233280; })(); for (let x = 0; x <= 160; x += 6) d += ` L${ox + x} ${oy + 42 - 14 - pr() * 6}`; d += ` L${ox + 160} ${oy + 42} Z`; return base(ox, oy) + `<path d="${d}" fill="rgba(56,189,248,.3)" stroke="#38bdf8" stroke-width="1.4"/>` + [20, 60, 100, 140].map((x) => `<circle cx="${ox + x}" cy="${oy + 20}" r="3" fill="#7dd3fc" opacity=".85"/>`).join(''); },
+            nuc: (ox, oy) => base(ox, oy) + [[10, 12], [34, 10], [58, 14]].map(([x, w]) => `<path d="M${ox + x} ${oy + 42} Q${ox + x + w / 2} ${oy + 22} ${ox + x + w} ${oy + 42} Z" fill="rgba(167,139,250,.5)" stroke="#a78bfa" stroke-width="1.1"/>`).join('') + pvdR(ox + 90, oy + 30, 70, 12, 'rgba(167,139,250,.4)', { so: .8, c: '#a78bfa', sw: 1 }) + pvdTx(ox + 36, oy + 14, '섬 모양', { a: 'middle', st: 'font-size:8.5px;opacity:.85' }) + pvdTx(ox + 125, oy + 24, '이어진 막', { a: 'middle', st: 'font-size:8.5px;opacity:.85' }),
+            imp: (ox, oy) => base(ox, oy) + pvdR(ox, oy + 22, 160, 20, 'rgba(45,212,191,.3)', { so: .8, c: '#2dd4bf', sw: 1 }) + [[18, 30], [40, 36], [66, 28], [88, 34], [112, 29], [136, 36], [52, 26], [100, 38]].map(([x, y]) => `<circle cx="${ox + x}" cy="${oy + y}" r="2" fill="#fbbf24"/>`).join('') + pvdTx(ox + 80, oy + 14, '탄소·수소가 막 속에 남음', { a: 'middle', st: 'font-size:8.5px;opacity:.85' }),
+          };
+          const caps = { cvd: '온도↑·누설: 사이클 수에 비례 안 함', par: '퍼지 부족·벽 조각', bot: '펄스 부족: 위는 정상, 바닥만 얇음', con: '온도↓: 응결·겹쳐 붙음', nuc: '표면 자리 부족: 처음에 안 쌓임', imp: '반응 부족·저온: 막이 덜 치밀' };
+          cards.forEach(([id, x, y, t, c]) => {
+            o += pvdG(f, [id], pvdR(x, y, 190, 116, 'var(--tbl-bg)', { rx: 9, so: .4 }) + `<rect x="${x}" y="${y}" width="190" height="24" rx="9" fill="${c}" opacity=".3"/>` + pvdTx(x + 95, y + 17, t, { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1' }) + scene[id](x + 15, y + 30) + pvdTx(x + 95, y + 108, caps[id], { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:.95' }));
+          });
+          return dgSvg('ALD 불량: ' + s.label, o, '0 0 400 372');
+        }
+      },
+    });
+    // ===== CD-SEM(계측) 장비 가이드용 그림 1부 (사용처·원리 비교·구조) =====
+    const mtHead = (x, y, dir, c = 'currentColor', so = .85) => { const d = { up: [[0, 0], [-4, 7], [4, 7]], down: [[0, 0], [-4, -7], [4, -7]], left: [[0, 0], [7, -4], [7, 4]], right: [[0, 0], [-7, -4], [-7, 4]] }[dir]; return `<polygon points="${d.map((p) => (x + p[0]) + ',' + (y + p[1])).join(' ')}" fill="${c}" opacity="${so}"/>`; };
+    const mtBox = (x, y, w, h, t, fill, c, o = {}) => pvdR(x, y, w, h, fill, { rx: o.rx || 6, c, sw: o.sw || 1.4, so: o.so || .85 }) + pvdTx(x + w / 2, y + h / 2 + 4, t, { a: 'middle', st: `font-size:${o.fs || 11}px;font-weight:800;opacity:1` });
+    Object.assign(DIAGRAMS, {
+      // ---------- 1. CD-SEM이 쓰이는 자리 ----------
+      'met-where': {
+        title: 'CD-SEM이 쓰이는 자리',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 흐름', desc: '패턴을 만드는 공정 사이사이에 선폭을 재고, 그 결과를 앞 공정 장비로 되돌려 보낸다. 노광·현상 직후에 레지스트 선폭을 재고(ADI), 식각·세정을 마친 뒤에 최종 패턴 선폭을 잰다(AEI). 두 번 모두 같은 CD-SEM이 쓰이고, 목표는 선폭을 설계값에 가깝게 유지하는 것이다.' },
+          { id: 'adi', label: '현상 직후 (ADI)', focus: ['lith', 'adi', 'fb1'], desc: '현상이 끝난 웨이퍼의 레지스트 선폭을 재는 단계다. 선폭이 목표에서 벗어나면 이 웨이퍼를 다시 만들거나(재작업), 노광 장비의 도즈·포커스를 보정한다. 아직 식각 전이라 레지스트를 지우고 다시 입힐 수 있어서 비용이 가장 낮을 때 잡는 검사다.' },
+          { id: 'aei', label: '식각 후 (AEI)', focus: ['etch', 'aei', 'fb2'], desc: '식각과 세정을 마친 뒤 실제 막에 새겨진 패턴의 선폭을 잰다. 이 값이 소자의 성능을 정한다. 식각은 되돌릴 수 없어서 여기서 벗어난 웨이퍼는 폐기되거나 따로 분류된다. 결과는 식각 장비의 시간·가스 조건 보정에 쓰인다.' },
+          { id: 'fb', label: '피드백 고리', focus: ['adi', 'aei', 'fb1', 'fb2'], desc: '측정 결과가 앞 공정으로 되돌아가 장비 조건을 자동으로 고치는 것을 피드백 제어라고 한다. 계측 값이 흔들리면 제어가 엉뚱하게 움직이므로, 계측 장비의 정밀도와 정확도가 공정 전체의 안정도를 좌우한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, cy = '#38bdf8';
+          let o = pvdDefs('mw');
+          const box = (g, x, w, t) => pvdG(f, [g], mtBox(x, 98, w, 38, t, 'rgba(148,163,184,.14)', '#94a3b8'));
+          o += box('lith', 8, 66, '노광') + box('lith', 90, 56, '현상');
+          o += pvdG(f, ['adi'], mtBox(164, 98, 96, 38, 'CD-SEM', 'rgba(56,189,248,.18)', cy, { fs: 12 }) + pvdTx(220, 92, 'ADI 측정', { a: 'start', st: 'font-size:9.5px;font-weight:700;opacity:.95' }));
+          o += box('etch', 282, 62, '식각') + box('etch', 360, 56, '세정');
+          o += pvdG(f, ['aei'], mtBox(434, 98, 96, 38, 'CD-SEM', 'rgba(56,189,248,.18)', cy, { fs: 12 }) + pvdTx(490, 92, 'AEI 측정', { a: 'start', st: 'font-size:9.5px;font-weight:700;opacity:.95' }));
+          [[74, 90, ['lith']], [146, 164, ['lith', 'adi']], [260, 282, ['adi', 'etch']], [344, 360, ['etch']], [416, 434, ['etch', 'aei']], [530, 566, ['aei']]].forEach(([a, b, g]) => { o += pvdG(f, g, pvdL(`M${a} 117 H${b - 2}`, { sw: 1.6, so: .8 }) + mtHead(b, 117, 'right')); });
+          // 피드백
+          o += pvdG(f, ['fb1'], pvdL('M188 98 V50 H41 V96', { c: '#fbbf24', sw: 1.7, so: .95, dash: '5 3' }) + mtHead(41, 98, 'down', '#fbbf24', .95) + pvdTx(126, 44, '도즈·포커스 보정(노광 장비)', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:1;fill:#fbbf24' }));
+          o += pvdG(f, ['fb2'], pvdL('M458 98 V50 H313 V96', { c: '#fbbf24', sw: 1.7, so: .95, dash: '5 3' }) + mtHead(313, 98, 'down', '#fbbf24', .95) + pvdTx(398, 44, '시간·가스 보정(식각 장비)', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:1;fill:#fbbf24' }));
+          // 단면 그림
+          const sec = (g, x0, kind, cap, cap2) => {
+            let t = pvdR(x0, 214, 100, 10, 'url(#mwSi)', { so: .8, sw: .9 }) + pvdR(x0, 206, 100, 8, 'rgba(52,211,153,.4)', { so: .6, sw: .8 });
+            [x0 + 10, x0 + 42, x0 + 74].forEach((x) => {
+              t += kind === 'r' ? pvdR(x, 190, 16, 16, 'rgba(244,114,182,.5)', { so: .8, sw: 1 }) : pvdR(x, 190, 16, 24, 'rgba(52,211,153,.45)', { so: .8, sw: 1 });
+            });
+            const mx = x0 + 42;
+            t += pvdL(`M${mx} 182 H${mx + 16} M${mx} 178 v8 M${mx + 16} 178 v8`, { c: '#fbbf24', sw: 1.4, so: .95 }) + pvdTx(mx + 8, 172, 'CD', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1;fill:#fbbf24' });
+            t += pvdL(`M${x0 + 50} 140 V164`, { dash: '2 3', so: .45 }) + pvdTx(x0 + 50, 244, cap, { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' }) + pvdTx(x0 + 50, 257, cap2, { a: 'middle', st: 'font-size:9px;opacity:.75' });
+            return pvdG(f, g, t);
+          };
+          o += sec(['adi'], 162, 'r', '레지스트 선폭', '(현상 직후)');
+          o += sec(['aei'], 432, 'f', '막에 새겨진 선폭', '(식각·세정 후)');
+                  return dgSvg('CD-SEM이 쓰이는 자리: ' + s.label, o, '0 28 580 240');
+        }
+      },
+      // ---------- 2. 광학 vs 전자빔 ----------
+      'met-vs': {
+        title: '왜 전자빔으로 재는가',
+        wide: true,
+        states: [
+          { id: 'all', label: '세 가지 비교', k: 'all', desc: '선폭 30 nm 선이 피치 60 nm로 늘어선 패턴을 위에서 본 그림이다(1 눈금 = 2 nm). 가시광선 현미경의 빛 점은 수백 nm라 선 열 개 안팎을 한꺼번에 비추고, 자외선(ArF)도 선 몇 개를 덮는다. 전자빔은 점 지름이 수 nm라 선 하나의 모서리를 따라갈 수 있다.' },
+          { id: 'vis', label: '가시광선 현미경', k: 'vis', desc: '빛으로 볼 수 있는 가장 작은 크기는 파장을 개구수의 두 배로 나눈 값쯤이다. 파장 550 nm 가시광선이면 약 300 nm 이하는 구별하지 못한다. 선폭 30 nm 선은 점 하나 안에 열 개 가까이 들어와서 한 선의 폭을 따로 잴 수 없다.' },
+          { id: 'duv', label: 'ArF 광학 (193 nm)', k: 'duv', desc: '파장 193 nm, 개구수 0.9로 가정하면 점 크기는 약 110 nm다. 노광 장비도 이 파장을 쓰지만 액침·다중 노광 같은 기술을 더해 패턴을 만든다. 광학 계측의 산란계측(OCD)은 이 빛의 반사 신호를 모델과 맞추어 선폭을 계산하는 다른 방법이다.' },
+          { id: 'sem', label: '전자빔 (SEM)', k: 'sem', desc: '전자의 파장은 가속전압 500 V에서 0.055 nm 정도로 매우 짧다. 그래서 해상도는 파장이 아니라 렌즈 수차와 빔 지름이 정한다. CD-SEM의 빔 지름은 수 nm이고, 이 그림에서는 점 하나로 보인다. 점이 선폭보다 훨씬 작아서 모서리 위치를 정밀하게 읽는다.' },
+        ],
+        svg(s) {
+          const K = s.k, hl = (a) => K === 'all' || K === a;
+          let o = '';
+          const X0 = 14, P = 30, N = 19, Y0 = 60, H = 150;
+          for (let i = 0; i < N; i++) o += `<rect x="${X0 + i * P + 7.5}" y="${Y0}" width="15" height="${H}" fill="rgba(244,114,182,.38)" stroke="#f472b6" stroke-opacity=".6" stroke-width=".8"/>`;
+          const cx = 290, cy = Y0 + H / 2;
+          const spot = [['vis', 75, '#fbbf24', '가시광선 스폿 ≈ 300 nm'], ['duv', 27.5, '#60a5fa', 'ArF(193 nm) 스폿 ≈ 110 nm']];
+          spot.forEach(([id, r, c, t]) => { if (!hl(id)) return; o += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" fill-opacity="${K === id ? .26 : .16}" stroke="${c}" stroke-width="2" stroke-opacity=".95"/>`; });
+          if (hl('sem')) o += `<circle cx="${cx + (K === 'all' ? 0 : 0)}" cy="${cy}" r="2.4" fill="#22d3ee" stroke="#fff" stroke-width=".8"/>`;
+          if (hl('vis')) o += pvdTx(cx - 60, Y0 - 6, '가시광선 ≈ 300 nm', { a: 'end', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#fbbf24' }) + pvdL(`M${cx - 56} ${Y0 - 8} L${cx - 40} ${cy - 66}`, { c: '#fbbf24', so: .6 });
+          if (hl('duv')) o += pvdTx(cx + 40, cy + 56, 'ArF 광학 ≈ 110 nm', { a: 'start', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#60a5fa' }) + pvdL(`M${cx + 38} ${cy + 52} L${cx + 20} ${cy + 24}`, { c: '#60a5fa', so: .6 });
+          if (hl('sem')) o += pvdTx(cx + 30, cy - 2, '전자빔 ≈ 2~3 nm', { a: 'start', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#22d3ee' }) + pvdL(`M${cx + 28} ${cy - 5} L${cx + 6} ${cy - 1}`, { c: '#22d3ee', so: .7 });
+          // 눈금자
+          o += pvdL(`M${X0 + 8} ${Y0 + H + 18} H${X0 + 108}`, { sw: 1.6, so: .9 }) + pvdL(`M${X0 + 8} ${Y0 + H + 13} v10 M${X0 + 108} ${Y0 + H + 13} v10`, { sw: 1.2, so: .8 }) + pvdTx(X0 + 58, Y0 + H + 34, '100 nm (50 눈금)', { a: 'middle', st: 'font-size:9.5px;opacity:.9' });
+          o += pvdTx(566, Y0 + H + 34, '분홍 띠: 선폭 30 nm · 피치 60 nm', { a: 'end', st: 'font-size:9.5px;opacity:.85' });
+          o += pvdTx(14, 40, '위에서 본 패턴과 측정 빛·전자 점의 크기 비교', { st: 'font-size:11px;font-weight:800;opacity:.95' });
+          return dgSvg('광학과 전자빔의 점 크기 비교: ' + s.label, o, '0 22 580 238');
+        }
+      },
+      // ---------- 3. 장비 단면 (핵심 구조도) ----------
+      'met-structure': {
+        title: 'CD-SEM 장비 단면',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '맨 위의 전자총에서 나온 전자를 렌즈로 가늘게 모아 웨이퍼 위를 훑는다. 컬럼(전자 광학계)은 높은 진공의 기둥이고, 아래 진공 챔버에 웨이퍼와 스테이지가 있다. 웨이퍼는 오른쪽의 대기압 로봇실(EFEM)에서 로드락을 거쳐 들어온다. 번호는 아래 표의 부품 번호와 같다.' },
+          { id: 'gun', label: '전자총', focus: ['gun', 'valve'], desc: '날카로운 금속 팁에 강한 전기장을 걸어 전자를 꺼내는 전계방출 전자총이다. 억제 전극과 인출 전극이 전자를 꺼내고 모양을 잡는다. 팁 표면이 오염되면 전자가 불안정해지므로 총실은 가장 높은 진공(10⁻⁷ Pa보다 낮은 수준)을 이온 펌프로 지키고, 건 밸브로 아래 챔버와 분리한다.' },
+          { id: 'col', label: '컬럼(렌즈·편향)', focus: ['cond', 'scan', 'obj'], desc: '콘덴서 렌즈가 빔 전류를 정하고 조리개가 퍼진 전자를 잘라 낸다. 주사 코일이 빔을 좌우·상하로 훑게 하고, 대물 렌즈가 웨이퍼 표면에 초점을 맞춘다. 렌즈는 자기장으로 전자를 휘게 하는 전자석이며, 비점 보정기가 빔 단면을 둥글게 다듬는다.' },
+          { id: 'det', label: '검출기·시료', focus: ['det', 'stage', 'obj'], desc: '빔이 닿은 점에서 튀어나온 2차 전자를 검출기가 모아 신호로 바꾼다. 빔 위치와 신호를 짝지어 화면의 한 점씩 그리면 이미지가 된다. 웨이퍼를 싣는 스테이지는 지점마다 정밀하게 이동하고, 웨이퍼에 약한 음전압을 걸어 착지 직전에 전자를 감속시키는 장치를 두는 장비가 많다.' },
+          { id: 'vac', label: '진공·이송', focus: ['cham', 'lock', 'pump', 'valve'], desc: '챔버는 터보 분자 펌프와 드라이 펌프로 비우고, 바닥 진동을 줄이는 방진 장치 위에 얹는다. 웨이퍼는 FOUP에서 로봇이 꺼내 로드락에 넣고, 로드락을 진공으로 만든 뒤 챔버로 보낸다. 챔버를 대기에 열지 않고 웨이퍼를 바꾸는 구조라서 진공도와 청정도가 유지된다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, hot = (g) => f && pvdOn(f, g), cy = '#38bdf8';
+          let o = pvdDefs('ms');
+          // 챔버·벽
+          o += pvdG(f, ['cham'], pvdR(110, 214, 240, 122, 'rgba(125,211,252,.05)', { rx: 6, c: '#7dd3fc', sw: 2, so: .85 }) + [[128, 336], [308, 336]].map(([x, y]) => pvdR(x, y, 26, 5, 'url(#msMt)', { so: .7 }) + pvdL(`M${x + 13} ${y + 5} l-6 3 12 3 -12 3 12 3 -6 3`, { sw: 1.3, so: .7 }) + pvdR(x, y + 17, 26, 4, 'url(#msMt)', { so: .7 })).join(''));
+          o += pvdG(f, ['gun', 'cond', 'scan', 'obj', 'cham'], pvdR(204, 66, 52, 148, 'rgba(148,163,184,.06)', { so: .5, sw: 1.2 }));
+          // 전자총
+          o += pvdG(f, ['gun'], pvdR(196, 14, 68, 52, 'rgba(250,204,21,.07)', { rx: 4, so: .85, c: '#facc15' }) + pvdL('M222 22 L230 38 L238 22', { c: '#fbbf24', sw: 1.8, so: .95 }) + pvdR(214, 42, 32, 4, 'url(#msMt)', { so: .6, sw: .8 }) + pvdR(212, 54, 14, 4, 'url(#msMt)', { so: .7, sw: .9 }) + pvdR(234, 54, 14, 4, 'url(#msMt)', { so: .7, sw: .9 }));
+          o += pvdG(f, ['valve'], pvdR(206, 70, 18, 7, 'url(#msMt)', { so: .75, sw: .9 }) + pvdR(236, 70, 18, 7, 'url(#msMt)', { so: .75, sw: .9 }) + pvdL('M264 36 H306', { c: '#94a3b8', sw: 2.6, so: .75 }) + `<circle cx="320" cy="36" r="14" fill="rgba(167,139,250,.2)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.4"/>` + pvdTx(320, 40, 'IP', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1' }));
+          // 콘덴서·조리개·주사·대물
+          o += pvdG(f, ['cond'], pvdR(180, 92, 24, 24, 'url(#msCu)', { so: .8, sw: 1 }) + pvdR(256, 92, 24, 24, 'url(#msCu)', { so: .8, sw: 1 }) + pvdR(212, 124, 14, 3, 'url(#msMt)', { so: .8, sw: .8 }) + pvdR(234, 124, 14, 3, 'url(#msMt)', { so: .8, sw: .8 }));
+          o += pvdG(f, ['scan'], pvdR(188, 140, 16, 18, 'rgba(167,139,250,.4)', { so: .85, sw: 1, c: '#a78bfa' }) + pvdR(256, 140, 16, 18, 'rgba(167,139,250,.4)', { so: .85, sw: 1, c: '#a78bfa' }));
+          o += pvdG(f, ['obj'], `<polygon points="170,170 208,170 208,196 222,224 200,224 170,202" fill="url(#msMt)" style="stroke:currentColor;stroke-width:1.2;stroke-opacity:.75"/><polygon points="290,170 252,170 252,196 238,224 260,224 290,202" fill="url(#msMt)" style="stroke:currentColor;stroke-width:1.2;stroke-opacity:.75"/>` + pvdR(180, 178, 22, 18, 'url(#msCu)', { so: .8, sw: 1 }) + pvdR(258, 178, 22, 18, 'url(#msCu)', { so: .8, sw: 1 }));
+          // 빔
+          o += pvdG(f, ['gun', 'cond', 'scan', 'obj', 'stage', 'det'], pvdL('M230 38 V224', { c: cy, sw: 1.7, so: .95 }) + `<polygon points="224,224 236,224 230,262" fill="rgba(56,189,248,.3)"/>` + pvdL('M224 224 L230 262 L236 224', { c: cy, sw: 1.2, so: .9 }) + `<circle cx="230" cy="262" r="2.6" fill="#22d3ee" stroke="#fff" stroke-width=".8"/>`);
+          if (hot(['gun', 'cond', 'scan', 'obj'])) o += dgFlow('M230 40 V222');
+          // 시료 영역
+          o += pvdG(f, ['stage'], pvdR(140, 262, 180, 5, 'url(#msSi)', { so: .8, sw: .9 }) + pvdR(130, 267, 200, 26, 'rgba(148,163,184,.16)', { rx: 3, so: .7 }) + pvdTx(230, 284, 'X·Y 스테이지', { a: 'middle', st: 'font-size:9.5px;font-weight:700;opacity:.95' }) + pvdTx(230, 307, '웨이퍼 −V(감속 전압)', { a: 'middle', st: 'font-size:8.5px;opacity:.75' }));
+          o += pvdG(f, ['det'], pvdR(272, 236, 34, 14, 'rgba(34,197,94,.28)', { rx: 3, c: '#22c55e', so: .95 }) + pvdL('M233 259 Q256 248 272 243 M233 262 Q262 262 280 251', { c: '#22c55e', sw: 1.2, so: .85, dash: '2 3' }));
+          // 로드락·EFEM·FOUP
+          o += pvdG(f, ['lock'], pvdR(350, 262, 8, 34, 'url(#msMt)', { so: .75 }) + pvdR(358, 250, 50, 58, 'rgba(52,211,153,.1)', { rx: 5, so: .6 }) + pvdTx(383, 276, '로드락', { a: 'middle', st: 'font-size:9.5px;font-weight:800;opacity:1' }) + pvdR(414, 236, 118, 86, 'rgba(148,163,184,.08)', { rx: 5, so: .55 }) + pvdTx(473, 252, 'EFEM(대기 로봇실)', { a: 'middle', st: 'font-size:9px;font-weight:800;opacity:.95' }) + `<circle cx="458" cy="290" r="7" fill="rgba(52,211,153,.3)" stroke="currentColor" stroke-opacity=".8" stroke-width="1.3"/>` + pvdL('M458 290 L486 280 M458 290 L434 300', { sw: 2.2, so: .8 }) + pvdR(536, 252, 36, 34, 'rgba(250,204,21,.14)', { rx: 4, c: '#facc15', so: .8 }) + pvdTx(554, 273, 'FOUP', { a: 'middle', st: 'font-size:9px;font-weight:800;opacity:1' }) + pvdL('M536 270 H532 M414 280 H408', { sw: 1.6, so: .6, dash: '3 3' }));
+          // 펌프
+          o += pvdG(f, ['pump'], pvdL('M230 336 V352', { c: '#94a3b8', sw: 3, so: .75 }) + pvdR(196, 352, 68, 16, 'rgba(167,139,250,.2)', { rx: 3, so: .75 }) + pvdTx(230, 364, '터보 펌프', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' }) + pvdL('M264 360 H280', { c: '#94a3b8', sw: 3, so: .75 }) + pvdR(280, 352, 64, 16, 'rgba(45,212,191,.14)', { rx: 3, so: .7 }) + pvdTx(312, 364, '드라이 펌프', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1' }));
+          if (hot(['pump'])) o += dgFlow('M230 336 V352');
+          // 호출선
+          o += pvdCall(f, ['gun'], '1', '#facc15', 20, 34, 34, 38, ['전자총(전계방출 팁)'], 214, 38);
+          o += pvdCall(f, ['valve'], '2', '#a78bfa', 562, 40, 548, 44, ['건 밸브·이온 펌프'], 336, 36, 'end');
+          o += pvdCall(f, ['cond'], '3', '#fbbf24', 20, 104, 34, 108, ['콘덴서 렌즈·조리개'], 182, 104);
+          o += pvdCall(f, ['scan'], '4', '#a78bfa', 562, 150, 548, 154, ['주사(편향) 코일'], 274, 150, 'end');
+          o += pvdCall(f, ['obj'], '5', '#fbbf24', 20, 190, 34, 194, ['대물 렌즈·비점 보정'], 172, 190);
+          o += pvdCall(f, ['det'], '6', '#22c55e', 562, 200, 548, 204, ['2차 전자 검출기'], 304, 240, 'end');
+          o += pvdCall(f, ['stage'], '7', '#94a3b8', 20, 268, 34, 272, ['웨이퍼·스테이지'], 142, 268);
+          o += pvdCall(f, ['cham'], '8', '#7dd3fc', 20, 322, 34, 326, ['진공 챔버·', '방진 장치'], 116, 328);
+          o += pvdCall(f, ['lock'], '9', '#34d399', 562, 346, 548, 350, ['로드락·EFEM·FOUP'], 500, 322, 'end');
+          o += pvdCall(f, ['pump'], '10', '#2dd4bf', 20, 362, 34, 366, ['터보·드라이 펌프'], 196, 360);
+          return dgSvg('CD-SEM 단면: ' + s.label, o, '0 6 584 378');
+        }
+      },
+    });
+    // ===== CD-SEM(계측) 장비 가이드용 그림 2부 (신호·프로파일·정밀도와 수축의 균형) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 4. 전자와 시료의 상호작용 ----------
+      'met-signal': {
+        title: '전자빔과 시료가 만드는 신호',
+        states: [
+          { id: 'all', label: '신호의 종류', k: 'all', desc: '전자빔이 시료에 닿으면 빔 아래에 서양배 모양의 영역으로 전자가 퍼지며 에너지를 잃는다. 그 과정에서 표면 가까이에서 가벼운 2차 전자가, 더 깊은 곳에서 튕겨 나온 후방 산란 전자가 시료 밖으로 나온다. CD-SEM은 주로 2차 전자로 이미지를 만든다.' },
+          { id: 'se', label: '2차 전자', k: 'se', desc: '2차 전자는 에너지가 수 eV로 낮아서 표면에서 수 nm 안쪽에서 생긴 것만 빠져나온다. 그래서 표면의 모양, 특히 모서리와 경사면에 민감하다. 패턴 모서리가 밝은 띠로 보이는 것이 이 때문이다.' },
+          { id: 'bse', label: '후방 산란 전자', k: 'bse', desc: '후방 산란 전자는 빔 전자가 원자핵 근처에서 크게 꺾여 되돌아 나온 것으로 에너지가 높고 더 깊은 곳에서 온다. 원자 번호가 클수록 많이 나와서 재료 차이를 보여 주지만, 나오는 영역이 넓어 가장자리 위치를 정밀하게 읽기에는 불리하다.' },
+          { id: 'kv', label: '전압에 따른 깊이', k: 'kv', desc: '가속전압이 높으면 전자가 더 깊이 들어가 퍼진다. 500 V에서는 레지스트 안(약 20 nm)에 머물지만 2 kV에서는 약 200 nm까지 퍼져 아래의 실리콘에서 나온 신호가 섞인다. 레지스트처럼 얇고 약한 재료를 낮은 전압으로 재는 이유다. 깊이는 어림값이다.' },
+        ],
+        svg(s) {
+          const K = s.k;
+          let o = pvdDefs('mg');
+          if (K !== 'kv') {
+            const seOn = K === 'all' || K === 'se', bsOn = K === 'all' || K === 'bse';
+            o += pvdR(50, 130, 300, 56, 'rgba(244,114,182,.28)', { so: .6, sw: 1 }) + pvdR(50, 186, 300, 66, 'url(#mgSi)', { so: .6, sw: 1 });
+            o += pvdTx(344, 152, '레지스트', { a: 'end', st: 'font-size:10px;opacity:.85' }) + pvdTx(344, 210, '실리콘 기판', { a: 'end', st: 'font-size:10px;opacity:.85' });
+            o += pvdL('M200 30 V126', { c: '#38bdf8', sw: 2.2, so: .95 }) + mtHead(200, 130, 'down', '#38bdf8', .95) + pvdTx(212, 44, '전자빔', { st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#38bdf8' });
+            o += `<path d="M193 130 C166 133 154 162 168 180 C182 196 218 196 232 180 C246 162 234 133 207 130 Z" fill="rgba(250,204,21,.16)" stroke="#fbbf24" stroke-width="1.3" stroke-dasharray="4 3" stroke-opacity=".9"/>`;
+            o += pvdTx(200, 166, '퍼지는 영역', { a: 'middle', st: 'font-size:9px;opacity:.85' });
+            const se = [[188, 132, -1], [212, 132, 1], [176, 136, -1], [224, 136, 1]], bs = [[180, 160, -1], [220, 160, 1], [166, 150, -1], [234, 150, 1]];
+            if (seOn) { se.forEach(([x, y, d]) => { o += pvdL(`M${x} ${y} L${x + d * 18} ${y - 26}`, { c: '#22c55e', sw: 1.8, so: .95 }) + mtHead(x + d * 18, y - 26, 'up', '#22c55e', .95); }); o += pvdTx(14, 60, '2차 전자', { st: 'font-size:11px;font-weight:800;opacity:1;fill:#22c55e' }) + pvdTx(14, 73, '(표면 수 nm에서만 탈출)', { st: 'font-size:8.5px;opacity:.85' }) + pvdL('M60 78 L174 106', { c: '#22c55e', so: .5 }); }
+            if (bsOn) { bs.forEach(([x, y, d]) => { o += pvdL(`M${x} ${y} Q${x + d * 30} ${y - 18} ${x + d * 40} ${y - 52}`, { c: '#fb923c', sw: 1.8, so: .95 }) + mtHead(x + d * 40, y - 52, 'up', '#fb923c', .95); }); o += pvdTx(386, 60, '후방 산란 전자', { a: 'end', st: 'font-size:11px;font-weight:800;opacity:1;fill:#fb923c' }) + pvdTx(386, 73, '(더 깊은 곳·높은 에너지)', { a: 'end', st: 'font-size:8.5px;opacity:.85' }) + pvdL('M330 78 L262 98', { c: '#fb923c', so: .5 }); }
+            o += pvdTx(200, 284, '개념도 (축척 아님)', { a: 'middle', st: 'font-size:9px;opacity:.65' });
+            return dgSvg('전자빔과 시료의 상호작용: ' + s.label, o, '0 8 400 296');
+          }
+          // 전압 비교 (0.8 px/nm)
+          const pn = (cx, d, c, t1, t2) => {
+            const x0 = cx - 75, y0 = 130;
+            let g = pvdR(x0, y0, 150, 72, 'rgba(244,114,182,.28)', { so: .6, sw: 1 }) + pvdR(x0, y0 + 72, 150, 60, 'url(#mgSi)', { so: .6, sw: 1 });
+            g += pvdL(`M${cx} 74 V${y0 - 4}`, { c: '#38bdf8', sw: 2, so: .95 }) + mtHead(cx, y0, 'down', '#38bdf8', .95);
+            g += `<path d="M${cx - 3} ${y0} C${cx - .62 * d} ${y0 + .2 * d} ${cx - .6 * d} ${y0 + .75 * d} ${cx} ${y0 + d} C${cx + .6 * d} ${y0 + .75 * d} ${cx + .62 * d} ${y0 + .2 * d} ${cx + 3} ${y0} Z" fill="${c}" fill-opacity=".25" stroke="${c}" stroke-width="1.5"/>`;
+            g += pvdTx(cx, 36, t1, { a: 'middle', st: `font-size:11.5px;font-weight:800;opacity:1;fill:${c}` }) + pvdTx(cx, 50, t2, { a: 'middle', st: 'font-size:9px;opacity:.9' });
+            return g;
+          };
+          o += pn(105, 16, '#22c55e', '착지 500 V', '깊이 약 20 nm · 레지스트 안');
+          o += pn(295, 152, '#f87171', '착지 2 kV', '깊이 약 200 nm · 기판까지');
+          o += pvdTx(105, 276, '표면 정보만 얻음', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' }) + pvdTx(295, 290, '아래층 신호가 섞임', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' });
+          o += pvdTx(14, 296, '레지스트 두께 90 nm 가정 · 0.8 px/nm', { st: 'font-size:8.5px;opacity:.6' });
+          return dgSvg('가속전압과 신호 깊이: ' + s.label, o, '0 8 400 304');
+        }
+      },
+      // ---------- 5. 라인 스캔과 선폭 ----------
+      'met-profile': {
+        title: '신호 프로파일에서 선폭 읽기',
+        wide: true,
+        states: [
+          { id: 'cross', label: '단면과 신호', k: 'cross', desc: '빔이 선을 가로질러 훑으면 위치마다 2차 전자 신호가 달라진다. 평평한 선 위와 바닥은 신호가 낮고 약하며, 모서리에서만 높은 봉우리가 솟는다. 이 신호 곡선(라인 스캔 프로파일)에서 모서리의 위치를 읽는다.' },
+          { id: 'edge', label: '모서리가 밝은 이유', k: 'edge', desc: '모서리와 비스듬한 측벽은 2차 전자가 빠져나올 수 있는 표면이 위·옆으로 넓다. 평평한 면보다 같은 전자가 더 많이 나와 밝게 보인다. 반대로 좁은 바닥은 옆벽에 가려 일부 전자가 빠져나오지 못해 어둡다.' },
+          { id: 'thr50', label: '문턱값으로 위치 정하기', k: 'thr50', desc: '모서리 봉우리의 높이를 기준으로 정한 비율(문턱값, 예 50 %)을 지나는 위치를 모서리로 삼고, 두 모서리 사이 거리를 선폭(CD)으로 한다. 어느 비율을 쓸지는 장비 제조사와 레시피가 정한 알고리즘이다.' },
+          { id: 'thr3', label: '문턱값에 따른 변화', k: 'thr3', desc: '같은 신호라도 문턱값을 30 %, 50 %, 70 %로 바꾸면 선폭이 달라진다(그림은 예시 값). 문턱값을 높이면 모서리가 안쪽으로 이동해 값이 작아진다. 그래서 장비를 바꾸거나 알고리즘을 바꾸면 값이 달라지고, 기준 장비와 맞추는 매칭 작업이 필요하다.' },
+        ],
+        svg(s) {
+          const K = s.k, xl = 220, xr = 360, B0 = .22, Y = (v) => 124 - v * 82;
+          const g = (x, c, wo, wi, out) => Math.exp(-Math.pow((x - c) / ((out ? x < c : x > c) ? wo : wi), 2));
+          const sig = (x) => { const inL = 1 / (1 + Math.exp(-(x - xl) / 4)) / (1 + Math.exp((x - xr) / 4)); return B0 + .18 * inL + .55 * (g(x, xl, 9, 16, true) + g(x, xr, 9, 16, false)); };
+          let pk = 0; for (let x = 150; x <= 430; x += 1) pk = Math.max(pk, sig(x));
+          const cross = (t) => { const L = B0 + t * (pk - B0); let a = xl - 40; while (a < xl && sig(a) < L) a += .25; let b = xr + 40; while (b > xr && sig(b) < L) b -= .25; return [a, b, L]; };
+          const px50 = (() => { const c = cross(.5); return c[1] - c[0]; })(), nm = (c) => ((c[1] - c[0]) * 30 / px50);
+          let o = pvdDefs('mp');
+          let d = ''; for (let x = 36; x <= 544; x += 2) d += (x === 36 ? 'M' : ' L') + x + ' ' + Y(sig(x)).toFixed(1);
+          o += pvdL(`M36 ${Y(0)} H548`, { sw: 1.2, so: .6 }) + pvdL(`M36 ${Y(1.05)} V${Y(0)}`, { sw: 1.2, so: .6 }) + pvdTx(36, 28, '2차 전자 신호', { st: 'font-size:10px;font-weight:800;opacity:.9' });
+          o += pvdL(d, { c: '#22c55e', sw: 2.4, so: 1 });
+          // 단면
+          const tz = [[214, 206], [226, 156], [354, 156], [366, 206]];
+          o += pvdR(36, 206, 512, 14, 'url(#mpSi)', { so: .7, sw: .9 }) + `<polygon points="${tz.map((p) => p.join(',')).join(' ')}" fill="rgba(244,114,182,.42)" stroke="#f472b6" stroke-width="1.4" stroke-opacity=".9"/>`;
+          o += pvdTx(290, 187, '레지스트 선', { a: 'middle', st: 'font-size:10px;font-weight:700;opacity:.95' });
+          o += pvdL(`M${xl} ${Y(0)} V150 M${xr} ${Y(0)} V150`, { dash: '2 4', so: .35 });
+          if (K === 'cross') { o += pvdL('M70 52 H130', { c: '#38bdf8', sw: 1.8, so: .95 }) + mtHead(132, 52, 'right', '#38bdf8', .95) + pvdTx(70, 44, '빔이 훑는 방향', { st: 'font-size:9.5px;font-weight:700;opacity:.95;fill:#38bdf8' }) + pvdTx(xr + 18, Y(sig(xr)) + 4, '← 모서리 봉우리', { a: 'start', st: 'font-size:9.5px;font-weight:700;opacity:.95' }) + pvdTx(290, Y(.5) - 4, '선 위(평평)', { a: 'middle', st: 'font-size:9px;opacity:.8' }) + pvdTx(450, Y(B0) - 8, '바닥(어두움)', { a: 'middle', st: 'font-size:9px;opacity:.8' }); }
+          if (K === 'edge') {
+            [[xl - 7, 176, -1], [xl - 3, 160, -1], [xl + 6, 154, -1], [xr + 7, 176, 1], [xr + 3, 160, 1], [xr - 6, 154, 1]].forEach(([x, y, dd]) => { o += pvdL(`M${x} ${y} L${x + dd * 14} ${y - 18}`, { c: '#22c55e', sw: 1.7, so: .95 }) + mtHead(x + dd * 14, y - 18, 'up', '#22c55e', .95); });
+            o += pvdTx(290, 242, '측벽·모서리에서 2차 전자가 많이 빠져나감', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:1;fill:#22c55e' });
+            o += pvdTx(450, 200, '좁은 바닥: 옆벽에 가려 어두움', { a: 'middle', st: 'font-size:9px;opacity:.8' });
+          }
+          const mk = (t, c) => { const [a, b, L] = cross(t); return pvdL(`M36 ${Y(L)} H548`, { c, sw: 1.2, so: .85, dash: '4 3' }) + [a, b].map((x) => `<circle cx="${x}" cy="${Y(L)}" r="3.6" fill="${c}" stroke="#fff" stroke-width=".8"/>` + pvdL(`M${x} ${Y(L)} V206`, { c, sw: 1, so: .6, dash: '2 3' })).join(''); };
+          if (K === 'thr50') {
+            const c = cross(.5);
+            o += mk(.5, '#fbbf24');
+            o += pvdL(`M${c[0]} 232 H${c[1]} M${c[0]} 227 v10 M${c[1]} 227 v10`, { c: '#fbbf24', sw: 1.6, so: .95 }) + pvdTx((c[0] + c[1]) / 2, 248, 'CD = 두 교점 사이 거리 ≈ 30.0 nm (예시)', { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#fbbf24' });
+            o += pvdTx(548, Y(c[2]) - 6, '문턱값 50 %', { a: 'end', st: 'font-size:9.5px;font-weight:800;opacity:1;fill:#fbbf24' });
+          }
+          if (K === 'thr3') {
+            const cols = { .3: '#a78bfa', .5: '#fbbf24', .7: '#38bdf8' };
+            [.3, .5, .7].forEach((t) => { o += mk(t, cols[t]); });
+            [.3, .5, .7].forEach((t, i) => { const c = cross(t); o += pvdTx(548, 36 + i * 14, `문턱값 ${t * 100}% → CD ${nm(c).toFixed(1)} nm`, { a: 'end', st: `font-size:10.5px;font-weight:800;opacity:1;fill:${cols[t]}` }); });
+            o += pvdTx(548, 78, '(예시 값)', { a: 'end', st: 'font-size:9px;opacity:.7' });
+          }
+          return dgSvg('라인 스캔 프로파일: ' + s.label, o, '0 18 580 244');
+        }
+      },
+      // ---------- 6. 정밀도와 수축의 균형 ----------
+      'met-tradeoff': {
+        title: '정밀도와 수축의 균형',
+        wide: true,
+        states: [
+          { id: 'frame', label: '프레임 수', k: 'frame', desc: '같은 자리를 여러 번 겹쳐 찍어 평균하면 잡음이 줄어 정밀도(P/T)가 좋아지지만, 그만큼 전자빔을 더 맞아 레지스트가 줄어든다. 500 V에서 1프레임은 P/T 27.9 %로 나쁘고, 프레임을 늘리면 좋아지는 대신 수축이 커진다.' },
+          { id: 'window', label: '쓸 수 있는 창', k: 'window', desc: 'P/T 10 % 이하가 되려면 프레임이 8장 이상, 수축 1.0 nm 이하가 되려면 12장 이하여야 한다. 500 V에서 두 기준을 함께 만족하는 구간은 8~12프레임뿐이다. 학습용 모델의 값이며 실제 장비·레지스트에서는 구간이 달라진다.' },
+          { id: 'volt', label: '가속전압', k: 'volt', desc: '화질 지수 Q는 약 450 V에서 가장 높다. 전압이 너무 낮으면 신호가 약해 잡음이 늘고, 너무 높으면 레지스트에 전하가 쌓이고(대전) 수축이 커진다. Q 0.7 이상은 약 335~605 V이고, 프레임 6에서 수축이 1.0 nm를 넘는 전압은 약 800 V부터다.' },
+        ],
+        svg(s) {
+          const K = s.k, L = 64, R = 500, T = 36, B = 206;
+          const Q = (V) => Math.exp(-Math.pow(Math.log(V / 450), 2) / (2 * .35 * .35));
+          const PT = (f, V) => 0.8 / Math.sqrt(f) / Q(V) / 3 * 100, SH = (f, V) => 3 * (1 - Math.exp(-f * Math.pow(V / 500, 1.5) / 30));
+          let o = '';
+          const f1 = K !== 'volt';
+          const X = f1 ? (f) => L + (f - 1) / 31 * (R - L) : (V) => L + (V - 200) / 700 * (R - L);
+          o += pvdL(`M${L} ${T} V${B} H${R} M${R} ${T} V${B}`, { sw: 1.3, so: .7 });
+          const xt = f1 ? [1, 4, 8, 12, 16, 24, 32] : [200, 300, 400, 500, 600, 700, 800, 900];
+          xt.forEach((v) => { o += pvdL(`M${X(v)} ${B} v4`, { so: .7 }) + pvdTx(X(v), B + 15, v, { a: 'middle', st: 'font-size:9px;opacity:.8' }); });
+          o += pvdTx(R, B + 30, f1 ? '프레임 수 (500 V)' : '가속전압 (V) · 프레임 6', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+          if (f1) {
+            const Yp = (v) => B - v / 30 * (B - T), Ys = (v) => B - v / 3 * (B - T);
+            [0, 10, 20, 30].forEach((v) => { o += pvdTx(L - 6, Yp(v) + 3, v, { a: 'end', st: 'font-size:9px;opacity:.8;fill:#f87171' }); });
+            [0, 1, 2, 3].forEach((v) => { o += pvdTx(R + 6, Ys(v) + 3, v, { a: 'start', st: 'font-size:9px;opacity:.8;fill:#60a5fa' }); });
+            o += pvdTx(L, T - 14, 'P/T (%)', { st: 'font-size:10px;font-weight:800;opacity:1;fill:#f87171' }) + pvdTx(R, T - 14, '수축 (nm)', { a: 'end', st: 'font-size:10px;font-weight:800;opacity:1;fill:#60a5fa' });
+            if (K === 'window') o += pvdR(X(7.78), T, X(12.16) - X(7.78), B - T, 'rgba(34,197,94,.2)', { so: .7, sw: 1, c: '#22c55e' }) + pvdTx((X(7.78) + X(12.16)) / 2, T + 16, '8~12', { a: 'middle', st: 'font-size:12px;font-weight:800;opacity:1;fill:#22c55e' }) + pvdTx((X(7.78) + X(12.16)) / 2, T + 29, '프레임', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1;fill:#22c55e' });
+            o += pvdL(`M${L} ${Yp(10)} H${R}`, { c: '#a3a3a3', sw: 1.1, so: .7, dash: '4 3' }) + pvdTx(R - 4, Yp(10) - 5, 'P/T 10 % · 수축 1.0 nm (기준)', { a: 'end', st: 'font-size:9px;opacity:.85' });
+            let a = '', b = ''; for (let f = 1; f <= 32; f += .5) { a += (f === 1 ? 'M' : ' L') + X(f).toFixed(1) + ' ' + Yp(PT(f, 500)).toFixed(1); b += (f === 1 ? 'M' : ' L') + X(f).toFixed(1) + ' ' + Ys(SH(f, 500)).toFixed(1); }
+            o += pvdL(a, { c: '#f87171', sw: 2.6, so: 1 }) + pvdL(b, { c: '#60a5fa', sw: 2.6, so: 1 });
+            if (K === 'frame') { [[6, 'P/T 11.4 %'], [1, 'P/T 27.9 %']].forEach(([f, t], i) => { o += `<circle cx="${X(f)}" cy="${Yp(PT(f, 500))}" r="4.2" fill="#f87171" stroke="#fff" stroke-width="1"/>` + pvdTx(X(f) + (i ? 8 : 10), Yp(PT(f, 500)) - (i ? 0 : 12), t, { st: 'font-size:9.5px;font-weight:800;opacity:1;fill:#f87171' }); }); o += `<circle cx="${X(6)}" cy="${Ys(SH(6, 500))}" r="4.2" fill="#60a5fa" stroke="#fff" stroke-width="1"/>` + pvdTx(X(6) + 8, Ys(SH(6, 500)) + 14, '수축 0.54 nm', { st: 'font-size:9.5px;font-weight:800;opacity:1;fill:#60a5fa' }) + `<circle cx="${X(32)}" cy="${Ys(SH(32, 500))}" r="4.2" fill="#60a5fa" stroke="#fff" stroke-width="1"/>` + pvdTx(X(32) - 8, Ys(SH(32, 500)) - 8, '1.97 nm', { a: 'end', st: 'font-size:9.5px;font-weight:800;opacity:1;fill:#60a5fa' }); }
+            o += pvdTx(X(24), Yp(PT(24, 500)) - 10, '← 잡음 줄어듦', { a: 'middle', st: 'font-size:9px;opacity:.8;fill:#f87171' });
+          } else {
+            const Yq = (v) => B - v * (B - T), Ysh = (v) => B - v / 1.5 * (B - T);
+            [0, .5, 1].forEach((v) => { o += pvdTx(L - 6, Yq(v) + 3, v, { a: 'end', st: 'font-size:9px;opacity:.8;fill:#22c55e' }); });
+            [0, .5, 1, 1.5].forEach((v) => { o += pvdTx(R + 6, Ysh(v) + 3, v, { a: 'start', st: 'font-size:9px;opacity:.8;fill:#60a5fa' }); });
+            o += pvdTx(L, T - 14, '화질 지수 Q', { st: 'font-size:10px;font-weight:800;opacity:1;fill:#22c55e' }) + pvdTx(R, T - 14, '수축 (nm)', { a: 'end', st: 'font-size:10px;font-weight:800;opacity:1;fill:#60a5fa' });
+            o += pvdR(X(335), T, X(605) - X(335), B - T, 'rgba(34,197,94,.16)', { so: .7, sw: 1, c: '#22c55e' }) + pvdTx((X(335) + X(605)) / 2, B - 26, 'Q ≥ 0.7', { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#22c55e' }) + pvdTx((X(335) + X(605)) / 2, B - 14, '약 335~605 V', { a: 'middle', st: 'font-size:9px;font-weight:700;opacity:1;fill:#22c55e' });
+            o += pvdL(`M${L} ${Ysh(1)} H${R}`, { c: '#60a5fa', sw: 1.1, so: .7, dash: '4 3' }) + pvdTx(L + 6, Ysh(1) - 5, '수축 기준 1.0 nm', { a: 'start', st: 'font-size:9px;opacity:.85;fill:#60a5fa' });
+            let a = '', b = ''; for (let V = 200; V <= 900; V += 10) { a += (V === 200 ? 'M' : ' L') + X(V).toFixed(1) + ' ' + Yq(Q(V)).toFixed(1); b += (V === 200 ? 'M' : ' L') + X(V).toFixed(1) + ' ' + Ysh(SH(6, V)).toFixed(1); }
+            o += pvdL(a, { c: '#22c55e', sw: 2.6, so: 1 }) + pvdL(b, { c: '#60a5fa', sw: 2.6, so: 1 });
+            o += pvdTx(X(260), Yq(Q(260)) - 8, '신호 약함 → 잡음', { a: 'middle', st: 'font-size:9px;opacity:.85' }) + pvdTx(X(840), Ysh(SH(6, 840)) + 16, '대전·수축', { a: 'middle', st: 'font-size:9px;opacity:.85' });
+          }
+          return dgSvg('정밀도와 수축의 균형: ' + s.label, o, '0 8 580 254');
+        }
+      },
+    });
+    // ===== CD-SEM(계측) 장비 가이드용 그림 3부 (샘플링·로트·정밀도 지표·불량) =====
+    const mtRng = (seed) => { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
+    const mtGauss = (R) => { let u = 0; while (!u) u = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * R()); };
+    const mtCol = (v) => { const t = Math.max(0, Math.min(1, (v - 29.6) / 2.9)); return `hsl(${(220 - 220 * t).toFixed(0)},75%,55%)`; };
+    Object.assign(DIAGRAMS, {
+      // ---------- 7. 웨이퍼 안 측정 지점 ----------
+      'met-sampling': {
+        title: '웨이퍼 안 측정 지점과 가장자리 추정',
+        wide: true,
+        states: [
+          { id: 'n5', label: '5 지점', n: 5, t: 42, e: .37, desc: '가운데 1곳과 바깥 4곳만 잰다. 가장 빠르지만 가장자리 값을 어림해야 해서 추정 오차가 크다(1σ 약 0.37 nm). 가장자리 쏠림이 정상인 웨이퍼를 이상으로 잘못 판정할 가능성(오경보)도 커진다.' },
+          { id: 'n9', label: '9 지점', n: 9, t: 54, e: .25, desc: '가운데, 중간 고리 4곳, 가장자리 4곳을 잰다. 많이 쓰는 기본 배치로 추정 오차는 약 0.25 nm다. 반지름이 다른 고리가 3개라 가운데에서 가장자리로 변하는 모양을 읽을 수 있다.' },
+          { id: 'n13', label: '13 지점', n: 13, t: 65, e: .22, desc: '고리를 세 개로 나누어 더 촘촘히 잰다. 추정 오차가 약 0.22 nm로 줄고 웨이퍼 한 장에 약 65초가 걸린다.' },
+          { id: 'n21', label: '21 지점', n: 21, t: 88, e: .17, desc: '가장자리 고리를 8곳 잰다. 추정 오차는 약 0.17 nm로 작지만 한 장에 약 88초가 걸려, 로트의 일부만 재더라도 팹 속도를 따라가기 어려워질 수 있다.' },
+          { id: 'n33', label: '33 지점', n: 33, t: 123, e: .14, desc: '가장 촘촘한 배치다. 추정 오차는 약 0.14 nm로 가장 작지만 한 장에 약 2분이 걸려 처리량이 크게 떨어진다. 추정 오차가 이미 충분히 작다면 지점을 더 늘릴 이유가 없다.' },
+        ],
+        svg(s) {
+          const SITES = { 5: [[0, 1], [0.8, 4]], 9: [[0, 1], [0.5, 4], [0.9, 4]], 13: [[0, 1], [0.4, 4], [0.7, 4], [0.92, 4]], 21: [[0, 1], [0.3, 4], [0.55, 4], [0.75, 4], [0.9, 8]], 33: [[0, 1], [0.25, 4], [0.45, 4], [0.62, 8], [0.78, 8], [0.92, 8]] };
+          const sites = []; SITES[s.n].forEach((g, ri) => { for (let i = 0; i < g[1]; i++) { const a = g[0] === 0 ? 0 : ri * 0.55 + 0.35 + 2 * Math.PI * i / g[1]; sites.push({ rho: g[0], x: g[0] * Math.cos(a), y: g[0] * Math.sin(a) }); } });
+          const R = mtRng(s.n * 977 + 5), c2 = 2.3;
+          const vals = sites.map((p) => 30 + c2 * p.rho * p.rho + .42 * mtGauss(R));
+          const n = vals.length; let Sx = 0, Sxx = 0, Sy = 0, Sxy = 0; vals.forEach((y, i) => { const q = sites[i].rho * sites[i].rho; Sx += q; Sxx += q * q; Sy += y; Sxy += q * y; });
+          const b = (n * Sxy - Sx * Sy) / (n * Sxx - Sx * Sx), a = (Sy - b * Sx) / n, est = a + .95 * b;
+          let o = '';
+          const cx = 150, cy = 122, RR = 96;
+          for (let k = 10; k >= 1; k--) o += `<circle cx="${cx}" cy="${cy}" r="${RR * k / 10}" fill="${mtCol(30 + c2 * Math.pow(k / 10, 2))}" fill-opacity=".38"/>`;
+          o += `<circle cx="${cx}" cy="${cy}" r="${RR}" fill="none" stroke="currentColor" stroke-opacity=".8" stroke-width="1.6"/>` + pvdR(cx - 8, cy + RR - 2, 16, 4, 'var(--tbl-bg)', { so: 0.01, sw: .1 }) + pvdTx(cx, cy + RR + 14, '▽ 노치', { a: 'middle', st: 'font-size:8.5px;opacity:.7' });
+          sites.forEach((p, i) => { o += `<circle cx="${(cx + p.x * RR).toFixed(1)}" cy="${(cy - p.y * RR).toFixed(1)}" r="${n > 20 ? 3.6 : 4.8}" fill="${mtCol(vals[i])}" stroke="#fff" stroke-width="1"/>`; });
+          o += pvdTx(cx, 18, '가장자리 쏠림이 있는 웨이퍼(예시)', { a: 'middle', st: 'font-size:10px;font-weight:800;opacity:.95' });
+          // 그래프
+          const L = 372, Rr = 552, T = 52, B = 188, X = (q) => L + q * (Rr - L), Y = (v) => B - (v - 29.5) / 3 * (B - T);
+          o += pvdL(`M${L} ${T} V${B} H${Rr}`, { sw: 1.3, so: .7 });
+          [0, .5, 1].forEach((q) => { o += pvdL(`M${X(q)} ${B} v4`, { so: .7 }) + pvdTx(X(q), B + 15, q, { a: 'middle', st: 'font-size:9px;opacity:.8' }); });
+          [30, 31, 32].forEach((v) => { o += pvdL(`M${L - 3} ${Y(v)} h3`, { so: .7 }) + pvdTx(L - 6, Y(v) + 3, v, { a: 'end', st: 'font-size:9px;opacity:.8' }); });
+          o += pvdTx(L, T - 16, '선폭 (nm)', { st: 'font-size:9.5px;font-weight:800;opacity:.9' }) + pvdTx(Rr, B + 30, '(반지름 ÷ 150 mm)²', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+          o += pvdL(`M${L} ${Y(31.5)} H${Rr}`, { c: '#f87171', sw: 1.3, so: .9, dash: '4 3' }) + pvdTx(L + 4, Y(31.5) - 4, '관리 한계 31.5', { st: 'font-size:9px;font-weight:800;opacity:1;fill:#f87171' });
+          o += pvdL(`M${L} ${Y(30)} H${Rr}`, { so: .35, dash: '2 4' }) + pvdTx(Rr, Y(30) - 4, '목표 30', { a: 'end', st: 'font-size:8.5px;opacity:.65' });
+          vals.forEach((v, i) => { const q = sites[i].rho * sites[i].rho; o += `<circle cx="${X(q).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="2.6" fill="${mtCol(v)}" stroke="#fff" stroke-width=".6"/>`; });
+          o += pvdL(`M${X(0)} ${Y(a)} L${X(.95)} ${Y(est)}`, { c: '#fbbf24', sw: 2, so: .95 }) + `<circle cx="${X(.95)}" cy="${Y(est)}" r="4.6" fill="#fbbf24" stroke="#fff" stroke-width="1"/>` + pvdTx(X(.95) - 8, Y(est) - 9, '가장자리 추정 ' + est.toFixed(1) + ' nm', { a: 'end', st: 'font-size:9.5px;font-weight:800;opacity:1;fill:#fbbf24' });
+          o += pvdTx(290, 250, `${s.n}지점 · 한 장 약 ${s.t}초 · 가장자리 추정 오차 약 ${s.e.toFixed(2)} nm (1σ)`, { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' });
+          return dgSvg('측정 지점 배치: ' + s.label, o, '0 2 580 264');
+        }
+      },
+      // ---------- 8. 로트 샘플링 ----------
+      'met-lot': {
+        title: '로트 샘플링과 이상 포착',
+        wide: true,
+        states: [
+          { id: 'k2', label: '2장 측정', k: 2, c: 35, fa: 1.5, w: 835, desc: '로트 25장 중 2장만 재면 팹 속도에는 여유가 많지만(시간당 835장 소화), 이상 웨이퍼가 걸릴 확률은 35 %에 그친다. 이상이 연속된 네 장에 나타나도 표본이 그 구간을 비껴가기 쉽다.' },
+          { id: 'k4', label: '4장 측정 (기본값)', k: 4, c: 69, fa: 3, w: 417, desc: '4장을 고르게 뽑으면 표본 사이가 6칸 가까이 벌어져 이상 구간 네 장이 사이에 끼면 놓친다. 표본에 걸릴 확률 73 %에 한 장을 이상으로 판정할 확률(약 96 %)을 곱하면 69 %가 되어 기준 95 %에 못 미친다.' },
+          { id: 'k6', label: '6장 측정', k: 6, c: 96, fa: 4.5, w: 278, desc: '표본 간격이 이상 구간(4장)보다 좁아져 이상이 어디서 시작해도 거의 표본에 걸린다. 포착 확률 96 %로 기준을 넘고, 팹 속도 278장/h도 기준 120장/h보다 충분히 빠르다. 오경보는 4.5 %로 기준 5 % 이하다.' },
+          { id: 'k10', label: '10장 측정', k: 10, c: 98, fa: 7.4, w: 167, desc: '더 재면 포착 확률은 98 %로 조금 오르지만, 정상 웨이퍼도 여러 장 재서 한 장이라도 우연히 경계를 넘을 가능성이 커져 오경보가 7.4 %로 기준을 넘는다. 시간도 더 들어 팹 속도 여유가 줄어든다.' },
+        ],
+        svg(s) {
+          const k = s.k, picks = Array.from({ length: k }, (_, i) => Math.floor((i + .5) * 25 / k)), SX = (i) => 12 + i * 22.6 + 9, bad = [10, 11, 12, 13];
+          let o = pvdTx(12, 22, '로트(웨이퍼 25장) — 파랑 테두리 = 측정하는 웨이퍼, 빨강 = 이상 웨이퍼(예시)', { st: 'font-size:10px;font-weight:800;opacity:.95' });
+          for (let i = 0; i < 25; i++) { const isB = bad.includes(i), isP = picks.includes(i); o += pvdR(SX(i) - 9, 36, 18, 22, isB ? 'rgba(248,113,113,.5)' : 'rgba(148,163,184,.2)', { rx: 3, so: isP ? 1 : .35, sw: isP ? 2.4 : .8, c: isP ? '#38bdf8' : 'currentColor' }); if (isP) o += mtHead(SX(i), 33, 'down', '#38bdf8', .95); }
+          [1, 5, 10, 15, 20, 25].forEach((n) => { o += pvdTx(SX(n - 1), 74, n, { a: 'middle', st: 'font-size:8.5px;opacity:.7' }); });
+          // 시작 위치별 포착
+          o += pvdTx(12, 100, '이상 구간(4장) 시작 위치 22가지 — 초록: 걸림, 빨강: 놓침', { st: 'font-size:10px;font-weight:800;opacity:.95' });
+          let hit = 0; for (let st = 0; st < 22; st++) { const ok = picks.some((p) => p >= st && p < st + 4); if (ok) hit++; o += `<circle cx="${SX(st)}" cy="116" r="5.2" fill="${ok ? '#22c55e' : '#f87171'}" fill-opacity=".85" stroke="#fff" stroke-width=".6"/>`; }
+          o += pvdTx(SX(24) + 9, 100, `표본에 걸림 ${(hit / 22 * 100).toFixed(0)} %`, { a: 'end', st: 'font-size:10px;font-weight:800;opacity:1' });
+          // 막대 3개
+          const bar = (y, name, val, max, spec, up, txt) => { const x0 = 132, W = 280, good = up ? val >= spec : val <= spec, c = good ? '#22c55e' : '#f87171'; return pvdTx(12, y + 12, name, { st: 'font-size:10.5px;font-weight:800;opacity:1' }) + pvdR(x0, y, W, 16, 'rgba(148,163,184,.12)', { rx: 3, so: .4, sw: .8 }) + `<rect x="${x0}" y="${y}" width="${Math.max(2, Math.min(1, val / max) * W).toFixed(1)}" height="16" rx="3" fill="${c}" fill-opacity=".7"/>` + pvdL(`M${x0 + spec / max * W} ${y - 4} V${y + 20}`, { c: '#fbbf24', sw: 1.6, so: 1 }) + pvdTx(x0 + W + 10, y + 12, txt, { st: `font-size:10.5px;font-weight:800;opacity:1;fill:${c}` }); };
+          o += bar(144, '이상 포착 확률', s.c, 100, 95, true, s.c + ' %  (기준 95 % 이상)');
+          o += bar(176, '정상 로트 오경보', s.fa, 10, 5, false, s.fa.toFixed(1) + ' %  (기준 5 % 이하)');
+          o += bar(208, '팹 속도 소화', s.w, 900, 120, true, s.w + ' 장/h  (기준 120 이상)');
+          o += pvdTx(12, 252, '노란 눈금 = 기준값 · 포착 확률은 이상 웨이퍼 한 장을 이상으로 판정할 확률(약 96 %)을 포함한 모델 값', { st: 'font-size:8.5px;opacity:.7' });
+          return dgSvg('로트 샘플링: ' + s.label, o, '0 6 580 262');
+        }
+      },
+      // ---------- 9. 정밀도와 정확도 ----------
+      'met-gauge': {
+        title: '정밀도·정확도·P/T',
+        wide: true,
+        states: [
+          { id: 'dist', label: '반복 측정 분포', k: 'dist', desc: '같은 자리를 반복해서 재면 값이 약간씩 흩어진다. 흩어짐의 표준편차를 σ라 하고 3σ를 정밀도로 쓴다. 기본 조건(500 V, 6프레임)에서 3σ는 약 0.34 nm다. 점은 25번 반복 측정한 값의 예시다.' },
+          { id: 'pt', label: 'P/T(정밀도/공차비)', k: 'pt', desc: 'P/T는 흩어짐의 폭 6σ를 공차 폭으로 나눈 값이다. 공차가 30 ± 3 nm(폭 6 nm)일 때 6σ가 0.68 nm이면 P/T는 11.4 %다. 이 체험은 10 % 이하를 합격으로 본다. 프레임을 12장으로 늘리면 8.1 %, 1장이면 27.9 %다.' },
+          { id: 'target', label: '정밀도와 정확도', k: 'target', desc: '정밀도는 반복했을 때 값이 모이는 정도, 정확도는 그 평균이 참값에 가까운 정도다. 둘은 별개다. 정밀하지만 치우친 장비는 문턱값·배율 보정으로 맞출 수 있고, 흩어지는 장비는 프레임·전압·진동을 점검해야 한다.' },
+          { id: 'match', label: '장비 간 매칭', k: 'match', desc: '같은 웨이퍼를 두 CD-SEM으로 재면 값이 일정하게 어긋날 수 있다(그림은 0.45 nm 예시). 정밀도가 같아도 평균이 다르면 장비마다 다른 기준으로 공정을 제어하게 되므로, 기준 웨이퍼로 장비 간 차이를 맞춘다.' },
+        ],
+        svg(s) {
+          const K = s.k; let o = '';
+          const bell = (cx, sg, c, a) => { let d = `M${cx - 4 * sg} 170`; for (let i = -40; i <= 40; i++) { const x = cx + i * sg / 10; d += ` L${x.toFixed(1)} ${(170 - 100 * Math.exp(-Math.pow(i / 10, 2) / 2)).toFixed(1)}`; } d += ` L${cx + 4 * sg} 170 Z`; return `<path d="${d}" fill="${c}" fill-opacity="${a}" stroke="${c}" stroke-width="1.6" stroke-opacity=".95"/>`; };
+          if (K === 'dist' || K === 'match') {
+            const sg = 17, cx = K === 'dist' ? 290 : 262;
+            o += pvdL('M30 170 H550', { sw: 1.3, so: .7 });
+            const xs = [29.6, 29.8, 30, 30.2, 30.4, 30.6]; xs.forEach((v) => { const x = 290 + (v - 30) * 150; o += pvdL(`M${x} 170 v4`, { so: .7 }) + pvdTx(x, 185, v.toFixed(1), { a: 'middle', st: 'font-size:9px;opacity:.8' }); });
+            o += pvdTx(550, 202, '측정된 선폭 (nm)', { a: 'end', st: 'font-size:9.5px;font-weight:700;opacity:.85' });
+            if (K === 'dist') {
+              o += bell(290, sg, '#38bdf8', .22);
+              o += pvdL(`M${290 - 3 * sg} 120 H${290 + 3 * sg} M${290 - 3 * sg} 114 v12 M${290 + 3 * sg} 114 v12`, { c: '#fbbf24', sw: 1.6, so: .95 }) + pvdTx(290, 106, '±3σ = ±0.34 nm', { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#fbbf24' });
+              const R = mtRng(11); for (let i = 0; i < 25; i++) { const v = 30 + .113 * mtGauss(R); o += `<circle cx="${(290 + (v - 30) * 150).toFixed(1)}" cy="${204 + (i % 3) * 7}" r="2.6" fill="#38bdf8" stroke="#fff" stroke-width=".5"/>`; }
+              o += pvdTx(60, 60, '같은 자리를 25번 반복 측정 (500 V · 6프레임)', { st: 'font-size:11px;font-weight:800;opacity:.95' }) + pvdTx(60, 76, '점 하나 = 한 번의 측정값', { st: 'font-size:9.5px;opacity:.8' });
+            } else {
+              o += bell(262, sg, '#38bdf8', .22) + bell(330, sg, '#fb923c', .22);
+              o += pvdL('M262 170 V70 M330 170 V70', { so: .5, dash: '3 3' }) + pvdL('M262 78 H330', { c: '#fbbf24', sw: 1.6, so: .95 }) + mtHead(330, 78, 'right', '#fbbf24', .95) + mtHead(262, 78, 'left', '#fbbf24', .95) + pvdTx(296, 68, '장비 간 오프셋 0.45 nm (예시)', { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#fbbf24' });
+              o += pvdTx(262 - 4 * sg, 110, '장비 A', { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1;fill:#38bdf8' }) + pvdTx(330 + 4 * sg + 2, 110, '장비 B', { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1;fill:#fb923c' });
+              o += pvdTx(60, 40, '같은 웨이퍼, 같은 자리를 두 장비로 측정', { st: 'font-size:11px;font-weight:800;opacity:.95' });
+            }
+          }
+          if (K === 'pt') {
+            const X = (v) => 290 + (v - 30) * 50;
+            o += pvdR(X(27), 54, 300, 22, 'rgba(34,197,94,.16)', { rx: 3, so: .8, sw: 1.2, c: '#22c55e' }) + pvdTx(X(30), 70, '공차 폭 6 nm (30 ± 3 nm)', { a: 'middle', st: 'font-size:10.5px;font-weight:800;opacity:1;fill:#22c55e' });
+            o += pvdL(`M${X(30)} 80 V188`, { so: .4, dash: '3 3' });
+            [1, 6, 12].map((f) => [f, 2 * 0.8 / Math.sqrt(f) / 0.9557 / 6 * 100]).forEach(([f, pt], i) => { const w = pt / 100 * 6 * 50, y = 96 + i * 34, good = pt <= 10, c = good ? '#22c55e' : '#f87171'; o += `<rect x="${(X(30) - w / 2).toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="20" rx="3" fill="${c}" fill-opacity=".6" stroke="${c}" stroke-width="1.2"/>` + pvdTx(X(30) - 150 - 6, y + 14, `${f}프레임`, { a: 'end', st: 'font-size:10px;font-weight:800;opacity:1' }) + pvdTx(X(30) + 150 + 8, y + 14, `6σ ${(pt / 100 * 6).toFixed(2)} nm → P/T ${pt.toFixed(1)} %`, { st: `font-size:10.5px;font-weight:800;opacity:1;fill:${c}` }); });
+            o += pvdR(X(30) - 15, 92, 30, 108, 'none', { so: .9, sw: 1.3, c: '#fbbf24', dash: '4 3' }) + pvdTx(X(30), 214, '노란 점선 = P/T 10 % (6σ 0.6 nm)', { a: 'middle', st: 'font-size:9.5px;font-weight:800;opacity:1;fill:#fbbf24' });
+            o += pvdTx(60, 40, 'P/T = 6σ ÷ 공차 폭 (500 V)', { st: 'font-size:11px;font-weight:800;opacity:.95' });
+          }
+          if (K === 'target') {
+            const R = mtRng(5), pts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
+            const defs = [['정밀 · 정확', '값이 모이고 평균이 참값', 0, 0, .1], ['정밀 · 부정확', '값은 모이나 한쪽으로 치우침', 20, -12, .1], ['부정밀 · 정확', '평균은 맞지만 흩어짐', 0, 0, .34], ['부정밀 · 부정확', '흩어지고 치우침', 20, -12, .34]];
+            defs.forEach(([t, d2, ox, oy, sp], i) => {
+              const cx = 76 + i * 143, cy = 104; [44, 30, 16, 5].forEach((r, j) => { o += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${j === 3 ? 'rgba(251,191,36,.4)' : 'none'}" stroke="currentColor" stroke-opacity="${.3 + j * .1}" stroke-width="1.2"/>`; });
+              for (let m = 0; m < 9; m++) o += `<circle cx="${(cx + ox + 44 * sp * mtGauss(R)).toFixed(1)}" cy="${(cy + oy + 44 * sp * mtGauss(R)).toFixed(1)}" r="3" fill="#38bdf8" stroke="#fff" stroke-width=".7"/>`;
+              o += pvdTx(cx, 170, t, { a: 'middle', st: 'font-size:11px;font-weight:800;opacity:1' }) + pvdTx(cx, 184, d2, { a: 'middle', st: 'font-size:8.5px;opacity:.8' });
+            });
+            o += pvdTx(60, 36, '과녁 중심 = 참값(예: 단면 TEM으로 잰 선폭), 점 = 반복 측정값', { st: 'font-size:10.5px;font-weight:800;opacity:.95' });
+          }
+          return dgSvg('측정 능력: ' + s.label, o, '0 22 580 214');
+        }
+      },
+      // ---------- 10. 대표 불량 ----------
+      'met-defects': {
+        title: 'CD-SEM 이미지의 대표 불량',
+        states: [
+          { id: 'all', label: '전체', desc: '위에서 본 선 패턴의 이미지로 대표 불량을 비교한다. 모서리의 밝은 띠가 또렷하면 정상이고, 번지거나 겹치거나 한쪽이 밝거나 폭이 변하면 측정값을 믿기 어렵다.' },
+          { id: 'foc', label: '초점 불량', focus: ['foc'], desc: '대물 렌즈의 초점이 웨이퍼 표면에서 어긋나면 모서리가 넓게 번진다. 번진 띠의 위치가 문턱값에 따라 크게 움직여 선폭이 달라진다. 자동 초점이 실패하거나 웨이퍼 휨이 크거나 시료대 높이가 어긋났을 때 생긴다.' },
+          { id: 'ast', label: '비점수차', focus: ['ast'], desc: '빔 단면이 둥글지 않고 한쪽으로 늘어지면 방향에 따라 번짐이 달라져 모서리가 겹쳐 보인다. 한 방향 선폭만 틀어지므로 가로선과 세로선의 값이 서로 달라진다. 비점 보정기를 다시 맞춰야 한다.' },
+          { id: 'chg', label: '대전', focus: ['chg'], desc: '절연체인 레지스트에 전자가 쌓여 전하가 생기면 2차 전자의 궤적이 휘어 한쪽이 밝아지고 상이 흐르거나 휜다. 가속전압이 높거나 주사가 느리거나 접지가 나쁠 때 심해진다. 전압을 낮추고 프레임당 시간을 줄여 대응한다.' },
+          { id: 'shr', label: '수축', focus: ['shr'], desc: '전자빔을 맞은 레지스트는 조금씩 줄어들어 같은 자리를 반복 측정하면 선폭이 작아진다. 점선이 처음 폭이다. 프레임 수와 전압이 클수록 많이 줄고, 한 자리에서 오래 재지 않거나 전압을 낮추면 줄일 수 있다.' },
+          { id: 'con', label: '오염', focus: ['con'], desc: '챔버 속 유기물이 빔이 지나간 자리에 쌓여 탄소막이 자라면 그 사각형만 다르게 보인다. 같은 자리를 다시 재면 값이 어긋난다. 진공 상태와 웨이퍼 청정도를 점검하고 측정 위치를 옮긴다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = pvdDefs('md');
+          const sem = (kind, x, y) => {
+            const W = 174, H = 56; let g = `<rect x="${x}" y="${y}" width="${W}" height="${H}" rx="3" fill="#18202e"/>`;
+            const L = [12, 52, 92, 132].map((v) => x + v), bw = 22;
+            const skew = (px, py) => kind === 'chg' ? (px + (py - y) * .28) : px;
+            L.forEach((lx, i) => {
+              const w2 = kind === 'shr' ? bw - 7 : bw, ox = kind === 'shr' ? 3.5 : 0;
+              if (kind === 'chg') { g += `<polygon points="${lx},${y} ${lx + bw},${y} ${lx + bw + 14},${y + H} ${lx + 14},${y + H}" fill="rgba(148,163,184,.3)"/>` + pvdL(`M${lx} ${y} L${lx + 14} ${y + H} M${lx + bw} ${y} L${lx + bw + 14} ${y + H}`, { c: '#e5e7eb', sw: 1.6, so: .9 }); return; }
+              g += `<rect x="${lx + ox}" y="${y}" width="${w2}" height="${H}" fill="rgba(148,163,184,.28)"/>`;
+              const ed = (ex) => { if (kind === 'foc') return pvdL(`M${ex} ${y} v${H}`, { c: '#e5e7eb', sw: 9, so: .16 }) + pvdL(`M${ex} ${y} v${H}`, { c: '#e5e7eb', sw: 5, so: .26 }) + pvdL(`M${ex} ${y} v${H}`, { c: '#e5e7eb', sw: 2, so: .5 }); if (kind === 'ast') return pvdL(`M${ex} ${y} v${H}`, { c: '#e5e7eb', sw: 1.6, so: .9 }) + pvdL(`M${ex + 4} ${y} v${H}`, { c: '#e5e7eb', sw: 1.6, so: .45 }) + pvdL(`M${ex + 8} ${y} v${H}`, { c: '#e5e7eb', sw: 3, so: .2 }); return pvdL(`M${ex} ${y} v${H}`, { c: '#e5e7eb', sw: 1.8, so: .95 }); };
+              g += ed(lx + ox) + ed(lx + ox + w2);
+              if (kind === 'shr') g += `<rect x="${lx}" y="${y + 3}" width="${bw}" height="${H - 6}" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3 2" opacity=".9"/>`;
+            });
+            if (kind === 'chg') g += `<defs><linearGradient id="mdCg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="${x}" y="${y}" width="${W}" height="${H}" rx="3" fill="url(#mdCg)"/>`;
+            if (kind === 'con') g += `<rect x="${x + 36}" y="${y + 8}" width="98" height="40" fill="rgba(245,158,11,.2)" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="4 3"/>` + pvdTx(x + 85, y + 30, '지난 측정 자국', { a: 'middle', st: 'font-size:9px;font-weight:800;opacity:1;fill:#fbbf24' });
+            return g;
+          };
+          const cards = [['ok', 10, 8, '정상', '#22c55e', '모서리가 또렷한 밝은 띠', '초점·비점 모두 정상', 'ok'], ['foc', 200, 8, '초점 불량', '#f87171', '모서리가 번져 흐릿함', '자동 초점·휨·높이 점검', 'foc'], ['ast', 10, 128, '비점수차', '#fb923c', '방향에 따라 번지고 겹침', '비점 보정기 재조정', 'ast'], ['chg', 200, 128, '대전', '#a78bfa', '한쪽이 밝고 상이 휨', '전압↓, 주사 조건 조정', 'chg'], ['shr', 10, 248, '수축', '#fbbf24', '반복할수록 선폭 감소', '프레임·전압을 낮춤', 'shr'], ['con', 200, 248, '오염', '#38bdf8', '빔이 지난 사각형이 남음', '진공·청정도 점검, 위치 이동', 'con']];
+          cards.forEach(([id, x, y, t, c, c1, c2, kind]) => {
+            o += pvdG(f, [id === 'ok' ? 'ok' : id], pvdR(x, y, 190, 116, 'var(--tbl-bg)', { rx: 9, so: .4 }) + pvdTx(x + 10, y + 16, t, { st: `font-size:11px;font-weight:800;opacity:1;fill:${c}` }) + sem(kind, x + 8, y + 24) + pvdTx(x + 10, y + 100, c1, { st: 'font-size:9px;font-weight:700;opacity:.95' }) + pvdTx(x + 10, y + 111, c2, { st: 'font-size:8.5px;opacity:.75' }));
+          });
+          return dgSvg('CD-SEM 불량 이미지: ' + s.label, o, '0 2 400 374');
+        }
+      },
+    });
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];

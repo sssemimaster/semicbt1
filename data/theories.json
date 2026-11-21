@@ -1088,5 +1088,95 @@
     "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
     "premium": true,
     "mins": 19
+  },
+  {
+    "id": "TH-851e3d9a",
+    "category": "심화 이론",
+    "subject": "장비 사용",
+    "title": "습식 세정(RCA) 장비 사용 가이드",
+    "tags": [
+      "세정장비",
+      "RCA",
+      "웨트벤치",
+      "현장실무",
+      "트러블슈팅"
+    ],
+    "equip": "습식 세정 (RCA 웨트 벤치)",
+    "lab": "wet",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 23
+  },
+  {
+    "id": "TH-2e93cdde",
+    "category": "심화 이론",
+    "subject": "장비 사용",
+    "title": "확산로(열산화) 장비 사용 가이드",
+    "tags": [
+      "산화장비",
+      "확산로",
+      "열산화",
+      "현장실무",
+      "트러블슈팅"
+    ],
+    "equip": "확산로 (열산화 퍼니스)",
+    "lab": "furn",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 23
+  },
+  {
+    "id": "TH-bb1a3ed9",
+    "category": "심화 이론",
+    "subject": "장비 사용",
+    "title": "LPCVD(저압 CVD) 장비 사용 가이드",
+    "tags": [
+      "증착장비",
+      "LPCVD",
+      "폴리실리콘",
+      "현장실무",
+      "트러블슈팅"
+    ],
+    "equip": "LPCVD (저압 화학 기상 증착 퍼니스)",
+    "lab": "lpcvd",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 24
+  },
+  {
+    "id": "TH-9283a295",
+    "category": "심화 이론",
+    "subject": "장비 사용",
+    "title": "ALD(원자층 증착) 장비 사용 가이드",
+    "tags": [
+      "증착장비",
+      "ALD",
+      "원자층증착",
+      "현장실무",
+      "트러블슈팅"
+    ],
+    "equip": "ALD (원자층 증착 장비)",
+    "lab": "ald",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 21
+  },
+  {
+    "id": "TH-b2865de3",
+    "category": "심화 이론",
+    "subject": "장비 사용",
+    "title": "CD-SEM(계측) 장비 사용 가이드",
+    "tags": [
+      "계측장비",
+      "CD-SEM",
+      "선폭",
+      "현장실무",
+      "트러블슈팅"
+    ],
+    "equip": "CD-SEM (임계 치수 주사전자현미경)",
+    "lab": "met",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 21
   }
 ]
