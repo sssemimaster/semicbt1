@@ -8671,6 +8671,7 @@
       const card = document.createElement('div'); card.className = adv ? 'adv-doc' : "bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden";
       const kwAttr = String(t.title).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
       const qN = Math.min(3, matchItems(allQuizData, t.title).length); const iN = Math.min(2, matchItems(allInterviewData, t.title).length);
+      if (!mdTildeOff && typeof marked !== 'undefined') { marked.use({ tokenizer: { del() { return undefined; } } }); mdTildeOff = true; }   // '800~1100 ... 600~800' 처럼 ~ 가 두 번 나오면 가운데가 취소선이 되므로, 이 사이트는 취소선 문법을 쓰지 않는다
       const math = stashMath(t.content); let rawMarkdown = math.text;
       // '**용어(영문)**는' 처럼 괄호 뒤에 한글이 바로 붙으면 marked가 굵게 처리를 못 해서 ** 가 그대로 보임 -> 직접 변환
       rawMarkdown = rawMarkdown.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
@@ -8832,6 +8833,7 @@
         <button onclick="navTo('view-lobby')" class="w-full bg-white dark:bg-[#0a1020] border border-slate-200 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold py-3.5 rounded-xl transition">🏠 홈으로</button>`;
     }
 
+    let mdTildeOff = false;
     function renderBreadcrumb() {
       const bc = document.getElementById('breadcrumbContainer'); if (learnState.level === 'home') { bc.classList.add('hidden'); bc.innerHTML = ''; return; } bc.classList.remove('hidden');
       bc.innerHTML = `<button onclick="navTo('view-learning', {level:'home'})" class="text-indigo-700 dark:text-[#67e8f9] font-bold px-2 hover:underline">📚 백과사전</button>`;
