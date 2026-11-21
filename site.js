@@ -927,7 +927,7 @@
             if (!t) return `<div class="adv-it soon" aria-disabled="true"><span class="adv-mo" aria-hidden="true">${T.c}</span><span class="adv-tx"><b>${escH(title)}</b><em>${escH(desc)}</em></span>${meta}<span class="fd-sn">준비 중</span></div>`;
             return `<button type="button" class="adv-it" onclick="navTo('view-learning',{level:'detail',theoryId:'${t.id}'})"><span class="adv-mo" aria-hidden="true">${T.c}</span><span class="adv-tx"><b>${escH(title)}${t.premium ? pmLk(t.id) : ''}</b><em>${escH(desc)}</em></span><span class="fd-rt">약 ${genMins(t)}분 읽기</span>${meta}<span class="adv-go" aria-hidden="true">→</span></button>`;
           }).join('');
-          return `<li class="adv-st"><span class="adv-nd">${pad(no)}</span><div class="adv-sc"><div class="adv-sc-h"><b>${g.t}</b><em>${g.d}</em></div>${rows}</div></li>`;
+          return `<li class="adv-st"><div class="adv-sc"><div class="adv-sc-h"><span class="adv-nd">${pad(no)}</span><div><b>${g.t}</b><em>${g.d}</em></div></div>${rows}</div></li>`;
         }).join('');
         return `<section class="adv-pt"><div class="adv-pt-h"><span class="adv-pt-n">${pad(pi + 1)}</span><div><b>${pt.t}</b><em>단계 ${stages.length}개 · 글 ${nArt}편</em></div></div><ol class="adv-pt-l">${steps}</ol></section>`;
       }).join('');
@@ -974,7 +974,7 @@
             const mins = g.mins || Math.max(1, Math.round(String(g.content).length / 650));
             return `<button type="button" class="adv-it" onclick="navTo('view-learning',{level:'detail',theoryId:'${g.id}'})"><span class="adv-mo" aria-hidden="true">${mo}</span><span class="adv-tx"><b>${escH(g.title)}${g.premium ? pmLk(g.id) : ''}</b><em>약 ${mins}분 읽기</em></span>${g.premium ? tkMeta(PRICE_HINT.theory) : ''}<span class="adv-go" aria-hidden="true">→</span></button>`;
           }).join('');
-          return `<li class="adv-st${ready ? '' : ' soon'}"><span class="adv-nd">${pad(no)}</span><div class="adv-sc"><div class="adv-sc-h"><b>${st.t}</b><em>${st.d}</em></div>${items}</div></li>`;
+          return `<li class="adv-st${ready ? '' : ' soon'}"><div class="adv-sc"><div class="adv-sc-h"><span class="adv-nd">${pad(no)}</span><div><b>${st.t}</b><em>${st.d}</em></div></div>${items}</div></li>`;
         }).join('');
         return `<section class="adv-pt"><div class="adv-pt-h"><span class="adv-pt-n">${pad(p.n)}</span><div><b>${p.t}</b><em>공정 ${nSt}단계 · 가이드 ${nGuide}편</em></div></div><ol class="adv-pt-l">${steps}</ol></section>`;
       }).join('');
