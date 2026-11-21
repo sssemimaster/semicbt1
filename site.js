@@ -4905,8 +4905,8 @@
           if (sec) {
             // 몸통 일부, 절연체
             o += pvdR(40, 20, 320, 14, 'url(#psMt)') + pvdR(40, 34, 20, 92, 'url(#psMt)') + pvdR(340, 34, 20, 92, 'url(#psMt)') + pvdR(60, 34, 10, 78, 'url(#psCr)', { so: .6 }) + pvdR(330, 34, 10, 78, 'url(#psCr)', { so: .6 });
-            o += pvdL('M200 0 V34', { c: '#38bdf8', sw: 3, so: .7 }) + pvdR(70, 34, 260, 36, 'rgba(56,189,248,.12)', { so: 0 }) + pvdTx(86, 56, '플레넘 ①', { st: 'font-size:9.5px;opacity:.75' });
-            o += pcHoles(70, 330, 70, 6, 9, 'url(#psMt)', 8) + pvdR(70, 76, 260, 22, 'rgba(56,189,248,.07)', { so: 0 }) + pvdTx(86, 92, '플레넘 ②', { st: 'font-size:9.5px;opacity:.75' });
+            o += pvdL('M200 0 V34', { c: '#38bdf8', sw: 3, so: .7 }) + fdRect(70, 34, 260, 36, { rx: 0, fill: 'rgba(56,189,248,.12)', so: 0 }) + pvdTx(86, 56, '플레넘 ①', { st: 'font-size:9.5px;opacity:.75' });
+            o += pcHoles(70, 330, 70, 6, 9, 'url(#psMt)', 8) + fdRect(70, 76, 260, 22, { rx: 0, fill: 'rgba(56,189,248,.07)', so: 0 }) + pvdTx(86, 92, '플레넘 ②', { st: 'font-size:9.5px;opacity:.75' });
             o += pcHoles(70, 330, 98, 12, 26, 'url(#psMt)', 5);
             // 웨이퍼·히터
             o += pvdR(92, 204, 216, 6, 'url(#psSi)') + pvdR(74, 202, 18, 8, 'url(#psCr)', { so: .6 }) + pvdR(308, 202, 18, 8, 'url(#psCr)', { so: .6 }) + pvdR(74, 210, 252, 36, 'url(#psHt)', { rx: 2 });
@@ -8664,14 +8664,20 @@
       },
     });
     // ===== 현장 직무 > "반도체 현장 직무 한눈에 보기" 글용 그림 (pvd* 도우미를 같이 쓴다) =====
-    // 색은 직무 구분용: 생산(초록) · 설비(파랑) · 공정(노랑). 그림을 눌러 보는 상태마다 focus 로 한 직무·한 시간대만 밝힌다.
-    const fdC = { op: '#34d399', eq: '#60a5fa', pr: '#fbbf24' };
+    // 색은 직무 구분용: 생산(초록) · 설비(파랑) · 공정(노랑). 그림을 눌러 보는 상태마다 focus 로 한 직무·한 시간대만 또렷하게 한다.
+    const fdC = { op: '#34d399', eq: '#60a5fa', pr: '#fbbf24' }, fdAc = '#fb923c';
+    const fdDefs = () => pvdDefs('fd') + `<defs><linearGradient id="fdBd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cbd5e1" stop-opacity=".6"/><stop offset="1" stop-color="#94a3b8" stop-opacity=".42"/></linearGradient></defs>`;
     const fdRect = (x, y, w, h, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx == null ? 6 : o.rx}" style="fill:${o.fill || 'var(--tbl-bg)'};stroke:${o.c || 'currentColor'};stroke-width:${o.sw || 1.2};stroke-opacity:${o.so == null ? .7 : o.so}${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
     const fdTx = (x, y, t, o = {}) => pvdTx(x, y, t, { a: o.a || 'middle', st: `font-size:${o.s || 10}px;font-weight:${o.w || 600};${o.c ? 'fill:' + o.c + ';' : ''}opacity:${o.op == null ? 1 : o.op}` });
-    const fdMan = (x, y, c) => `<circle cx="${x}" cy="${y - 24}" r="5" fill="${c}"/><path d="M${x} ${y - 18} V${y - 7} M${x - 6} ${y - 14} H${x + 6} M${x} ${y - 7} L${x - 5} ${y} M${x} ${y - 7} L${x + 5} ${y}" style="fill:none;stroke:${c};stroke-width:2;stroke-linecap:round"/>`;
-    const fdHead = (x, y, dir, c) => { const p = { d: `${x},${y} ${x - 4},${y - 7} ${x + 4},${y - 7}`, l: `${x},${y} ${x + 7},${y - 4} ${x + 7},${y + 4}` }[dir]; return `<polygon points="${p}" fill="${c || 'currentColor'}" fill-opacity=".8"/>`; };
+    const fdArr = (x, y, dir, c) => { const p = { r: `${x},${y} ${x - 6.5},${y - 3.6} ${x - 6.5},${y + 3.6}`, l: `${x},${y} ${x + 6.5},${y - 3.6} ${x + 6.5},${y + 3.6}`, d: `${x},${y} ${x - 3.6},${y - 6.5} ${x + 3.6},${y - 6.5}`, u: `${x},${y} ${x - 3.6},${y + 6.5} ${x + 3.6},${y + 6.5}` }[dir]; return `<polygon points="${p}" style="fill:${c || 'currentColor'};fill-opacity:.85"/>`; };
+    const fdFlow = (d, c, w) => `<path class="dg-flow" d="${d}" style="stroke:${c || '#7dd3fc'};stroke-width:${w || 1.5};stroke-opacity:.8"/>`;
+    // 방진복(후드 + 마스크)을 입은 사람. x=가운데, y=발끝, 키 약 46*k
+    const fdMan = (x, y, c, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"><path d="M-5 -10 V-1 M5 -10 V-1" style="fill:none;stroke:${c};stroke-width:3.2;stroke-linecap:round"/><path d="M-9.5 -28 Q-9.5 -32 -5.5 -32 H5.5 Q9.5 -32 9.5 -28 V-10 H-9.5 Z" style="fill:${c};fill-opacity:.88;stroke:${c};stroke-width:1"/><path d="M-9 -26 L-14 -15 M9 -26 L14 -15" style="fill:none;stroke:${c};stroke-width:3;stroke-linecap:round"/><circle cx="0" cy="-38.5" r="6.6" style="fill:#f1f5f9;stroke:${c};stroke-width:1.6"/><path d="M-6.6 -39.5 Q0 -48 6.6 -39.5" style="fill:none;stroke:${c};stroke-width:2.4"/><path d="M-3.4 -36.5 H3.4" style="stroke:#64748b;stroke-width:1.4;stroke-linecap:round"/></g>`;
+    // 장비 본체(앞면). 문 이음선과 표시등 포함
+    const fdCab = (x, y, w, h, o = {}) => fdRect(x, y, w, h, { rx: 4, fill: 'url(#fdBd)', so: .75, sw: 1.3 }) + pvdL(`M${x + 4} ${y + h * .62} H${x + w - 4}`, { so: .3, sw: .9 }) + `<circle cx="${x + w - 7}" cy="${y + 7}" r="2.2" style="fill:${o.lamp || '#34d399'}"/>`;
+
     Object.assign(DIAGRAMS, {
-      // ---------- 1. 현장 직무 세 줄기 ----------
+      // ---------- 1. 한 장비 앞의 세 직무 ----------
       'fld-roles': {
         title: '현장 직무 세 줄기: 생산 · 설비 · 공정',
         wide: true,
@@ -8682,44 +8688,42 @@
           { id: 'pr', label: '공정', focus: ['pr'], desc: '공정 엔지니어는 레시피와 측정 데이터를 본다. 결과가 규격에서 벗어나면 원인이 장비인지 조건인지 가려 조건을 고치고, 이상이 있었던 로트를 어떻게 처리할지 판단한다.' },
         ],
         svg(s) {
-          const f = s.focus || null, names = ['세정', '산화', '노광', '식각', '증착', '측정'], bx = (i) => 20 + i * 60;
-          let o = '';
-          // 장비 줄 (항상 보임)
-          names.forEach((n, i) => {
-            o += fdRect(bx(i), 34, 52, 46, { rx: 4, so: .55 }) + fdTx(bx(i) + 26, 62, n, { s: 10.5, w: 700 });
-            if (i < 5) o += pvdL(`M${bx(i) + 52} 57 H${bx(i + 1)}`, { so: .45, sw: 1 });
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 위쪽: 팹 공정 줄 (이 장비가 어디쯤인지)
+          ['세정', '산화', '노광', '식각', '증착', '측정'].forEach((n, i) => {
+            const x = 26 + i * 66, hi = i === 3;
+            o += fdRect(x, 12, 58, 26, { rx: 5, fill: hi ? 'rgba(251,146,60,.2)' : 'var(--tbl-bg)', c: hi ? fdAc : 'currentColor', so: hi ? .95 : .5, sw: hi ? 1.8 : 1.1 }) + fdTx(x + 29, 29, n, { s: 10.5, w: 700 });
+            if (i < 5) o += fdArr(x + 65.5, 25, 'r');
           });
-          // 측정 칸의 작은 관리도
-          o += pvdL(`M${bx(5) + 6} 44 H${bx(5) + 46} M${bx(5) + 6} 72 H${bx(5) + 46}`, { so: .3, sw: .8, dash: '2 2' }) + pvdL(`M${bx(5) + 6} 58 l8 -6 l8 8 l8 -10 l10 8`, { so: .5, sw: 1.1 });
-          // 생산: 로트(FOUP)가 장비를 따라 이동
-          let g = pvdL('M20 20 H372', { c: fdC.op, sw: 1.6, so: .9, dash: '5 4' }) + fdHead(376, 20, 'l', fdC.op);
-          [44, 164, 284].forEach((x) => { g += fdRect(x, 12, 16, 11, { rx: 2, c: fdC.op, fill: 'rgba(52,211,153,.25)', sw: 1.3, so: .95 }); });
-          g += fdTx(20, 9, '로트(FOUP)가 장비를 따라 이동', { a: 'start', s: 9.5, c: fdC.op, w: 700 });
-          o += pvdG(f, ['op'], g);
-          // 설비: 장비 본체
-          let e = '';
-          for (let i = 0; i < 5; i++) e += fdRect(bx(i), 34, 52, 46, { rx: 4, c: fdC.eq, fill: 'none', sw: 2, so: .95 }) + `<circle cx="${bx(i) + 44}" cy="42" r="2.8" fill="#22c55e"/>`;
-          e += fdTx(20, 96, '장비 상태 · 알람 · 정비', { a: 'start', s: 9.5, c: fdC.eq, w: 700 });
-          o += pvdG(f, ['eq'], e);
-          // 공정: 측정 결과 · 규격
-          o += pvdG(f, ['pr'], fdRect(bx(5), 34, 52, 46, { rx: 4, c: fdC.pr, fill: 'none', sw: 2, so: .95 }) + pvdL(`M${bx(5) + 6} 58 l8 -6 l8 8 l8 -10 l10 8`, { c: fdC.pr, sw: 1.6, so: .95 })
-            + fdTx(380, 96, '측정 결과 · 규격 · 레시피', { a: 'end', s: 9.5, c: fdC.pr, w: 700 }));
-          // 직무 카드
-          const cards = [['op', 14, '생산', '오퍼레이터', ['로트를 장비에 걸고', '절차·일지를 지킨다'], ['절차대로 정확히', '돌렸나?']],
-            ['eq', 140, '설비', '장비 엔지니어', ['장비를 정상으로 지키고', '고장 나면 고친다'], ['지금 정상인가?', '왜 멈췄나?']],
-            ['pr', 266, '공정', '공정 엔지니어', ['레시피를 정하고', '결과를 판단한다'], ['규격 안인가?', '더 낫게 만들까?']]];
-          cards.forEach(([k, x, t, sub, ls, qs]) => {
-            let c = fdRect(x, 108, 120, 138, { rx: 7, c: fdC[k], so: .8, sw: 1.4 }) + `<rect x="${x}" y="108" width="120" height="5" rx="2" fill="${fdC[k]}" fill-opacity=".9"/>`;
-            c += fdTx(x + 10, 134, t, { a: 'start', s: 15, w: 800 }) + fdTx(x + 10, 149, sub, { a: 'start', s: 10, op: .75 });
-            c += pvdL(`M${x + 10} 158 H${x + 110}`, { so: .25, sw: 1 });
-            ls.forEach((l, i) => { c += fdTx(x + 10, 174 + i * 13, l, { a: 'start', s: 9.5, op: .9 }); });
-            c += fdTx(x + 10, 214, '매일 던지는 질문', { a: 'start', s: 8.5, op: .6 });
-            qs.forEach((q, i) => { c += fdTx(x + 10, 228 + i * 13, q, { a: 'start', s: 10, w: 800, c: fdC[k] }); });
-            o += pvdG(f, [k], c);
+          o += pvdL('M253 40 V92', { c: fdAc, dash: '3 3', so: .8, sw: 1.4 }) + fdArr(253, 98, 'd', fdAc) + fdTx(244, 62, '이 장비 한 대를', { a: 'end', s: 9.5, c: fdAc, w: 700 }) + fdTx(244, 74, '세 직무가 함께 다룬다', { a: 'end', s: 9.5, c: fdAc, w: 700 });
+          // 바닥
+          o += `<rect x="10" y="232" width="420" height="44" style="fill:rgba(148,163,184,.10)"/>` + pvdL('M10 232 H430', { so: .4 });
+          // 로드포트부(EFEM) + FOUP 2개
+          o += pvdR(56, 118, 100, 114, 'url(#fdBd)', { rx: 4, so: .75, sw: 1.3 }) + pvdR(64, 172, 84, 5, 'url(#fdMt)', { so: .6 });
+          [68, 108].forEach((x) => { o += pvdR(x, 138, 34, 34, 'rgba(52,211,153,.2)', { rx: 5, so: .85 }) + pvdR(x + 9, 131, 16, 7, 'rgba(148,163,184,.4)', { rx: 2, so: .6 }) + pvdL(`M${x + 6} 150 H${x + 28} M${x + 6} 158 H${x + 28}`, { so: .35, sw: .9 }); });
+          o += pvdL('M64 186 H148 V226 H64 Z', { so: .32, sw: .9 }) + pvdR(122, 192, 22, 15, 'var(--tbl-bg)', { rx: 2, so: .7 }) + pvdL('M126 200 l4 -3 l4 3 l4 -4', { c: fdAc, sw: 1.2, so: .9 }) + fdTx(88, 206, '로드포트', { s: 8.5, op: .65 });
+          // 공정 모듈: 챔버 3개
+          o += pvdR(156, 100, 160, 132, 'url(#fdBd)', { rx: 4, so: .75, sw: 1.3 }) + pvdR(156, 100, 160, 24, 'url(#fdMt)', { rx: 4, so: .6 }) + fdTx(236, 116, '공정 모듈 (챔버 3개)', { s: 9.5, w: 700, op: .85 });
+          [168, 218, 268].forEach((x) => { o += pvdR(x, 134, 38, 62, 'rgba(96,165,250,.14)', { rx: 5, so: .85 }) + `<circle cx="${x + 19}" cy="152" r="7.5" style="fill:rgba(125,211,252,.25);stroke:currentColor;stroke-opacity:.6;stroke-width:1.2"/>` + pvdR(x + 29, 164, 4, 14, 'rgba(148,163,184,.5)', { rx: 1.5, so: .6 }) + fdTx(x + 17, 190, '챔버', { s: 8.5, op: .7 }) + pvdL(`M${x + 4} 206 H${x + 34} M${x + 4} 212 H${x + 34} M${x + 4} 218 H${x + 34}`, { so: .25, sw: .9 }); });
+          // 알람등(타워 라이트): 빨강 켜짐
+          o += pvdR(289, 72, 6, 28, '#94a3b8', { so: .5 }) + `<circle cx="292" cy="52" r="15" style="fill:rgba(248,113,113,.22)"/>` + pvdR(283, 42, 18, 9, '#f87171', { rx: 2, so: .9 }) + pvdR(283, 52, 18, 9, 'rgba(251,191,36,.35)', { rx: 2, so: .6 }) + pvdR(283, 62, 18, 9, 'rgba(52,211,153,.35)', { rx: 2, so: .6 }) + fdTx(308, 50, '알람등', { a: 'start', s: 9.5, c: '#f87171', w: 700 });
+          // 측정 데이터 화면 (책상 + 모니터)
+          o += pvdR(334, 198, 88, 6, 'url(#fdMt)', { so: .6 }) + pvdL('M342 204 V232 M414 204 V232', { so: .5, sw: 2 }) + pvdR(348, 142, 64, 44, 'var(--tbl-bg)', { rx: 3, so: .85 }) + pvdR(374, 186, 12, 12, 'url(#fdMt)', { so: .5 })
+            + pvdL('M354 150 H406 M354 176 H406', { dash: '2 2', so: .3, sw: .8 }) + pvdL('M354 166 l9 -8 l9 6 l9 -12 l9 8 l10 -6', { c: C.pr, sw: 1.7, so: 1 }) + fdTx(380, 136, '측정 데이터 화면', { s: 9, w: 700, op: .8 });
+          // 직무별 강조: 사람 + 만지는 곳
+          o += pvdG(f, ['op'], fdRect(63, 128, 88, 48, { rx: 7, fill: 'none', c: C.op, so: .95, sw: 1.7, dash: '4 3' }) + pvdL('M52 252 Q60 200 62 164', { c: C.op, dash: '3 3', so: .7, sw: 1.3 }) + fdMan(38, 274, C.op) + pvdNum(38, 208, '1', C.op));
+          o += pvdG(f, ['eq'], fdRect(164, 130, 146, 70, { rx: 7, fill: 'none', c: C.eq, so: .95, sw: 1.7, dash: '4 3' }) + fdMan(236, 276, C.eq) + `<path d="M252 254 l12 -10 M262 242 a5 5 0 1 1 6 6" style="fill:none;stroke:${C.eq};stroke-width:2;stroke-linecap:round"/>` + pvdNum(236, 210, '2', C.eq));
+          o += pvdG(f, ['pr'], fdRect(344, 138, 72, 52, { rx: 7, fill: 'none', c: C.pr, so: .95, sw: 1.7, dash: '4 3' }) + fdMan(378, 276, C.pr) + pvdNum(378, 210, '3', C.pr));
+          // 아래: 직무 카드
+          [['op', '1', '생산 오퍼레이터', '로트 투입 · 가동', '상태·알람 첫 확인'], ['eq', '2', '설비 엔지니어', '정비 · 고장 원인 찾기', '가동률 지키기'], ['pr', '3', '공정 엔지니어', '레시피 · 측정 판단', '이상 로트 처리 결정']].forEach(([k, n, nm, a, b], i) => {
+            const x = 14 + i * 142, col = C[k];
+            o += pvdG(f, [k], fdRect(x, 288, 128, 58, { rx: 7, fill: 'rgba(148,163,184,.08)', c: col, so: .85, sw: 1.4 }) + pvdNum(x + 15, 304, n, col) + fdTx(x + 28, 308, nm, { a: 'start', s: 11, w: 800 }) + fdTx(x + 12, 326, a, { a: 'start', s: 9.5, op: .9 }) + fdTx(x + 12, 339, b, { a: 'start', s: 9.5, op: .9 }));
           });
-          return dgSvg('현장 직무 세 줄기: ' + s.label, o, '0 0 400 252');
+          return dgSvg('현장 직무 세 줄기: ' + s.label, o, '0 0 440 354');
         }
       },
+
       // ---------- 2. 공장 단면 ----------
       'fld-fab': {
         title: '공장 단면: 누가 어디서 일하나',
@@ -8731,43 +8735,52 @@
           { id: 'office', label: '사무 · 제어실', focus: ['office'], desc: '화면으로 장비 상태와 측정 데이터를 보는 곳이다. 공정 엔지니어는 대부분의 시간을 여기서 데이터를 읽고 조건을 고민하는 데 쓰고, 이상이 있을 때 클린룸으로 내려온다.' },
         ],
         svg(s) {
-          const f = s.focus || null;
-          let o = '';
-          // 사무·제어실 건물
-          let of = fdRect(10, 76, 96, 150, { rx: 4, so: .75 }) + fdRect(20, 90, 76, 40, { rx: 3, so: .55, fill: 'rgba(148,163,184,.14)' })
-            + pvdL('M26 120 l12 -10 l12 8 l12 -14 l12 10', { c: fdC.pr, sw: 1.6, so: .95 }) + fdTx(58, 142, '중앙 감시 화면', { s: 9, op: .8 })
-            + pvdL('M24 208 H92', { so: .6, sw: 1.6 }) + fdMan(58, 208, fdC.pr)
-            + fdTx(58, 244, '사무 · 제어실', { s: 11, w: 800 }) + fdTx(58, 257, '화면으로 감시 · 분석', { s: 9, op: .75 });
-          o += pvdG(f, ['office'], of);
-          // 공장 외곽
-          o += fdRect(122, 14, 268, 232, { rx: 5, so: .75, fill: 'none' });
-          // 클린룸
-          let cr = fdRect(122, 14, 268, 12, { rx: 0, so: .4, fill: 'rgba(125,211,252,.22)' });
-          for (let i = 0; i < 13; i++) cr += pvdL(`M${132 + i * 20} 26 v8`, { c: '#7dd3fc', so: .8, sw: 1.2 });
-          cr += fdTx(130, 22, '공기 정화 팬(FFU)', { a: 'start', s: 8.5, op: .8 }) + pvdL('M122 52 H390', { sw: 1.8, so: .6 }) + fdTx(386, 49, '천장 자동 반송 레일', { a: 'end', s: 8.5, op: .8 });
-          [[170], [300]].forEach(([x]) => { cr += pvdL(`M${x} 52 V58`, { so: .6 }) + fdRect(x - 8, 58, 16, 12, { rx: 2, so: .8, fill: 'rgba(148,163,184,.25)' }); });
-          cr += fdRect(138, 92, 72, 58, { rx: 3, so: .75 }) + fdTx(174, 124, '공정 장비', { s: 10, w: 700 }) + fdRect(138, 100, 8, 14, { rx: 1, so: .6, fill: 'rgba(148,163,184,.3)' });
-          cr += fdRect(262, 92, 72, 58, { rx: 3, so: .75 }) + fdTx(298, 124, '공정 장비', { s: 10, w: 700 }) + fdRect(262, 100, 8, 14, { rx: 1, so: .6, fill: 'rgba(148,163,184,.3)' });
-          cr += fdMan(232, 150, fdC.op) + fdMan(360, 150, fdC.eq);
-          cr += fdTx(130, 80, '클린룸 (웨이퍼가 있는 곳)', { a: 'start', s: 10, w: 800 });
-          o += pvdG(f, ['clean'], cr);
-          // 바닥
-          o += pvdL('M122 150 H390', { sw: 2.2, so: .75 }) + pvdL('M122 155 H390', { sw: 1, so: .35, dash: '4 3' });
+          const f = s.focus || null, C = fdC, X0 = 118, W = 204, X1 = X0 + W;
+          let o = fdDefs();
+          // 건물 + 층 구분
+          o += pvdR(X0, 8, W, 304, 'none', { sw: 2.2, so: .6 });
+          // 사무·제어실 (맨 위)
+          let off = fdRect(X0, 8, W, 54, { rx: 0, fill: 'rgba(251,191,36,.08)', so: 0 }) + pvdR(176, 46, 124, 5, 'url(#fdMt)', { so: .6 }) + pvdL('M186 51 V62 M290 51 V62', { so: .45, sw: 2 })
+            + pvdR(192, 20, 40, 24, 'var(--tbl-bg)', { rx: 2.5, so: .85 }) + pvdL('M197 36 l7 -8 l6 5 l7 -8 l7 7', { c: C.pr, sw: 1.5 }) + pvdR(240, 20, 46, 24, 'var(--tbl-bg)', { rx: 2.5, so: .85 })
+            + [0, 1, 2, 3, 4].map((i) => pvdR(245 + i * 8, 40 - (6 + (i * 5) % 14), 5, 6 + (i * 5) % 14, 'rgba(251,191,36,.55)', { so: .3, sw: .6 })).join('') + fdMan(160, 60, C.pr, .8);
+          o += pvdG(f, ['office'], off);
+          o += pvdL(`M${X0} 62 H${X1}`, { sw: 1.6, so: .6 });
+          // FFU 층 + 클린룸
+          let cl = fdRect(X0, 62, W, 26, { rx: 0, fill: 'rgba(125,211,252,.1)', so: 0 }) + [0, 1, 2, 3, 4].map((i) => { const x = 126 + i * 39; return pvdR(x, 67, 33, 17, 'url(#fdMt)', { rx: 2.5, so: .65 }) + `<circle cx="${x + 16.5}" cy="75.5" r="5.5" style="fill:none;stroke:currentColor;stroke-opacity:.6;stroke-width:1"/>` + pvdL(`M${x + 12} 75.5 H${x + 21} M${x + 16.5} 71 V80`, { so: .5, sw: .9 }); }).join('')
+            + fdRect(X0, 88, W, 118, { rx: 0, fill: 'rgba(125,211,252,.05)', so: 0 });
+          cl += [143, 182, 221, 260, 299].map((x) => fdFlow(`M${x} 92 V200`)).join('');
+          // 천장 레일(OHT) + 호이스트 + FOUP
+          cl += pvdL(`M${X0} 100 H${X1}`, { sw: 3, so: .75 }) + pvdL(`M${X0} 104 H${X1}`, { sw: .8, so: .3, dash: '3 3' }) + pvdR(176, 96, 22, 10, 'url(#fdMt)', { rx: 2, so: .7 }) + pvdL('M187 106 V120', { so: .6 }) + fdRect(176, 120, 22, 18, { rx: 3, fill: 'rgba(52,211,153,.28)', c: C.op, so: .95, sw: 1.4 }) + pvdR(182, 116, 10, 4, 'rgba(148,163,184,.5)', { rx: 1, so: .5 });
+          // 장비 3대
+          [[126, 0], [200, 1], [274, 2]].forEach(([x, i]) => { cl += fdCab(x, 142, 44, 64, { lamp: i === 1 ? '#fbbf24' : '#34d399' }) + pvdR(x + 6, 150, 18, 12, 'rgba(96,165,250,.16)', { rx: 2, so: .6 }) + pvdR(x - 3, 190, 12, 12, 'rgba(52,211,153,.25)', { rx: 2, c: 0, so: .8 }) + fdTx(x + 26, 180, '장비', { s: 8.5, op: .7 }); });
+          cl += fdMan(185, 204, C.op, .95) + fdMan(259, 204, C.eq, .95) + pvdL('M126 206 H318', { sw: 1.2, so: .5 });
+          o += pvdG(f, ['clean'], cl);
+          // 이중 바닥(그레이팅)
+          o += pvdR(X0, 206, W, 7, 'url(#fdMt)', { so: .6 }) + pvdL(Array.from({ length: 25 }, (_, i) => `M${X0 + 4 + i * 8} 206 V213`).join(' '), { so: .3, sw: .8 });
           // 서브팹
-          let sb = fdTx(130, 172, '서브팹 (펌프 · 가스 · 냉각수)', { a: 'start', s: 10, w: 800 });
-          sb += pvdL('M174 150 V200 M298 150 V200', { c: '#a5b4fc', sw: 1.6, so: .8, dash: '3 3' });
-          sb += fdRect(150, 200, 48, 32, { rx: 8, so: .75 }) + fdTx(174, 220, '펌프', { s: 9.5, w: 700 });
-          sb += fdRect(214, 192, 40, 40, { rx: 3, so: .75 }) + fdTx(234, 210, '가스', { s: 9, w: 700 }) + fdTx(234, 221, '캐비닛', { s: 9, w: 700 });
-          sb += fdRect(272, 200, 52, 32, { rx: 3, so: .75 }) + fdTx(298, 220, '칠러', { s: 9.5, w: 700 });
-          sb += pvdL('M122 236 H390', { sw: 1.6, so: .6 }) + fdMan(360, 236, fdC.eq);
-          o += pvdG(f, ['sub'], sb);
-          // 공정 엔지니어: 필요할 때 클린룸으로
-          o += pvdG(f, ['office', 'clean'], pvdL('M106 138 H128', { c: fdC.pr, sw: 1.6, so: .9, dash: '3 3' }) + fdHead(132, 138, 'l', fdC.pr) + fdTx(114, 132, '이상 시', { s: 8.5, c: fdC.pr, w: 700 }));
+          let sb = fdRect(X0, 213, W, 99, { rx: 0, fill: 'rgba(148,163,184,.1)', so: 0 });
+          const pump = (x) => pvdR(x, 266, 28, 40, 'url(#fdMt)', { rx: 5, so: .8 }) + pvdR(x + 3, 257, 22, 9, 'rgba(96,165,250,.3)', { rx: 2, so: .7 }) + pvdL(`M${x + 3} 278 H${x + 25} M${x + 3} 286 H${x + 25} M${x + 3} 294 H${x + 25}`, { so: .4, sw: 1 });
+          sb += pvdL('M142 257 V238 H148 V206', { c: '#94a3b8', sw: 3.2, so: .8 }) + pvdL('M296 257 V238 H296 V206', { c: '#94a3b8', sw: 3.2, so: .8 })
+            + pvdL('M179 224 V219 H216 V206', { c: '#fbbf24', sw: 2.4, so: .85 }) + pvdL('M172 224 V220 H158 V206', { c: '#fbbf24', sw: 2.4, so: .85 })
+            + pvdL('M250 264 V236 H230 V206', { c: '#38bdf8', sw: 2.4, so: .85 }) + pvdL('M262 264 V228 H290 V206', { c: '#38bdf8', sw: 2.4, so: .85 });
+          sb += pump(128) + pump(282) + pvdR(164, 224, 32, 84, 'rgba(250,204,21,.1)', { rx: 3, so: .8 }) + [0, 1, 2].map((i) => pvdR(168 + i * 9, 262, 7, 40, 'rgba(251,191,36,.4)', { rx: 2, so: .7, sw: .8 }) + pvdR(169.5 + i * 9, 256, 4, 6, '#94a3b8', { so: .5, sw: .7 })).join('') + fdTx(180, 244, '가스', { s: 8.5, w: 700, op: .75 })
+            + pvdR(238, 264, 34, 44, 'rgba(56,189,248,.12)', { rx: 4, so: .8 }) + pvdL('M243 288 q4 -4 8 0 t8 0 t8 0 M243 296 q4 -4 8 0 t8 0 t8 0', { c: '#38bdf8', sw: 1.2, so: .8 }) + `<circle cx="255" cy="276" r="5" style="fill:none;stroke:currentColor;stroke-opacity:.6;stroke-width:1"/>` + fdMan(215, 310, C.eq, .95);
+          o += pvdG(f, ['sub'], sb) + pvdL(`M${X0} 312 H${X1}`, { sw: 2, so: .6 });
+          // 호출선
+          o += pvdCall(f, ['office'], '1', '#fbbf24', 424, 30, 412, 34, ['중앙 감시', '화면'], 287, 32, 'end');
+          o += pvdCall(f, ['clean'], '2', '#7dd3fc', 16, 76, 30, 80, ['FFU', '(공기 팬)'], 126, 76);
+          o += pvdCall(f, ['clean'], '3', '#a78bfa', 16, 114, 30, 118, ['천장 레일', '(OHT)'], 126, 100);
+          o += pvdCall(f, ['clean'], '4', '#34d399', 424, 124, 412, 128, ['FOUP', '(웨이퍼 통)'], 199, 130, 'end');
+          o += pvdCall(f, ['clean'], '5', '#cbd5e1', 16, 170, 30, 174, ['공정 장비'], 126, 176);
+          o += pvdCall(f, ['sub'], '6', '#facc15', 16, 236, 30, 240, ['가스', '캐비닛'], 164, 246);
+          o += pvdCall(f, ['sub'], '7', '#94a3b8', 16, 290, 30, 294, ['진공 펌프'], 128, 290);
+          o += pvdCall(f, ['sub'], '8', '#38bdf8', 424, 258, 412, 262, ['칠러', '(냉각수)'], 272, 282, 'end');
           // 범례
-          o += `<circle cx="140" cy="262" r="4" fill="${fdC.op}"/>` + fdTx(148, 265, '생산', { a: 'start', s: 9.5 }) + `<circle cx="196" cy="262" r="4" fill="${fdC.eq}"/>` + fdTx(204, 265, '설비', { a: 'start', s: 9.5 }) + `<circle cx="252" cy="262" r="4" fill="${fdC.pr}"/>` + fdTx(260, 265, '공정', { a: 'start', s: 9.5 });
-          return dgSvg('공장 단면: ' + s.label, o, '0 0 400 272');
+          [['op', '오퍼레이터'], ['eq', '설비 엔지니어'], ['pr', '공정 엔지니어']].forEach(([k, t], i) => { const x = 82 + i * 108; o += `<circle cx="${x}" cy="326" r="4.5" fill="${C[k]}"/>` + fdTx(x + 9, 330, t, { a: 'start', s: 10, w: 700 }); });
+          return dgSvg('공장 단면: ' + s.label, o, '0 0 440 340');
         }
       },
+
       // ---------- 3. 교대 한 번의 흐름 ----------
       'fld-shift': {
         title: '교대 한 번의 흐름: 세 직무의 시간표',
@@ -8781,24 +8794,44 @@
           { id: 's4', label: '마무리', focus: ['s4'], desc: '일지에 한 일과 남은 일을 적어 다음 교대에 넘긴다. 설비는 정비 기록을, 공정은 오늘의 흔들림을 보고 조건 개선을 검토한다. 무엇이 아직 끝나지 않았는지가 가장 중요한 정보다.' },
         ],
         svg(s) {
-          const f = s.focus || null, cols = ['인수인계', '점검', '생산', '이상 대응', '마무리'], cx = (i) => 68 + i * 66;
-          const rows = [['op', '생산', '오퍼레이터', [['일지 읽기', '로트 인계'], ['장비 상태', '소모품 확인'], ['트랙인', '로트 처리'], ['알람 확인', '기록 · 호출'], ['일지 쓰고', '인계하기']]],
-            ['eq', '설비', '장비 엔지니어', [['장비 상태', '인계받기'], ['PM 일정', '알람 이력'], ['가동률', '감시'], ['원인 진단', '조치 · 복구'], ['정비 기록', '남기기']]],
-            ['pr', '공정', '공정 엔지니어', [['야간 이상', '결과 확인'], ['모니터', '결과 보기'], ['측정값', '검토'], ['영향 로트', '판단'], ['조건 개선', '검토']]]];
-          let o = '';
-          cols.forEach((c, i) => { o += pvdG(f, ['s' + i], fdTx(cx(i) + 31, 20, c, { s: 10.5, w: 800 }) + pvdL(`M${cx(i)} 27 H${cx(i) + 62}`, { so: .4, sw: 1.4 })); });
-          rows.forEach(([k, t, sub, cells], r) => {
-            const y = 34 + r * 70;
-            o += fdRect(4, y, 60, 64, { rx: 6, c: fdC[k], fill: 'rgba(148,163,184,.1)', sw: 1.4, so: .9 }) + `<rect x="4" y="${y}" width="5" height="64" rx="2" fill="${fdC[k]}"/>`
-              + fdTx(38, y + 30, t, { s: 14, w: 800 }) + fdTx(38, y + 45, sub, { s: 8.5, op: .7 });
-            cells.forEach((ln, i) => {
-              o += pvdG(f, ['s' + i], fdRect(cx(i), y, 62, 64, { rx: 6, c: fdC[k], fill: fdC[k] + '1f', sw: 1.2, so: .75 }) + ln.map((l, j) => fdTx(cx(i) + 31, y + 28 + j * 14, l, { s: 10, w: 600 })).join(''));
+          const f = s.focus || null, C = fdC, cx = [80, 160, 240, 320, 400];
+          const st = [['인수인계', '교대 시작'], ['점검', '교대 초반'], ['생산', '교대 대부분'], ['이상 대응', '생기면 언제든'], ['마무리', '교대 끝']];
+          const cell = [
+            [['일지 읽기', '로트 인계'], ['장비 상태', '인계받기'], ['야간 이상', '결과 확인']],
+            [['장비 표시', '소모품 확인'], ['PM 일정', '알람 이력'], ['모니터', '결과 보기']],
+            [['트랙인', '로트 처리'], ['가동률', '감시'], ['측정값', '검토']],
+            [['알람 확인', '기록 · 호출'], ['원인 진단', '조치 · 복구'], ['영향 로트', '판단']],
+            [['일지 쓰고', '인계하기'], ['정비 기록', '남기기'], ['조건 개선', '검토']]];
+          const icon = [
+            `<path d="M-9 -6 L0 -3.5 L9 -6 V6 L0 8.5 L-9 6 Z M0 -3.5 V8.5" />`,
+            `<rect x="-6" y="-8" width="12" height="16" rx="2"/><path d="M-3 0 l2.6 3 l4.4 -6"/>`,
+            `<circle r="3.4"/>${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => { const a = i * Math.PI / 4; return `<path d="M${(5.4 * Math.cos(a)).toFixed(1)} ${(5.4 * Math.sin(a)).toFixed(1)} L${(8 * Math.cos(a)).toFixed(1)} ${(8 * Math.sin(a)).toFixed(1)}"/>`; }).join('')}`,
+            `<path d="M-6 4 Q-6 -6 0 -6 Q6 -6 6 4 Z M-8.5 4 H8.5 M-2 7.5 H2"/>`,
+            `<path d="M-7 7 L-5.5 2 L4 -7.5 L8 -3.5 L-1.5 6 Z M-5.5 2 L-1.5 6"/>`];
+          let o = fdDefs();
+          // 열 강조 띠
+          cx.forEach((x, i) => { if (f && f.includes('s' + i)) o += fdRect(x - 39, 44, 78, 242, { rx: 9, fill: 'rgba(251,146,60,.08)', c: fdAc, so: .6, sw: 1.2, dash: '3 3' }); });
+          // 시간 트랙
+          o += pvdR(40, 114, 388, 12, 'url(#fdMt)', { rx: 6, so: .55 }) + fdFlow('M48 120 H418', fdAc, 1.6) + fdArr(432, 120, 'r');
+          // 이상 대응은 생산 중에 끼어든다 (점선 호)
+          o += pvdG(f, ['s2', 's3'], pvdL('M250 98 Q285 74 312 98', { c: '#f87171', dash: '3 3', so: .8, sw: 1.3 }) + fdArr(312, 99, 'd', '#f87171'));
+          cx.forEach((x, i) => {
+            const red = i === 3, col = red ? '#f87171' : fdAc;
+            let g = fdTx(x, 62, st[i][0], { s: 11.5, w: 800 }) + fdTx(x, 76, st[i][1], { s: 9, op: .65 })
+              + `<circle cx="${x}" cy="120" r="17" style="fill:var(--tbl-bg);stroke:${col};stroke-width:2.2"/><g transform="translate(${x} 120)" style="fill:none;stroke:${col};stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round">${icon[i]}</g>`
+              + pvdL(`M${x} 138 V148`, { so: .5, dash: '2 2' });
+            ['op', 'eq', 'pr'].forEach((k, r) => {
+              const y = 150 + r * 46;
+              g += fdRect(x - 36, y, 72, 40, { rx: 7, fill: 'rgba(148,163,184,.08)', c: C[k], so: .85, sw: red ? 1.3 : 1.4, dash: red ? '4 3' : '' }) + fdTx(x, y + 17, cell[i][r][0], { s: 9.5, w: 700 }) + fdTx(x, y + 30, cell[i][r][1], { s: 9.5, op: .85 });
             });
+            o += pvdG(f, ['s' + i], g);
           });
-          o += dgArrow(70, 258, 380, 258, 'dg-line') + fdTx(70, 252, '교대 시작', { a: 'start', s: 9, op: .75 }) + fdTx(380, 252, '교대 끝', { a: 'end', s: 9, op: .75 }) + fdTx(225, 268, '한 교대 (회사와 라인마다 8~12시간)', { s: 9, op: .65 });
-          return dgSvg('교대 한 번의 흐름: ' + s.label, o, '0 0 400 276');
+          // 왼쪽 직무 표시
+          [['op', '생산'], ['eq', '설비'], ['pr', '공정']].forEach(([k, t], r) => { const y = 170 + r * 46; o += `<circle cx="16" cy="${y}" r="12" style="fill:none;stroke:${C[k]};stroke-width:1.8"/>` + fdTx(16, y + 3.5, t, { s: 9, w: 800 }); });
+          return dgSvg('교대 한 번의 흐름: ' + s.label, o, '0 0 440 298');
         }
       },
+
       // ---------- 4. 알람 한 번이 처리되는 순서 ----------
       'fld-alarm': {
         title: '알람 한 번이 처리되는 순서',
@@ -8811,25 +8844,35 @@
           { id: 'a4', label: '④ 복구와 재개', focus: ['a4'], desc: '고친 장비는 모니터 웨이퍼로 정상인지 확인한 뒤에야 생산에 돌아간다. 확인이 끝나면 오퍼레이터가 장비를 다시 돌리고, 일어난 일과 조치를 일지에 남긴다.' },
         ],
         svg(s) {
-          const f = s.focus || null, lx = { op: 10, eq: 142, pr: 274 }, lab = { op: '생산 · 오퍼레이터', eq: '설비 엔지니어', pr: '공정 엔지니어' };
-          const N = [['a1', 'op', 34, '① 알람 감지', '장비 정지 확인'], ['a1', 'op', 78, '② 상태 기록', '설비 호출'], ['a2', 'eq', 122, '③ 원인 진단', '알람 이력 · 센서'], ['a2', 'eq', 166, '④ 조치', '점검 · 부품 교체'],
-            ['a3', 'pr', 210, '⑤ 영향 로트 확인', '보류(Hold)'], ['a3', 'pr', 254, '⑥ 처분 판단', '출고/재작업/폐기'], ['a4', 'eq', 298, '⑦ 복구 확인', '모니터 웨이퍼'], ['a4', 'op', 298, '⑧ 재가동 · 일지', '다음 교대에 인계']];
-          let o = '';
-          ['op', 'eq', 'pr'].forEach((k) => {
-            o += fdRect(lx[k] - 2, 28, 120, 306, { rx: 8, c: fdC[k], fill: fdC[k] + '0d', sw: 1, so: .35 }) + fdTx(lx[k] + 58, 20, lab[k], { s: 10.5, w: 800, c: fdC[k] });
+          const f = s.focus || null, C = fdC, X = { op: 82, eq: 220, pr: 358 };
+          let o = fdDefs();
+          // 직무 차선
+          [['op', '생산 · 오퍼레이터'], ['eq', '설비 엔지니어'], ['pr', '공정 엔지니어']].forEach(([k, t]) => {
+            const x = X[k];
+            o += fdRect(x - 68, 8, 136, 388, { rx: 9, fill: 'rgba(148,163,184,.06)', c: C[k], so: .55, sw: 1.2 }) + `<rect x="${x - 68}" y="8" width="136" height="26" rx="9" style="fill:${C[k]};fill-opacity:.2"/>` + fdTx(x, 25.5, t, { s: 10.5, w: 800, c: C[k] });
           });
-          // 화살표 (보낸 칸의 단계 색)
-          const arrow = (a, b, g) => {
-            const x1 = lx[a[1]] + 58, y1 = a[2] + 32, x2 = lx[b[1]] + 58, y2 = b[2];
-            const d = x1 === x2 ? `M${x1} ${y1} V${y2 - 1}` : `M${x1} ${y1} V${(y1 + y2) / 2} H${x2} V${y2 - 1}`;
-            return pvdG(f, [g], pvdL(d, { sw: 1.6, so: .8 }) + fdHead(x2, y2, 'd'));
-          };
-          for (let i = 0; i < 6; i++) o += arrow(N[i], N[i + 1], N[i][0]);
-          o += pvdG(f, ['a4'], pvdL(`M${lx.eq} 313 H${lx.op + 124}`, { sw: 1.6, so: .8 }) + fdHead(lx.op + 118, 313, 'l'));
-          N.forEach(([g, k, y, a, b]) => {
-            o += pvdG(f, [g], fdRect(lx[k], y, 116, 32, { rx: 6, c: fdC[k], fill: fdC[k] + '24', sw: 1.4, so: .9 }) + fdTx(lx[k] + 58, y + 14, a, { s: 10, w: 800 }) + fdTx(lx[k] + 58, y + 26, b, { s: 9, w: 600, op: .85 }));
-          });
-          return dgSvg('알람 처리 순서: ' + s.label, o, '0 0 400 342');
+          const node = (g, n, k, y, a, b, extra = '') => pvdG(f, [g], fdRect(X[k] - 59, y, 118, 34, { rx: 7, fill: 'var(--tbl-bg)', c: C[k], so: .9, sw: 1.5 }) + pvdNum(X[k] - 45, y + 17, n, C[k]) + fdTx(X[k] - 32, y + 15, a, { a: 'start', s: 10.5, w: 800 }) + fdTx(X[k] - 32, y + 27, b, { a: 'start', s: 9, op: .8 }) + extra);
+          const con = (g, d, hd) => pvdG(f, [g], pvdL(d, { sw: 1.6, so: .8 }) + hd);
+          // 알람 시작 표시
+          o += pvdG(f, ['a1'], `<circle cx="${X.op + 50}" cy="50" r="13" style="fill:rgba(248,113,113,.22)"/><circle cx="${X.op + 50}" cy="50" r="5" style="fill:#f87171"/>` + fdTx(X.op - 59, 49, '알람 발생', { a: 'start', s: 9, w: 800, c: '#f87171' }));
+          o += node('a1', '1', 'op', 56, '알람 감지', '장비 정지 확인');
+          o += con('a1', 'M82 90 V104', fdArr(82, 104, 'd'));
+          o += node('a1', '2', 'op', 104, '상태 기록', '설비 호출');
+          o += con('a2', 'M82 138 V146 H220 V152', fdArr(220, 152, 'd'));
+          o += node('a2', '3', 'eq', 152, '원인 진단', '알람 이력 · 센서');
+          o += con('a2', 'M220 186 V200', fdArr(220, 200, 'd'));
+          o += node('a2', '4', 'eq', 200, '조치', '점검 · 부품 교체');
+          o += con('a3', 'M220 234 V242 H358 V248', fdArr(358, 248, 'd'));
+          o += node('a3', '5', 'pr', 248, '영향 로트 확인', '먼저 보류(Hold)');
+          o += con('a3', 'M358 282 V296', fdArr(358, 296, 'd'));
+          // 6 처분: 갈래 3개
+          o += pvdG(f, ['a3'], fdRect(X.pr - 59, 296, 118, 56, { rx: 7, fill: 'var(--tbl-bg)', c: C.pr, so: .9, sw: 1.5 }) + pvdNum(X.pr - 45, 312, '6', C.pr) + fdTx(X.pr - 32, 316, '처분 판단', { a: 'start', s: 10.5, w: 800 })
+            + [['출고', '#34d399'], ['재작업', '#fbbf24'], ['폐기', '#f87171']].map(([t, c], i) => fdRect(X.pr - 54 + i * 36, 328, 33, 17, { rx: 8, fill: c + '33', c, so: .95, sw: 1.2 }) + fdTx(X.pr - 37.5 + i * 36, 339.5, t, { s: 9, w: 800 })).join(''));
+          o += con('a4', 'M358 352 V360 H220 V362', fdArr(220, 362, 'd'));
+          o += node('a4', '7', 'eq', 362, '복구 확인', '모니터 웨이퍼');
+          o += con('a4', 'M161 379 H149', fdArr(143, 379, 'l'));
+          o += node('a4', '8', 'op', 362, '재가동 · 일지', '다음 교대에 인계');
+          return dgSvg('알람 처리 순서: ' + s.label, o, '0 0 440 404');
         }
       },
     });
