@@ -4568,6 +4568,15 @@ window.I18N_EN = {
 "ALD (원자층 증착 장비)": "ALD (atomic layer deposition tool)",
 "CD-SEM (임계 치수 주사전자현미경)": "CD-SEM (critical-dimension scanning electron microscope)",
 "이 글": "This guide",
+/* ---- 이론 백과사전: 기본 이론 / 심화 이론 (2026-11-21) ---- */
+"기본 이론": "Basic theory",
+"반도체 기초 · 소자 · 8대 공정 · 차세대 기술을 폴더별로 정리했어요. 순서대로 읽으며 개념을 쌓아 가요.": "Semiconductor basics, devices, the 8 key processes and next-gen tech, sorted into folders. Read in order and build your concepts step by step.",
+"폴더를 골라 시작해 보세요": "Pick a folder to start",
+"반도체가 무엇인지, 전기가 어떻게 흐르는지부터 차근차근 시작해요.": "Start from the basics: what a semiconductor is and how current flows.",
+"트랜지스터와 메모리처럼 칩 안의 소자가 동작하는 원리를 배워요.": "Learn how on-chip devices such as transistors and memory work.",
+"웨이퍼 제조부터 테스트까지, 칩이 만들어지는 순서대로 읽어요.": "From wafer making to testing, read in the order a chip is built.",
+"차세대 소자와 어드밴스드 패키징 같은 새로운 기술을 살펴봐요.": "Explore new technology such as next-gen devices and advanced packaging.",
+"분류에 들지 않은 글을 모아 뒀어요.": "Articles that don't fit another category.",
 /* ---- 심화 이론 다이어그램 라벨 (2026-11-21) ---- */
 "→ 하프피치 ≈ 62 nm (k₁ = 0.3)": "→ half pitch ≈ 62 nm (k₁ = 0.3)",
 "① STI 트렌치 ② 게이트 ③ 콘택 홀": "① STI trench ② gate ③ contact hole",
