@@ -817,8 +817,45 @@
       const list = allTheories.filter(t => t.category === category && t.subject === subject);
       if (category === ADV_CAT) container.insertAdjacentHTML('beforeend', advHero(subject, '읽은 뒤 장비 체험에서 같은 조건으로 바로 따라 해 볼 수 있어요.'));
       if (list.length === 0) container.innerHTML = `<div class="bg-white dark:bg-[#0f1729] border border-dashed border-slate-300 dark:border-white/15 p-8 text-center text-slate-400 rounded-xl text-sm">아직 등록된 이론이 없습니다.<br>곧 업데이트될 예정이에요.</div>`;
-      list.forEach(t => renderTitleCard(t, container));
+      if (category === ADV_CAT && list.some(t => t.lab)) renderAdvRoadmap(list, container);   // 장비 사용 가이드는 장비 체험처럼 공정 순서 로드맵으로 보여준다
+      else list.forEach(t => renderTitleCard(t, container));
       container.insertAdjacentHTML('beforeend', folderBar(category, subject));
+    }
+
+    // 장비 체험 목록(#view-equip)과 같은 공정 순서·문구를 쓴다. 가이드가 아직 없는 장비는 "준비 중"으로 자리만 보여 준다
+    const ADV_MAP = [
+      { n: 1, c: 'cm-c1', t: '트랜지스터 만들기', steps: [
+        { t: '세정', d: '웨이퍼 표면의 먼지·유기물·금속을 씻어 내요', labs: [['wet', 'WET', '습식 세정 장비']] },
+        { t: '산화', d: '실리콘 위에 산화막을 키워요', labs: [['furn', 'FURN', '확산로 장비']] },
+        { t: '포토', d: '빛으로 회로 패턴을 웨이퍼에 찍어요', labs: [['photo', 'LITH', '노광 장비']] },
+        { t: '식각', d: '패턴대로 깎아 내요', labs: [['etch', 'RIE', 'RIE 식각 장비']] },
+        { t: '이온 주입', d: '불순물을 넣어 전기가 통하는 영역을 만들어요', labs: [['ion', 'ION', '이온 주입 장비']] }] },
+      { n: 2, c: 'cm-c2', t: '막 쌓고 배선 잇기', steps: [
+        { t: '박막 증착', d: '절연막·반도체막을 얇게 쌓아요', labs: [['lpcvd', 'LPCVD', 'LPCVD 장비'], ['pecvd', 'PECVD', 'PECVD 장비'], ['ald', 'ALD', 'ALD 장비']] },
+        { t: '금속 배선', d: '금속막을 입혀 회로를 이어요', labs: [['pvd', 'PVD', 'PVD 장비']] },
+        { t: '평탄화', d: '울퉁불퉁한 표면을 평평하게 갈아요', labs: [['cmp', 'CMP', 'CMP 장비']] }] },
+      { n: 3, c: 'cm-c3', t: '검사', steps: [
+        { t: '계측', d: '만든 패턴이 설계대로인지 재요', labs: [['met', 'SEM', 'CD-SEM 계측 장비']] }] }];
+    function renderAdvRoadmap(list, container) {
+      const byLab = {}; list.forEach((t) => { if (t.lab) byLab[t.lab] = t; });
+      let no = 0;
+      const parts = ADV_MAP.map((p) => {
+        const nSt = p.steps.length, nGuide = p.steps.reduce((a, st) => a + st.labs.filter((l) => byLab[l[0]]).length, 0);
+        const steps = p.steps.map((st) => {
+          no++;
+          const items = st.labs.map(([k, mo, nm]) => {
+            const g = byLab[k];
+            if (!g) return `<div class="ex-it soon" aria-disabled="true"><span class="ex-mo lab-mono" aria-hidden="true">${mo}</span><span class="ex-tx"><b>${nm}</b><em>가이드 준비 중</em></span></div>`;
+            const mins = g.mins || Math.max(1, Math.round(String(g.content).length / 650));
+            return `<button type="button" class="ex-it" onclick="navTo('view-learning',{level:'detail',theoryId:'${g.id}'})"><span class="ex-mo lab-mono" aria-hidden="true">${mo}</span><span class="ex-tx"><b>${escH(g.title)}${g.premium ? pmLk(g.id) : ''}</b><em>약 ${mins}분 읽기</em></span><span class="ex-tg">읽기 →</span></button>`;
+          }).join('');
+          return `<li class="cm-st"><span class="cm-node" style="--p:0"><span>${no}</span></span><div class="cm-card"><div class="ex-hd"><b>${st.t}</b><em>${st.d}</em></div><div class="ex-body">${items}</div></div></li>`;
+        }).join('');
+        return `<section class="cm-part ${p.c}"><div class="cm-ph"><span>PART ${p.n}</span><b>${p.t}</b><em>공정 ${nSt}단계 · 가이드 ${nGuide}편</em></div><ol class="cm-list">${steps}</ol></section>`;
+      }).join('');
+      const mapped = new Set(ADV_MAP.flatMap((p) => p.steps.flatMap((st) => st.labs.map((l) => l[0]))));
+      container.insertAdjacentHTML('beforeend', `<div class="ex-map adv-map"><p class="ex-flow">반도체가 만들어지는 순서대로 장비 가이드를 읽어 보세요</p>${parts}</div>`);
+      list.filter((t) => !t.lab || !mapped.has(t.lab)).forEach((t) => renderTitleCard(t, container));   // 공정 순서에 없는 글은 아래에 카드로
     }
 
     const advHero = (title, sub) => `<div class="adv-hero"><span class="adv-tick"><i></i>ADVANCED · FIELD GUIDE</span><h3>${escH(title)}</h3><p>${escH(sub)}</p></div>`;
