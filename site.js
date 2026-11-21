@@ -879,6 +879,13 @@
 
     // 심화 이론 > 현장 직무: 생산·설비 현장에서 하루를 보내는 순서로 묶은 로드맵. 글이 아직 없는 칸은 "준비 중"으로 자리만 보여 주고,
     // 같은 제목의 글이 올라오면 그 칸이 자동으로 열린다 (제목이 곧 열쇠이므로 글 제목을 바꾸면 여기도 같이 바꿀 것)
+    // 깊이 막대 + 토큰 가격 칩 (현장 직무 · 장비 사용 가이드 · 장비 체험 목록 공통). 1=무료 / 2=10토큰 / 3=15토큰
+    const tkBars = (k) => `<span class="tk-dp k${k}" aria-hidden="true"><i></i><i></i><i></i></span>`;
+    const tkLevel = (price) => (price >= 15 ? 3 : price > 0 ? 2 : 1);
+    // id 를 주면 해금됐거나 무료 맛보기인 글은 가격 칩을 숨긴다 (이미 내야 할 토큰이 없으니까)
+    const tkChip = (price, id) => `<span class="tk-pr k${tkLevel(price)}"${id ? ` data-pmp="${id}"${pmLkState(id).cls ? ' hidden' : ''}` : ''}>${price ? price + '토큰' : '무료'}</span>`;
+    const tkMeta = (price, id) => `<span class="tk-meta">${tkBars(tkLevel(price))}${tkChip(price, id)}</span>`;
+    const tkKey = () => `<p class="tk-key">${tkBars(1)}${tkBars(2)}${tkBars(3)}<span>막대가 길수록 깊은 내용이에요 · 칩은 해금에 필요한 토큰이에요</span></p>`;
     const FLD_SUB = '현장 직무';
     const FLD_TIER = { l: { n: '가볍게 읽기', d: '개념과 규칙을 한 번에 익히는 짧은 글', p: 0, m: 5, k: 1 }, m: { n: '실무 이해', d: '원리를 그림으로 이해하는 중간 분량의 글', p: 10, m: 12, k: 2 }, d: { n: '집중 연습', d: '장비 글 수준의 깊이에, 직접 해 보는 체험까지', p: 15, m: 20, k: 3 } };
     const FLD_MAP = [
@@ -908,13 +915,13 @@
       const byT = new Map(list.map(t => [t.title, t])), rd = (pathState && pathState.read) || {}, pad = (n) => String(n).padStart(2, '0');
       const total = fldTotal(), ready = FLD_MAP.reduce((a, g) => a + g.items.filter(it => byT.has(it[1])).length, 0), cnt = { l: 0, m: 0, d: 0 };
       FLD_MAP.forEach(g => g.items.forEach(it => cnt[it[0]]++));
-      const bars = (k) => `<span class="fd-dp k${k}" aria-hidden="true"><i></i><i></i><i></i></span>`, price = (k) => FLD_TIER[k].p ? `${FLD_TIER[k].p}토큰` : '무료';
+      const bars = tkBars, price = (k) => FLD_TIER[k].p ? `${FLD_TIER[k].p}토큰` : '무료';
       const hero = `<div class="fd-hero"><span class="fd-tick">ON SITE · FIELD GUIDE</span><h3>현장 직무</h3><p>생산 · 설비 현장에서 바로 쓰는 지식을 출근부터 퇴근까지의 하루 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 현장 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.</p><span class="fd-stat">공개 ${ready}/${total}편</span></div>`;
-      const legend = `<div class="fd-legend">${['l', 'm', 'd'].map(k => `<div class="fd-lg">${bars(FLD_TIER[k].k)}<div><b>${FLD_TIER[k].n}</b><em>${FLD_TIER[k].d}</em></div><span class="fd-pr k${FLD_TIER[k].k}">${price(k)}</span><span class="fd-lm">${cnt[k]}편 · 예상 약 ${FLD_TIER[k].m}분</span></div>`).join('')}</div>`;
+      const legend = `<div class="fd-legend">${['l', 'm', 'd'].map(k => `<div class="fd-lg">${bars(FLD_TIER[k].k)}<div><b>${FLD_TIER[k].n}</b><em>${FLD_TIER[k].d}</em></div><span class="tk-pr k${FLD_TIER[k].k}">${price(k)}</span><span class="fd-lm">${cnt[k]}편 · 예상 약 ${FLD_TIER[k].m}분</span></div>`).join('')}</div>`;
       const flow = `<nav class="fd-flow" aria-label="근무 흐름">${FLD_MAP.map((g, i) => `<button type="button" onclick="document.getElementById('fd-st-${i + 1}').scrollIntoView({behavior:'smooth',block:'start'})"><span class="fd-fn">${pad(i + 1)}</span><b>${g.t}</b><span class="fd-dots" aria-hidden="true">${g.items.map(it => `<i class="k${FLD_TIER[it[0]].k}"></i>`).join('')}</span></button>`).join('')}</nav>`;
       const stages = FLD_MAP.map((g, i) => {
         const rows = g.items.map(([k, title, desc]) => {
-          const t = byT.get(title), T = FLD_TIER[k], meta = `<span class="fd-mt">${bars(T.k)}<span class="fd-pr k${T.k}">${price(k)}</span></span>`;
+          const t = byT.get(title), T = FLD_TIER[k], meta = `<span class="fd-mt">${bars(T.k)}<span class="tk-pr k${T.k}">${price(k)}</span></span>`;
           if (!t) return `<div class="fd-it soon" aria-disabled="true"><span class="fd-ck" aria-hidden="true"></span><span class="fd-tx"><b>${escH(title)}</b><em>${escH(desc)}</em></span>${meta}<span class="fd-sn">준비 중</span></div>`;
           const m = genMins(t);
           return `<button type="button" class="fd-it${rd[t.id] ? ' done' : ''}" onclick="navTo('view-learning',{level:'detail',theoryId:'${t.id}'})"><span class="fd-ck" aria-hidden="true">${rd[t.id] ? '✓' : ''}</span><span class="fd-tx"><b>${escH(title)}${t.premium ? pmLk(t.id) : ''}</b><em>${escH(desc)}</em></span><span class="fd-rt">약 ${m}분 읽기</span>${meta}</button>`;
@@ -962,14 +969,14 @@
             const g = byLab[k];
             if (!g) return `<div class="adv-it soon" aria-disabled="true"><span class="adv-mo" aria-hidden="true">${mo}</span><span class="adv-tx"><b>${nm}</b><em>가이드 준비 중</em></span></div>`;
             const mins = g.mins || Math.max(1, Math.round(String(g.content).length / 650));
-            return `<button type="button" class="adv-it" onclick="navTo('view-learning',{level:'detail',theoryId:'${g.id}'})"><span class="adv-mo" aria-hidden="true">${mo}</span><span class="adv-tx"><b>${escH(g.title)}${g.premium ? pmLk(g.id) : ''}</b><em>약 ${mins}분 읽기</em></span><span class="adv-go" aria-hidden="true">→</span></button>`;
+            return `<button type="button" class="adv-it" onclick="navTo('view-learning',{level:'detail',theoryId:'${g.id}'})"><span class="adv-mo" aria-hidden="true">${mo}</span><span class="adv-tx"><b>${escH(g.title)}${g.premium ? pmLk(g.id) : ''}</b><em>약 ${mins}분 읽기</em></span>${g.premium ? tkMeta(PRICE_HINT.theory, g.id) : ''}<span class="adv-go" aria-hidden="true">→</span></button>`;
           }).join('');
           return `<li class="adv-st${ready ? '' : ' soon'}"><span class="adv-nd">${pad(no)}</span><div class="adv-sc"><div class="adv-sc-h"><b>${st.t}</b><em>${st.d}</em></div>${items}</div></li>`;
         }).join('');
         return `<section class="adv-pt"><div class="adv-pt-h"><span class="adv-pt-n">${pad(p.n)}</span><div><b>${p.t}</b><em>공정 ${nSt}단계 · 가이드 ${nGuide}편</em></div></div><ol class="adv-pt-l">${steps}</ol></section>`;
       }).join('');
       const mapped = new Set(ADV_MAP.flatMap((p) => p.steps.flatMap((st) => st.labs.map((l) => l[0]))));
-      container.insertAdjacentHTML('beforeend', `<div class="adv-rm"><p class="adv-rm-flow">반도체가 만들어지는 순서대로 장비 가이드를 읽어 보세요</p>${parts}</div>`);
+      container.insertAdjacentHTML('beforeend', `<div class="adv-rm"><p class="adv-rm-flow">반도체가 만들어지는 순서대로 장비 가이드를 읽어 보세요</p>${tkKey()}${parts}</div>`);
       list.filter((t) => !t.lab || !mapped.has(t.lab)).forEach((t) => renderTitleCard(t, container));   // 공정 순서에 없는 글은 아래에 카드로
     }
 
@@ -9816,13 +9823,15 @@
     function pmBadges() {
       document.querySelectorAll('[onclick^="labOpen("]').forEach((b) => {
         const m = /labOpen\('([a-z]+)'\)/.exec(b.getAttribute('onclick') || ''); if (!m || !LABS[m[1]] || b.querySelector('.pm-lk')) return;
-        const tmp = document.createElement('span'); tmp.innerHTML = pmLk('lab-' + m[1]); const el = tmp.firstChild, tg = b.querySelector('.ex-tg');
-        if (tg) b.insertBefore(el, tg); else b.appendChild(el);
+        const tmp = document.createElement('span'); tmp.innerHTML = (b.classList.contains('ex-it') ? tkMeta(PRICE_HINT.lab, 'lab-' + m[1]) : '') + pmLk('lab-' + m[1]);
+        const tg = b.querySelector('.ex-tg'); Array.from(tmp.childNodes).forEach((el) => { if (tg) b.insertBefore(el, tg); else b.appendChild(el); });
       });
+      const exFlow = document.querySelector('#view-equip .ex-flow'); if (exFlow && !document.querySelector('#view-equip .tk-key')) exFlow.insertAdjacentHTML('afterend', tkKey());
       document.querySelectorAll('.pm-lk[data-pm]').forEach((el) => {
         const st = pmLkState(el.dataset.pm);
         el.classList.toggle('on', st.cls === ' on'); el.classList.toggle('free', st.cls === ' free'); el.innerHTML = st.html; el.title = st.title;
       });
+      document.querySelectorAll('.tk-pr[data-pmp]').forEach((el) => { el.hidden = !!pmLkState(el.dataset.pmp).cls; });   // 해금됐거나 무료 맛보기면 가격 칩은 숨긴다
     }
     setTimeout(pmBadges, 0);
 
