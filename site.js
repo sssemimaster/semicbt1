@@ -467,7 +467,7 @@
     // 아이콘: index.html 맨 위의 SVG 스프라이트(#i-…)를 가리킨다. 이모지 대신 쓰는 선 아이콘(ico)과 토큰 코인(TK)
     const ico = (n, c) => `<svg class="ic ln${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
     const TK = (c) => `<svg class="ic tk${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-tok"/></svg>`;
-    const PAY = { view: 'store', packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', faqOpen: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
+    const PAY = { view: 'store', policy: null, rf: null, packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', faqOpen: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
     const PAY_PENDING = 'semiPayPending', PAY_BACK = 'semiPayBack';
     // 영어 화면에서는 달러 환산액을 같이 보여 준다(실제 결제는 원화, 카드사가 환산). 환율은 표시용 고정값
     const USD_KRW = 1500;
@@ -492,7 +492,7 @@
       payClientKey().then(() => payRender()); payLoadOrders();
     }
     // 결제 내역은 충전 화면에 늘어놓지 않고 따로 연다 (충전 화면 ⇄ 결제 내역 화면)
-    function payView(v) { PAY.view = v === 'history' ? 'history' : 'store'; PAY.err = ''; PAY.note = ''; payRender(); const c = document.querySelector('#payM .pay-card'); if (c) c.scrollTop = 0; }
+    function payView(v) { PAY.view = v === 'history' || v === 'refund' ? v : 'store'; PAY.err = ''; PAY.note = ''; payRender(); const c = document.querySelector('#payM .pay-card'); if (c) c.scrollTop = 0; }
     function payClose() { const o = document.getElementById('payM'); if (!o) return; o.classList.remove('on'); setTimeout(() => o.remove(), 220); }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('payM')) payClose(); });
     // ===== 토큰 얻는 법 안내 창: 무료로 받는 방법·충전·상한·쓰임새를 한 곳에 정리 =====
@@ -530,7 +530,7 @@
         ${in_ ? '' : '<button type="button" class="pmg-cta" onclick="earnClose();openAcct()">구글 로그인하고 시작하기</button>'}</div>`;
     }
     async function payLoadOrders() {
-      try { const r = await apiJson('/orders'); if (r.status === 200) PAY.orders = r.body.orders || []; else if (r.status !== 503) PAY.err = '결제 내역을 불러오지 못했어요.'; } catch (e) { PAY.err = '결제 내역을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.'; }
+      try { const r = await apiJson('/orders'); if (r.status === 200) { PAY.orders = r.body.orders || []; PAY.policy = r.body.refundPolicy || null; } else if (r.status !== 503) PAY.err = '결제 내역을 불러오지 못했어요.'; } catch (e) { PAY.err = '결제 내역을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.'; }
       payRender();
     }
     function payRender() {
@@ -551,14 +551,36 @@
       // 환불은 눈에 띄는 버튼이 아니라 '환불 문의' 안쪽(접힌 상태)에서만 신청한다
       const refundable = (PAY.orders || []).filter((x) => x.status === 'paid' && x.refundableTokens > 0);
       const rfList = PAY.orders === null ? '' : refundable.length
-        ? `<ul class="pay-rfl">${refundable.map((x) => `<li><span>${payDate(x.paidAt)} 결제 · ${x.tokens}토큰<small>미사용 ${x.refundableTokens}토큰 · ${won(x.refundAmount)} 환불 가능${x.refundUntil ? ` <span>(${payDate(x.refundUntil)}까지)</span>` : ''}</small></span><button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 신청</button></li>`).join('')}</ul>`
+        ? `<ul class="pay-rfl">${refundable.map((x) => `<li><span>${payDate(x.paidAt)} 결제 · ${x.tokens}토큰<small>미사용 ${x.refundableTokens}토큰 · ${won(x.refundAmount)} 환불 가능${x.refundUntil ? ` <span>(${payDate(x.refundUntil)}까지)</span>` : ''}</small></span><button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefundOpen('${x.orderId}')">환불 신청</button></li>`).join('')}</ul>`
         : `<p class="pay-rfn">지금 환불할 수 있는 결제가 없어요. (결제 후 7일 이내이고 미사용 유료 토큰이 남아 있어야 해요)</p>`;
       const pend = (() => { try { return !!sessionStorage.getItem(PAY_PENDING); } catch (e) { return false; } })();
       const pendMsg = pend ? '<p class="pay-msg ok"><b>결제를 마무리하는 중이에요.</b> 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : '';
       const msgs = `${PAY.err ? `<p class="pay-msg err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="pay-msg ok">${escH(PAY.note)}</p>` : ''}`;
       const FAQ = `<details class="pay-faq"${PAY.faqOpen ? ' open' : ''} ontoggle="PAY.faqOpen = this.open"><summary>환불 문의</summary><div class="pay-faq-b">
-          <ul class="pmg-pts pay-pts"><li><b>결제 후 7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
+          <ul class="pmg-pts pay-pts"><li><b>결제 후 7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>일부를 썼다면 쓴 토큰을 정가(개당 200원)로 계산해 뺀 금액을 돌려드려요</li><li>환불은 30일에 2번까지 바로 처리돼요. 신청할 때 환불 이유를 적어 주세요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
           ${rfList}</div></details>`;
+      if (PAY.view === 'refund') {
+        const rf = PAY.rf || {}, x = (PAY.orders || []).find((o) => o.orderId === rf.orderId);
+        if (x && x.refundableTokens > 0) {
+          const used = x.tokens - x.refundableTokens, pol = PAY.policy, left = pol ? pol.left : 2, lim = pol ? pol.limit : 2, blocked = left < 1;
+          const radios = PAY_RF_REASONS.map(([v, t]) => `<label class="pay-rsn-o${rf.reason === v ? ' on' : ''}"><input type="radio" name="payRsn" value="${v}" ${rf.reason === v ? 'checked' : ''} onchange="payRfSet('reason','${v}')"><span>${t}</span></label>`).join('');
+          o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
+            <button type="button" class="pay-back" onclick="payView('history')">← 결제 내역</button>
+            <span class="pmg-tick"><i></i>REFUND</span><h3>환불 신청</h3>
+            <dl class="pmc-rows"><div><dt>결제</dt><dd>${x.paidAt ? payDate(x.paidAt) + ' · ' : ''}${x.tokens}토큰 · ${won(x.amount)}</dd></div>
+              <div><dt>환불할 토큰</dt><dd>${TK()}${x.refundableTokens}<small>미사용</small></dd></div>
+              ${used > 0 ? `<div><dt>쓴 토큰</dt><dd>${used}토큰<small>정가 기준 ${won(x.amount - x.refundAmount)} 공제</small></dd></div>` : ''}
+              <div class="pay-rf-tot"><dt>환불 예정 금액</dt><dd>${won(x.refundAmount)}</dd></div></dl>
+            ${PAY.err ? `<p class="pay-msg err">${escH(PAY.err)}</p>` : ''}
+            <fieldset class="pay-rsn"><legend>환불 이유를 골라 주세요</legend>${radios}</fieldset>
+            <label class="pay-rnote"><span id="payRnL">${rf.reason === 'other' ? '자세한 이유 (필수)' : '자세한 이유 (선택)'}</span><textarea id="payRn" maxlength="200" rows="3" placeholder="어떤 점이 아쉬웠는지 알려 주세요" oninput="payRfSet('note',this.value)">${escH(rf.note || '')}</textarea><small id="payRnC">${(rf.note || '').length}/200</small></label>
+            <p class="pay-rf-pol${blocked ? ' off' : ''}">${blocked ? '30일 동안 환불은 2번까지 바로 처리돼요. 추가 환불은 운영자 확인이 필요해요.' : `환불은 30일에 ${lim}번까지 처리돼요 · 남은 횟수 ${left}번`}</p>
+            <label class="pay-ack"><input type="checkbox" id="payRfAck" ${rf.ok ? 'checked' : ''} onchange="payRfSet('ok',this.checked)"><span>환불하면 토큰이 바로 차감되고, 이 주문은 다시 환불할 수 없어요</span></label>
+            <button type="button" class="pay-open" id="payRfGo" disabled onclick="payRefundSubmit()">${PAY.busy ? '처리 중…' : '환불 신청하기'}</button></div>`;
+          payRfSync(); return;
+        }
+        PAY.view = 'history';   // 주문을 찾을 수 없거나 환불할 게 없으면 내역으로 돌아간다
+      }
       if (PAY.view === 'history') {
         o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
           <button type="button" class="pay-back" onclick="payView('store')">← 토큰 충전</button>
@@ -650,19 +672,39 @@
       let b = {}; try { b = JSON.parse(sessionStorage.getItem(PAY_BACK) || '{}'); sessionStorage.removeItem(PAY_BACK); } catch (e) {}
       try { if (b.t && allTheories.some((x) => x.id === b.t)) openTheory(b.t); else if (b.lab && LABS[b.lab]) labOpen(b.lab); } catch (e) {}
     }
-    async function payRefund(orderId) {
+    const PAY_RF_REASONS = [['changed_mind', '단순 변심'], ['wrong_purchase', '잘못 결제함'], ['not_needed', '필요한 내용이 아님'], ['issue', '서비스 오류·불편'], ['other', '기타']];
+    function payRefundOpen(orderId) {
       if (PAY.busy) return; const x = (PAY.orders || []).find((o) => o.orderId === orderId); if (!x || !(x.refundableTokens > 0)) return;
-      if (!confirm(`미사용 유료 토큰 ${x.refundableTokens}개를 환불하고 ${won(x.refundAmount)}을 결제 수단으로 돌려받을까요?\n\n· 지금 바로 토큰 ${x.refundableTokens}개가 차감돼요\n· 이 주문은 환불을 한 번만 할 수 있어요\n· 카드 취소 반영까지는 카드사에 따라 며칠 걸릴 수 있어요`)) return;
+      PAY.rf = { orderId, reason: '', note: '', ok: false }; payView('refund');
+    }
+    // 입력값은 다시 그리지 않고(글 쓰던 칸이 풀리지 않게) 저장하고 버튼 상태만 맞춘다. 이유를 바꿀 때만 안내 문구가 바뀌어 다시 그린다.
+    function payRfSet(k, v) {
+      if (!PAY.rf) return; PAY.rf[k] = v;
+      if (k === 'reason') { payRender(); return; }
+      if (k === 'note') { const c = document.getElementById('payRnC'); if (c) c.textContent = v.length + '/200'; }
+      payRfSync();
+    }
+    function payRfSync() {
+      const b = document.getElementById('payRfGo'); if (!b || !PAY.rf) return; const rf = PAY.rf;
+      const left = PAY.policy ? PAY.policy.left : 2, need = rf.reason === 'other' ? rf.note.trim().length >= 2 : true;
+      b.disabled = !(rf.reason && need && rf.ok && left > 0 && !PAY.busy);
+    }
+    async function payRefundSubmit() {
+      if (PAY.busy || !PAY.rf) return; const rf = PAY.rf, x = (PAY.orders || []).find((o) => o.orderId === rf.orderId); if (!x || !(x.refundableTokens > 0) || !rf.reason || !rf.ok) return;
       PAY.busy = true; PAY.err = ''; PAY.note = ''; payRender();
+      let back = false;   // 처리가 끝났거나 다시 시도해도 소용없을 때만 내역 화면으로 돌아간다
       try {
-        const r = await apiJson('/refund', 'POST', { orderId });
-        if (r.status === 200 && r.body.ok) { PAY.note = r.body.already ? '이미 환불된 주문이에요.' : `환불을 요청했어요. 토큰 ${r.body.refundedTokens}개가 차감되고 ${won(r.body.refundAmount)}이 취소돼요.`; await walletLoad(); }
-        else if (r.status === 400 && r.body.error === 'not_refundable') PAY.err = r.body.reason === 'window_expired' ? '환불 가능 기간(7일)이 지났어요.' : r.body.reason === 'no_unused_tokens' ? '환불할 수 있는 미사용 유료 토큰이 없어요.' : '이 주문은 환불할 수 없어요.';
-        else if (r.status === 409) PAY.err = '환불이 이미 진행 중이거나 잔액이 방금 바뀌었어요. 내역을 확인한 뒤 다시 시도해 주세요.';
+        const r = await apiJson('/refund', 'POST', { orderId: rf.orderId, reason: rf.reason, note: rf.note.trim() });
+        if (r.status === 200 && r.body.ok) { back = true; PAY.note = r.body.already ? '이미 환불된 주문이에요.' : `환불을 요청했어요. 토큰 ${r.body.refundedTokens}개가 차감되고 ${won(r.body.refundAmount)}이 취소돼요.`; await walletLoad(); }
+        else if (r.status === 429 && r.body.error === 'refund_limit') { back = true; PAY.err = `30일 동안 환불은 ${r.body.limit || 2}번까지 바로 처리돼요.${r.body.resetAt ? ' ' + payDate(r.body.resetAt) + ' 이후에 다시 신청할 수 있어요.' : ''} 그 전에 꼭 필요하면 환불 문의에서 안내를 확인해 주세요.`; }
+        else if (r.status === 400 && r.body.error === 'not_refundable') { back = true; PAY.err = r.body.reason === 'window_expired' ? '환불 가능 기간(7일)이 지났어요.' : r.body.reason === 'no_unused_tokens' ? '환불할 수 있는 미사용 유료 토큰이 없어요.' : r.body.reason === 'no_refund_value' ? '쓴 토큰을 정가로 계산하면 돌려드릴 금액이 남지 않아요.' : '이 주문은 환불할 수 없어요.'; }
+        else if (r.status === 400 && r.body.error === 'reason_required') PAY.err = '환불 이유를 골라 주세요.';
+        else if (r.status === 400 && r.body.error === 'note_required') PAY.err = '‘기타’를 고르셨다면 이유를 적어 주세요.';
+        else if (r.status === 409) { back = true; PAY.err = '환불이 이미 진행 중이거나 잔액이 방금 바뀌었어요. 내역을 확인한 뒤 다시 시도해 주세요.'; }
         else if (r.status === 502) PAY.err = '카드 취소 요청이 실패해서 토큰은 그대로예요. 잠시 뒤 다시 시도해 주세요.';
         else PAY.err = '환불을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
-      } catch (e) { PAY.err = '연결이 끊겨 결과를 확인하지 못했어요. 내역을 새로 불러와 확인해 주세요.'; }
-      PAY.busy = false; await payLoadOrders();
+      } catch (e) { back = true; PAY.err = '연결이 끊겨 결과를 확인하지 못했어요. 내역을 새로 불러와 확인해 주세요.'; }
+      PAY.busy = false; if (back) PAY.view = 'history'; await payLoadOrders();
     }
     // 스크립트 전체가 끝난 뒤에 실행한다 (여기서 바로 부르면 아래쪽에서 선언되는 acct 등을 아직 못 읽어 사이트 전체가 멈춘다)
     setTimeout(() => { try { payHandleReturn(); } catch (e) {} }, 0);
