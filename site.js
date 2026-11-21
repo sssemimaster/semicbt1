@@ -930,10 +930,8 @@
     const FLD_PARTS = [{ t: '현장 기본기', from: 0, to: 3 }, { t: '설비와 품질', from: 3, to: 5 }];
     // 장비 사용 가이드(renderAdvRoadmap)와 같은 도면 디자인에 주황 테마(.fd-o)만 입혔다
     function renderFieldRoadmap(list, container) {
-      const byT = new Map(list.map(t => [t.title, t])), pad = (n) => String(n).padStart(2, '0'), cnt = { l: 0, m: 0, d: 0 };
-      FLD_MAP.forEach(g => g.items.forEach(it => cnt[it[0]]++));
+      const byT = new Map(list.map(t => [t.title, t])), pad = (n) => String(n).padStart(2, '0');
       const hero = `<div class="adv-hero fd-o"><span class="adv-tick"><i></i>ON SITE · FIELD GUIDE</span><h3>${FLD_SUB}</h3><p>생산 · 설비 현장에서 바로 쓰는 지식을 출근부터 퇴근까지의 하루 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 현장 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.</p></div>`;
-      const legend = `<div class="fd-tl">${['l', 'm', 'd'].map(k => `<div>${tkBars(tkLevel(FLD_TIER[k].p))}<span class="fd-tn"><b>${FLD_TIER[k].n}</b><em>${FLD_TIER[k].d}</em></span>${tkChip(FLD_TIER[k].p)}<span class="fd-tm">${cnt[k]}편 · 예상 약 ${FLD_TIER[k].m}분</span></div>`).join('')}</div>`;
       let no = 0;
       const parts = FLD_PARTS.map((pt, pi) => {
         const stages = FLD_MAP.slice(pt.from, pt.to), nArt = stages.reduce((a, g) => a + g.items.length, 0);
@@ -948,7 +946,7 @@
         }).join('');
         return `<section class="adv-pt"><div class="adv-pt-h"><span class="adv-pt-n">${pad(pi + 1)}</span><div><b>${pt.t}</b><em>단계 ${stages.length}개 · 글 ${nArt}편</em></div></div><ol class="adv-pt-l">${steps}</ol></section>`;
       }).join('');
-      container.insertAdjacentHTML('beforeend', `${hero}<div class="adv-rm fd-o"><p class="adv-rm-flow">현장의 하루 흐름 순서대로 읽어 보세요</p>${legend}${tkKey()}${parts}</div>`);
+      container.insertAdjacentHTML('beforeend', `${hero}<div class="adv-rm fd-o"><p class="adv-rm-flow">현장의 하루 흐름 순서대로 읽어 보세요</p>${tkKey()}${parts}</div>`);
     }
 
     function renderTitlesDOM(category, subject) {
