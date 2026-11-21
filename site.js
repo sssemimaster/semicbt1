@@ -8665,6 +8665,176 @@
         }
       },
     });
+    // ===== 현장 직무 > "반도체 현장 직무 한눈에 보기" 글용 그림 (pvd* 도우미를 같이 쓴다) =====
+    // 색은 직무 구분용: 생산(초록) · 설비(파랑) · 공정(노랑). 그림을 눌러 보는 상태마다 focus 로 한 직무·한 시간대만 밝힌다.
+    const fdC = { op: '#34d399', eq: '#60a5fa', pr: '#fbbf24' };
+    const fdRect = (x, y, w, h, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx == null ? 6 : o.rx}" style="fill:${o.fill || 'var(--tbl-bg)'};stroke:${o.c || 'currentColor'};stroke-width:${o.sw || 1.2};stroke-opacity:${o.so == null ? .7 : o.so}${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
+    const fdTx = (x, y, t, o = {}) => pvdTx(x, y, t, { a: o.a || 'middle', st: `font-size:${o.s || 10}px;font-weight:${o.w || 600};${o.c ? 'fill:' + o.c + ';' : ''}opacity:${o.op == null ? 1 : o.op}` });
+    const fdMan = (x, y, c) => `<circle cx="${x}" cy="${y - 24}" r="5" fill="${c}"/><path d="M${x} ${y - 18} V${y - 7} M${x - 6} ${y - 14} H${x + 6} M${x} ${y - 7} L${x - 5} ${y} M${x} ${y - 7} L${x + 5} ${y}" style="fill:none;stroke:${c};stroke-width:2;stroke-linecap:round"/>`;
+    const fdHead = (x, y, dir, c) => { const p = { d: `${x},${y} ${x - 4},${y - 7} ${x + 4},${y - 7}`, l: `${x},${y} ${x + 7},${y - 4} ${x + 7},${y + 4}` }[dir]; return `<polygon points="${p}" fill="${c || 'currentColor'}" fill-opacity=".8"/>`; };
+    Object.assign(DIAGRAMS, {
+      // ---------- 1. 현장 직무 세 줄기 ----------
+      'fld-roles': {
+        title: '현장 직무 세 줄기: 생산 · 설비 · 공정',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체', desc: '같은 장비 한 줄을 세 직무가 서로 다른 눈으로 본다. 생산은 로트를 절차대로 돌리고, 설비는 장비가 멈추지 않게 지키고, 공정은 측정 결과가 규격 안인지 책임진다. 직무를 눌러 각자가 만지는 것을 확인한다.' },
+          { id: 'op', label: '생산', focus: ['op'], desc: '오퍼레이터는 웨이퍼 묶음(로트)을 장비에 걸고 정해진 절차대로 돌린다. 장비 앞에서 상태와 알람을 가장 먼저 보는 사람이라 이상을 가장 빨리 알아챈다. 이 일이 정확할수록 결과의 흔들림이 줄어든다.' },
+          { id: 'eq', label: '설비', focus: ['eq'], desc: '설비 엔지니어는 장비 본체와 지원 설비를 지킨다. 정기 정비(PM)로 고장을 막고, 알람이 울리면 원인을 좁혀 부품을 점검하거나 바꾼다. 장비를 얼마나 오래, 안정적으로 돌리느냐가 이 직무의 성적이다.' },
+          { id: 'pr', label: '공정', focus: ['pr'], desc: '공정 엔지니어는 레시피와 측정 데이터를 본다. 결과가 규격에서 벗어나면 원인이 장비인지 조건인지 가려 조건을 고치고, 이상이 있었던 로트를 어떻게 처리할지 판단한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, names = ['세정', '산화', '노광', '식각', '증착', '측정'], bx = (i) => 20 + i * 60;
+          let o = '';
+          // 장비 줄 (항상 보임)
+          names.forEach((n, i) => {
+            o += fdRect(bx(i), 34, 52, 46, { rx: 4, so: .55 }) + fdTx(bx(i) + 26, 62, n, { s: 10.5, w: 700 });
+            if (i < 5) o += pvdL(`M${bx(i) + 52} 57 H${bx(i + 1)}`, { so: .45, sw: 1 });
+          });
+          // 측정 칸의 작은 관리도
+          o += pvdL(`M${bx(5) + 6} 44 H${bx(5) + 46} M${bx(5) + 6} 72 H${bx(5) + 46}`, { so: .3, sw: .8, dash: '2 2' }) + pvdL(`M${bx(5) + 6} 58 l8 -6 l8 8 l8 -10 l10 8`, { so: .5, sw: 1.1 });
+          // 생산: 로트(FOUP)가 장비를 따라 이동
+          let g = pvdL('M20 20 H372', { c: fdC.op, sw: 1.6, so: .9, dash: '5 4' }) + fdHead(376, 20, 'l', fdC.op);
+          [44, 164, 284].forEach((x) => { g += fdRect(x, 12, 16, 11, { rx: 2, c: fdC.op, fill: 'rgba(52,211,153,.25)', sw: 1.3, so: .95 }); });
+          g += fdTx(20, 9, '로트(FOUP)가 장비를 따라 이동', { a: 'start', s: 9.5, c: fdC.op, w: 700 });
+          o += pvdG(f, ['op'], g);
+          // 설비: 장비 본체
+          let e = '';
+          for (let i = 0; i < 5; i++) e += fdRect(bx(i), 34, 52, 46, { rx: 4, c: fdC.eq, fill: 'none', sw: 2, so: .95 }) + `<circle cx="${bx(i) + 44}" cy="42" r="2.8" fill="#22c55e"/>`;
+          e += fdTx(20, 96, '장비 상태 · 알람 · 정비', { a: 'start', s: 9.5, c: fdC.eq, w: 700 });
+          o += pvdG(f, ['eq'], e);
+          // 공정: 측정 결과 · 규격
+          o += pvdG(f, ['pr'], fdRect(bx(5), 34, 52, 46, { rx: 4, c: fdC.pr, fill: 'none', sw: 2, so: .95 }) + pvdL(`M${bx(5) + 6} 58 l8 -6 l8 8 l8 -10 l10 8`, { c: fdC.pr, sw: 1.6, so: .95 })
+            + fdTx(380, 96, '측정 결과 · 규격 · 레시피', { a: 'end', s: 9.5, c: fdC.pr, w: 700 }));
+          // 직무 카드
+          const cards = [['op', 14, '생산', '오퍼레이터', ['로트를 장비에 걸고', '절차·일지를 지킨다'], ['절차대로 정확히', '돌렸나?']],
+            ['eq', 140, '설비', '장비 엔지니어', ['장비를 정상으로 지키고', '고장 나면 고친다'], ['지금 정상인가?', '왜 멈췄나?']],
+            ['pr', 266, '공정', '공정 엔지니어', ['레시피를 정하고', '결과를 판단한다'], ['규격 안인가?', '더 낫게 만들까?']]];
+          cards.forEach(([k, x, t, sub, ls, qs]) => {
+            let c = fdRect(x, 108, 120, 138, { rx: 7, c: fdC[k], so: .8, sw: 1.4 }) + `<rect x="${x}" y="108" width="120" height="5" rx="2" fill="${fdC[k]}" fill-opacity=".9"/>`;
+            c += fdTx(x + 10, 134, t, { a: 'start', s: 15, w: 800 }) + fdTx(x + 10, 149, sub, { a: 'start', s: 10, op: .75 });
+            c += pvdL(`M${x + 10} 158 H${x + 110}`, { so: .25, sw: 1 });
+            ls.forEach((l, i) => { c += fdTx(x + 10, 174 + i * 13, l, { a: 'start', s: 9.5, op: .9 }); });
+            c += fdTx(x + 10, 214, '매일 던지는 질문', { a: 'start', s: 8.5, op: .6 });
+            qs.forEach((q, i) => { c += fdTx(x + 10, 228 + i * 13, q, { a: 'start', s: 10, w: 800, c: fdC[k] }); });
+            o += pvdG(f, [k], c);
+          });
+          return dgSvg('현장 직무 세 줄기: ' + s.label, o, '0 0 400 252');
+        }
+      },
+      // ---------- 2. 공장 단면 ----------
+      'fld-fab': {
+        title: '공장 단면: 누가 어디서 일하나',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단면', desc: '공장은 위아래로 층이 나뉜다. 웨이퍼가 지나는 클린룸 위에는 공기를 걸러 내리는 팬이, 아래에는 펌프와 가스 설비가 있는 서브팹이 있고, 옆 건물에는 화면으로 장비를 보는 사무·제어실이 있다.' },
+          { id: 'clean', label: '클린룸', focus: ['clean'], desc: '장비 본체와 웨이퍼가 있는 방이다. 천장 레일이 FOUP을 장비 앞까지 옮기고, 오퍼레이터는 장비 앞에서 상태를 확인하고 예외를 다룬다. 설비 엔지니어도 본체를 점검하러 들어온다.' },
+          { id: 'sub', label: '서브팹', focus: ['sub'], desc: '클린룸 바로 아래층이다. 장비가 쓰는 진공 펌프, 공정 가스, 냉각수 설비가 있고 배관이 바닥을 지나 장비와 이어진다. 설비 엔지니어는 위아래 두 층을 오가며 장비를 살핀다.' },
+          { id: 'office', label: '사무 · 제어실', focus: ['office'], desc: '화면으로 장비 상태와 측정 데이터를 보는 곳이다. 공정 엔지니어는 대부분의 시간을 여기서 데이터를 읽고 조건을 고민하는 데 쓰고, 이상이 있을 때 클린룸으로 내려온다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = '';
+          // 사무·제어실 건물
+          let of = fdRect(10, 76, 96, 150, { rx: 4, so: .75 }) + fdRect(20, 90, 76, 40, { rx: 3, so: .55, fill: 'rgba(148,163,184,.14)' })
+            + pvdL('M26 120 l12 -10 l12 8 l12 -14 l12 10', { c: fdC.pr, sw: 1.6, so: .95 }) + fdTx(58, 142, '중앙 감시 화면', { s: 9, op: .8 })
+            + pvdL('M24 208 H92', { so: .6, sw: 1.6 }) + fdMan(58, 208, fdC.pr)
+            + fdTx(58, 244, '사무 · 제어실', { s: 11, w: 800 }) + fdTx(58, 257, '화면으로 감시 · 분석', { s: 9, op: .75 });
+          o += pvdG(f, ['office'], of);
+          // 공장 외곽
+          o += fdRect(122, 14, 268, 232, { rx: 5, so: .75, fill: 'none' });
+          // 클린룸
+          let cr = fdRect(122, 14, 268, 12, { rx: 0, so: .4, fill: 'rgba(125,211,252,.22)' });
+          for (let i = 0; i < 13; i++) cr += pvdL(`M${132 + i * 20} 26 v8`, { c: '#7dd3fc', so: .8, sw: 1.2 });
+          cr += fdTx(130, 22, '공기 정화 팬(FFU)', { a: 'start', s: 8.5, op: .8 }) + pvdL('M122 52 H390', { sw: 1.8, so: .6 }) + fdTx(386, 49, '천장 자동 반송 레일', { a: 'end', s: 8.5, op: .8 });
+          [[170], [300]].forEach(([x]) => { cr += pvdL(`M${x} 52 V58`, { so: .6 }) + fdRect(x - 8, 58, 16, 12, { rx: 2, so: .8, fill: 'rgba(148,163,184,.25)' }); });
+          cr += fdRect(138, 92, 72, 58, { rx: 3, so: .75 }) + fdTx(174, 124, '공정 장비', { s: 10, w: 700 }) + fdRect(138, 100, 8, 14, { rx: 1, so: .6, fill: 'rgba(148,163,184,.3)' });
+          cr += fdRect(262, 92, 72, 58, { rx: 3, so: .75 }) + fdTx(298, 124, '공정 장비', { s: 10, w: 700 }) + fdRect(262, 100, 8, 14, { rx: 1, so: .6, fill: 'rgba(148,163,184,.3)' });
+          cr += fdMan(232, 150, fdC.op) + fdMan(360, 150, fdC.eq);
+          cr += fdTx(130, 80, '클린룸 (웨이퍼가 있는 곳)', { a: 'start', s: 10, w: 800 });
+          o += pvdG(f, ['clean'], cr);
+          // 바닥
+          o += pvdL('M122 150 H390', { sw: 2.2, so: .75 }) + pvdL('M122 155 H390', { sw: 1, so: .35, dash: '4 3' });
+          // 서브팹
+          let sb = fdTx(130, 172, '서브팹 (펌프 · 가스 · 냉각수)', { a: 'start', s: 10, w: 800 });
+          sb += pvdL('M174 150 V200 M298 150 V200', { c: '#a5b4fc', sw: 1.6, so: .8, dash: '3 3' });
+          sb += fdRect(150, 200, 48, 32, { rx: 8, so: .75 }) + fdTx(174, 220, '펌프', { s: 9.5, w: 700 });
+          sb += fdRect(214, 192, 40, 40, { rx: 3, so: .75 }) + fdTx(234, 210, '가스', { s: 9, w: 700 }) + fdTx(234, 221, '캐비닛', { s: 9, w: 700 });
+          sb += fdRect(272, 200, 52, 32, { rx: 3, so: .75 }) + fdTx(298, 220, '칠러', { s: 9.5, w: 700 });
+          sb += pvdL('M122 236 H390', { sw: 1.6, so: .6 }) + fdMan(360, 236, fdC.eq);
+          o += pvdG(f, ['sub'], sb);
+          // 공정 엔지니어: 필요할 때 클린룸으로
+          o += pvdG(f, ['office', 'clean'], pvdL('M106 138 H128', { c: fdC.pr, sw: 1.6, so: .9, dash: '3 3' }) + fdHead(132, 138, 'l', fdC.pr) + fdTx(114, 132, '이상 시', { s: 8.5, c: fdC.pr, w: 700 }));
+          // 범례
+          o += `<circle cx="140" cy="262" r="4" fill="${fdC.op}"/>` + fdTx(148, 265, '생산', { a: 'start', s: 9.5 }) + `<circle cx="196" cy="262" r="4" fill="${fdC.eq}"/>` + fdTx(204, 265, '설비', { a: 'start', s: 9.5 }) + `<circle cx="252" cy="262" r="4" fill="${fdC.pr}"/>` + fdTx(260, 265, '공정', { a: 'start', s: 9.5 });
+          return dgSvg('공장 단면: ' + s.label, o, '0 0 400 272');
+        }
+      },
+      // ---------- 3. 교대 한 번의 흐름 ----------
+      'fld-shift': {
+        title: '교대 한 번의 흐름: 세 직무의 시간표',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 흐름', desc: '한 교대는 인수인계로 시작해 인수인계로 끝난다. 그 사이에 점검, 생산, 이상 대응이 이어지고, 같은 시간대에 세 직무가 각자 다른 일을 한다. 열을 눌러 시간대별로 본다.' },
+          { id: 's0', label: '인수인계', focus: ['s0'], desc: '앞 교대가 남긴 일지에서 장비 상태, 보류 중인 로트, 풀지 못한 알람을 넘겨받는다. 오퍼레이터는 일지와 로트를, 설비는 장비 상태를, 공정은 밤사이 이상과 측정 결과를 본다.' },
+          { id: 's1', label: '점검', focus: ['s1'], desc: '일을 시작하기 전에 상태를 훑는다. 오퍼레이터는 장비 표시와 약액·소모품 잔량을, 설비는 정비 일정과 알람 이력을, 공정은 모니터 웨이퍼 결과를 확인한다.' },
+          { id: 's2', label: '생산', focus: ['s2'], desc: '교대 시간의 대부분이다. 오퍼레이터가 로트를 걸어 시작(트랙인)하면 장비가 정해진 레시피로 돈다. 설비는 가동률을, 공정은 측정값의 추세를 계속 지켜본다.' },
+          { id: 's3', label: '이상 대응', focus: ['s3'], desc: '알람이나 이상이 생기면 세 직무가 이어서 움직인다. 오퍼레이터가 확인해 기록하고 부르면, 설비가 원인을 찾아 고치고, 공정이 영향을 받은 로트를 판단한다. 이 순서는 다음 그림에서 자세히 본다.' },
+          { id: 's4', label: '마무리', focus: ['s4'], desc: '일지에 한 일과 남은 일을 적어 다음 교대에 넘긴다. 설비는 정비 기록을, 공정은 오늘의 흔들림을 보고 조건 개선을 검토한다. 무엇이 아직 끝나지 않았는지가 가장 중요한 정보다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, cols = ['인수인계', '점검', '생산', '이상 대응', '마무리'], cx = (i) => 68 + i * 66;
+          const rows = [['op', '생산', '오퍼레이터', [['일지 읽기', '로트 인계'], ['장비 상태', '소모품 확인'], ['트랙인', '로트 처리'], ['알람 확인', '기록 · 호출'], ['일지 쓰고', '인계하기']]],
+            ['eq', '설비', '장비 엔지니어', [['장비 상태', '인계받기'], ['PM 일정', '알람 이력'], ['가동률', '감시'], ['원인 진단', '조치 · 복구'], ['정비 기록', '남기기']]],
+            ['pr', '공정', '공정 엔지니어', [['야간 이상', '결과 확인'], ['모니터', '결과 보기'], ['측정값', '검토'], ['영향 로트', '판단'], ['조건 개선', '검토']]]];
+          let o = '';
+          cols.forEach((c, i) => { o += pvdG(f, ['s' + i], fdTx(cx(i) + 31, 20, c, { s: 10.5, w: 800 }) + pvdL(`M${cx(i)} 27 H${cx(i) + 62}`, { so: .4, sw: 1.4 })); });
+          rows.forEach(([k, t, sub, cells], r) => {
+            const y = 34 + r * 70;
+            o += fdRect(4, y, 60, 64, { rx: 6, c: fdC[k], fill: 'rgba(148,163,184,.1)', sw: 1.4, so: .9 }) + `<rect x="4" y="${y}" width="5" height="64" rx="2" fill="${fdC[k]}"/>`
+              + fdTx(38, y + 30, t, { s: 14, w: 800 }) + fdTx(38, y + 45, sub, { s: 8.5, op: .7 });
+            cells.forEach((ln, i) => {
+              o += pvdG(f, ['s' + i], fdRect(cx(i), y, 62, 64, { rx: 6, c: fdC[k], fill: fdC[k] + '1f', sw: 1.2, so: .75 }) + ln.map((l, j) => fdTx(cx(i) + 31, y + 28 + j * 14, l, { s: 10, w: 600 })).join(''));
+            });
+          });
+          o += dgArrow(70, 258, 380, 258, 'dg-line') + fdTx(70, 252, '교대 시작', { a: 'start', s: 9, op: .75 }) + fdTx(380, 252, '교대 끝', { a: 'end', s: 9, op: .75 }) + fdTx(225, 268, '한 교대 (회사와 라인마다 8~12시간)', { s: 9, op: .65 });
+          return dgSvg('교대 한 번의 흐름: ' + s.label, o, '0 0 400 276');
+        }
+      },
+      // ---------- 4. 알람 한 번이 처리되는 순서 ----------
+      'fld-alarm': {
+        title: '알람 한 번이 처리되는 순서',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 순서', desc: '식각 장비에서 챔버 압력 알람이 울린 상황을 따라간다. 알람 하나가 오퍼레이터에서 설비, 공정으로 이어지고, 마지막에 오퍼레이터가 장비를 다시 돌리며 끝난다. 단계를 눌러 각 직무가 맡는 일을 본다.' },
+          { id: 'a1', label: '① 감지', focus: ['a1'], desc: '장비 앞의 오퍼레이터가 가장 먼저 안다. 장비가 알람과 함께 멈췄는지, 어떤 알람인지, 그때 장비 안에 로트가 있었는지를 확인해 기록하고 설비 엔지니어를 부른다. 원인을 모른 채 알람을 해제하거나 재시작하지 않는다.' },
+          { id: 'a2', label: '② 원인과 조치', focus: ['a2'], desc: '설비 엔지니어는 알람 이력과 센서 값을 보며 원인을 좁힌다. 누설인지, 압력 센서 이상인지, 펌프 문제인지 가려 부품을 점검하거나 교체한다.' },
+          { id: 'a3', label: '③ 영향 판단', focus: ['a3'], desc: '알람 전후에 이 장비를 지난 로트를 공정 엔지니어가 확인한다. 먼저 보류(Hold)로 잡아 두고, 측정 결과와 장비 기록을 본 뒤 출고, 재작업, 폐기 중 하나로 처분한다.' },
+          { id: 'a4', label: '④ 복구와 재개', focus: ['a4'], desc: '고친 장비는 모니터 웨이퍼로 정상인지 확인한 뒤에야 생산에 돌아간다. 확인이 끝나면 오퍼레이터가 장비를 다시 돌리고, 일어난 일과 조치를 일지에 남긴다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, lx = { op: 10, eq: 142, pr: 274 }, lab = { op: '생산 · 오퍼레이터', eq: '설비 엔지니어', pr: '공정 엔지니어' };
+          const N = [['a1', 'op', 34, '① 알람 감지', '장비 정지 확인'], ['a1', 'op', 78, '② 상태 기록', '설비 호출'], ['a2', 'eq', 122, '③ 원인 진단', '알람 이력 · 센서'], ['a2', 'eq', 166, '④ 조치', '점검 · 부품 교체'],
+            ['a3', 'pr', 210, '⑤ 영향 로트 확인', '보류(Hold)'], ['a3', 'pr', 254, '⑥ 처분 판단', '출고/재작업/폐기'], ['a4', 'eq', 298, '⑦ 복구 확인', '모니터 웨이퍼'], ['a4', 'op', 298, '⑧ 재가동 · 일지', '다음 교대에 인계']];
+          let o = '';
+          ['op', 'eq', 'pr'].forEach((k) => {
+            o += fdRect(lx[k] - 2, 28, 120, 306, { rx: 8, c: fdC[k], fill: fdC[k] + '0d', sw: 1, so: .35 }) + fdTx(lx[k] + 58, 20, lab[k], { s: 10.5, w: 800, c: fdC[k] });
+          });
+          // 화살표 (보낸 칸의 단계 색)
+          const arrow = (a, b, g) => {
+            const x1 = lx[a[1]] + 58, y1 = a[2] + 32, x2 = lx[b[1]] + 58, y2 = b[2];
+            const d = x1 === x2 ? `M${x1} ${y1} V${y2 - 1}` : `M${x1} ${y1} V${(y1 + y2) / 2} H${x2} V${y2 - 1}`;
+            return pvdG(f, [g], pvdL(d, { sw: 1.6, so: .8 }) + fdHead(x2, y2, 'd'));
+          };
+          for (let i = 0; i < 6; i++) o += arrow(N[i], N[i + 1], N[i][0]);
+          o += pvdG(f, ['a4'], pvdL(`M${lx.eq} 313 H${lx.op + 124}`, { sw: 1.6, so: .8 }) + fdHead(lx.op + 118, 313, 'l'));
+          N.forEach(([g, k, y, a, b]) => {
+            o += pvdG(f, [g], fdRect(lx[k], y, 116, 32, { rx: 6, c: fdC[k], fill: fdC[k] + '24', sw: 1.4, so: .9 }) + fdTx(lx[k] + 58, y + 14, a, { s: 10, w: 800 }) + fdTx(lx[k] + 58, y + 26, b, { s: 9, w: 600, op: .85 }));
+          });
+          return dgSvg('알람 처리 순서: ' + s.label, o, '0 0 400 342');
+        }
+      },
+    });
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
@@ -8743,7 +8913,7 @@
       renderBreadcrumb();
       const container = document.getElementById('learningContainer'); container.className = "flex flex-col space-y-4"; container.innerHTML = '';
       const adv = t.category === ADV_CAT;
-      const card = document.createElement('div'); card.className = adv ? 'adv-doc' : "bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden";
+      const card = document.createElement('div'); card.className = adv ? (t.subject === FLD_SUB ? 'adv-doc fd-o' : 'adv-doc') : "bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden";
       const kwAttr = String(t.title).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
       const qN = Math.min(3, matchItems(allQuizData, t.title).length); const iN = Math.min(2, matchItems(allInterviewData, t.title).length);
       if (!mdTildeOff && typeof marked !== 'undefined') { marked.use({ tokenizer: { del() { return undefined; } } }); mdTildeOff = true; }   // '800~1100 ... 600~800' 처럼 ~ 가 두 번 나오면 가운데가 취소선이 되므로, 이 사이트는 취소선 문법을 쓰지 않는다
@@ -8765,6 +8935,7 @@
       });
       rawMarkdown = rawMarkdown.replace(/###\s*\[(.*?)\]\s*(.*)/g, (match, badgeText, titleText) => `<div class="custom-badge-heading"><span class="custom-badge">${adv ? escH(badgeText) : badgeEmoji(badgeText) + ' ' + badgeText}</span>${titleText}</div>`);
       const labK = t.lab && LABS[t.lab] ? t.lab : '';
+      const fldK = adv && t.subject === FLD_SUB ? ((FLD_MAP.flatMap(g => g.items).find(it => it[1] === t.title) || [])[0] || '') : '';
       if (adv) {
         card.innerHTML = `
           <header class="adv-head">
@@ -8772,12 +8943,13 @@
             <h2 class="adv-title">${escH(t.title)}</h2>
             <dl class="adv-meta">
               <div><dt>분류</dt><dd>${escH(t.category)} / ${escH(t.subject)}</dd></div>
-              <div><dt>대상 장비</dt><dd>${escH(t.equip || '-')}</dd></div>
+              ${fldK ? `<div><dt>등급</dt><dd>${escH(FLD_TIER[fldK].n)} · ${FLD_TIER[fldK].p ? FLD_TIER[fldK].p + ' 토큰' : '무료'}</dd></div>` : `<div><dt>대상 장비</dt><dd>${escH(t.equip || '-')}</dd></div>`}
               <div><dt>읽는 시간</dt><dd>약 ${t0.premium && t0.mins ? t0.mins : Math.max(1, Math.round(String(t.content).length / 650))}분</dd></div>
-              <div><dt>연계 체험</dt><dd>${labK ? escH(LABS[labK].title) : '준비 중'}</dd></div>
+              ${fldK ? `<div><dt>눌러 보는 그림</dt><dd>${(String(t.content).match(/\{\{diagram:/g) || []).length}개</dd></div>` : `<div><dt>연계 체험</dt><dd>${labK ? escH(LABS[labK].title) : '준비 중'}</dd></div>`}
             </dl>
           </header>
           ${locked ? '' : `<div class="adv-bodywrap"><div class="custom-table-container theory-body adv-body prose prose-slate dark:prose-invert max-w-none">${math.restore(safeHtml(marked.parse(rawMarkdown)))}</div></div>`}
+          ${fldK ? `<div class="adv-cta"><div><b>다음 글로 이어 가기</b><p>현장 직무 로드맵에서 다음 글을 골라 이어서 읽어 보세요.</p></div><button type="button" onclick="navTo('view-learning',{level:'subject',category:'${ADV_CAT}',subject:'${FLD_SUB}'})">현장 직무 로드맵 보기 →</button></div>` : ''}
           ${labK ? `<div class="adv-cta"><div><b>직접 다뤄 보고 싶다면</b><p>${escH(LABS[labK].title)}에서 이 글의 내용을 직접 조작해 볼 수 있어요.</p></div><button type="button" onclick="labOpen('${labK}')">${escH(LABS[labK].title)} 열기 →</button></div>` : ''}`;
         container.appendChild(card); hydrateDiagrams(card); advIndex(card); applyMathRendering(); if (locked) container.appendChild(premiumLock(t0.id, 'theory')); return;
       }
