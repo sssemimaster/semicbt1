@@ -495,13 +495,13 @@
     function payView(v) { PAY.view = v === 'history' || v === 'refund' ? v : 'store'; PAY.err = ''; PAY.note = ''; payRender(); const c = document.querySelector('#payM .pay-card'); if (c) c.scrollTop = 0; }
     function payClose() { const o = document.getElementById('payM'); if (!o) return; o.classList.remove('on'); setTimeout(() => o.remove(), 220); }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('payM')) payClose(); });
-    // ===== 토큰 얻는 법 안내 창: 무료로 받는 방법·충전·상한·쓰임새를 한 곳에 정리 =====
+    // ===== 토큰 획득법 안내 창: 무료로 받는 방법·충전·상한·쓰임새를 한 곳에 정리 =====
     function earnClose() { const o = document.getElementById('earnM'); if (!o) return; o.classList.remove('on'); setTimeout(() => o.remove(), 220); }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('earnM')) earnClose(); });
     function earnOpen() {
       try { closeAcct(); } catch (e) {} try { payClose(); } catch (e) {} try { pmGateClose(); } catch (e) {}
       let o = document.getElementById('earnM');
-      if (!o) { o = document.createElement('div'); o.id = 'earnM'; o.className = 'pmg'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 얻는 법'); o.addEventListener('click', (e) => { if (e.target === o) earnClose(); }); document.body.appendChild(o); }
+      if (!o) { o = document.createElement('div'); o.id = 'earnM'; o.className = 'pmg'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 획득법'); o.addEventListener('click', (e) => { if (e.target === o) earnClose(); }); document.body.appendChild(o); }
       earnRender(); requestAnimationFrame(() => o.classList.add('on'));
     }
     function earnRender() {
@@ -510,17 +510,17 @@
       const bal = in_ && PRM.loaded ? `<div class="pay-bal">${TK('pay-bal-tk')}<div><small>내 토큰</small><b>${have}</b></div><div class="pay-bal-s"><span>무료 ${PRM.free}</span><span>유료 ${PRM.paid}</span></div></div>` : '';
       const prog = `<div class="earn-prog"><div class="earn-bar"><i style="width:${Math.round(pts / DAILY_GOAL * 100)}%"></i></div><span>오늘 <b>${pts}</b> / ${DAILY_GOAL}점</span></div>`;
       o.innerHTML = `<div class="pmg-card pay-card earn-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="earnClose()">✕</button>
-        <span class="pmg-tick"><i></i>HOW TO EARN</span><h3>토큰 얻는 법</h3>${bal}
+        <span class="pmg-tick"><i></i>HOW TO EARN</span><h3>토큰 획득법</h3>${bal}
         <p class="earn-lead">토큰은 심화 이론·장비 체험을 <b>내 계정에 영구 해금</b>할 때 써요. 무료로 모으거나 충전할 수 있어요.</p>
         <div class="earn-way"><div class="earn-h"><span class="earn-n">1</span><b>오늘의 미션 · 출석</b><em class="earn-plus">+5</em></div>
           <p>학습 점수 <b>${DAILY_GOAL}점</b>을 채우고 출석하면 무료 토큰 <b>5개</b>를 받아요. 하루 한 번, 한국 시간 0시에 새로 시작해요.</p>
           <ul class="earn-pts"><li>문제 풀기 <b>1점</b></li><li>면접 연습 <b>1점</b></li><li>이론 읽기 <b>2점</b></li></ul>
           ${prog}<p class="earn-small">로그인한 상태로 쌓은 점수만 인정돼요. 3일 연속이면 토큰 15개로 심화 이론 1편을 열 수 있어요.</p></div>
-        <div class="earn-way"><div class="earn-h"><span class="earn-n">2</span><b>가입 환영 선물</b><em class="earn-plus">+3</em></div>
-          <p>로그인하고 <b>24시간이 지난 뒤</b>, 학습 기록이 하나 이상 있으면 무료 토큰 3개를 한 번 받아요.</p></div>
+        <div class="earn-way"><div class="earn-h"><span class="earn-n">2</span><b>가입 환영 선물</b><em class="earn-plus">+10</em></div>
+          <p>로그인하고 <b>24시간이 지난 뒤</b>, 학습 기록이 하나 이상 있으면 무료 토큰 10개를 한 번 받아요.</p></div>
         <div class="earn-way"><div class="earn-h"><span class="earn-n">3</span><b>토큰 충전</b><em class="earn-plus pay">구매</em></div>
           <ul class="earn-packs">${PAY.packs.map((k) => `<li><span>${k.tokens}토큰</span><b>${won(k.amount)}</b></li>`).join('')}</ul>
-          <p>결제 후 7일 이내, 쓰지 않은 유료 토큰은 환불받을 수 있어요.</p>${window.LANG === 'en' ? '<p class="earn-small">결제는 원화(KRW)로 청구돼요. 달러 금액은 참고용 환산이고, 실제 청구액은 카드사 환율에 따라 조금 달라질 수 있어요.</p>' : ''}
+          <p>결제 후 7일 이내에 환불받을 수 있어요. 쓴 토큰은 정가로 계산해 뺀 금액을 돌려드려요.</p>${window.LANG === 'en' ? '<p class="earn-small">결제는 원화(KRW)로 청구돼요. 달러 금액은 참고용 환산이고, 실제 청구액은 카드사 환율에 따라 조금 달라질 수 있어요.</p>' : ''}
           <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전하기</button></div>
         <p class="earn-free">${ico('unlock')}<span><b>무료 맛보기</b> · 플라즈마 식각(RIE) 이론과 식각 장비 체험은 토큰 없이, 로그인만 하면 바로 볼 수 있어요</span></p>
         <div class="pay-sec"><span class="pmg-tick"><i></i>PRICE</span></div>
@@ -557,7 +557,7 @@
       const pendMsg = pend ? '<p class="pay-msg ok"><b>결제를 마무리하는 중이에요.</b> 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : '';
       const msgs = `${PAY.err ? `<p class="pay-msg err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="pay-msg ok">${escH(PAY.note)}</p>` : ''}`;
       const FAQ = `<details class="pay-faq"${PAY.faqOpen ? ' open' : ''} ontoggle="PAY.faqOpen = this.open"><summary>환불 문의</summary><div class="pay-faq-b">
-          <ul class="pmg-pts pay-pts"><li><b>결제 후 7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>일부를 썼다면 쓴 토큰을 정가(개당 200원)로 계산해 뺀 금액을 돌려드려요</li><li>환불은 30일에 2번까지 바로 처리돼요. 신청할 때 환불 이유를 적어 주세요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
+          <ul class="pmg-pts pay-pts"><li><b>결제 후 7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>일부를 썼다면 쓴 토큰을 정가(개당 200원)로 계산해 뺀 금액을 돌려드려요</li><li>환불은 30일에 2번까지 바로 처리돼요. 신청할 때 환불 이유를 적어 주세요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li><li>한도를 넘었거나 화면에서 안 될 때는 semicarve313@naver.com 으로 문의해 주세요</li></ul>
           ${rfList}</div></details>`;
       if (PAY.view === 'refund') {
         const rf = PAY.rf || {}, x = (PAY.orders || []).find((o) => o.orderId === rf.orderId);
@@ -594,7 +594,7 @@
       o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
         <span class="pmg-tick"><i></i>TOKEN STORE</span><h3>토큰 충전</h3>
         <div class="pay-bal">${TK('pay-bal-tk')}<div><small>내 토큰</small><b>${have}</b></div><div class="pay-bal-s"><span>무료 ${PRM.free}</span><span>유료 ${PRM.paid}</span></div></div>
-        <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 무료로 토큰 얻는 법</button>
+        <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 토큰 획득법</button>
         ${pendMsg}
         ${ready ? (test ? `<p class="pay-test">${ico('flask')}<span>테스트 결제 모드 · 실제로 요금이 청구되지 않아요</span></p>` : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
         <div class="pay-sec"><span class="pmg-tick"><i></i>CHARGE</span></div>
@@ -696,7 +696,7 @@
       try {
         const r = await apiJson('/refund', 'POST', { orderId: rf.orderId, reason: rf.reason, note: rf.note.trim() });
         if (r.status === 200 && r.body.ok) { back = true; PAY.note = r.body.already ? '이미 환불된 주문이에요.' : `환불을 요청했어요. 토큰 ${r.body.refundedTokens}개가 차감되고 ${won(r.body.refundAmount)}이 취소돼요.`; await walletLoad(); }
-        else if (r.status === 429 && r.body.error === 'refund_limit') { back = true; PAY.err = `30일 동안 환불은 ${r.body.limit || 2}번까지 바로 처리돼요.${r.body.resetAt ? ' ' + payDate(r.body.resetAt) + ' 이후에 다시 신청할 수 있어요.' : ''} 그 전에 꼭 필요하면 환불 문의에서 안내를 확인해 주세요.`; }
+        else if (r.status === 429 && r.body.error === 'refund_limit') { back = true; PAY.err = `30일 동안 환불은 ${r.body.limit || 2}번까지 바로 처리돼요.${r.body.resetAt ? ' ' + payDate(r.body.resetAt) + ' 이후에 다시 신청할 수 있어요.' : ''} 그 전에 꼭 필요하면 semicarve313@naver.com 으로 문의해 주세요.`; }
         else if (r.status === 400 && r.body.error === 'not_refundable') { back = true; PAY.err = r.body.reason === 'window_expired' ? '환불 가능 기간(7일)이 지났어요.' : r.body.reason === 'no_unused_tokens' ? '환불할 수 있는 미사용 유료 토큰이 없어요.' : r.body.reason === 'no_refund_value' ? '쓴 토큰을 정가로 계산하면 돌려드릴 금액이 남지 않아요.' : '이 주문은 환불할 수 없어요.'; }
         else if (r.status === 400 && r.body.error === 'reason_required') PAY.err = '환불 이유를 골라 주세요.';
         else if (r.status === 400 && r.body.error === 'note_required') PAY.err = '‘기타’를 고르셨다면 이유를 적어 주세요.';
@@ -7496,7 +7496,7 @@
     async function tokenWelcome() {
       try {
         const r = await apiJson('/welcome', 'POST');
-        if (r.status === 200 && r.body.granted) { const before = PRM.free + PRM.paid; PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); tokenBurst(PRM.free + PRM.paid - before || 3, before); pmToast('🎁 환영 토큰 3개를 받았어요'); }
+        if (r.status === 200 && r.body.granted) { const before = PRM.free + PRM.paid; PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); const got = PRM.free + PRM.paid - before || 10; tokenBurst(got, before); pmToast('🎁 환영 토큰 ' + got + '개를 받았어요'); }
       } catch (e) {}
     }
     async function premiumFetch(id) {
@@ -7634,7 +7634,7 @@
         const offers = (bd ? mk(bd.id, '이론 + 장비 체험 번들', `<em>${bd.save}토큰 할인</em> · 따로 사면 ${bd.sum}토큰`, bd.price, true) : '')
           + mk(id, kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
         const min = bd ? Math.min(bd.price, price) : price;
-        body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 얻는 법</button></p>` : '')
+        body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 획득법</button></p>` : '')
           + (have < min ? `<button type="button" class="pmg-cta" onclick="payFromGate()">${TK()} 토큰 충전하기</button>` : '') + `<p class="pmg-wallet">${TK()} 내 토큰 ${have}개 · 무료 ${PRM.free} · 유료 ${PRM.paid}</p>`;
       }
       o.innerHTML = `<div class="pmg-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="pmGateClose()">✕</button>`
@@ -7668,7 +7668,7 @@
         h = head('lock', `${whatObj} 보려면 토큰 ${price}개가 필요해요`, '해금하면 이 계정에서 계속 볼 수 있어요.')
           + `<div class="pml-wal">${TK()}<span>내 토큰 <b>${have}</b></span><i>무료 ${PRM.free} · 유료 ${PRM.paid}</i></div>`
           + `<div class="pml-btns">` + (have >= price ? `<button type="button" class="tkb" onclick="premiumUnlock('${id}')">${TK()} ${price}토큰으로 해금하기</button>` : `<button type="button" class="tkb" onclick="payOpen()">${TK()} 토큰 충전하기</button>`) + `</div>`
-          + (have < price ? `<p class="pm-sub pml-miss">토큰이 ${price - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 얻는 법</button></p>` : '')
+          + (have < price ? `<p class="pm-sub pml-miss">토큰이 ${price - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 획득법</button></p>` : '')
           + bundleBlock(id, have);
       }
       el.innerHTML = h; return el;
@@ -7733,7 +7733,7 @@
           <div class="ac-stat"><span>토큰</span><b class="ac-tk">${TK()}${PRM.free + PRM.paid}<small>무료 ${PRM.free} · 유료 ${PRM.paid}</small></b></div>
           <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전</button>
           <button type="button" class="earn-link" onclick="payOpen('history')">${ico('info')} 결제 내역 · 환불 문의</button>
-          <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 토큰 얻는 법 보기</button>
+          <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 토큰 획득법 보기</button>
           <p class="ac-note">출석 ${attendDays.length}일 · 오답 노트 ${Object.keys(wrongNotes).length}개 · 즐겨찾기 ${starredIds.length}개가 이 계정과 연결돼 있어요. 기록은 이 기기와 계정에 함께 저장돼요.</p>${err}
           <div class="ac-btns"><button type="button" class="pbtn" onclick="syncNow()" ${acct.busy ? 'disabled' : ''}>지금 동기화</button><button type="button" class="ac-ghost" onclick="acctSignOut()">로그아웃</button></div>
           <button type="button" class="ac-del" onclick="if(confirm('로그아웃하고 이 기기에 저장된 학습 기록을 지울까요?\n(기록은 계정에 남아 있어서 다시 로그인하면 돌아와요.)'))acctSignOut(true)">공용 기기라면: 로그아웃하고 이 기기 기록 지우기</button>
