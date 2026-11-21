@@ -469,7 +469,10 @@
     const TK = (c) => `<svg class="ic tk${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-tok"/></svg>`;
     const PAY = { packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', faqOpen: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
     const PAY_PENDING = 'semiPayPending', PAY_BACK = 'semiPayBack';
-    const won = (n) => Number(n).toLocaleString('ko-KR') + '원';
+    // 영어 화면에서는 달러 환산액을 같이 보여 준다(실제 결제는 원화, 카드사가 환산). 환율은 표시용 고정값
+    const USD_KRW = 1500;
+    const usd = (n) => '$' + (Number(n) / USD_KRW).toFixed(2);
+    const won = (n) => window.LANG === 'en' ? '₩' + Number(n).toLocaleString('en-US') + ' (≈ ' + usd(n) + ')' : Number(n).toLocaleString('ko-KR') + '원';
     const payDate = (ms) => { const d = new Date(ms); return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`; };
     function payClientKey() {
       if (!PAY.cfgP) PAY.cfgP = new Promise((res) => { if (typeof window.TOSS_CLIENT_KEY === 'string') return res(); const s = document.createElement('script'); s.src = ROOT + 'toss-config.js?v=' + Date.now(); s.onload = s.onerror = res; document.head.appendChild(s); });
@@ -514,7 +517,8 @@
         <div class="earn-way"><div class="earn-h"><span class="earn-n">2</span><b>가입 환영 선물</b><em class="earn-plus">+3</em></div>
           <p>로그인하고 <b>24시간이 지난 뒤</b>, 학습 기록이 하나 이상 있으면 무료 토큰 3개를 한 번 받아요.</p></div>
         <div class="earn-way"><div class="earn-h"><span class="earn-n">3</span><b>토큰 충전</b><em class="earn-plus pay">구매</em></div>
-          <p>15개 ${won(3000)} · 40개 ${won(7500)} · 100개 ${won(17000)}. 결제 후 7일 이내, 쓰지 않은 유료 토큰은 환불받을 수 있어요.</p>
+          <ul class="earn-packs">${PAY.packs.map((k) => `<li><span>${k.tokens}토큰</span><b>${won(k.amount)}</b></li>`).join('')}</ul>
+          <p>결제 후 7일 이내, 쓰지 않은 유료 토큰은 환불받을 수 있어요.</p>${window.LANG === 'en' ? '<p class="earn-small">결제는 원화(KRW)로 청구돼요. 달러 금액은 참고용 환산이고, 실제 청구액은 카드사 환율에 따라 조금 달라질 수 있어요.</p>' : ''}
           <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전하기</button></div>
         <p class="earn-free">${ico('unlock')}<span><b>무료 맛보기</b> · 플라즈마 식각(RIE) 이론과 식각 장비 체험은 토큰 없이, 로그인만 하면 바로 볼 수 있어요</span></p>
         <div class="pay-sec"><span class="pmg-tick"><i></i>PRICE</span></div>
@@ -561,7 +565,7 @@
         <div class="pay-sec"><span class="pmg-tick"><i></i>HISTORY</span></div>
         <ul class="pay-rows">${rows}</ul>
         <details class="pay-faq"${PAY.faqOpen ? ' open' : ''} ontoggle="PAY.faqOpen = this.open"><summary>환불 문의</summary><div class="pay-faq-b">
-          <ul class="pmg-pts pay-pts"><li>결제 후 <b>7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
+          <ul class="pmg-pts pay-pts"><li><b>결제 후 7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
           ${rfList}</div></details></div>`;
     }
     async function payStart(packId) {
@@ -7556,17 +7560,17 @@
 
     function premiumLock(id, kind) {
       const el = document.createElement('div'); el.className = 'pm-lock';
-      const what = kind === 'lab' ? '이 장비 체험' : '이 글의 나머지';
+      const whatTopic = kind === 'lab' ? '이 장비 체험은' : '이 글의 나머지는', whatObj = kind === 'lab' ? '이 장비 체험을' : '이 글의 나머지를', whatFree = kind === 'lab' ? '이 장비 체험은' : '이 글은';
       const price = PRICE_HINT[kind];
       const head = (ic, t, p) => `<div class="pml-ic" aria-hidden="true">${ico(ic)}</div><h4>${t}</h4>${p ? `<p>${p}</p>` : ''}`;
       let h;
-      if (!acct.user && FREE_PREVIEW.has(id)) h = head('unlock', `${what}은 무료 맛보기예요`, '구글 로그인만 하면 토큰 없이 바로 볼 수 있어요.') + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 무료로 보기</button></div>`;
-      else if (!acct.user) h = head('lock', `${what}은 토큰으로 열어요`, `구글 로그인 후, 하루 학습 미션을 채우고 출석하면 토큰을 5개씩 받아요. 토큰 ${price}개로 계정에 영구 해금돼요.`) + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 시작하기</button></div>`;
+      if (!acct.user && FREE_PREVIEW.has(id)) h = head('unlock', `${whatFree} 무료 맛보기예요`, '구글 로그인만 하면 토큰 없이 바로 볼 수 있어요.') + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 무료로 보기</button></div>`;
+      else if (!acct.user) h = head('lock', `${whatTopic} 토큰으로 열어요`, `구글 로그인 후, 하루 학습 미션을 채우고 출석하면 토큰을 5개씩 받아요. 토큰 ${price}개로 계정에 영구 해금돼요.`) + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 시작하기</button></div>`;
       else if (!PRM.loaded) h = head('lock', '확인하는 중…');
       else if (PRM.unlocked.has(id)) h = head('unlock', '불러오는 중…');
       else {
         const have = PRM.free + PRM.paid;
-        h = head('lock', `${what}을 보려면 토큰 ${price}개가 필요해요`, '해금하면 이 계정에서 계속 볼 수 있어요.')
+        h = head('lock', `${whatObj} 보려면 토큰 ${price}개가 필요해요`, '해금하면 이 계정에서 계속 볼 수 있어요.')
           + `<div class="pml-wal">${TK()}<span>내 토큰 <b>${have}</b></span><i>무료 ${PRM.free} · 유료 ${PRM.paid}</i></div>`
           + `<div class="pml-btns">` + (have >= price ? `<button type="button" class="tkb" onclick="premiumUnlock('${id}')">${TK()} ${price}토큰으로 해금하기</button>` : `<button type="button" class="tkb" onclick="payOpen()">${TK()} 토큰 충전하기</button>`) + `</div>`
           + (have < price ? `<p class="pm-sub pml-miss">토큰이 ${price - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 얻는 법</button></p>` : '')
