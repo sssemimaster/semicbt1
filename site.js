@@ -880,23 +880,25 @@
         { t: '계측', d: '만든 패턴이 설계대로인지 재요', labs: [['met', 'SEM', 'CD-SEM 계측 장비']] }] }];
     function renderAdvRoadmap(list, container) {
       const byLab = {}; list.forEach((t) => { if (t.lab) byLab[t.lab] = t; });
+      const pad = (n) => String(n).padStart(2, '0');
       let no = 0;
       const parts = ADV_MAP.map((p) => {
         const nSt = p.steps.length, nGuide = p.steps.reduce((a, st) => a + st.labs.filter((l) => byLab[l[0]]).length, 0);
         const steps = p.steps.map((st) => {
           no++;
+          const ready = st.labs.some((l) => byLab[l[0]]);
           const items = st.labs.map(([k, mo, nm]) => {
             const g = byLab[k];
-            if (!g) return `<div class="ex-it soon" aria-disabled="true"><span class="ex-mo lab-mono" aria-hidden="true">${mo}</span><span class="ex-tx"><b>${nm}</b><em>가이드 준비 중</em></span></div>`;
+            if (!g) return `<div class="adv-it soon" aria-disabled="true"><span class="adv-mo" aria-hidden="true">${mo}</span><span class="adv-tx"><b>${nm}</b><em>가이드 준비 중</em></span></div>`;
             const mins = g.mins || Math.max(1, Math.round(String(g.content).length / 650));
-            return `<button type="button" class="ex-it" onclick="navTo('view-learning',{level:'detail',theoryId:'${g.id}'})"><span class="ex-mo lab-mono" aria-hidden="true">${mo}</span><span class="ex-tx"><b>${escH(g.title)}${g.premium ? pmLk(g.id) : ''}</b><em>약 ${mins}분 읽기</em></span><span class="ex-tg">읽기 →</span></button>`;
+            return `<button type="button" class="adv-it" onclick="navTo('view-learning',{level:'detail',theoryId:'${g.id}'})"><span class="adv-mo" aria-hidden="true">${mo}</span><span class="adv-tx"><b>${escH(g.title)}${g.premium ? pmLk(g.id) : ''}</b><em>약 ${mins}분 읽기</em></span><span class="adv-go" aria-hidden="true">→</span></button>`;
           }).join('');
-          return `<li class="cm-st"><span class="cm-node" style="--p:0"><span>${no}</span></span><div class="cm-card"><div class="ex-hd"><b>${st.t}</b><em>${st.d}</em></div><div class="ex-body">${items}</div></div></li>`;
+          return `<li class="adv-st${ready ? '' : ' soon'}"><span class="adv-nd">${pad(no)}</span><div class="adv-sc"><div class="adv-sc-h"><b>${st.t}</b><em>${st.d}</em></div>${items}</div></li>`;
         }).join('');
-        return `<section class="cm-part ${p.c}"><div class="cm-ph"><span>PART ${p.n}</span><b>${p.t}</b><em>공정 ${nSt}단계 · 가이드 ${nGuide}편</em></div><ol class="cm-list">${steps}</ol></section>`;
+        return `<section class="adv-pt"><div class="adv-pt-h"><span class="adv-pt-n">${pad(p.n)}</span><div><b>${p.t}</b><em>공정 ${nSt}단계 · 가이드 ${nGuide}편</em></div></div><ol class="adv-pt-l">${steps}</ol></section>`;
       }).join('');
       const mapped = new Set(ADV_MAP.flatMap((p) => p.steps.flatMap((st) => st.labs.map((l) => l[0]))));
-      container.insertAdjacentHTML('beforeend', `<div class="ex-map adv-map"><p class="ex-flow">반도체가 만들어지는 순서대로 장비 가이드를 읽어 보세요</p>${parts}</div>`);
+      container.insertAdjacentHTML('beforeend', `<div class="adv-rm"><p class="adv-rm-flow">반도체가 만들어지는 순서대로 장비 가이드를 읽어 보세요</p>${parts}</div>`);
       list.filter((t) => !t.lab || !mapped.has(t.lab)).forEach((t) => renderTitleCard(t, container));   // 공정 순서에 없는 글은 아래에 카드로
     }
 
