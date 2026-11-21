@@ -47,7 +47,7 @@
   document.documentElement.lang = 'en';
   document.documentElement.classList.add('lang-en');
   // 사전은 영어일 때만 받는다(한국어 사용자는 추가 다운로드 없음). 그려지기 전에 있어야 깜빡임이 없어 동기로 불러온다.
-  document.write('<script src="i18n/en.js?v=7"><\/script>');
+  document.write('<script src="i18n/en.js?v=8"><\/script>');
 
   var HAN = /[가-힣ㄱ-ㆎ]/;
   var NUM = /[-−]?\d+(?:[.,]\d+)*(?:×10[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)?/g;
