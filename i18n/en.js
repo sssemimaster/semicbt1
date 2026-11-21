@@ -4264,6 +4264,10 @@ window.I18N_EN = {
 "계측(CD-SEM) 장비 3D 화면": "Metrology (CD-SEM) tool 3D view",
 "이 기기에서는 3D 화면을 쓸 수 없어요. 웨이퍼 맵과 수치로 체험은 그대로 할 수 있어요.": "The 3D view isn't available on this device. You can still do the lab with the wafer map and numbers.",
 /* ---- 토큰·결제·맛보기 화면 (2026-11-21) ---- */
+"토큰 해금": "Unlock with tokens",
+"장비 사용 · 레시피 설정 · 트러블슈팅. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.": "Equipment use · recipe setup · troubleshooting. A field guide to read before you step into the equipment lab.",
+"장비를 실제로 다루는 사람의 눈으로 정리한 글이에요. 개요 · 구조 · 레시피 · 결과 읽기 · 트러블슈팅 순서로 되어 있고, 끝의 버튼으로 장비 체험에 바로 들어갈 수 있어요.": "Written from the viewpoint of someone who actually runs the equipment. Each guide goes Overview · Structure · Recipe · Reading results · Troubleshooting, and the button at the end takes you straight into the lab.",
+"장비마다 개요 · 구조 · 레시피 · 트러블슈팅을 한 편에 담았어요.": "Each equipment guide covers overview, structure, recipe and troubleshooting in one read.",
 "내 토큰 · 충전": "My tokens · Top up",
 "토큰으로 해금": "Unlock with tokens",
 "토큰 없이 볼 수 있어요 (로그인 필요)": "Free to view without tokens (login required)",
@@ -4470,6 +4474,7 @@ window.I18N_EN = {
     [/^([\d.,]+) ?문항$/, function (m) { return m[1] + (m[1] === '1' ? ' question' : ' questions'); }],
     [/^([\d.,]+) ?문제$/, function (m) { return m[1] + (m[1] === '1' ? ' question' : ' questions'); }],
     [/^([\d.,]+) ?장\/h$/, function (m) { return m[1] + ' wph'; }],
+    [/^(\d+)편 →$/, function (m) { return m[1] + (m[1] === '1' ? ' guide →' : ' guides →'); }],
     [/^([\d.,]+) ?장$/, function (m) { return m[1] + ' wafers'; }],
     [/^([\d.,]+) ?회$/, function (m) { return m[1] + '×'; }],
     [/^([\d.,]+) ?번$/, function (m) { return '#' + m[1]; }]
