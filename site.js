@@ -838,6 +838,7 @@
       const extra = [...new Set(allTheories.filter(t => t.category === category).map(t => t.subject))].filter(sub => !(CATEGORY_TREE[category] || []).includes(sub));
       const activeSubs = (CATEGORY_TREE[category] || []).concat(extra);
       if (category === ADV_CAT) container.insertAdjacentHTML('beforeend', advHero('심화 이론', '장비를 실제로 다루는 사람의 눈으로 정리한 글이에요. 개요 · 구조 · 레시피 · 결과 읽기 · 트러블슈팅 순서로 되어 있고, 끝의 버튼으로 장비 체험에 바로 들어갈 수 있어요.'));
+      else { renderGenRoadmap(category, activeSubs, container); container.insertAdjacentHTML('beforeend', folderBar(category, null)); return; }   // 일반 이론: 폴더 카드 대신 읽는 순서 로드맵
       activeSubs.forEach(sub => {
         const btn = document.createElement('button');
         if (category === ADV_CAT) {
@@ -852,6 +853,28 @@
         container.appendChild(btn);
       });
       container.insertAdjacentHTML('beforeend', folderBar(category, null));
+    }
+
+    // 일반 이론 로드맵: 폴더(주제)를 읽는 순서의 단계로, 글을 그 안의 노드로 보여 준다. 순서·설명·아이콘은 학습 코스(data/course.json)와 같은 것을 쓴다
+    const genMins = (t) => t.mins || Math.max(1, Math.round(String(t.content).length / 650));
+    function genOrdered(category, sub) {
+      const list = allTheories.filter(t => t.category === category && t.subject === sub);
+      const u = courseData && courseData.units.find(x => (x.match || []).some(m => m.c === category && m.s === sub));
+      if (!u) { const ov = list.filter(t => /개요|한눈에/.test(t.title)); return { u: null, items: ov.concat(list.filter(t => !ov.includes(t))) }; }   // 코스를 아직 못 불러왔으면 개요 먼저
+      const byId = new Map(list.map(t => [t.id, t])), used = new Set(), items = [];
+      (u.order || []).forEach(id => { const t = byId.get(id); if (t && !used.has(id)) { used.add(id); items.push(t); } });
+      return { u, items: items.concat(list.filter(t => !used.has(t.id))) };   // 코스에 없는 새 글은 맨 뒤에
+    }
+    function renderGenRoadmap(category, subs, container) {
+      if (!courseData && !courseFailed) loadCourse().then(j => { if (j && currentViewId === 'view-learning' && learnState.level === 'category' && learnState.category === category) renderSubjectsDOM(category); });
+      const rd = (pathState && pathState.read) || {}, steps = subs.map(sub => Object.assign({ sub }, genOrdered(category, sub))).filter(st => st.items.length);
+      const total = steps.reduce((a, st) => a + st.items.length, 0), done = steps.reduce((a, st) => a + st.items.filter(t => rd[t.id]).length, 0);
+      const html = steps.map(st => {
+        const n = st.items.length, r = st.items.filter(t => rd[t.id]).length, mins = st.items.reduce((a, t) => a + genMins(t), 0), full = r === n;
+        const items = st.items.map((t, i) => `<li><button type="button" class="gr-it${rd[t.id] ? ' done' : ''}" onclick="navTo('view-learning',{level:'detail',theoryId:'${t.id}'})"><span class="gr-ix" aria-hidden="true">${rd[t.id] ? '✓' : i + 1}</span><span class="gr-tt"><b>${escH(t.title)}${t.premium ? pmLk(t.id) : ''}</b><em>약 ${genMins(t)}분 읽기</em></span></button></li>`).join('');
+        return `<li class="gr-st${full ? ' full' : ''}"><span class="gr-nd" aria-hidden="true">${st.u && st.u.icon ? st.u.icon : '📂'}</span><div class="gr-cd"><button type="button" class="gr-h" onclick="navTo('view-learning',{level:'subject',category:'${jsq(category)}',subject:'${jsq(st.sub)}'})"><span class="gr-hx"><b>${escH(st.sub)}</b>${st.u && st.u.desc ? `<em>${escH(st.u.desc)}</em>` : ''}</span><span class="gr-hm"><span>문서 ${n}개</span><span>약 ${mins}분 읽기</span><span class="gr-rd">읽음 ${r}/${n}</span></span><span class="gr-go" aria-hidden="true">›</span></button><div class="gr-bar" aria-hidden="true"><i style="width:${Math.round(r / n * 100)}%"></i></div><ol class="gr-il">${items}</ol></div></li>`;
+      }).join('');
+      container.insertAdjacentHTML('beforeend', `<div class="gr-rm"><div class="gr-top"><p>위에서 아래로 차례대로 읽거나, 궁금한 글을 바로 눌러 보세요</p><span>읽음 ${done}/${total}편</span></div><ol class="gr-sl">${html}</ol></div>`);
     }
 
     function renderTitlesDOM(category, subject) {
