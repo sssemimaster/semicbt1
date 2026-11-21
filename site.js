@@ -7408,7 +7408,8 @@
     async function premiumFetch(id) {
       if (PRM.cache[id] || PRM.fetching === id) return; PRM.fetching = id;
       try {
-        const r = await apiJson('/content/' + encodeURIComponent(id));
+        // 영어 모드는 번역본을 요청한다 (번역본이 아직 없으면 서버가 한국어 본문으로 돌려준다). 언어는 페이지 로드 때 정해지므로 캐시를 따로 나눌 필요는 없다
+        const r = await apiJson('/content/' + encodeURIComponent(id) + (window.LANG === 'en' ? '?lang=en' : ''));
         if (r.status === 200 && r.body.body) { PRM.cache[id] = r.body.body; premiumRefresh(); }
       } catch (e) {}
       PRM.fetching = null;
