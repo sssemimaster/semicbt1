@@ -527,14 +527,13 @@
     .adv-pt-h b { display: block; font-size: 1.08rem; font-weight: 800; color: var(--adv-h); letter-spacing: -.02em; word-break: keep-all; }
     .adv-pt-h em { display: block; margin-top: .15rem; font: 700 .7rem/1.4 var(--adv-mono); font-style: normal; letter-spacing: .04em; color: var(--adv-cy); }
     .adv-pt-l { margin: 0; padding: 1rem 1.2rem 1.1rem; list-style: none; position: relative; }
-    .adv-st { position: relative; display: grid; grid-template-columns: 2.4rem 1fr; gap: .9rem; padding-bottom: .9rem; }
+    .adv-st { position: relative; padding-bottom: .8rem; }   /* 단계 번호는 왼쪽 열이 아니라 단계 제목 줄에 들어간다 — 가이드 행이 좌우로 꽉 찬다 */
     .adv-st:last-child { padding-bottom: 0; }
-    .adv-st::before { content: ''; position: absolute; left: 1.2rem; top: 2.4rem; bottom: -.1rem; width: 0; border-left: 1px dashed var(--adv-line); }
-    .adv-st:last-child::before { display: none; }
-    .adv-nd { position: relative; z-index: 1; width: 2.4rem; height: 2.4rem; display: grid; place-items: center; font: 800 .82rem var(--adv-mono); color: var(--adv-am); border: 1px solid var(--adv-am); border-radius: 4px; background: var(--adv-panel); box-shadow: 0 0 0 3px var(--adv-amt); }
+    .adv-nd { flex: none; width: 1.9rem; height: 1.9rem; display: grid; place-items: center; font: 800 .74rem var(--adv-mono); color: var(--adv-am); border: 1px solid var(--adv-am); border-radius: 4px; background: var(--adv-panel); box-shadow: 0 0 0 3px var(--adv-amt); }
     .adv-st.soon .adv-nd { color: var(--adv-dim); border-color: var(--adv-line); box-shadow: none; }
     .adv-sc { min-width: 0; border: 1px solid var(--adv-line); border-radius: 4px; background: var(--adv-panel); overflow: hidden; }
-    .adv-sc-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: .2rem .7rem; padding: .65rem .9rem; border-bottom: 1px solid var(--adv-line); background: var(--adv-panel2); }
+    .adv-sc-h { display: flex; align-items: center; gap: .75rem; padding: .65rem .9rem; border-bottom: 1px solid var(--adv-line); background: var(--adv-panel2); }
+    .adv-sc-h > div { min-width: 0; flex: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: .1rem .7rem; }
     .adv-sc-h b { font-size: .98rem; font-weight: 800; color: var(--adv-h); }
     .adv-sc-h em { font-style: normal; font-size: .78rem; color: var(--adv-dim); word-break: keep-all; }
     .adv-it { display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; padding: .7rem .9rem; color: var(--adv-ink); background: transparent; border: 0; border-top: 1px solid var(--adv-line); cursor: pointer; transition: background .15s; }
@@ -548,8 +547,8 @@
     .adv-it.soon { cursor: default; opacity: .6; } .adv-it.soon:hover { background: transparent; } .adv-it.soon .adv-mo { color: var(--adv-dim); border-color: var(--adv-line); background: transparent; }
     .adv-it .pm-lk { margin-left: .4rem; }
     @media (max-width: 640px) {
-      .adv-pt-h { padding: .8rem .9rem; gap: .65rem; } .adv-pt-n { font-size: 1.5rem; } .adv-pt-l { padding: .8rem .7rem .9rem; }
-      .adv-st { grid-template-columns: 2rem 1fr; gap: .6rem; } .adv-nd { width: 2rem; height: 2rem; font-size: .72rem; } .adv-st::before { left: 1rem; top: 2rem; }
+      .adv-pt-h { padding: .8rem .9rem; gap: .65rem; } .adv-pt-n { font-size: 1.5rem; }
+      .adv-pt-l { padding: .7rem .55rem .8rem; } .adv-nd { width: 1.7rem; height: 1.7rem; font-size: .68rem; } .adv-sc-h { padding: .6rem .7rem; gap: .6rem; }
       .adv-it { padding: .6rem .7rem; gap: .6rem; } .adv-mo { min-width: 2.9rem; font-size: .62rem; } .adv-go { display: none; }
     }
     /* 일반 이론 로드맵 — 흰 카드 + 인디고/시안 (심화 이론의 남색 도면과 구분) */
@@ -611,10 +610,11 @@
     .tk-dp i { width: 5px; border-radius: 2px; background: #dbe2ec; } .tk-dp i:nth-child(1) { height: 5px; } .tk-dp i:nth-child(2) { height: 9px; } .tk-dp i:nth-child(3) { height: 14px; }
     .tk-dp.k1 i:nth-child(-n+1) { background: #16a34a; } .tk-dp.k2 i:nth-child(-n+2) { background: #ea580c; } .tk-dp.k3 i { background: #334155; }
     .tk-pr { display: inline-block; flex: none; padding: .2rem .6rem; border-radius: 999px; font-size: .68rem; font-weight: 800; line-height: 1.2; letter-spacing: .01em; white-space: nowrap; font-family: 'Sora', system-ui, sans-serif; text-transform: none; }
-    .tk-pr.k1 { color: #15803d; background: rgba(22,163,74,.1); } .tk-pr.k2 { color: #c2410c; background: rgba(234,88,12,.1); } .tk-pr.k3 { color: #fff; background: #334155; }
+    .tk-pr.k1 { color: #15803d; background: rgba(22,163,74,.1); } .tk-pr.k2 { color: #c2410c; background: rgba(234,88,12,.1); } .tk-pr.k3 { color: #9a3412; background: rgba(234,88,12,.24); }
     html.dark .tk-dp i { background: rgba(255,255,255,.14); } html.dark .tk-dp.k1 i:nth-child(-n+1) { background: #4ade80; } html.dark .tk-dp.k2 i:nth-child(-n+2) { background: #fb923c; } html.dark .tk-dp.k3 i { background: #e2e8f0; }
-    html.dark .tk-pr.k1 { color: #6ee7b7; background: rgba(74,222,128,.12); } html.dark .tk-pr.k2 { color: #fdba74; background: rgba(251,146,60,.14); } html.dark .tk-pr.k3 { color: #0f172a; background: #e2e8f0; }
+    html.dark .tk-pr.k1 { color: #6ee7b7; background: rgba(74,222,128,.12); } html.dark .tk-pr.k2 { color: #fdba74; background: rgba(251,146,60,.14); } html.dark .tk-pr.k3 { color: #fed7aa; background: rgba(234,88,12,.4); }
     .tk-pr[hidden] { display: none; }
+    .adv-it:has(.pm-lk.on) .tk-pr, .ex-it:has(.pm-lk.on) .tk-meta { display: none; }   /* 이미 해금한 글·체험에는 해금 가격을 보여주지 않는다 */
     .ex-it, .adv-it { flex-wrap: wrap; } .ex-it .ex-tx, .adv-it .adv-tx { min-width: 9.5rem; }   /* 좁은 화면에서는 막대·가격 칩이 글 아래 줄로 내려간다 */
     @media (max-width: 640px) { .ex-it .tk-meta { margin-left: 3.3rem; } .adv-it .tk-meta { margin-left: 4.2rem; } }
     .tk-meta { flex: none; display: inline-flex; align-items: center; gap: .5rem; margin-left: auto; }
