@@ -10353,24 +10353,79 @@
       });
     }
 
+    // 단계 글(제목·설명·범례·이론 칩)을 root 안에 채운다. 실제 화면과, 높이를 재기 위한 숨은 복제본이 같은 함수를 쓴다
+    function fjFillInfo(root, s) {
+      const q = (id) => root.querySelector('#' + id);
+      q('fjTag').textContent = s.sub.split(' · ')[0] + ' / ' + FJ_STAGES.length + '단계';
+      q('fjTitle').textContent = s.title; q('fjSub').textContent = s.sub.split(' · ')[1];
+      q('fjWhat').textContent = s.what; q('fjWhy').textContent = s.why;
+      const note = q('fjNote'); note.hidden = !s.note; note.textContent = s.note ? '🔁 ' + s.note : '';
+      const th = q('fjTheories'); th.replaceChildren();
+      const list = (typeof allTheories !== 'undefined' ? allTheories : []).filter((t) => t.category === FJ_FOLDER && t.subject === s.sub2).slice(0, 5);
+      if (!list.length) { const e = document.createElement('span'); e.className = 'fj-chip'; e.textContent = '이론을 불러오는 중이에요'; th.appendChild(e); }
+      list.forEach((t) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'fj-chip'; b.textContent = t.title; b.onclick = () => { fjStop(); fjLearn({ level: 'detail', category: t.category, subject: t.subject, theoryId: t.id }); }; th.appendChild(b); });
+    }
+    function fjFillLegend(root, s) {
+      const lg = root.querySelector('#fjLegend'); lg.replaceChildren();
+      s.legend.forEach(([k, label]) => { const sp = document.createElement('span'); const dot = document.createElement('i'); dot.style.background = 'var(--fj-' + k + ')'; sp.append(dot, document.createTextNode(label)); lg.appendChild(sp); });
+    }
+    // 단계마다 글(오른쪽)과 범례(그림 아래) 길이가 달라 화면 높이가 출렁이면 아래 버튼이 단계마다 위아래로 움직인다
+    // -> 숨은 복제본에 모든 단계를 채워 보고 가장 긴 높이로 두 칸의 최소 높이를 고정한다
+    function fjLockH() {
+      const info = document.querySelector('.fj-info'), cv = document.querySelector('.fj-canvas'); if (!info || !cv || !info.offsetWidth) return;
+      info.style.minHeight = ''; cv.style.minHeight = '';
+      const hide = (el, w) => { el.removeAttribute('aria-live'); el.setAttribute('aria-hidden', 'true'); el.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;left:-9999px;top:0;height:auto;width:${w}px`; return el; };
+      const pi = hide(info.cloneNode(true), info.offsetWidth), pc = hide(cv.cloneNode(true), cv.offsetWidth);
+      info.parentNode.appendChild(pi); info.parentNode.appendChild(pc);
+      let hi = 0, hc = 0; FJ_STAGES.forEach((s) => { fjFillInfo(pi, s); fjFillLegend(pc, s); hi = Math.max(hi, pi.offsetHeight); hc = Math.max(hc, pc.offsetHeight); });
+      pi.remove(); pc.remove(); const h = Math.max(hi, hc) + 'px'; info.style.minHeight = h; cv.style.minHeight = h;
+    }
+    // 영어 화면처럼 글이 나중에 번역되거나 이론 목록이 늦게 불러와져 실제 글이 미리 잰 값보다 길어지면, 그 높이로 키워 둔다 (줄어들지는 않는다)
+    function fjGrow() {
+      const info = document.querySelector('.fj-info'), cv = document.querySelector('.fj-canvas'); if (!info || !cv || !info.offsetWidth) return;
+      const mi = info.style.minHeight, mc = cv.style.minHeight;
+      info.style.minHeight = cv.style.minHeight = '0px'; info.style.alignSelf = cv.style.alignSelf = 'start';
+      const nat = Math.max(info.offsetHeight, cv.offsetHeight), cur = parseFloat(mi) || 0;
+      info.style.alignSelf = cv.style.alignSelf = '';
+      const h = Math.max(nat, cur) + 'px'; info.style.minHeight = h; cv.style.minHeight = h;
+    }
+    // 영어 화면은 글이 나중에 번역돼 처음 잰 값보다 길어진다. 숨은 복제본에 단계를 하나씩 채우고 번역될 시간을 준 뒤 다시 재서 미리 높이를 맞춰 둔다
+    let fjWarmTok = 0;
+    function fjWarm() {
+      const info = document.querySelector('.fj-info'), cv = document.querySelector('.fj-canvas'); if (!info || !cv || !info.offsetWidth || !window.I18N_EN || document.documentElement.lang !== 'en') return;
+      const tok = ++fjWarmTok, hide = (el, w) => { el.removeAttribute('aria-live'); el.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;left:-9999px;top:0;height:auto;min-height:0;align-self:start;width:${w}px`; return el; };
+      const pi = hide(info.cloneNode(true), info.offsetWidth), pc = hide(cv.cloneNode(true), cv.offsetWidth); info.parentNode.append(pi, pc);
+      let k = 0, max = 0;
+      const next = () => {
+        if (tok !== fjWarmTok || currentViewId !== 'view-flow') { pi.remove(); pc.remove(); return; }
+        if (k > 0) max = Math.max(max, pi.offsetHeight, pc.offsetHeight);
+        if (k >= FJ_STAGES.length) { pi.remove(); pc.remove(); const cur = parseFloat(info.style.minHeight) || 0; if (max > cur) { info.style.minHeight = cv.style.minHeight = max + 'px'; } return; }
+        fjFillInfo(pi, FJ_STAGES[k]); fjFillLegend(pc, FJ_STAGES[k]); k++; setTimeout(next, 45);
+      };
+      next();
+    }
+    let fjMo = null;
+    function fjWatch() {
+      if (fjMo || !window.MutationObserver) return; let q = 0;
+      fjMo = new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; if (currentViewId === 'view-flow') fjGrow(); }); });
+      fjMo.observe(document.querySelector('.fj-stage'), { childList: true, characterData: true, subtree: true });
+    }
     function fjGo(i) {
-      fjIdx = Math.max(0, Math.min(FJ_STAGES.length - 1, i)); const s = FJ_STAGES[fjIdx], n = fjIdx + 1;
+      const prev = fjIdx; fjIdx = Math.max(0, Math.min(FJ_STAGES.length - 1, i)); const s = FJ_STAGES[fjIdx], n = fjIdx + 1;
       fjBuildSvg(); const svg = fjEl('fjSvg'); svg.dataset.stage = String(n);
       svg.setAttribute('aria-label', FJ_LABELS[s.scene] + ' — ' + s.n);
       svg.querySelectorAll('.fj-scene').forEach((g) => g.classList.toggle('on', g.dataset.scene === s.scene));
       svg.querySelectorAll('.fj-ly').forEach((g) => g.classList.toggle('on', g.dataset.s.split(',').includes(String(n))));
-      fjEl('fjRail').querySelectorAll('.fj-step').forEach((b, k) => { b.classList.toggle('on', k === fjIdx); b.classList.toggle('done', k < fjIdx); b.setAttribute('aria-selected', k === fjIdx ? 'true' : 'false'); if (k === fjIdx) { try { b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' }); } catch (e) {} } });
+      const rail = fjEl('fjRail');
+      rail.querySelectorAll('.fj-step').forEach((b, k) => {
+        b.classList.toggle('on', k === fjIdx); b.classList.toggle('done', k < fjIdx); b.setAttribute('aria-selected', k === fjIdx ? 'true' : 'false');
+        if (k === fjIdx && rail.scrollWidth > rail.clientWidth) rail.scrollTo({ left: b.offsetLeft - (rail.clientWidth - b.offsetWidth) / 2, behavior: 'smooth' });   // 레일만 가로로 움직인다 (scrollIntoView 는 페이지까지 세로로 끌고 가 화면이 튄다)
+      });
       fjEl('fjBar').style.width = (n / FJ_STAGES.length * 100) + '%';
-      fjEl('fjTag').textContent = s.sub.split(' · ')[0] + ' / ' + FJ_STAGES.length + '단계';
-      fjEl('fjTitle').textContent = s.title; fjEl('fjSub').textContent = s.sub.split(' · ')[1];
-      fjEl('fjWhat').textContent = s.what; fjEl('fjWhy').textContent = s.why;
-      const note = fjEl('fjNote'); note.hidden = !s.note; note.textContent = s.note ? '🔁 ' + s.note : '';
-      const lg = fjEl('fjLegend'); lg.replaceChildren();
-      s.legend.forEach(([k, label]) => { const sp = document.createElement('span'); const dot = document.createElement('i'); dot.style.background = 'var(--fj-' + k + ')'; sp.append(dot, document.createTextNode(label)); lg.appendChild(sp); });
-      const th = fjEl('fjTheories'); th.replaceChildren();
-      const list = (typeof allTheories !== 'undefined' ? allTheories : []).filter((t) => t.category === FJ_FOLDER && t.subject === s.sub2).slice(0, 5);
-      if (!list.length) { const e = document.createElement('span'); e.className = 'fj-chip'; e.textContent = '이론을 불러오는 중이에요'; th.appendChild(e); }
-      list.forEach((t) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'fj-chip'; b.textContent = t.title; b.onclick = () => { fjStop(); fjLearn({ level: 'detail', category: t.category, subject: t.subject, theoryId: t.id }); }; th.appendChild(b); });
+      fjFillLegend(document, s);
+      const info = document.querySelector('.fj-info'); fjFillInfo(info, s);
+      fjGrow();
+      if (prev !== fjIdx && currentViewId === 'view-flow') swAnim(info, fjIdx - prev);   // 글도 그림처럼 방향을 따라 부드럽게 넘어간다
       fjEl('fjPrev').disabled = fjIdx === 0;
       const nx = fjEl('fjNext'); nx.disabled = fjIdx === FJ_STAGES.length - 1; nx.textContent = fjIdx === FJ_STAGES.length - 2 ? '마지막 단계 →' : '다음 단계 →';
     }
@@ -10388,7 +10443,7 @@
     function fjLearn(state) { returnCtx = { view: 'view-flow', label: RETURN_LABEL['view-flow'] }; navTo('view-learning', state); }
     function fjOpen() { fjIdx = 0; try { localStorage.setItem('semiCbtIntroSeen', '1'); } catch (e) {} navTo('view-flow'); }   // 로비 입구에서는 처음부터, 폴더에서 돌아올 때는 보던 단계 그대로
     function enterFlow() {
-      fjRenderRail(); fjBuildSvg(); fjStop(); fjGo(fjIdx);
+      fjRenderRail(); fjBuildSvg(); fjStop(); fjGo(fjIdx); fjLockH(); fjWatch(); fjWarm(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (currentViewId === 'view-flow') fjLockH(); });
       const base = fjEl('fjBase'); base.replaceChildren();
       FJ_BASE.forEach((b) => {
         const el = document.createElement('button'); el.type = 'button';
@@ -10820,6 +10875,7 @@
         <div class="gl-subs">${f.subs.map(s => `<button type="button" class="gl-sub" onclick="glOpenSub('${jsq(f.name)}','${jsq(s)}')"><span>📂 ${escH(s)}</span><i>${glData.terms.filter(t => t.f === f.name && t.s === s).length}</i></button>`).join('')}</div></section>`).join('');
     }
 
+    let fjRz = null; window.addEventListener('resize', () => { clearTimeout(fjRz); fjRz = setTimeout(() => { if (currentViewId === 'view-flow') fjLockH(); }, 150); });
     document.addEventListener('keydown', (e) => {
       if (currentViewId !== 'view-flow' || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '')) return;
       if (e.key === 'ArrowRight') fjStep(1); else if (e.key === 'ArrowLeft') fjStep(-1);

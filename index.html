@@ -1020,6 +1020,7 @@ button.fj-chip { cursor:pointer; transition:border-color .15s,color .15s; } butt
 .fj-ctl { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1rem; align-items:center; }
 .fj-btn { font-size:.84rem; font-weight:700; padding:.55rem .95rem; border-radius:.75rem; border:1px solid var(--fj-line); background:var(--fj-card); color:var(--fj-ink); transition:border-color .15s, background .15s, opacity .15s; }
 .fj-btn:hover:not(:disabled) { border-color:var(--fj-acc); }
+.fj-info { display:flex; flex-direction:column; } .fj-ctl-main { margin-top:auto; padding-top:1rem; }   /* 글 길이와 상관없이 단계 버튼이 늘 같은 자리에 있도록 아래로 붙인다 */
 .fj-btn:disabled { opacity:.35; cursor:default; }
 .fj-btn.main { background:var(--fj-acc); border-color:var(--fj-acc); color:#fff; } html.dark .fj-btn.main { color:#0a1020; }
 .fj-btn.ghost { margin-left:auto; }
@@ -1040,7 +1041,7 @@ button.fj-chip { cursor:pointer; transition:border-color .15s,color .15s; } butt
   .fj-info h3 { font-size:1.2rem; }
   .fj-entry { padding:.5rem .8rem; gap:.65rem; border-radius:.85rem; } .fj-entry svg { width:1.9rem; height:1.9rem; } .fj-entry .t { font-size:.88rem; } .fj-entry .s, .fj-entry .go { display:none; }
 }
-@media (prefers-reduced-motion:reduce) { .fj-ly,.fj-scene,.fj-bar i,.fj-step,.fj-step b { transition:none; } .fj-ly { transform:none; } }
+@media (prefers-reduced-motion:reduce) { .fj-ly,.fj-scene,.fj-bar i,.fj-step,.fj-step b { transition:none; } .fj-ly { transform:none; }  .sw-l, .sw-r { animation:none; } }
 
 /* ===== 🧪 장비 체험 (식각) ===== */
 #view-lab { --lb-ink:#0f172a; --lb-sub:#475569; --lb-mute:#64748b; --lb-line:#e2e8f0; --lb-card:#ffffff; --lb-soft:#f1f5f9; --lb-acc:#4f46e5; --lb-accbg:#eef2ff; --lb-on:#ffffff; max-width:72rem; margin-inline:auto; }
@@ -1952,7 +1953,7 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
             <h4>왜 필요할까요?</h4><p id="fjWhy"></p>
             <div class="fj-note" id="fjNote" hidden></div>
             <h4>이 단계의 이론</h4><div class="fj-chips" id="fjTheories"></div>
-            <div class="fj-ctl">
+            <div class="fj-ctl fj-ctl-main">
               <button class="fj-btn" id="fjPrev" onclick="fjStep(-1)">← 이전</button>
               <button class="fj-btn main" id="fjNext" onclick="fjStep(1)">다음 단계 →</button>
               <button class="fj-btn ghost" id="fjPlay" onclick="fjTogglePlay()">▶ 자동 재생</button>
