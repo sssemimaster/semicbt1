@@ -757,9 +757,9 @@
         if (si.value.trim() !== '') { si.value = ''; applyState('view-learning', learnState); return; }
         const lv = learnState.level;
         if (lv === 'home') { const p = prevNav(); if (p && p.v === 'view-lobby') history.back(); else navTo('view-lobby'); return; }
-        const up = lv === 'detail' ? { level: 'subject' } : lv === 'subject' ? { level: 'category' } : { level: 'home' };
+        const up = lv === 'detail' ? { level: 'subject' } : lv === 'subject' ? { level: 'category' } : lv === 'category' && learnState.category !== ADV_CAT ? { level: 'basic' } : { level: 'home' };   // 기본 이론의 폴더에서는 한 단계 위가 '기본 이론'
         const want = { ...learnState, ...up }, p = prevNav();
-        if (p && p.v === 'view-learning' && p.l.level === want.level && (want.level === 'home' || p.l.category === want.category) && (want.level !== 'subject' || p.l.subject === want.subject)) history.back();
+        if (p && p.v === 'view-learning' && p.l.level === want.level && (want.level === 'home' || want.level === 'basic' || p.l.category === want.category) && (want.level !== 'subject' || p.l.subject === want.subject)) history.back();
         else navTo('view-learning', up);
         return;
       }
@@ -807,7 +807,7 @@
       if (viewId === 'view-search') { const si = document.getElementById('globalSearchInput'); runGlobalSearch(); setTimeout(() => si.focus(), 50); }
       if (viewId === 'view-learning') {
         document.getElementById('theorySearchInput').value = '';
-        if (state.level === 'home') renderHomeDOM(); else if (state.level === 'category') renderSubjectsDOM(state.category); else if (state.level === 'subject') renderTitlesDOM(state.category, state.subject); else if (state.level === 'detail') renderDetailDOM(state.theoryId);
+        if (state.level === 'home') renderHomeDOM(); else if (state.level === 'basic') renderBasicDOM(); else if (state.level === 'category') renderSubjectsDOM(state.category); else if (state.level === 'subject') renderTitlesDOM(state.category, state.subject); else if (state.level === 'detail') renderDetailDOM(state.theoryId);
       } else if (viewId === 'view-note') renderNoteDOM();
       updateReturnBtn(); applyMathRendering();
     }
@@ -815,22 +815,39 @@
     // 📖 백과사전 뷰 (max-w-2xl 사이즈에 맞춘 레이아웃)
     function renderHomeDOM() {
       renderBreadcrumb(); const container = document.getElementById('learningContainer'); container.className = "grid grid-cols-1 sm:grid-cols-2 gap-4"; container.innerHTML = '';
-      const activeCats = FIXED_CATEGORIES.filter(cat => CATEGORY_TREE[cat] || allTheories.some(t => t.category === cat));
-      activeCats.forEach(cat => {
+      // 이론 백과사전 첫 화면: 기본 이론 / 심화 이론 두 갈래. 기본 이론 안에서 분류 폴더를 고른다.
+      const nBasic = basicCats().reduce((a, c) => a + allTheories.filter(t => t.category === c).length, 0), nAdv = allTheories.filter(t => t.category === ADV_CAT).length;
+      container.insertAdjacentHTML('beforeend', `<button type="button" class="bs-fd" onclick="navTo('view-learning',{level:'basic',category:'',subject:''})"><span class="bs-fd-ic" aria-hidden="true">📖</span><div class="min-w-0 flex-1"><span class="bs-fd-tk"><i></i>BASIC</span><h3>기본 이론</h3><p>반도체 기초 · 소자 · 8대 공정 · 차세대 기술을 폴더별로 정리했어요. 순서대로 읽으며 개념을 쌓아 가요.</p></div><span class="bs-fd-n">${nBasic}편 →</span></button>`);
+      if (CATEGORY_TREE[ADV_CAT] || nAdv) {   // 심화 이론: 어두운 기술 문서 테마의 넓은 카드
         const btn = document.createElement('button');
-        if (cat === ADV_CAT) {   // 심화 이론: 어두운 기술 문서 테마의 넓은 카드
-          const n = allTheories.filter(t => t.category === cat).length;
-          btn.className = 'adv-folder'; btn.onclick = () => navTo('view-learning', { level: 'category', category: cat });
-          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(cat)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅 · 현장 직무. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${n}편 →</span>`;
-          container.appendChild(btn); return;
-        }
-        btn.className = "group bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-2xl text-left transition flex items-center gap-4 shadow-sm";
-        btn.onclick = () => navTo('view-learning', { level: 'category', category: cat });
-        btn.innerHTML = `<span class="w-14 h-14 shrink-0 rounded-2xl text-indigo-600 dark:text-cyan-300 bg-indigo-50 dark:bg-[#0f2233] border border-indigo-100 dark:border-[#1e3a5f] flex items-center justify-center text-2xl">📁</span><div class="min-w-0 flex-1"><h3 class="text-[17px] font-bold text-slate-900 dark:text-white leading-snug">${cat}</h3><span class="inline-block mt-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-300">문서 ${allTheories.filter(t => t.category === cat).length}개</span></div><span class="text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 dark:group-hover:text-[#67e8f9] text-2xl leading-none transition">›</span>`;
+        btn.className = 'adv-folder'; btn.onclick = () => navTo('view-learning', { level: 'category', category: ADV_CAT });
+        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(ADV_CAT)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅 · 현장 직무. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${nAdv}편 →</span>`;
         container.appendChild(btn);
-      });
+      }
       container.insertAdjacentHTML('beforeend', `<button onclick="fjOpen()" class="col-span-full group bg-white dark:bg-[#0f1729] border border-dashed border-slate-300 dark:border-white/15 hover:border-indigo-400 dark:hover:border-[#67e8f9] px-5 py-4 rounded-2xl text-left transition flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400"><span class="text-xl">🧭</span><span class="min-w-0"><b class="text-slate-800 dark:text-slate-100">처음이세요?</b> 모래에서 칩이 되기까지 8단계 여정을 따라가 봐요</span><span class="ml-auto font-bold text-indigo-600 dark:text-cyan-300 shrink-0">여정 보기 →</span></button>`);
       container.insertAdjacentHTML('beforeend', `<button onclick="glOpenView()" class="col-span-full group bg-white dark:bg-[#0f1729] border border-dashed border-slate-300 dark:border-white/15 hover:border-indigo-400 dark:hover:border-[#67e8f9] px-5 py-4 rounded-2xl text-left transition flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400"><span class="text-xl">📖</span><span class="min-w-0"><b class="text-slate-800 dark:text-slate-100">용어가 막히나요?</b> 반도체 용어 단어장에서 폴더별로 찾아보세요</span><span class="ml-auto font-bold text-indigo-600 dark:text-cyan-300 shrink-0">단어장 →</span></button>`);
+    }
+
+    // 기본 이론: 심화 이론을 뺀 분류들. 분류마다 폴더 카드 하나 (심화 이론의 폴더 카드와 같은 크기)
+    const basicCats = () => FIXED_CATEGORIES.filter(c => c !== ADV_CAT && (CATEGORY_TREE[c] || allTheories.some(t => t.category === c)));
+    const BASIC_DESC = {
+      '반도체 기초 이론': '반도체가 무엇인지, 전기가 어떻게 흐르는지부터 차근차근 시작해요.',
+      '반도체 소자': '트랜지스터와 메모리처럼 칩 안의 소자가 동작하는 원리를 배워요.',
+      '반도체 8대 공정': '웨이퍼 제조부터 테스트까지, 칩이 만들어지는 순서대로 읽어요.',
+      '차세대 첨단 기술': '차세대 소자와 어드밴스드 패키징 같은 새로운 기술을 살펴봐요.',
+      '기타': '분류에 들지 않은 글을 모아 뒀어요.'
+    };
+    function renderBasicDOM() {
+      renderBreadcrumb(); const container = document.getElementById('learningContainer'); container.className = "grid grid-cols-1 sm:grid-cols-2 gap-4"; container.innerHTML = '';
+      const rd = (pathState && pathState.read) || {}, cats = basicCats();
+      const all = allTheories.filter(t => t.category !== ADV_CAT), done = all.filter(t => rd[t.id]).length;
+      container.insertAdjacentHTML('beforeend', `<div class="gr-top col-span-full"><p>폴더를 골라 시작해 보세요</p><span>읽음 ${done}/${all.length}편</span></div>`);
+      cats.forEach(cat => {
+        const n = allTheories.filter(t => t.category === cat).length, btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'bs-fd'; btn.onclick = () => navTo('view-learning', { level: 'category', category: cat });
+        btn.innerHTML = `<span class="bs-fd-ic" aria-hidden="true">📁</span><div class="min-w-0 flex-1"><span class="bs-fd-tk"><i></i>FOLDER</span><h3>${escH(cat)}</h3><p>${escH(BASIC_DESC[cat] || '')}</p></div><span class="bs-fd-n">${n}편 →</span>`;
+        container.appendChild(btn);
+      });
     }
 
     function renderSubjectsDOM(category) {
@@ -8893,10 +8910,12 @@
 
     let mdTildeOff = false;
     function renderBreadcrumb() {
-      const bc = document.getElementById('breadcrumbContainer'); if (learnState.level === 'home') { bc.classList.add('hidden'); bc.innerHTML = ''; return; } bc.classList.remove('hidden');
+      const bc = document.getElementById('breadcrumbContainer'), lv = learnState.level; if (lv === 'home') { bc.classList.add('hidden'); bc.innerHTML = ''; return; } bc.classList.remove('hidden');
+      const sep = `<span class="text-indigo-200 dark:text-[#1e3a5f]">❯</span>`, cur = 'text-slate-600 dark:text-white font-bold px-2 hover:underline';
       bc.innerHTML = `<button onclick="navTo('view-learning', {level:'home'})" class="text-indigo-700 dark:text-[#67e8f9] font-bold px-2 hover:underline">📚 백과사전</button>`;
-      if (learnState.level !== 'home') bc.innerHTML += `<span class="text-indigo-200 dark:text-[#1e3a5f]">❯</span><button onclick="navTo('view-learning', {level:'category', category: '${learnState.category}'})" class="text-slate-600 dark:text-white font-bold px-2 hover:underline">${learnState.category}</button>`;
-      if (learnState.level === 'subject' || learnState.level === 'detail') bc.innerHTML += `<span class="text-indigo-200 dark:text-[#1e3a5f]">❯</span><button onclick="navTo('view-learning', {level:'subject', category: '${learnState.category}', subject: '${learnState.subject}'})" class="text-slate-600 dark:text-white font-bold px-2 hover:underline">${learnState.subject}</button>`;
+      if (lv === 'basic' || (learnState.category && learnState.category !== ADV_CAT)) bc.innerHTML += `${sep}<button onclick="navTo('view-learning', {level:'basic', category:'', subject:''})" class="${cur}">기본 이론</button>`;
+      if (lv !== 'basic') bc.innerHTML += `${sep}<button onclick="navTo('view-learning', {level:'category', category: '${learnState.category}'})" class="${cur}">${learnState.category}</button>`;
+      if (lv === 'subject' || lv === 'detail') bc.innerHTML += `${sep}<button onclick="navTo('view-learning', {level:'subject', category: '${learnState.category}', subject: '${learnState.subject}'})" class="${cur}">${learnState.subject}</button>`;
       bc.scrollLeft = bc.scrollWidth;   // 좁은 화면에서 경로가 길면 현재 위치(오른쪽 끝)가 보이게
     }
 
