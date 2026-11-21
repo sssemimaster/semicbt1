@@ -4329,6 +4329,7 @@ window.I18N_EN = {
 "읽은 뒤 장비 체험에서 같은 조건으로 바로 따라 해 볼 수 있어요.": "After reading, you can follow along under the same conditions in the equipment lab.",
 "연계 체험:": "Linked lab:",
 "가이드 준비 중": "Guide coming soon",
+"막대가 길수록 깊은 내용이에요 · 칩은 해금에 필요한 토큰이에요": "Longer bars mean deeper content · the chip shows the tokens needed to unlock",
 "무료 · 토큰": "Free · tokens",
 "안전 · 생산 용어 · 설비 · 품질까지, 현장의 하루 흐름 순서로 담았어요.": "Safety, production terms, equipment and quality, in the order of a day on the floor.",
 "준비 중 →": "Coming soon →",
