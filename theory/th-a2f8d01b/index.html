@@ -552,6 +552,60 @@
       .adv-st { grid-template-columns: 2rem 1fr; gap: .6rem; } .adv-nd { width: 2rem; height: 2rem; font-size: .72rem; } .adv-st::before { left: 1rem; top: 2rem; }
       .adv-it { padding: .6rem .7rem; gap: .6rem; } .adv-mo { min-width: 2.9rem; font-size: .62rem; } .adv-go { display: none; }
     }
+    /* 일반 이론 로드맵 — 흰 카드 + 인디고/시안 (심화 이론의 남색 도면과 구분) */
+    .gr-rm { grid-column: 1 / -1; display: flex; flex-direction: column; gap: .9rem; }
+    .gr-top { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; font-size: .84rem; color: #64748b; }
+    .gr-top p { margin: 0; word-break: keep-all; }
+    .gr-top span { font-weight: 800; font-size: .76rem; padding: .2rem .65rem; border-radius: 999px; color: #4338ca; background: #eef2ff; }
+    .gr-sl { margin: 0; padding: 0; list-style: none; }
+    .gr-st { position: relative; display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 1rem; padding-bottom: 1.1rem; }
+    .gr-st:last-child { padding-bottom: 0; }
+    .gr-st::before { content: ''; position: absolute; left: 1.5rem; top: 3rem; bottom: -.2rem; border-left: 2px dashed #c7d2fe; }
+    .gr-st:last-child::before { display: none; }
+    .gr-st.full::before { border-left-style: solid; border-color: #6366f1; }
+    .gr-nd { position: relative; z-index: 1; width: 3rem; height: 3rem; display: grid; place-items: center; font-size: 1.35rem; border-radius: 1rem; background: #eef2ff; border: 1px solid #c7d2fe; box-shadow: 0 0 0 4px #f8fafc; }
+    .gr-st.full .gr-nd { background: #4f46e5; border-color: #4f46e5; }
+    .gr-cd { min-width: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow: hidden; }
+    .gr-h { display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; padding: .9rem 1.1rem .75rem; background: transparent; border: 0; cursor: pointer; }
+    .gr-hx { min-width: 0; flex: 1; }
+    .gr-hx b { display: block; font-size: 1.05rem; font-weight: 800; color: #0f172a; line-height: 1.35; word-break: keep-all; }
+    .gr-hx em { display: block; margin-top: .15rem; font-style: normal; font-size: .8rem; color: #64748b; line-height: 1.5; word-break: keep-all; }
+    .gr-hm { display: flex; flex-direction: column; align-items: flex-end; gap: .1rem; flex: none; font-size: .7rem; font-weight: 700; color: #94a3b8; white-space: nowrap; }
+    .gr-hm .gr-rd { color: #4f46e5; }
+    .gr-st.full .gr-hm .gr-rd { color: #059669; }
+    .gr-go { flex: none; font-size: 1.5rem; line-height: 1; color: #cbd5e1; transition: color .15s, transform .15s; }
+    .gr-h:hover .gr-go { color: #6366f1; transform: translateX(2px); }
+    .gr-bar { height: 3px; margin: 0 1.1rem; background: #eef2ff; border-radius: 2px; overflow: hidden; }
+    .gr-bar i { display: block; height: 100%; background: linear-gradient(90deg, #6366f1, #22d3ee); border-radius: 2px; }
+    .gr-il { margin: 0; padding: .7rem .8rem .85rem; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem .5rem; }
+    .gr-it { display: flex; align-items: center; gap: .6rem; width: 100%; height: 100%; text-align: left; padding: .5rem .6rem; border-radius: .65rem; border: 1px solid transparent; background: #f8fafc; cursor: pointer; transition: background .15s, border-color .15s; }
+    .gr-it:hover { background: #eef2ff; border-color: #a5b4fc; }
+    .gr-ix { flex: none; width: 1.55rem; height: 1.55rem; display: grid; place-items: center; font-size: .72rem; font-weight: 800; border-radius: 999px; color: #4338ca; background: #e0e7ff; }
+    .gr-it.done .gr-ix { color: #fff; background: #10b981; }
+    .gr-tt { min-width: 0; flex: 1; }
+    .gr-tt b { display: block; font-size: .88rem; font-weight: 700; color: #1e293b; line-height: 1.35; word-break: keep-all; }
+    .gr-tt em { display: block; margin-top: .05rem; font-style: normal; font-size: .68rem; font-weight: 600; color: #94a3b8; }
+    .gr-it .pm-lk { margin-left: .35rem; }
+    html.dark .gr-top { color: #94a3b8; }
+    html.dark .gr-top span { color: #67e8f9; background: rgba(103,232,249,.1); }
+    html.dark .gr-st::before { border-color: #1e3a5f; }
+    html.dark .gr-st.full::before { border-color: #22d3ee; }
+    html.dark .gr-nd { background: #0f2233; border-color: #1e3a5f; box-shadow: 0 0 0 4px #0a1020; }
+    html.dark .gr-st.full .gr-nd { background: #0e7490; border-color: #22d3ee; }
+    html.dark .gr-cd { background: #0f1729; border-color: rgba(255,255,255,.1); box-shadow: none; }
+    html.dark .gr-hx b { color: #fff; } html.dark .gr-hx em { color: #94a3b8; }
+    html.dark .gr-hm { color: #64748b; } html.dark .gr-hm .gr-rd { color: #67e8f9; } html.dark .gr-st.full .gr-hm .gr-rd { color: #6ee7b7; }
+    html.dark .gr-h:hover .gr-go { color: #67e8f9; }
+    html.dark .gr-bar { background: rgba(255,255,255,.08); } html.dark .gr-bar i { background: linear-gradient(90deg, #22d3ee, #818cf8); }
+    html.dark .gr-it { background: rgba(255,255,255,.04); } html.dark .gr-it:hover { background: #0f2233; border-color: #1e3a5f; }
+    html.dark .gr-ix { color: #67e8f9; background: #0f2233; } html.dark .gr-it.done .gr-ix { color: #052e1f; background: #34d399; }
+    html.dark .gr-tt b { color: #e2e8f0; } html.dark .gr-tt em { color: #64748b; }
+    @media (max-width: 640px) {
+      .gr-st { grid-template-columns: 2.3rem minmax(0, 1fr); gap: .6rem; } .gr-nd { width: 2.3rem; height: 2.3rem; font-size: 1.05rem; border-radius: .75rem; box-shadow: 0 0 0 3px #f8fafc; } html.dark .gr-nd { box-shadow: 0 0 0 3px #0a1020; }
+      .gr-st::before { left: 1.15rem; top: 2.3rem; }
+      .gr-h { padding: .75rem .8rem .65rem; align-items: flex-start; flex-wrap: wrap; gap: .4rem; } .gr-hm { flex-direction: row; gap: .6rem; order: 3; width: 100%; } .gr-go { display: none; }
+      .gr-bar { margin: 0 .8rem; } .gr-il { grid-template-columns: 1fr; padding: .6rem .5rem .7rem; }
+    }
     .adv-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.3rem 2rem; border-top: 1px solid var(--adv-line); background: linear-gradient(90deg, var(--adv-amt), transparent 70%); }
     .adv-cta b { color: var(--adv-h); font-size: 1.02rem; }
     .adv-cta p { margin: .25rem 0 0; font-size: .86rem; color: var(--adv-dim); word-break: keep-all; }
