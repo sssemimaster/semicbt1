@@ -467,7 +467,7 @@
     // 아이콘: index.html 맨 위의 SVG 스프라이트(#i-…)를 가리킨다. 이모지 대신 쓰는 선 아이콘(ico)과 토큰 코인(TK)
     const ico = (n, c) => `<svg class="ic ln${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
     const TK = (c) => `<svg class="ic tk${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-tok"/></svg>`;
-    const PAY = { packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', faqOpen: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
+    const PAY = { view: 'store', packs: [{ id: 'p15', tokens: 15, amount: 3000 }, { id: 'p40', tokens: 40, amount: 7500 }, { id: 'p100', tokens: 100, amount: 17000 }], orders: null, busy: false, busyPack: '', faqOpen: false, err: '', note: '', sdkP: null, cfgP: null, key: undefined, resuming: false };   // 금액은 화면 안내용일 뿐, 실제 금액은 서버가 정한다
     const PAY_PENDING = 'semiPayPending', PAY_BACK = 'semiPayBack';
     // 영어 화면에서는 달러 환산액을 같이 보여 준다(실제 결제는 원화, 카드사가 환산). 환율은 표시용 고정값
     const USD_KRW = 1500;
@@ -483,14 +483,16 @@
       if (!PAY.sdkP) PAY.sdkP = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://js.tosspayments.com/v2/standard'; s.onload = () => (window.TossPayments ? res() : rej(new Error('sdk'))); s.onerror = () => rej(new Error('sdk')); document.head.appendChild(s); }).catch((e) => { PAY.sdkP = null; throw e; });
       return PAY.sdkP;
     }
-    function payOpen() {
+    function payOpen(view) {
       if (!acct.user) { openAcct(); return; }
       closeAcct(); try { earnClose(); } catch (e) {}
       let o = document.getElementById('payM');
       if (!o) { o = document.createElement('div'); o.id = 'payM'; o.className = 'pmg'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', '토큰 충전'); o.addEventListener('click', (e) => { if (e.target === o) payClose(); }); document.body.appendChild(o); }
-      PAY.err = ''; PAY.note = ''; payRender(); requestAnimationFrame(() => o.classList.add('on'));
+      PAY.view = view === 'history' ? 'history' : 'store'; PAY.err = ''; PAY.note = ''; payRender(); requestAnimationFrame(() => o.classList.add('on'));
       payClientKey().then(() => payRender()); payLoadOrders();
     }
+    // 결제 내역은 충전 화면에 늘어놓지 않고 따로 연다 (충전 화면 ⇄ 결제 내역 화면)
+    function payView(v) { PAY.view = v === 'history' ? 'history' : 'store'; PAY.err = ''; PAY.note = ''; payRender(); const c = document.querySelector('#payM .pay-card'); if (c) c.scrollTop = 0; }
     function payClose() { const o = document.getElementById('payM'); if (!o) return; o.classList.remove('on'); setTimeout(() => o.remove(), 220); }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('payM')) payClose(); });
     // ===== 토큰 얻는 법 안내 창: 무료로 받는 방법·충전·상한·쓰임새를 한 곳에 정리 =====
@@ -549,24 +551,35 @@
       // 환불은 눈에 띄는 버튼이 아니라 '환불 문의' 안쪽(접힌 상태)에서만 신청한다
       const refundable = (PAY.orders || []).filter((x) => x.status === 'paid' && x.refundableTokens > 0);
       const rfList = PAY.orders === null ? '' : refundable.length
-        ? `<ul class="pay-rfl">${refundable.map((x) => `<li><span>${payDate(x.paidAt)} 결제 · ${x.tokens}토큰<small>미사용 ${x.refundableTokens}토큰 · ${won(x.refundAmount)} 환불 가능${x.refundUntil ? ` (${payDate(x.refundUntil)}까지)` : ''}</small></span><button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 신청</button></li>`).join('')}</ul>`
+        ? `<ul class="pay-rfl">${refundable.map((x) => `<li><span>${payDate(x.paidAt)} 결제 · ${x.tokens}토큰<small>미사용 ${x.refundableTokens}토큰 · ${won(x.refundAmount)} 환불 가능${x.refundUntil ? ` <span>(${payDate(x.refundUntil)}까지)</span>` : ''}</small></span><button type="button" class="pay-rf" ${PAY.busy ? 'disabled' : ''} onclick="payRefund('${x.orderId}')">환불 신청</button></li>`).join('')}</ul>`
         : `<p class="pay-rfn">지금 환불할 수 있는 결제가 없어요. (결제 후 7일 이내이고 미사용 유료 토큰이 남아 있어야 해요)</p>`;
       const pend = (() => { try { return !!sessionStorage.getItem(PAY_PENDING); } catch (e) { return false; } })();
+      const pendMsg = pend ? '<p class="pay-msg ok"><b>결제를 마무리하는 중이에요.</b> 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : '';
+      const msgs = `${PAY.err ? `<p class="pay-msg err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="pay-msg ok">${escH(PAY.note)}</p>` : ''}`;
+      const FAQ = `<details class="pay-faq"${PAY.faqOpen ? ' open' : ''} ontoggle="PAY.faqOpen = this.open"><summary>환불 문의</summary><div class="pay-faq-b">
+          <ul class="pmg-pts pay-pts"><li><b>결제 후 7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
+          ${rfList}</div></details>`;
+      if (PAY.view === 'history') {
+        o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
+          <button type="button" class="pay-back" onclick="payView('store')">← 토큰 충전</button>
+          <span class="pmg-tick"><i></i>PAYMENTS</span><h3>결제 내역</h3>
+          ${pendMsg}${msgs}
+          <ul class="pay-rows">${rows}</ul>
+          ${FAQ}
+          <button type="button" class="pay-open" onclick="payView('store')">${TK()} 토큰 충전하기</button></div>`;
+        return;
+      }
       o.innerHTML = `<div class="pmg-card pay-card"><button type="button" class="pmg-x" aria-label="닫기" onclick="payClose()">✕</button>
         <span class="pmg-tick"><i></i>TOKEN STORE</span><h3>토큰 충전</h3>
         <div class="pay-bal">${TK('pay-bal-tk')}<div><small>내 토큰</small><b>${have}</b></div><div class="pay-bal-s"><span>무료 ${PRM.free}</span><span>유료 ${PRM.paid}</span></div></div>
         <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 무료로 토큰 얻는 법</button>
-        ${pend ? '<p class="pay-msg ok"><b>결제를 마무리하는 중이에요.</b> 오래 걸리면 <button type="button" class="underline" onclick="payResume()">다시 확인</button>을 눌러 주세요.</p>' : ''}
+        ${pendMsg}
         ${ready ? (test ? `<p class="pay-test">${ico('flask')}<span>테스트 결제 모드 · 실제로 요금이 청구되지 않아요</span></p>` : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
         <div class="pay-sec"><span class="pmg-tick"><i></i>CHARGE</span></div>
         <div class="pay-packs">${packs}</div>
         <p class="pay-secure">${ico('shield')}<span>카드 결제 · 토스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
-        ${PAY.err ? `<p class="pay-msg err">${escH(PAY.err)}</p>` : ''}${PAY.note ? `<p class="pay-msg ok">${escH(PAY.note)}</p>` : ''}
-        <div class="pay-sec"><span class="pmg-tick"><i></i>HISTORY</span></div>
-        <ul class="pay-rows">${rows}</ul>
-        <details class="pay-faq"${PAY.faqOpen ? ' open' : ''} ontoggle="PAY.faqOpen = this.open"><summary>환불 문의</summary><div class="pay-faq-b">
-          <ul class="pmg-pts pay-pts"><li><b>결제 후 7일 이내</b>, 쓰지 않은 유료 토큰은 환불받을 수 있어요</li><li><b>해금에 쓴 토큰은 환불되지 않아요.</b> 해금할 때는 무료 토큰이 먼저 쓰여요</li><li>무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요</li><li>카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요</li></ul>
-          ${rfList}</div></details></div>`;
+        ${msgs}
+        <button type="button" class="earn-link" onclick="payView('history')">${ico('info')} 결제 내역 · 환불 문의</button></div>`;
     }
     async function payStart(packId) {
       if (PAY.busy) return; const P = PAY.packs.find((x) => x.id === packId); if (!P) return;
@@ -813,7 +826,7 @@
       const btn = document.createElement('button');
       if (t.category === ADV_CAT) {
         btn.className = 'adv-title-card'; btn.onclick = () => navTo('view-learning', { level: 'detail', theoryId: t.id });
-        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">${t.lab ? '🔧' : '📘'}</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>${escH(t.equip || 'GUIDE')}${t.premium ? pmLk(t.id) : ''}</span><h3>${escH(t.title)}</h3><p>약 ${t.mins || Math.max(1, Math.round(String(t.content).length / 650))}분 읽기${t.lab && LABS[t.lab] ? ' · 연계 체험: ' + escH(LABS[t.lab].title) : ''}</p></div><span class="adv-folder-n">읽기 →</span>`;
+        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">${t.lab ? '🔧' : '📘'}</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>${escH(t.equip || 'GUIDE')}${t.premium ? pmLk(t.id) : ''}</span><h3>${escH(t.title)}</h3><p><span>약 ${t.mins || Math.max(1, Math.round(String(t.content).length / 650))}분 읽기</span>${t.lab && LABS[t.lab] ? ' · <span>연계 체험:</span> <span>' + escH(LABS[t.lab].title) + '</span>' : ''}</p></div><span class="adv-folder-n">읽기 →</span>`;
         container.appendChild(btn); return;
       }
       btn.className = "bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-xl text-left transition flex items-center w-full shadow-sm";
@@ -7609,7 +7622,7 @@
       // 서버 기록(학습 기록·남은 토큰)부터 지운다. 서버가 거부하면(환불 처리 중·잔액 변경) 아무것도 지우지 않고 멈춘다.
       try { await walletLoad(); } catch (e) {}
       const paid = PRM.paid, free = PRM.free;
-      const tokenMsg = (paid + free) > 0 ? `\n\n⚠ 남은 토큰 ${paid + free}개(무료 ${free} · 유료 ${paid})는 모두 사라져요.${paid > 0 ? '\n미사용 유료 토큰의 환불은 삭제 전에 「토큰 충전 · 결제 내역」에서 신청해 주세요. 삭제하면 환불받을 수 없어요.' : ''}` : '';
+      const tokenMsg = (paid + free) > 0 ? `\n\n⚠ 남은 토큰 ${paid + free}개(무료 ${free} · 유료 ${paid})는 모두 사라져요.${paid > 0 ? '\n미사용 유료 토큰의 환불은 삭제 전에 「결제 내역 · 환불 문의」에서 신청해 주세요. 삭제하면 환불받을 수 없어요.' : ''}` : '';
       if (!confirm('계정에 저장된 학습 기록을 모두 삭제할까요?\n이 기기에 있는 기록은 그대로 남지만, 다른 기기와의 동기화는 끊겨요.\n삭제한 기록은 되돌릴 수 없어요.' + tokenMsg + '\n\n결제·해금 기록은 법령에 따라 5년간 보관돼요.')) return;
       try {
         const r = await apiJson('/account/delete', 'POST', { confirm: true, paid });
@@ -7637,7 +7650,8 @@
           <div class="ac-me">${u.photoURL ? `<img src="${escH(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : '<span>👤</span>'}<div><b>${escH(u.displayName || '구글 계정')}</b><p>${escH(u.email || '')}</p></div></div>
           <div class="ac-stat"><span>${acct.busy ? '동기화 중…' : '마지막 동기화'}</span><b>${acct.busy ? '' : ago(acct.last)}</b></div>
           <div class="ac-stat"><span>토큰</span><b class="ac-tk">${TK()}${PRM.free + PRM.paid}<small>무료 ${PRM.free} · 유료 ${PRM.paid}</small></b></div>
-          <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전 · 결제 내역</button>
+          <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전</button>
+          <button type="button" class="earn-link" onclick="payOpen('history')">${ico('info')} 결제 내역 · 환불 문의</button>
           <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 토큰 얻는 법 보기</button>
           <p class="ac-note">출석 ${attendDays.length}일 · 오답 노트 ${Object.keys(wrongNotes).length}개 · 즐겨찾기 ${starredIds.length}개가 이 계정과 연결돼 있어요. 기록은 이 기기와 계정에 함께 저장돼요.</p>${err}
           <div class="ac-btns"><button type="button" class="pbtn" onclick="syncNow()" ${acct.busy ? 'disabled' : ''}>지금 동기화</button><button type="button" class="ac-ghost" onclick="acctSignOut()">로그아웃</button></div>
