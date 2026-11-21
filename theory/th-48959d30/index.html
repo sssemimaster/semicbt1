@@ -622,58 +622,19 @@
     .adv-rm > .tk-key { margin: -.55rem 0 0; }
     .tk-key { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .5rem; margin: .35rem 0 0; font-size: .74rem; color: #64748b; }
     html.dark .tk-key { color: #94a3b8; }
-    /* 심화 이론 > 현장 직무 로드맵 — 일반 이론(흰 카드+인디고), 장비 사용(남색 도면+앰버)과 구분되는 "작업 지시서" 톤.
-       배경·카드는 사이트 기본 색(흰/슬레이트)을 그대로 쓰고, 주황은 작은 포인트(머리글 표시·등급 칩)에만 쓴다 */
-    .fd-rm { --fd-panel: #ffffff; --fd-soft: #f8fafc; --fd-line: #e2e8f0; --fd-ink: #475569; --fd-dim: #64748b; --fd-h: #0f172a; --fd-or: #ea580c; --fd-sh: 0 1px 2px rgba(15,23,42,.04); display: flex; flex-direction: column; gap: 1rem; }
-    html.dark .fd-rm { --fd-panel: #0f1729; --fd-soft: rgba(255,255,255,.04); --fd-line: rgba(255,255,255,.1); --fd-ink: #cbd5e1; --fd-dim: #94a3b8; --fd-h: #ffffff; --fd-or: #fb923c; --fd-sh: none; }
-    .fd-hero { padding: 1.6rem 1.5rem 1.35rem; border: 1px solid var(--fd-line); border-radius: 1.25rem; background: var(--fd-panel); box-shadow: var(--fd-sh); }
-    .fd-tick { display: inline-flex; align-items: center; gap: .5rem; font: 800 .68rem/1 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Consolas, monospace; letter-spacing: .14em; color: var(--fd-or); }
-    .fd-tick::before { content: ''; width: 1.1rem; height: 2px; border-radius: 2px; background: var(--fd-or); }
-    .fd-hero h3 { margin: .6rem 0 0; font-size: 1.7rem; font-weight: 800; letter-spacing: -.035em; color: var(--fd-h); }
-    .fd-hero p { margin: .5rem 0 0; max-width: 40rem; font-size: .9rem; line-height: 1.7; color: var(--fd-ink); word-break: keep-all; }
-    .fd-stat { display: inline-block; margin-top: .9rem; padding: .3rem .75rem; border-radius: 999px; font-size: .74rem; font-weight: 700; color: var(--fd-dim); background: var(--fd-soft); border: 1px solid var(--fd-line); }
-    .fd-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
-    .fd-lg { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'dp tx pr' 'lm lm lm'; align-items: center; gap: .4rem .7rem; padding: .85rem .95rem .7rem; border: 1px solid var(--fd-line); border-radius: 1rem; background: var(--fd-panel); box-shadow: var(--fd-sh); }
-    .fd-lg .tk-dp { grid-area: dp; } .fd-lg > div { grid-area: tx; min-width: 0; } .fd-lg .tk-pr { grid-area: pr; } .fd-lg .fd-lm { grid-area: lm; }
-    .fd-lg b { display: block; font-size: .9rem; font-weight: 800; color: var(--fd-h); }
-    .fd-lg em { display: block; margin-top: .12rem; font-style: normal; font-size: .72rem; line-height: 1.5; color: var(--fd-dim); word-break: keep-all; }
-    .fd-lm { font-size: .68rem; font-weight: 700; color: var(--fd-dim); padding-top: .45rem; border-top: 1px solid var(--fd-line); }
-    .fd-flow { display: flex; gap: .65rem; overflow-x: auto; padding: .15rem .1rem .35rem; scrollbar-width: thin; }
-    .fd-flow button { position: relative; flex: 1 0 8.4rem; display: flex; flex-direction: column; gap: .35rem; text-align: left; padding: .7rem .85rem .75rem; border: 1px solid var(--fd-line); border-radius: 1rem; background: var(--fd-panel); box-shadow: var(--fd-sh); cursor: pointer; transition: border-color .15s, transform .15s; }
-    .fd-flow button:not(:last-child)::after { content: ''; position: absolute; left: 100%; top: 50%; width: .65rem; height: 2px; background: var(--fd-line); }
-    .fd-flow button:hover { border-color: var(--fd-dim); transform: translateY(-2px); }
-    .fd-fn { font-size: .68rem; font-weight: 700; letter-spacing: .06em; color: var(--fd-dim); }
-    .fd-flow b { font-size: .86rem; font-weight: 800; color: var(--fd-h); word-break: keep-all; }
-    .fd-dots { display: flex; flex-wrap: wrap; gap: 3px; } .fd-dots i { width: 7px; height: 7px; border-radius: 999px; background: var(--fd-line); }
-    .fd-dots i.k1 { background: #16a34a; } .fd-dots i.k2 { background: #ea580c; } .fd-dots i.k3 { background: #334155; }
-    html.dark .fd-dots i.k1 { background: #4ade80; } html.dark .fd-dots i.k2 { background: #fb923c; } html.dark .fd-dots i.k3 { background: #e2e8f0; }
-    .fd-st { scroll-margin-top: 4.5rem; border: 1px solid var(--fd-line); border-radius: 1.25rem; background: var(--fd-panel); box-shadow: var(--fd-sh); overflow: hidden; }
-    .fd-sh { display: flex; align-items: center; gap: .85rem; padding: .9rem 1.15rem; border-bottom: 1px solid var(--fd-line); }
-    .fd-sn0 { flex: none; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 999px; font-size: .74rem; font-weight: 700; color: var(--fd-dim); background: var(--fd-soft); border: 1px solid var(--fd-line); }
-    .fd-sh > div { min-width: 0; flex: 1; } .fd-sh b { display: block; font-size: 1.04rem; font-weight: 800; letter-spacing: -.02em; color: var(--fd-h); word-break: keep-all; }
-    .fd-sh em { display: block; margin-top: .12rem; font-style: normal; font-size: .76rem; color: var(--fd-dim); word-break: keep-all; }
-    .fd-sc { flex: none; font-size: .72rem; font-weight: 700; color: var(--fd-dim); }
-    .fd-sl { display: flex; flex-direction: column; padding: .3rem .45rem .45rem; }
-    .fd-it { display: flex; align-items: center; gap: .85rem; width: 100%; padding: .7rem .7rem; text-align: left; background: transparent; border: 0; border-radius: .8rem; color: var(--fd-ink); }
-    .fd-it + .fd-it { margin-top: 1px; }
-    button.fd-it { cursor: pointer; transition: background .15s; } button.fd-it:hover { background: var(--fd-soft); }
-    .fd-ck { flex: none; display: grid; place-items: center; width: 1.25rem; height: 1.25rem; border: 2px solid var(--fd-line); border-radius: 999px; font-size: .7rem; font-weight: 900; color: #fff; }
-    button.fd-it .fd-ck { border-color: var(--fd-dim); }
-    .fd-it.done .fd-ck { background: #16a34a; border-color: #16a34a; }
-    .fd-it.soon .fd-ck { border-style: dashed; }
-    .fd-tx { min-width: 0; flex: 1; } .fd-tx b { display: block; font-size: .94rem; font-weight: 700; color: var(--fd-h); line-height: 1.4; word-break: keep-all; }
-    .fd-tx em { display: block; margin-top: .12rem; font-style: normal; font-size: .76rem; line-height: 1.5; color: var(--fd-dim); word-break: keep-all; }
-    .fd-it.soon .fd-tx b { color: var(--fd-ink); }
-    .fd-mt { flex: none; display: flex; align-items: center; gap: .6rem; }
-    .fd-sn { flex: none; font-size: .68rem; font-weight: 700; color: var(--fd-dim); padding: .18rem .55rem; border: 1px dashed var(--fd-line); border-radius: 999px; white-space: nowrap; }
-    .fd-rt { flex: none; font-size: .7rem; font-weight: 700; color: var(--fd-dim); white-space: nowrap; }
-    .fd-it .pm-lk { margin-left: .4rem; }
-    @media (max-width: 640px) {
-      .fd-rm { gap: .8rem; } .fd-hero { padding: 1.4rem 1.1rem 1.1rem; border-radius: 1.1rem; } .fd-hero h3 { font-size: 1.45rem; }
-      .fd-legend { grid-template-columns: 1fr; }
-      .fd-st { border-radius: 1.1rem; } .fd-sh { padding: .8rem .9rem; gap: .7rem; }
-      .fd-sl { padding: .2rem .3rem .35rem; } .fd-it { flex-wrap: wrap; padding: .65rem .5rem; gap: .45rem .7rem; } .fd-tx { flex-basis: calc(100% - 2rem); } .fd-mt, .fd-rt { margin-left: 2rem; } .fd-sn { margin-left: auto; }
-    }
+    /* 심화 이론 > 현장 직무: 장비 사용 가이드와 같은 도면 디자인에 테마색만 주황으로 (.fd-o). 바탕은 도면의 남색/흰색 그대로 둔다 */
+    .adv-rm.fd-o, .adv-hero.fd-o { --adv-am: #ea580c; --adv-cy: #c2410c; --adv-strong: #9a3412; --adv-amt: rgba(234,88,12,.07); --adv-cyt: rgba(234,88,12,.07); --adv-grid: rgba(100,116,139,.07); }
+    html.dark .adv-rm.fd-o, html.dark .adv-hero.fd-o { --adv-am: #fb923c; --adv-cy: #fdba74; --adv-strong: #fed7aa; --adv-amt: rgba(251,146,60,.08); --adv-cyt: rgba(251,146,60,.08); --adv-grid: rgba(148,163,184,.05); }
+    .fd-o .adv-it.soon { opacity: .82; } .fd-o .adv-st.soon .adv-nd { color: var(--adv-am); border-color: var(--adv-am); }
+    .fd-tl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+    .fd-tl > div { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'dp tx pr' 'tm tm tm'; align-items: center; gap: .35rem .7rem; padding: .75rem .9rem .6rem; border: 1px solid var(--adv-line); border-radius: 4px; background: var(--adv-panel); }
+    .fd-tl .tk-dp { grid-area: dp; } .fd-tl .fd-tn { grid-area: tx; min-width: 0; } .fd-tl .tk-pr { grid-area: pr; } .fd-tl .fd-tm { grid-area: tm; }
+    .fd-tn b { display: block; font-size: .88rem; font-weight: 800; color: var(--adv-h); }
+    .fd-tn em { display: block; margin-top: .1rem; font-style: normal; font-size: .72rem; line-height: 1.5; color: var(--adv-dim); word-break: keep-all; }
+    .fd-tm { padding-top: .4rem; border-top: 1px dashed var(--adv-line); font: 600 .68rem var(--adv-mono); color: var(--adv-dim); }
+    .fd-rt { flex: none; font: 600 .7rem var(--adv-mono); color: var(--adv-dim); white-space: nowrap; }
+    .fd-sn { flex: none; font: 700 .68rem var(--adv-mono); color: var(--adv-dim); padding: .15rem .45rem; border: 1px dashed var(--adv-line); border-radius: 3px; white-space: nowrap; }
+    @media (max-width: 640px) { .fd-tl { grid-template-columns: 1fr; } .fd-o .adv-it .fd-rt, .fd-o .adv-it .fd-sn { margin-left: 4.2rem; } .fd-o .adv-it .fd-sn { margin-left: auto; } }
     .adv-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.3rem 2rem; border-top: 1px solid var(--adv-line); background: linear-gradient(90deg, var(--adv-amt), transparent 70%); }
     .adv-cta b { color: var(--adv-h); font-size: 1.02rem; }
     .adv-cta p { margin: .25rem 0 0; font-size: .86rem; color: var(--adv-dim); word-break: keep-all; }
