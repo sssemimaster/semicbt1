@@ -9020,7 +9020,7 @@
       root.querySelectorAll('svg text').forEach(el => {
         if (el.dataset.fitDone) return;
         el.dataset.fitDone = '1';
-        const inlineSize = (el.getAttribute('style') || '').match(/font-size:\\s*([\\d.]+)px/);
+        const inlineSize = (el.getAttribute('style') || '').match(/font-size:\s*([\d.]+)px/);
         const base = parseFloat(el.getAttribute('font-size')) || (inlineSize ? parseFloat(inlineSize[1]) : 0) || (el.classList.contains('dg-xs') ? 9.5 : el.classList.contains('dg-lb') ? 10.5 : 11.5);
         let size = base;
         try {
