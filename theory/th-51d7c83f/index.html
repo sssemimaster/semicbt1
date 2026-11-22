@@ -418,6 +418,15 @@
     .dg-bar { stroke: #94a3b8; stroke-width: 4; fill: none; } .dg-line.dg-hl { stroke: var(--hl-accent); stroke-width: 2.6; } rect.dg-hl { fill: none; stroke: var(--hl-accent); stroke-width: 2.4; } .dg-hlp { stroke: var(--hl-accent); stroke-width: 2.4; }
     @media (max-width: 520px) { .dg-t { font-size: 16px; } .dg-t.dg-sub { font-size: 14px; } .dg-on, .dg-off { font-size: 18px; } }
     .dg-t.dg-lb { font-size: 12px; font-weight: 600; } .dg-t.dg-lb.dg-xs { font-size: 10.5px; font-weight: 500; opacity: .85; }
+    /* English SVG labels are longer; keep diagrams readable on desktop and mobile. */
+    .lang-en .dg-t { font-size: 11px; }
+    .lang-en .dg-t.dg-sub { font-size: 9.5px; }
+    .lang-en .dg-t.dg-lb { font-size: 10px; }
+    .lang-en .dg-t.dg-lb.dg-xs { font-size: 8.5px; }
+    .lang-en figure.dg .dg-btn { font-size: .68rem; line-height: 1.2; padding: .38rem .48rem; white-space: normal; }
+    .lang-en figure.dg .dg-title { font-size: .9rem; line-height: 1.25; }
+    .lang-en figure.dg .dg-desc { font-size: .82rem; line-height: 1.55; }
+
     @media (max-width: 520px) { .dg-t.dg-lb { font-size: 12.5px; } .dg-t.dg-lb.dg-xs { font-size: 11px; } }
     figure.dg.dg-wide .dg-svg svg { max-width: 560px; }
     @keyframes dgflow { to { stroke-dashoffset: -14; } }

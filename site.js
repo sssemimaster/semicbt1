@@ -1050,8 +1050,8 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideThTip(); });
     window.addEventListener('scroll', hideThTip, { passive: true, capture: true }); window.addEventListener('resize', hideThTip);
     // 공통 도우미
-    const dgT = (x, y, str, cls = '', anchor = 'middle') => `<text class="dg-t ${cls}" x="${x}" y="${y}" text-anchor="${anchor}">${escH(str)}</text>`;
-    const dgSvg = (label, body, vb = '0 0 400 300') => `<svg viewBox="${vb}" role="img" aria-label="${escH(label)}">${body}</svg>`;
+    const dgT = (x, y, str, cls = '', anchor = 'middle') => `<text class="dg-t ${cls}" x="${x}" y="${y}" text-anchor="${anchor}">${escH(typeof T === 'function' ? T(str) : str)}</text>`;
+    const dgSvg = (label, body, vb = '0 0 400 300') => `<svg viewBox="${vb}" role="img" aria-label="${escH(typeof T === 'function' ? T(label) : label)}">${body}</svg>`;
     const dgFlow = (d, rev) => `<path class="dg-flow ${rev ? 'rev' : ''}" d="${d}"/>`;
     const dgArrow = (x1, y1, x2, y2, cls = 'dg-line') => {
       const a = Math.atan2(y2 - y1, x2 - x1), h = 7, p = (t) => `${(x2 - h * Math.cos(a + t)).toFixed(1)},${(y2 - h * Math.sin(a + t)).toFixed(1)}`;
@@ -3539,7 +3539,7 @@
     </defs>`;
     const pvdR = (x, y, w, h, fill, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx || 0}" style="fill:${fill};stroke:currentColor;stroke-width:${o.sw || 1.2};stroke-opacity:${o.so || .7}${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
     const pvdL = (d, o = {}) => `<path d="${d}" style="fill:${o.fill || 'none'};stroke:${o.c || 'currentColor'};stroke-width:${o.sw || 1.2};stroke-opacity:${o.so || .7};stroke-linecap:round;stroke-linejoin:round${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
-    const pvdTx = (x, y, t, o = {}) => `<text class="dg-t dg-lb ${o.xs === 0 ? '' : 'dg-xs'}" x="${x}" y="${y}" text-anchor="${o.a || 'start'}" style="${o.st || ''}">${escH(t)}</text>`;
+    const pvdTx = (x, y, t, o = {}) => `<text class="dg-t dg-lb ${o.xs === 0 ? '' : 'dg-xs'}" x="${x}" y="${y}" text-anchor="${o.a || 'start'}" style="${o.st || ''}">${escH(typeof T === 'function' ? T(t) : t)}</text>`;
     const pvdNum = (x, y, n, c) => `<circle cx="${x}" cy="${y}" r="8.5" fill="${c}"/>` + `<text class="dg-t dg-lb" x="${x}" y="${y + 3.7}" text-anchor="middle" style="fill:#0b1220;font-size:10.5px;font-weight:800">${n}</text>`;
     const pvdCall = (f, g, n, c, mx, my, tx, ty, lines, px, py, a = 'start') => pvdG(f, g,
       pvdL(`M${mx} ${my} L${px} ${py}`, { so: .45, sw: 1 }) + `<circle cx="${px}" cy="${py}" r="2" fill="currentColor" opacity=".7"/>` + pvdNum(mx, my, n, c)
@@ -9015,11 +9015,33 @@
         }
       },
     });
+    function fitDiagramLabels(root) {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll('svg text').forEach(el => {
+        if (el.dataset.fitDone) return;
+        el.dataset.fitDone = '1';
+        const inlineSize = (el.getAttribute('style') || '').match(/font-size:\s*([\d.]+)px/);
+        const base = parseFloat(el.getAttribute('font-size')) || (inlineSize ? parseFloat(inlineSize[1]) : 0) || (el.classList.contains('dg-xs') ? 9.5 : el.classList.contains('dg-lb') ? 10.5 : 11.5);
+        let size = base;
+        try {
+          const max = el.classList.contains('dg-xs') ? 108 : el.classList.contains('dg-lb') ? 132 : 158;
+          while (size > 7.2 && el.getComputedTextLength() > max) {
+            size -= 0.5;
+            el.style.fontSize = size + 'px';
+          }
+          if (el.getComputedTextLength() > max) {
+            el.setAttribute('textLength', String(max));
+            el.setAttribute('lengthAdjust', 'spacingAndGlyphs');
+          }
+        } catch (e) {}
+      });
+    }
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
       fig.querySelector('.dg-svg').innerHTML = D.svg(s);
-      fig.querySelector('.dg-desc').textContent = s.desc;
+      fitDiagramLabels(fig.querySelector('.dg-svg'));
+      fig.querySelector('.dg-desc').textContent = typeof T === 'function' ? T(s.desc) : s.desc;
       const di = D.states.indexOf(s); fig.querySelectorAll('.dg-dots i').forEach((d, k) => d.classList.toggle('on', k === di));
       fig.querySelectorAll('[data-dg-state]').forEach(b => { const on = b.dataset.dgState === s.id; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     }
@@ -9050,8 +9072,8 @@
         if (fig.dataset.ready) return; fig.dataset.ready = '1';
         if (D.wide) fig.classList.add('dg-wide');
         const cap = fig.dataset.cap || '';
-        fig.innerHTML = `<div class="dg-head"><span class="dg-tag">눌러 보는 그림</span><span class="dg-title">${escH(D.title)}</span></div>
-          <div class="dg-tabs" role="group" aria-label="상태 선택">${D.states.map(s => `<button type="button" class="dg-btn" data-dg-state="${s.id}">${escH(s.label)}</button>`).join('')}</div>
+        fig.innerHTML = `<div class="dg-head"><span class="dg-tag">${escH(typeof T === 'function' ? T('눌러 보는 그림') : '눌러 보는 그림')}</span><span class="dg-title">${escH(typeof T === 'function' ? T(D.title) : D.title)}</span></div>
+          <div class="dg-tabs" role="group" aria-label="${escH(typeof T === 'function' ? T('상태 선택') : '상태 선택')}">${D.states.map(s => `<button type="button" class="dg-btn" data-dg-state="${s.id}">${escH(typeof T === 'function' ? T(s.label) : s.label)}</button>`).join('')}</div>
           <div class="dg-svg"></div>${D.states.length > 1 ? `<div class="dg-dots" aria-hidden="true">${D.states.map(() => '<i></i>').join('')}</div><p class="dg-hint">← 밀어서 넘겨 보세요 →</p>` : ''}<p class="dg-desc" aria-live="polite"></p>${cap ? `<figcaption>${escH(cap)}</figcaption>` : ''}`;
         dgRender(fig, D.states[0].id);
       });
