@@ -9036,6 +9036,142 @@
         } catch (e) {}
       });
     }
+    // ===== 현장 직무 > "화학물질과 특수가스 안전", "인터락과 비상 대응" 글용 그림 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 위험 표지 읽기 ----------
+      'fld-hazard': {
+        title: '위험 표지 읽는 법',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '약품과 가스의 위험은 세 곳에서 읽는다. 용기에 붙은 그림문자, 방 입구의 위험 다이아몬드, 그리고 안전보건자료(SDS)다. 표지를 읽지 않고 쓰는 약품은 없다.' },
+          { id: 'ghs', label: '그림문자', focus: ['ghs'], desc: '용기 라벨의 빨간 테두리 마름모 그림이다. 불꽃은 인화성, 해골은 급성 독성, 부식 그림은 피부와 금속을 녹이는 부식성, 가스통은 고압가스를 뜻한다. 한 용기에 여러 개가 같이 붙기도 한다.' },
+          { id: 'nfpa', label: '다이아몬드', focus: ['nfpa'], desc: '창고나 방 입구에서 보는 색 다이아몬드다. 파랑은 건강, 빨강은 화재, 노랑은 반응성, 흰색은 특수 위험을 뜻하고 숫자는 0(약함)에서 4(심함)까지다. 비상 때 소방과 현장 인원이 한눈에 위험을 읽도록 만든 표시다.' },
+          { id: 'gas', label: '특수가스', focus: ['gas'], desc: '반도체 공정의 특수가스는 위험이 서로 다르다. 실란은 공기에 닿으면 저절로 불붙을 수 있고, 포스핀과 염소는 독성이며, 질소는 독은 없지만 좁은 곳에서 산소를 밀어내 질식을 일으킨다. 가스마다 대응이 다르니 SDS로 확인한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, R = '#ef4444';
+          let o = fdDefs();
+          const ico = [
+            `<path d="M0 -15 C4 -9 9 -5 9 2 C9 9 5 13 0 13 C-5 13 -9 9 -9 2 C-9 -3 -5 -5 -3 -10 C-1 -7 0 -10 0 -15Z" style="fill:#111827"/><path d="M0 -2 C3 2 5 4 5 8 C5 11 3 12 0 12 C-3 12 -5 11 -5 8 C-5 4 -2 3 0 -2Z" style="fill:#f8fafc"/>`,
+            `<circle cx="0" cy="-3" r="8" style="fill:#111827"/><rect x="-4.5" y="3" width="9" height="7" rx="1.5" style="fill:#111827"/><circle cx="-3" cy="-3" r="2.2" style="fill:#f8fafc"/><circle cx="3" cy="-3" r="2.2" style="fill:#f8fafc"/>`,
+            `<path d="M-8 -13 Q-11 -7 -8 -5 Q-5 -7 -8 -13Z M3 -13 Q0 -7 3 -5 Q6 -7 3 -13Z" style="fill:#111827"/><path d="M-13 3 H13 V9 H-13Z" style="fill:#111827"/><path d="M-5 3 L-3 -1 L-1 3 M5 3 L7 0 L9 3" style="fill:none;stroke:#f8fafc;stroke-width:1.4"/>`,
+            `<rect x="-6" y="-8" width="12" height="21" rx="5" style="fill:#111827"/><rect x="-2.6" y="-13" width="5.2" height="6" rx="1" style="fill:#111827"/><path d="M-6 -1 H6" style="stroke:#f8fafc;stroke-width:1.2"/>`];
+          const ghs = [['인화성', '수소 · 실란'], ['급성 독성', '포스핀 · 염소'], ['부식성', '불산 · 염산'], ['고압가스', '실린더 전반']];
+          let a = fdTx(14, 22, '① 용기 라벨의 그림문자 (GHS)', { a: 'start', s: 10.5, w: 800 });
+          ghs.forEach(([t, ex], i) => { const cx = 70 + i * 100, cy = 66; a += `<polygon points="${cx},${cy - 29} ${cx + 29},${cy} ${cx},${cy + 29} ${cx - 29},${cy}" style="fill:#f8fafc;stroke:${R};stroke-width:3.4"/><g transform="translate(${cx} ${cy})">${ico[i]}</g>` + fdTx(cx, 108, t, { s: 10.5, w: 800 }) + fdTx(cx, 121, ex, { s: 9, op: .8 }); });
+          o += pvdG(f, ['ghs'], a);
+          // NFPA 다이아몬드
+          let n = fdTx(14, 150, '② 방 입구의 위험 다이아몬드 (NFPA 704)', { a: 'start', s: 10.5, w: 800 });
+          [[0, -18, '#ef4444'], [-18, 0, '#3b82f6'], [18, 0, '#facc15'], [0, 18, '#f8fafc']].forEach(([dx, dy, c]) => { const cx = 80 + dx, cy = 214 + dy; n += `<polygon points="${cx},${cy - 18} ${cx + 18},${cy} ${cx},${cy + 18} ${cx - 18},${cy}" style="fill:${c};stroke:#334155;stroke-width:1.4"/>`; });
+          [['#3b82f6', '파랑', '건강 위험'], ['#ef4444', '빨강', '불이 붙는 정도'], ['#facc15', '노랑', '반응성 (폭발 · 반응)'], ['#cbd5e1', '흰색', '특수 (물과 반응 등)']].forEach(([c, k, t], i) => { const y = 184 + i * 17; n += `<rect x="150" y="${y - 8}" width="11" height="11" rx="2.5" style="fill:${c};stroke:#334155;stroke-width:1"/>` + fdTx(168, y + 1, k, { a: 'start', s: 10, w: 800 }) + fdTx(206, y + 1, t, { a: 'start', s: 10, op: .9 }); });
+          n += fdTx(150, 262, '숫자는 0(약함) ~ 4(심함)', { a: 'start', s: 9.5, c: fdAc, w: 700 });
+          o += pvdG(f, ['nfpa'], n);
+          // 특수가스
+          let g = fdTx(14, 288, '③ 현장에서 자주 만나는 특수가스', { a: 'start', s: 10.5, w: 800 });
+          [['실란', '공기에 닿으면', '저절로 불붙음', '#f97316'], ['포스핀', '독성', '소량도 위험', '#ef4444'], ['염소', '독성 · 부식성', '호흡기 · 눈 자극', '#a3e635'], ['질소', '독은 없지만', '좁은 곳에선 질식', '#60a5fa']].forEach(([nm, a1, a2, c], i) => { const x = 14 + i * 108; g += fdRect(x, 296, 100, 52, { rx: 7, fill: 'rgba(148,163,184,.08)', c, so: .9, sw: 1.5 }) + `<circle cx="${x + 11}" cy="309" r="4.5" style="fill:${c}"/>` + fdTx(x + 21, 313, nm, { a: 'start', s: 11, w: 800 }) + fdTx(x + 50, 329, a1, { s: 9, op: .9 }) + fdTx(x + 50, 341, a2, { s: 9, op: .9 }); });
+          o += pvdG(f, ['gas'], g);
+          return dgSvg('위험 표지 읽는 법: ' + s.label, o, '0 0 440 356');
+        }
+      },
+
+      // ---------- 누출 때의 대응 ----------
+      'fld-leak': {
+        title: '누출이 의심될 때: 알림, 대피, 격리, 보고',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 순서', desc: '가스 누출이 의심되면 먼저 알리고, 함께 피하고, 안전할 때만 차단과 출입 통제를 하고, 집결지에서 인원을 확인해 보고한다. 원인을 고치는 일은 훈련된 사람이 맡는다.' },
+          { id: 's1', label: '알림', focus: ['s1'], desc: '가스 감지기가 울리거나 냄새, 소리, 이상 표시가 있으면 바로 주변에 알린다. 비상 버튼을 누르거나 큰 소리로 알린다. 확인해 보려고 가까이 가지 않는다.' },
+          { id: 's2', label: '대피', focus: ['s2'], desc: '누출 위치를 피해 가장 가까운 출구로 함께 이동한다. 짐을 챙기거나 장비를 정리하느라 시간을 쓰지 않는다. 다친 사람이 있으면 위험하지 않을 때만 부축하고 곧바로 도움을 요청한다.' },
+          { id: 's3', label: '격리', focus: ['s3'], desc: '공급 밸브 차단은 훈련받은 담당자가 안전할 때만 한다. 그 사이 출입을 통제해 다른 사람이 들어가지 않게 한다. 누출 구역에 들어가는 대응은 보호구와 절차를 갖춘 팀이 맡는다.' },
+          { id: 's4', label: '집결과 보고', focus: ['s4'], desc: '집결지에서 인원을 확인하고 빠진 사람이 없는지 본다. 가스 종류, 누출 위치, 다친 사람, 시각을 정확히 보고한다. 해제 안내가 있을 때까지 돌아가지 않는다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC, R = '#f87171';
+          let o = fdDefs();
+          // 방(평면도)
+          o += fdRect(14, 40, 296, 216, { rx: 4, fill: 'rgba(125,211,252,.07)', so: .8, sw: 2 }) + fdTx(24, 52, '클린룸 (위에서 본 모습)', { a: 'start', s: 9.5, w: 700, op: .75 });
+          // 장비 3대 + 누출
+          [[34, 74], [34, 176], [150, 176]].forEach(([x, y], i) => { o += fdRect(x, y, 76, 56, { rx: 4, fill: 'url(#fdBd)', so: .7, sw: 1.3 }) + fdTx(x + 38, y + 33, '장비', { s: 9, op: .65 }); });
+          o += `<circle cx="124" cy="96" r="18" style="fill:rgba(248,113,113,.25)"/><circle cx="136" cy="112" r="14" style="fill:rgba(248,113,113,.22)"/><circle cx="116" cy="118" r="11" style="fill:rgba(248,113,113,.2)"/>` + fdTx(160, 120, '누출', { a: 'start', s: 10, w: 800, c: R });
+          // s1: 감지기, 경광등, 비상 버튼
+          o += pvdG(f, ['s1'], [[190, 70], [270, 150]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" style="fill:rgba(250,204,21,.3);stroke:#facc15;stroke-width:1.6"/><path d="M${x - 5} ${y} q2.5 -4 5 0 t5 0" style="fill:none;stroke:#facc15;stroke-width:1.4"/>`).join('') + fdTx(190, 90, '가스 감지기', { s: 8.5, w: 700, c: '#facc15' })
+            + `<circle cx="236" cy="52" r="7" style="fill:#ef4444"/><path d="M226 46 q-5 6 0 12 M246 46 q5 6 0 12 M222 42 q-9 10 0 22 M250 42 q9 10 0 22" style="fill:none;stroke:#ef4444;stroke-width:1.3;stroke-linecap:round"/>` + fdTx(236, 72, '경보', { s: 8.5, w: 700, c: R })
+            + `<circle cx="296" cy="190" r="8" style="fill:#ef4444;stroke:#facc15;stroke-width:2.4"/>` + fdTx(284, 210, '비상 버튼', { s: 8.5, w: 700, c: R }));
+          // s2: 사람과 대피 경로
+          o += pvdG(f, ['s2'], fdMan(196, 154, C.op, .8) + fdMan(226, 164, C.eq, .8) + pvdL('M214 142 Q250 124 306 134', { c: C.op, sw: 2.2, dash: '5 3', so: .95 }) + fdArr(312, 134, 'r', C.op) + pvdL('M310 118 V150', { c: fdAc, sw: 4, so: .95 }) + fdTx(300, 108, '출구', { s: 9, w: 800, c: fdAc }));
+          // s3: 차단 밸브와 출입 통제
+          o += pvdG(f, ['s3'], pvdL('M14 66 H44', { c: '#fbbf24', sw: 3, so: .9 }) + `<polygon points="19,60 25,66 19,72" style="fill:#fbbf24"/><polygon points="31,60 25,66 31,72" style="fill:#fbbf24"/>` + fdTx(50, 69, '차단 밸브', { a: 'start', s: 8.5, w: 700, c: '#fbbf24' })
+            + pvdL('M322 100 V168', { c: R, sw: 3, dash: '4 3', so: .95 }) + fdTx(324, 92, '출입 금지', { a: 'start', s: 9, w: 800, c: R }));
+          // s4: 집결지
+          o += pvdG(f, ['s4'], `<circle cx="384" cy="150" r="38" style="fill:rgba(52,211,153,.12);stroke:${C.op};stroke-width:1.8;stroke-dasharray:5 4"/>` + fdTx(384, 112, '집결지', { s: 10.5, w: 800, c: C.op }) + [[368, 146], [384, 160], [400, 146], [384, 138]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="5.5" style="fill:${[C.op, C.eq, C.pr, C.op][i]}"/>`).join('') + fdTx(384, 196, '인원 확인', { s: 9, w: 700 }) + fdTx(384, 232, '가스 종류 · 위치', { s: 9, w: 700, c: fdAc }) + fdTx(384, 244, '시각을 보고', { s: 9, w: 700, c: fdAc }));
+          // 비상샤워/세안기 (항상 표시)
+          o += pvdR(246, 228, 18, 22, 'rgba(56,189,248,.2)', { rx: 3, so: .9 }) + pvdL('M255 228 V220 M247 220 H263', { c: '#38bdf8', sw: 2.2 }) + fdTx(270, 238, '비상샤워', { a: 'start', s: 8.5, w: 700, c: '#38bdf8' }) + fdTx(270, 249, '세안기', { a: 'start', s: 8.5, w: 700, c: '#38bdf8' });
+          // 아래 단계 카드
+          [['s1', '1', '알림', '소리 · 버튼으로', '주변에 알린다'], ['s2', '2', '대피', '출구 쪽으로', '함께 이동'], ['s3', '3', '격리', '훈련된 사람만 차단', '출입 통제'], ['s4', '4', '집결 · 보고', '인원 확인', '종류 · 위치 보고']].forEach(([k, n, t, a1, a2], i) => { const x = 14 + i * 108; o += pvdG(f, [k], fdRect(x, 282, 100, 54, { rx: 7, fill: 'rgba(148,163,184,.08)', c: fdAc, so: .85, sw: 1.4 }) + pvdNum(x + 13, 296, n, fdAc) + fdTx(x + 25, 300, t, { a: 'start', s: 10.5, w: 800 }) + fdTx(x + 50, 318, a1, { s: 9, op: .9 }) + fdTx(x + 50, 329, a2, { s: 9, op: .9 })); });
+          return dgSvg('누출 대응 순서: ' + s.label, o, '0 0 440 344');
+        }
+      },
+
+      // ---------- 인터락: 조건이 모두 맞아야 돈다 ----------
+      'fld-interlock': {
+        title: '인터락: 조건이 모두 맞아야 장비가 돈다',
+        wide: true,
+        states: [
+          { id: 'all', label: '정상 운전', desc: '인터락은 안전, 장비, 웨이퍼를 지키는 조건을 모두 확인하는 보호 장치다. 조건이 전부 맞아야 장비가 운전을 허용하고, 하나라도 어긋나면 막거나 멈춘다. 사고가 난 뒤가 아니라 나기 전에 작동한다.' },
+          { id: 'safe', label: '사람 보호', focus: ['safe'], desc: '도어가 열려 있거나 가스 누출이 감지되거나 비상정지 버튼이 눌리면 장비는 시작하지 않고 이미 돌고 있으면 멈춘다. 사람이 다치는 조건을 가장 먼저, 가장 강하게 막는다.' },
+          { id: 'tool', label: '장비 보호', focus: ['tool'], desc: '냉각수가 모자라거나 진공이 안 잡히거나 온도가 범위를 벗어나면 장비가 스스로 멈춘다. 그대로 돌리면 부품이 타거나 변형되어 수리비와 정지 시간이 크게 늘어난다.' },
+          { id: 'proc', label: '웨이퍼 보호', focus: ['proc'], desc: '가스 유량이나 파워 같은 공정 조건이 레시피와 어긋나면 웨이퍼를 더 진행시키지 않고 멈춘다. 잘못된 조건으로 계속 돌리면 한 로트 전체가 불량이 될 수 있다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          const groups = [['safe', '사람을 지킨다', ['도어 닫힘', '가스 누출 없음', '비상정지 해제'], '#f87171', '도어 열림'], ['tool', '장비를 지킨다', ['냉각수 흐름', '진공 압력', '온도 범위'], '#60a5fa', '냉각수 부족'], ['proc', '웨이퍼를 지킨다', ['가스 유량 정상', '파워 정상', '레시피 일치'], '#fbbf24', '가스 유량 이탈']];
+          const fail = s.id !== 'all';
+          let o = fdDefs();
+          groups.forEach(([k, t, items, col, bad], gi) => {
+            const y = 14 + gi * 102, on = s.id === k;
+            let g = fdRect(14, y, 150, 94, { rx: 8, fill: 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.5 }) + fdTx(24, y + 17, t, { a: 'start', s: 10.5, w: 800, c: col });
+            items.forEach((it, i) => { const ly = y + 38 + i * 19, ng = on && i === 0; g += (ng ? `<circle cx="30" cy="${ly - 3}" r="6" style="fill:#ef4444"/><path d="M27.5 ${ly - 5.5} l5 5 M32.5 ${ly - 5.5} l-5 5" style="stroke:#fff;stroke-width:1.5"/>` : `<circle cx="30" cy="${ly - 3}" r="6" style="fill:#34d399"/><path d="M27 ${ly - 3} l2.2 2.4 l4 -4.6" style="fill:none;stroke:#052e1a;stroke-width:1.6"/>`) + fdTx(42, ly, ng ? bad : it, { a: 'start', s: 10, w: ng ? 800 : 600, c: ng ? '#f87171' : '' }); });
+            o += pvdG(f, [k], g);
+            const iy = y + 47, ty = [128, 160, 192][gi];
+            o += pvdL(`M164 ${iy} H180 V${ty} H200`, { c: on ? '#ef4444' : '#34d399', sw: on ? 2.4 : 1.8, so: .9 });
+          });
+          const ok = !fail;
+          o += `<path d="M200 118 H222 A42 42 0 0 1 222 202 H200 Z" style="fill:rgba(148,163,184,.12);stroke:currentColor;stroke-opacity:.75;stroke-width:1.8"/>` + fdTx(222, 164, 'AND', { s: 11, w: 800 }) + pvdL('M264 160 H298', { c: ok ? '#34d399' : '#ef4444', sw: 2.4, so: .95 }) + fdArr(300, 160, 'r', ok ? '#34d399' : '#ef4444');
+          o += fdCab(304, 104, 112, 112, { lamp: ok ? '#34d399' : '#ef4444' }) + fdRect(318, 118, 40, 28, { rx: 3, fill: 'rgba(96,165,250,.16)', so: .6 }) + fdTx(398, 94, '장비', { s: 9.5, w: 700, op: .8 })
+            + `<circle cx="360" cy="86" r="12" style="fill:${ok ? 'rgba(52,211,153,.28)' : 'rgba(239,68,68,.3)'}"/><circle cx="360" cy="86" r="6" style="fill:${ok ? '#34d399' : '#ef4444'}"/>`
+            + fdTx(360, 238, ok ? '운전 허용' : '정지 · 알람', { s: 12, w: 800, c: ok ? '#34d399' : '#ef4444' }) + fdTx(360, 254, ok ? '조건이 모두 맞다' : '하나라도 어긋나면 멈춘다', { s: 9.5, op: .85 });
+          o += fdTx(222, 322, '인터락은 사고 후가 아니라 사고 전에 막는다', { s: 10, w: 800, c: fdAc });
+          return dgSvg('인터락: ' + s.label, o, '0 0 440 332');
+        }
+      },
+
+      // ---------- 알람 단계와 EMO ----------
+      'fld-emo': {
+        title: '알람 단계: 경고, 알람, 비상정지',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 단계', desc: '알람은 단계가 있다. 단계가 올라갈수록 위험이 크고 행동도 커진다. 경고는 확인하고 기록하고, 알람은 설비를 부르고, 사람이 위험하면 비상정지 버튼을 누르고 대피한다.' },
+          { id: 'w', label: '경고', focus: ['w'], desc: '값이 한계에 가까워졌다는 알림이다. 장비는 계속 운전한다. 오퍼레이터가 상태를 확인하고 일지에 기록하며, 계속 커지면 설비 엔지니어를 부른다.' },
+          { id: 'a', label: '알람', focus: ['a'], desc: '조건이 한계를 벗어나 장비가 스스로 멈추거나 로트를 보류한 상태다. 멈춘 것을 확인하고 설비 엔지니어를 부른다. 알람을 임의로 해제하지 않는다.' },
+          { id: 'e', label: '비상정지', focus: ['e'], desc: '사람이나 설비가 위험한 상황이다. 연기, 화재, 가스 누출, 감전이 의심되면 비상정지(EMO) 버튼을 눌러 전원과 가스를 즉시 차단하고 안전하게 대피한 뒤 보고한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          const stp = [['w', '경고', '값이 한계에 접근', '장비는 계속 운전', '#facc15', 64, ['1  상태 확인', '2  일지 기록', '3  필요하면 호출']], ['a', '알람', '조건 이탈', '스스로 정지 · 보류', '#fb923c', 94, ['1  멈춘 것 확인', '2  설비 호출', '3  임의 해제 금지']], ['e', '비상정지 (EMO)', '사람 · 설비 위험', '전원 · 가스 차단', '#ef4444', 124, ['1  버튼 누르기', '2  안전하게 대피', '3  상황 보고']]];
+          let o = fdDefs() + fdTx(220, 20, '알람이 커질수록 행동도 커진다', { s: 11, w: 800, c: fdAc });
+          stp.forEach(([k, t, a1, a2, c, h, acts], i) => {
+            const x = 14 + i * 142, top = 214 - h;
+            let g = fdRect(x, top, 132, h, { rx: 7, fill: c + '26', c, so: .95, sw: 1.7 }) + fdTx(x + 66, top + 19, t, { s: 11.5, w: 800 }) + fdTx(x + 66, top + 34, a1, { s: 9.5, op: .9 }) + (h > 70 ? fdTx(x + 66, top + 47, a2, { s: 9.5, op: .9 }) : '');
+            // 위쪽 그림: 타워 라이트 또는 비상정지 버튼
+            if (k === 'e') g += pvdR(x + 46, top - 36, 40, 10, '#facc15', { rx: 2, so: .9 }) + `<circle cx="${x + 66}" cy="${top - 46}" r="14" style="fill:#ef4444;stroke:#7f1d1d;stroke-width:1.6"/><ellipse cx="${x + 62}" cy="${top - 50}" rx="5" ry="3" style="fill:#fecaca;opacity:.7"/>`;
+            else g += pvdR(x + 62, top - 20, 8, 20, '#94a3b8', { so: .5 }) + [0, 1, 2].map((j) => pvdR(x + 56, top - 54 + j * 11, 20, 10, j === (k === 'w' ? 1 : 0) ? c : 'rgba(148,163,184,.25)', { rx: 2, so: .6 })).join('');
+            g += fdRect(x, 226, 132, 78, { rx: 7, fill: 'rgba(148,163,184,.08)', c, so: .85, sw: 1.4 }) + fdTx(x + 12, 243, '행동', { a: 'start', s: 9.5, w: 800, c }) + acts.map((a, j) => fdTx(x + 12, 261 + j * 14, a, { a: 'start', s: 10, w: j === 2 && k === 'a' ? 800 : 600 })).join('');
+            o += pvdG(f, [k], g);
+          });
+          return dgSvg('알람 단계: ' + s.label, o, '0 0 440 312');
+        }
+      },
+    });
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
