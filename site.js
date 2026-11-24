@@ -549,7 +549,7 @@
     }
     function payRender() {
       const o = document.getElementById('payM'); if (!o) return;
-      const have = PRM.free + PRM.paid, ready = !!PAY.key, test = ready && /^S\d?_/i.test(PAY.key);   // 나이스페이 테스트(샌드박스) 클라이언트 키는 S 로 시작
+      const have = PRM.free + PRM.paid, ready = !!PAY.key, test = ready && window.NICEPAY_TEST === true;   // 샌드박스 키는 운영 키와 모양이 같아서 설정 파일의 표시(NICEPAY_TEST)로 구분
       const best = PAY.packs.reduce((m, p) => (p.amount / p.tokens < m.amount / m.tokens ? p : m));
       const packs = PAY.packs.map((p) => {
         const busy = PAY.busy && PAY.busyPack === p.id, th = Math.floor(p.tokens / PRICE_HINT.theory);
