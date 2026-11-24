@@ -2,4 +2,4 @@
 //  - 나이스페이 가맹점관리자 → 개발정보(API 키) 의 "클라이언트 키". 테스트(샌드박스) 키는 S 로 시작합니다.
 //  - 시크릿 키는 절대 여기에 넣지 마세요. (서버 GitHub Secret NICEPAY_SECRET_KEY 로만 등록, 클라이언트 키는 NICEPAY_CLIENT_ID 로도 함께 등록)
 //  - 비워 두면 결제 화면은 "준비 중"으로 표시되고 결제 버튼이 동작하지 않습니다.
-window.NICEPAY_CLIENT_ID = '';
+window.NICEPAY_CLIENT_ID = 'ea78caffee1443e98f92ef552dacc8ca';
