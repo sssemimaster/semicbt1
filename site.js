@@ -429,9 +429,22 @@
       });
     }
 
+    // 푸터: 약관 링크와 사업자 정보 (전자상거래법상 사이트에 표시해야 하는 항목). 값은 biz-info.js 한 곳에서 고친다
+    function bizFooterInit() {
+      [['termsFooterLink', 'terms.html'], ['refundFooterLink', 'refund.html']].forEach(([id, f]) => { const a = document.getElementById(id); if (a) a.href = ROOT + f; });
+      const sc = document.createElement('script'); sc.src = ROOT + 'biz-info.js?v=1';
+      sc.onload = () => {
+        const B = window.BIZ, box = document.getElementById('bizInfo'); if (!B || !box) return;
+        const it = (k, v) => v ? `<span class="inline-block mr-3"><span>${k}</span> <span data-noi18n>${escH(v)}</span></span>` : '';
+        box.innerHTML = it('상호', B.name) + it('대표', B.rep) + it('사업자등록번호', B.regNo) + it('통신판매업 신고', B.mailOrderNo) + it('주소', B.address) + it('전화', B.tel) + it('문의', B.email);
+      };
+      document.head.appendChild(sc);
+    }
+
     async function initApp() {
       try {
         const hubLink = document.getElementById('theoryHubLink'); if (hubLink) hubLink.href = ROOT + 'theory/';
+        bizFooterInit();
         // 지연된 스크립트(marked 등)가 모두 준비된 뒤에 시작한다.
         if (document.readyState === 'loading') await new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true }));
         // 파일이 바뀌었는지만 확인하고(바뀌지 않았으면 내려받지 않음), 바뀌었으면 새로 받는다.
@@ -600,6 +613,8 @@
         <div class="pay-sec"><span class="pmg-tick"><i></i>CHARGE</span></div>
         <div class="pay-packs">${packs}</div>
         <p class="pay-secure">${ico('shield')}<span>카드 결제 · 토스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
+        <p class="pay-legal"><span>결제하면 아래 내용에 동의한 것으로 봐요</span> <a href="${ROOT}terms.html" target="_blank" rel="noopener">이용약관</a> · <a href="${ROOT}refund.html" target="_blank" rel="noopener">환불정책</a></p>
+        <p class="pay-legal"><span>해금에 쓴 토큰은 환불되지 않고, 결제 후 7일 이내에는 환불을 신청할 수 있어요</span></p>
         ${msgs}
         <button type="button" class="earn-link" onclick="payView('history')">${ico('info')} 결제 내역 · 환불 문의</button></div>`;
     }

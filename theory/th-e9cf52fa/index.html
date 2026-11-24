@@ -1532,6 +1532,7 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
   .pp-r{flex:none;text-align:right} .pp-r b{display:block;font:800 1.02rem 'Sora',system-ui,sans-serif;color:var(--am)} .pp-r small{display:block;margin-top:.2rem;font-size:.7rem;color:var(--dim)}
   .pay-tag{position:absolute;top:-.55rem;right:.8rem;padding:.12rem .55rem;border-radius:999px;background:var(--am);color:#fff;font:800 .62rem/1.5 system-ui,sans-serif;letter-spacing:.02em} html.dark .pay-tag{color:#1b1203}
   .pay-secure{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:.8rem 0 0;font-size:.74rem;color:var(--dim)} .pay-secure .ic{color:var(--cy);font-size:1rem}
+  .pay-legal{margin:.45rem 0 0;text-align:center;font-size:.72rem;line-height:1.6;color:var(--dim)} .pay-legal a{color:var(--cy);text-decoration:underline;text-underline-offset:2px}
   .pay-test{display:flex;align-items:center;gap:.5rem;margin:.75rem 0 0;padding:.5rem .75rem;border-radius:8px;background:var(--amt);color:var(--am);font-size:.76rem;font-weight:700}
   .pay-msg{margin:.75rem 0 0;padding:.55rem .75rem;border-radius:8px;font-size:.78rem;line-height:1.5}
   .pay-msg.err{background:rgba(190,18,60,.09);color:#be123c} html.dark .pay-msg.err{background:rgba(251,113,133,.1);color:#fb7185}
@@ -2120,8 +2121,9 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
   <footer class="border-t border-slate-200 dark:border-white/10 mt-10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
       <div><div class="font-bold text-slate-800 dark:text-white">반도체 <span class="text-indigo-600 dark:text-cyan-300">새김</span></div><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">오늘의 배움을 새기다 · LEARN · RECORD · EVOLVE</p></div>
-      <p class="text-xs text-slate-400 dark:text-slate-500 sm:max-w-sm sm:text-right leading-relaxed">AI가 생성한 문제와 이론은 검수 후 게시돼요. 오류를 발견하면 문제 풀이 중 🚨 제보를 눌러 알려 주세요.<br><a id="theoryHubLink" href="../../theory/" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">이론 전체 목록 보기</a> · <a id="privacyFooterLink" href="../../privacy.html" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">개인정보 처리방침</a></p>
+      <p class="text-xs text-slate-400 dark:text-slate-500 sm:max-w-sm sm:text-right leading-relaxed">AI가 생성한 문제와 이론은 검수 후 게시돼요. 오류를 발견하면 문제 풀이 중 🚨 제보를 눌러 알려 주세요.<br><a id="theoryHubLink" href="../../theory/" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">이론 전체 목록 보기</a> · <a id="privacyFooterLink" href="../../privacy.html" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">개인정보 처리방침</a> · <a id="termsFooterLink" href="terms.html" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">이용약관</a> · <a id="refundFooterLink" href="refund.html" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">환불정책</a></p>
     </div>
+    <div id="bizInfo" class="max-w-6xl mx-auto px-4 sm:px-6 pb-8 -mt-3 text-[11px] leading-relaxed text-slate-400 dark:text-slate-500"></div>
   </footer>
 
   <!-- 📱 모바일 하단 탭 바 (767px 이하에서만 보임) -->
