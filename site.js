@@ -472,10 +472,11 @@
     }
 
     // =====================================================
-    // 💳 토큰 충전 · 결제 내역 · 환불 (토스페이먼츠 결제창 v2)
+    // 💳 토큰 충전 · 결제 내역 · 환불 (나이스페이먼츠 결제창)
     //  - 금액·토큰 수·결제 확인은 전부 서버가 한다. 화면은 팩 이름만 보내고, 결제창을 띄우고,
     //    결제 후 돌아오면 서버에 "승인 확인"을 요청할 뿐이다. (성공 주소의 값은 서버가 PG에 다시 물어 검증한다)
-    //  - 클라이언트 키(…_ck_…)는 toss-config.js 에만 둔다. 시크릿 키는 이 저장소에 절대 두지 않는다.
+    //  - 결제창은 카드 인증이 끝나면 서버(API)의 /pay/return 으로 결과를 보내고, 서버가 승인까지 마친 뒤 이 화면 주소(?pay=success&orderId=…)로 돌려보낸다.
+    //  - 클라이언트 키는 nicepay-config.js 에만 둔다. 시크릿 키는 이 저장소에 절대 두지 않는다.
     // =====================================================
     // 아이콘: index.html 맨 위의 SVG 스프라이트(#i-…)를 가리킨다. 이모지 대신 쓰는 선 아이콘(ico)과 토큰 코인(TK)
     const ico = (n, c) => `<svg class="ic ln${c ? ' ' + c : ''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
@@ -488,12 +489,12 @@
     const won = (n) => window.LANG === 'en' ? '₩' + Number(n).toLocaleString('en-US') + ' (≈ ' + usd(n) + ')' : Number(n).toLocaleString('ko-KR') + '원';
     const payDate = (ms) => { const d = new Date(ms); return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`; };
     function payClientKey() {
-      if (!PAY.cfgP) PAY.cfgP = new Promise((res) => { if (typeof window.TOSS_CLIENT_KEY === 'string') return res(); const s = document.createElement('script'); s.src = ROOT + 'toss-config.js?v=' + Date.now(); s.onload = s.onerror = res; document.head.appendChild(s); });
-      return PAY.cfgP.then(() => { const k = window.TOSS_CLIENT_KEY; PAY.key = typeof k === 'string' && /^(test|live)_ck_[A-Za-z0-9_=-]{10,}$/.test(k) ? k : ''; return PAY.key; });
+      if (!PAY.cfgP) PAY.cfgP = new Promise((res) => { if (typeof window.NICEPAY_CLIENT_ID === 'string') return res(); const s = document.createElement('script'); s.src = ROOT + 'nicepay-config.js?v=' + Date.now(); s.onload = s.onerror = res; document.head.appendChild(s); });
+      return PAY.cfgP.then(() => { const k = window.NICEPAY_CLIENT_ID; PAY.key = typeof k === 'string' && /^[A-Za-z0-9_-]{8,100}$/.test(k) ? k : ''; return PAY.key; });
     }
     function paySdk() {
-      if (window.TossPayments) return Promise.resolve();
-      if (!PAY.sdkP) PAY.sdkP = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://js.tosspayments.com/v2/standard'; s.onload = () => (window.TossPayments ? res() : rej(new Error('sdk'))); s.onerror = () => rej(new Error('sdk')); document.head.appendChild(s); }).catch((e) => { PAY.sdkP = null; throw e; });
+      if (window.AUTHNICE) return Promise.resolve();
+      if (!PAY.sdkP) PAY.sdkP = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://pay.nicepay.co.kr/v1/js/'; s.onload = () => (window.AUTHNICE ? res() : rej(new Error('sdk'))); s.onerror = () => rej(new Error('sdk')); document.head.appendChild(s); }).catch((e) => { PAY.sdkP = null; throw e; });
       return PAY.sdkP;
     }
     function payOpen(view) {
@@ -548,7 +549,7 @@
     }
     function payRender() {
       const o = document.getElementById('payM'); if (!o) return;
-      const have = PRM.free + PRM.paid, ready = !!PAY.key, test = ready && PAY.key.indexOf('test_') === 0;
+      const have = PRM.free + PRM.paid, ready = !!PAY.key, test = ready && /^S\d?_/i.test(PAY.key);   // 나이스페이 테스트(샌드박스) 클라이언트 키는 S 로 시작
       const best = PAY.packs.reduce((m, p) => (p.amount / p.tokens < m.amount / m.tokens ? p : m));
       const packs = PAY.packs.map((p) => {
         const busy = PAY.busy && PAY.busyPack === p.id, th = Math.floor(p.tokens / PRICE_HINT.theory);
@@ -612,7 +613,7 @@
         ${ready ? (test ? `<p class="pay-test">${ico('flask')}<span>테스트 결제 모드 · 실제로 요금이 청구되지 않아요</span></p>` : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
         <div class="pay-sec"><span class="pmg-tick"><i></i>CHARGE</span></div>
         <div class="pay-packs">${packs}</div>
-        <p class="pay-secure">${ico('shield')}<span>카드 결제 · 토스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
+        <p class="pay-secure">${ico('shield')}<span>카드 결제 · 나이스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
         <p class="pay-legal"><span>결제하면 아래 내용에 동의한 것으로 봐요</span> <a href="${ROOT}terms.html" target="_blank" rel="noopener">이용약관</a> · <a href="${ROOT}refund.html" target="_blank" rel="noopener">환불정책</a></p>
         <p class="pay-legal"><span>해금에 쓴 토큰은 환불되지 않고, 결제 후 7일 이내에는 환불을 신청할 수 있어요</span></p>
         ${msgs}
@@ -630,8 +631,13 @@
         await paySdk();
         try { sessionStorage.setItem(PAY_BACK, JSON.stringify(payBackHere())); } catch (e) {}
         const base = location.origin + ROOT;
-        const payment = window.TossPayments(key).payment({ customerKey: window.TossPayments.ANONYMOUS });   // 비회원 결제 키: 계정 식별자를 토스에 넘기지 않는다
-        await payment.requestPayment({ method: 'CARD', amount: { currency: 'KRW', value: r.body.amount }, orderId: r.body.orderId, orderName: r.body.orderName, successUrl: base + '?pay=success', failUrl: base + '?pay=fail' });
+        // 결제창을 띄운다(PC는 창 위에, 모바일은 화면 이동). 카드 인증이 끝나면 나이스페이가 returnUrl(서버)로 결과를 보내고,
+        // 서버가 승인까지 마친 뒤 mallReserved 에 실어 둔 이 화면 주소로 돌려보낸다. 금액은 서버가 정한 값이다.
+        window.AUTHNICE.requestPay({
+          clientId: key, method: 'card', orderId: r.body.orderId, amount: r.body.amount, goodsName: r.body.orderName,
+          returnUrl: API_BASE + '/pay/return', mallReserved: 'b=' + encodeURIComponent(base),
+          fnError: () => { PAY.busy = false; PAY.busyPack = ''; PAY.err = '결제창에서 오류가 났어요. 잠시 뒤 다시 시도해 주세요.'; payRender(); },
+        });
       } catch (e) {
         const c = e && e.code;
         if (c === 'USER_CANCEL' || c === 'PAY_PROCESS_CANCELED') PAY.note = '결제를 취소했어요.';
@@ -646,27 +652,27 @@
       if (currentViewId === 'view-lab' && labKind) return { lab: labKind };
       return {};
     }
-    // 결제창에서 돌아온 주소(?pay=success&paymentKey=…&orderId=…&amount=…)를 읽어 보관하고 주소창을 정리한다
+    // 서버가 결제를 마치고 돌려보낸 주소(?pay=success&orderId=… / ?pay=fail&code=…)를 읽어 보관하고 주소창을 정리한다
     function payHandleReturn() {
       let p; try { p = new URLSearchParams(location.search); } catch (e) { return; }
       const st = p.get('pay'); if (st !== 'success' && st !== 'fail') return;
       try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (e) {}
       if (st === 'fail') {
-        const c = p.get('code') || ''; pmToast(c === 'PAY_PROCESS_CANCELED' || c === 'USER_CANCEL' ? '결제를 취소했어요.' : '결제가 완료되지 않았어요. 요금은 청구되지 않았어요.' + (/^[A-Z_]{3,40}$/.test(c) ? ` (${c})` : '')); return;
+        const c = p.get('code') || ''; pmToast(c === 'AUTH_FAILED' ? '결제를 취소했거나 카드 인증을 마치지 못했어요. 요금은 청구되지 않았어요.' : '결제가 완료되지 않았어요. 요금은 청구되지 않았어요.' + (/^[A-Z0-9_]{3,40}$/.test(c) ? ` (${c})` : '')); return;
       }
-      const paymentKey = p.get('paymentKey') || '', orderId = p.get('orderId') || '', amount = Number(p.get('amount'));
-      if (!/^[A-Za-z0-9_-]{1,200}$/.test(paymentKey) || !/^ord_[a-f0-9]{32}$/.test(orderId) || !Number.isInteger(amount)) return;
-      try { sessionStorage.setItem(PAY_PENDING, JSON.stringify({ paymentKey, orderId, amount, ts: Date.now() })); } catch (e) {}
+      const orderId = p.get('orderId') || '';
+      if (!/^ord_[a-f0-9]{32}$/.test(orderId)) return;
+      try { sessionStorage.setItem(PAY_PENDING, JSON.stringify({ orderId, ts: Date.now() })); } catch (e) {}
       if (!acct.user) pmToast('로그인이 확인되면 결제를 마무리해요. 잠시만 기다려 주세요.');
     }
-    // 보관해 둔 결제를 서버에 승인 확인한다. 로그인·잔액 조회가 끝난 뒤 불린다(여러 번 불려도 한 번에 하나만 처리)
+    // 보관해 둔 결제의 충전 결과를 서버에 확인한다(지급은 서버가 승인할 때 이미 끝났다). 로그인·잔액 조회가 끝난 뒤 불린다(여러 번 불려도 한 번에 하나만 처리)
     async function payResume() {
       if (PAY.resuming || !acct.user) return;
       let pend = null; try { pend = JSON.parse(sessionStorage.getItem(PAY_PENDING) || 'null'); } catch (e) {}
       if (!pend) return;
       PAY.resuming = true;
       try {
-        const r = await apiJson('/pay/confirm', 'POST', { paymentKey: pend.paymentKey, orderId: pend.orderId, amount: pend.amount });
+        const r = await apiJson('/pay/confirm', 'POST', { orderId: pend.orderId });
         if (r.status === 200 && r.body.ok) {
           try { sessionStorage.removeItem(PAY_PENDING); } catch (e) {}
           await walletLoad();
