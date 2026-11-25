@@ -9408,6 +9408,246 @@
         }
       },
     });
+    // ===== 현장 직무 > "진공과 펌프 기초" 글용 그림 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 평균자유행로 ----------
+      'fld-vac-mfp': {
+        title: '압력이 낮을수록 분자는 멀리 간다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '진공을 만드는 가장 큰 이유는 입자가 중간에 부딪히지 않고 웨이퍼까지 가게 하기 위해서다. 압력이 내려갈수록 분자가 다른 분자와 부딪히지 않고 날아가는 거리가 급격히 길어진다.' },
+          { id: 'atm', label: '대기압', focus: ['atm'], desc: '대기압에서는 분자가 너무 빽빽해서 한 번 움직이면 곧 부딪힌다. 공기 중 분자가 충돌 없이 가는 평균 거리는 약 0.07 µm로, 챔버 안의 거리와 비교할 수 없이 짧다. 원료가 웨이퍼에 닿기 전에 흩어진다.' },
+          { id: 'low', label: '저진공', focus: ['low'], desc: '1 mTorr 정도에서는 평균 약 5 cm를 가서야 부딪힌다. 플라즈마 식각이나 스퍼터링처럼 가스를 조금 흘려 보내며 쓰는 공정이 이 압력대를 쓴다. 가끔 부딪히는 정도가 오히려 공정에 필요하다.' },
+          { id: 'high', label: '고진공', focus: ['high'], desc: '10⁻⁶ Torr에서는 평균 약 50 m를 가야 부딪히므로 챔버 안에서는 거의 부딪히지 않는다. 증착 원료나 이온이 곧게 날아가고, 챔버 안이 깨끗해 오염도 적다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          let o = fdDefs();
+          let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+          const boxes = [['atm', '대기압', '760 Torr', '약 0.07 µm', 38, '#f87171'], ['low', '저진공', '1 mTorr (10⁻³ Torr)', '약 5 cm', 11, '#fbbf24'], ['high', '고진공', '10⁻⁶ Torr', '약 50 m', 4, '#34d399']];
+          o += pvdL('M150 32 H286', { c: fdAc, sw: 1.8, so: .9 }) + fdArr(290, 32, 'r', fdAc) + fdTx(220, 24, '압력이 낮아진다', { s: 10.5, w: 800, c: fdAc });
+          boxes.forEach(([k, t, p, l, n, c], i) => {
+            const x = 12 + i * 142, cx = x + 66;
+            let g = fdRect(x, 44, 132, 162, { rx: 8, fill: 'rgba(96,165,250,.07)', so: .55, sw: 1.4 }) + fdRect(cx - 24, 50, 48, 9, { rx: 2, fill: 'rgba(251,146,60,.55)', c: fdAc, so: .9, sw: 1.2 }) + fdRect(cx - 34, 192, 68, 7, { rx: 2, fill: 'url(#fdSi)', so: .6 });
+            for (let j = 0; j < n; j++) g += `<circle cx="${(x + 10 + rnd() * 112).toFixed(1)}" cy="${(72 + rnd() * 112).toFixed(1)}" r="2.7" style="fill:#94a3b8;fill-opacity:.75"/>`;
+            const P = { atm: [[0, 0], [7, 9], [-3, 16], [6, 23], [-5, 30], [3, 37]], low: [[0, 0], [10, 44], [-16, 70], [-8, 110], [0, 132]], high: [[0, 0], [3, 132]] }[k];
+            g += pvdL(P.map(([dx, dy], j) => (j ? 'L' : 'M') + (cx + dx) + ' ' + (62 + dy)).join(' '), { c: fdAc, sw: 2.2, so: .95 });
+            if (k === 'low') P.slice(1, 4).forEach(([dx, dy]) => { g += `<circle cx="${cx + dx}" cy="${62 + dy}" r="3.4" style="fill:#fbbf24;stroke:#92400e;stroke-width:1"/>`; });
+            if (k === 'atm') g += `<circle cx="${cx + 3}" cy="99" r="4" style="fill:#ef4444"/><path d="M${cx + 0.6} 96.6 l4.8 4.8 M${cx + 5.4} 96.6 l-4.8 4.8" style="stroke:#fff;stroke-width:1.4"/>`;
+            else g += fdArr(cx + P[P.length - 1][0], 190, 'd', fdAc);
+            g += `<circle cx="${cx}" cy="62" r="3.6" style="fill:${fdAc}"/>`;
+            g += fdTx(cx, 224, t, { s: 11.5, w: 800, c }) + fdTx(cx, 239, p, { s: 9.5, w: 700 }) + fdTx(cx, 257, '충돌 없이 가는 거리', { s: 8.5, op: .8 }) + fdTx(cx, 274, l, { s: 13, w: 800, c: fdAc });
+            o += pvdG(f, [k], g);
+          });
+          o += fdTx(220, 300, 'λ ≈ 5×10⁻³ ÷ P (cm)', { s: 10.5, w: 800 }) + fdTx(220, 314, 'λ 평균자유행로, P는 Torr', { s: 8.5, op: .85 }) + fdTx(220, 334, '챔버는 수십 cm이므로', { s: 9.5, w: 800, c: fdAc }) + fdTx(220, 348, '고진공에선 거의 안 부딪힌다', { s: 9.5, w: 800, c: fdAc });
+          return dgSvg('압력과 평균자유행로: ' + s.label, o, '0 0 440 358');
+        }
+      },
+
+      // ---------- 진공 계통 ----------
+      'fld-vac-sys': {
+        title: '진공 계통: 챔버에서 배기까지',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '챔버에서 나온 가스는 밸브를 지나 터보펌프로 빠지고, 터보펌프 뒤에서 드라이 펌프가 받아 대기로 내보낸다. 처음 대기압에서는 러핑 라인으로 드라이 펌프가 먼저 뽑는다. 게이지가 챔버 압력을 계속 잰다.' },
+          { id: 'rough', label: '러핑', focus: ['rough', 'dry', 'ch'], desc: '대기압에서 처음 뽑는 단계를 러핑이라 한다. 터보펌프는 대기압에서 시작할 수 없으므로 러핑 밸브를 열어 드라이 펌프가 챔버 압력을 수백 mTorr 정도까지 낮춘다.' },
+          { id: 'turbo', label: '터보펌프', focus: ['turbo', 'gate', 'fore', 'dry', 'ch'], desc: '러핑으로 어느 정도 압력이 내려가면 러핑 밸브를 닫고 게이트 밸브를 열어 터보펌프로 넘어간다. 터보펌프가 10⁻³ Torr 아래의 고진공을 만들고, 터보펌프가 내보내는 가스는 드라이 펌프가 받아 준다.' },
+          { id: 'gauge', label: '게이지', focus: ['gauge', 'ch'], desc: '진공 게이지는 압력 구간마다 다른 종류를 쓴다. 대기압에서 mTorr까지는 피라니(열전도)식, 고진공에서는 이온 게이지, 공정 압력은 가스 종류에 영향받지 않는 정전용량식을 흔히 쓴다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC, fl = (d, c) => `<path d="${d}" style="fill:none;stroke:${c};stroke-width:3;stroke-opacity:.35;stroke-linecap:round;stroke-linejoin:round"/>` + fdFlow(d, c, 1.6);
+          let o = fdDefs();
+          // 챔버
+          let ch = fdRect(60, 44, 170, 140, { rx: 6, fill: 'rgba(96,165,250,.1)', c: '#60a5fa', so: .9, sw: 1.8 }) + fdRect(104, 158, 82, 10, { rx: 2, fill: 'url(#fdMt)', so: .6 }) + fdRect(112, 152, 66, 5, { rx: 1.5, fill: 'url(#fdSi)', so: .7 })
+            + `<ellipse cx="145" cy="115" rx="52" ry="22" style="fill:url(#fdPl)"/>` + fdTx(145, 66, '챔버', { s: 11, w: 800 }) + fdTx(145, 80, '웨이퍼 · 척', { s: 8.5, op: .75 }) + pvdL('M24 70 H60', { c: '#7dd3fc', sw: 2, so: .9 }) + fdArr(62, 70, 'r', '#7dd3fc') + fdTx(24, 60, '가스', { a: 'start', s: 9, w: 700, c: '#7dd3fc' });
+          o += pvdG(f, ['ch'], ch);
+          // 게이지
+          o += pvdG(f, ['gauge'], pvdL('M230 84 H258', { sw: 1.8, so: .7 }) + `<circle cx="276" cy="84" r="18" style="fill:var(--tbl-bg);stroke:${C.eq};stroke-width:1.8"/><path d="M263 92 A15 15 0 0 1 289 92" style="fill:none;stroke:currentColor;stroke-opacity:.35;stroke-width:1.2"/><path d="M276 84 L283 74" style="stroke:${fdAc};stroke-width:2;stroke-linecap:round"/><circle cx="276" cy="84" r="2.4" style="fill:${fdAc}"/>` + fdTx(276, 118, '압력 게이지', { s: 9.5, w: 800 }) + fdTx(276, 131, '피라니 · 이온 · CM', { s: 8.5, op: .8 }));
+          // 게이트 밸브 + 터보
+          o += pvdG(f, ['gate'], pvdL('M145 184 V196', { sw: 3, so: .7 }) + fdRect(115, 196, 60, 14, { rx: 2, fill: 'rgba(148,163,184,.3)', so: .8 }) + `<path d="M133 198 l12 10 l12 -10 M133 208 l12 -10 l12 10" style="fill:none;stroke:${C.eq};stroke-width:1.6"/>`);
+          let tb = fdRect(110, 210, 70, 60, { rx: 6, fill: 'rgba(96,165,250,.14)', c: C.eq, so: .95, sw: 1.8 });
+          for (let i = 0; i < 5; i++) tb += pvdL(`M118 ${222 + i * 9} H172`, { c: C.eq, sw: 1.4, so: .6 }) + pvdL(`M126 ${226 + i * 9} H164`, { c: C.eq, sw: 1, so: .35 });
+          tb += fdTx(100, 236, '터보분자', { a: 'end', s: 10, w: 800 }) + fdTx(100, 249, '펌프', { a: 'end', s: 10, w: 800 }) + fdTx(100, 263, '10⁻³ ~ 10⁻⁷ Torr', { a: 'end', s: 8.5, op: .8 });
+          o += pvdG(f, ['turbo'], tb);
+          // 포어라인
+          o += pvdG(f, ['fore'], pvdL('M145 270 V298 H300', { sw: 3, so: .35 }) + fdFlow('M145 272 V298 H298', C.eq, 1.6) + `<path d="M222 291 l12 7 l-12 7 z M246 291 l-12 7 l12 7 z" style="fill:${C.eq};fill-opacity:.55"/>` + fdTx(190, 288, '포어라인', { s: 9, w: 700, c: C.eq }));
+          // 러핑 라인
+          o += pvdG(f, ['rough'], pvdL('M60 130 H26 V336 H345 V324', { sw: 3, so: .35, c: fdAc }) + fdFlow('M60 130 H26 V336 H345 V326', fdAc, 1.6) + `<path d="M19 290 l7 11 l7 -11 z M19 312 l7 -11 l7 11 z" style="fill:${fdAc};fill-opacity:.7"/>` + fdTx(36, 298, '러핑 밸브', { a: 'start', s: 8.5, w: 700, c: fdAc }) + fdTx(190, 350, '러핑 라인', { s: 9.5, w: 800, c: fdAc }));
+          // 드라이 펌프
+          let dp = fdRect(300, 266, 92, 58, { rx: 6, fill: 'rgba(52,211,153,.14)', c: C.op, so: .95, sw: 1.8 }) + `<circle cx="326" cy="296" r="11" style="fill:none;stroke:${C.op};stroke-width:1.6"/><circle cx="350" cy="296" r="11" style="fill:none;stroke:${C.op};stroke-width:1.6"/><path d="M326 289 v14 M319 296 h14 M350 289 v14 M343 296 h14" style="stroke:${C.op};stroke-width:1.2;stroke-opacity:.7"/>` + fdTx(346, 281, '드라이 펌프', { s: 9.5, w: 800 }) + fdTx(346, 317, '대기압 ~ 10⁻³ Torr', { s: 8, op: .85 });
+          o += pvdG(f, ['dry'], dp + pvdL('M392 296 H418', { c: C.op, sw: 2.2, so: .9 }) + fdArr(420, 296, 'r', C.op) + fdTx(404, 286, '배기', { s: 9, w: 700 }) + fdTx(404, 316, '스크러버로', { s: 8, op: .8 }));
+          return dgSvg('진공 계통: ' + s.label, o, '0 0 440 356');
+        }
+      },
+
+      // ---------- 배기 곡선 ----------
+      'fld-vac-curve': {
+        title: '배기 곡선: 압력은 이렇게 내려간다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '챔버를 뽑으면 압력은 로그 눈금으로 거의 직선으로 떨어진다. 러핑으로 내리다 터보펌프로 넘어가면 더 낮은 곳까지 내려가고, 마지막에는 더 내려가지 않는 지점인 베이스 압력에서 멈춘다.' },
+          { id: 'a', label: '러핑', focus: ['a'], desc: '대기압(760 Torr)에서 드라이 펌프로 뽑는 구간이다. 압력이 빠르게 내려가고, 보통 0.1 Torr 정도(수십~수백 mTorr)에서 터보펌프로 넘어간다. 이 넘어가는 지점을 크로스오버라 한다.' },
+          { id: 'b', label: '터보', focus: ['b'], desc: '터보펌프가 일하는 구간이다. 압력이 10⁻³ Torr 아래로 내려가 고진공에 들어선다. 이때부터 압력이 내려가는 속도는 챔버 벽에서 나오는 가스에 좌우된다.' },
+          { id: 'c', label: '베이스 압력', focus: ['c'], desc: '더 이상 내려가지 않는 압력이 베이스 압력이다. 벽에 붙었던 물이나 가스가 계속 나오는 것(아웃개싱)과 작은 누설이 펌프가 빼내는 양과 맞아 멈춘다. 장비마다 정상값이 있고 이 값이 평소보다 높으면 이상 신호다.' },
+          { id: 'leak', label: '누설이 있으면', focus: ['leak'], desc: '누설이 있으면 압력이 더 내려가지 못하고 평소보다 높은 곳에서 멈춘다. 같은 시간을 뽑아도 베이스 압력이 나오지 않고, 시간이 지나도 내려가지 않는다.' },
+          { id: 'rise', label: '상승률 시험', focus: ['rise'], desc: '배기 밸브를 닫고 압력이 오르는 속도를 재는 시험이다. 누설이면 시간에 비례해 계속 오르고, 아웃개싱이면 오르다가 점점 완만해진다. 이 모양으로 원인을 가린다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const X0 = 54, X1 = 420, Y0 = 40, Y1 = 224, yy = (lg) => Y0 + (3 - lg) * (Y1 - Y0) / 11, xx = (t) => X0 + t * (X1 - X0);
+          // 구간 배경
+          const bg = (t0, t1, c, k, tx) => pvdG(f, [k], `<rect x="${xx(t0)}" y="${Y0}" width="${xx(t1) - xx(t0)}" height="${Y1 - Y0}" style="fill:${c};fill-opacity:.1"/>` + fdTx((xx(t0) + xx(t1)) / 2, Y0 + 12, tx, { s: 9.5, w: 800, c }));
+          o += bg(0, .2, '#fbbf24', 'a', '① 러핑') + bg(.2, .5, '#60a5fa', 'b', '② 터보') + bg(.5, .75, '#34d399', 'c', '③ 안정');
+          // 축
+          for (let lg = 2; lg >= -8; lg -= 2) o += pvdL(`M${X0} ${yy(lg)} H${X1}`, { so: .12, sw: 1 }) + fdTx(X0 - 6, yy(lg) + 3, '10' + (lg === 0 ? '⁰' : lg > 0 ? '²' : { '-2': '⁻²', '-4': '⁻⁴', '-6': '⁻⁶', '-8': '⁻⁸' }[lg]), { a: 'end', s: 9, op: .8 });
+          o += pvdL(`M${X0} ${Y0} V${Y1} H${X1}`, { so: .55, sw: 1.4 }) + fdTx(14, 134, 'Torr', { s: 9, w: 700, op: .8 }) + fdTx((X0 + X1) / 2, 244, '시간', { s: 9.5, w: 700, op: .85 }) + fdArr(X1 + 4, Y1, 'r');
+          // 곡선
+          const lgA = (u) => 2.88 - 3.88 * u, lgB = (u) => -1 - 5.2 * Math.pow(u, .85), lgC = (u) => -6.2 - .8 * (1 - Math.exp(-3 * u));
+          const pts = (t0, t1, fn, n) => Array.from({ length: n + 1 }, (_, i) => { const u = i / n; return `${(xx(t0 + (t1 - t0) * u)).toFixed(1)} ${yy(fn(u)).toFixed(1)}`; }).map((p, i) => (i ? 'L' : 'M') + p).join(' ');
+          o += pvdG(f, ['a'], pvdL(pts(0, .2, lgA, 8), { c: '#fbbf24', sw: 3, so: 1 }));
+          o += pvdG(f, ['b'], pvdL(pts(.2, .5, lgB, 16), { c: '#60a5fa', sw: 3, so: 1 }));
+          o += pvdG(f, ['c'], pvdL(pts(.5, .75, lgC, 12), { c: '#34d399', sw: 3, so: 1 }) + pvdL(`M${xx(.5)} ${yy(-7)} H${X1}`, { c: '#34d399', sw: 1.2, so: .7, dash: '4 3' }) + fdTx(xx(.52), yy(-7) + 12, '베이스 압력', { a: 'start', s: 9, w: 800, c: '#10b981' }));
+          // 전환 표시
+          o += pvdG(f, ['a', 'b'], pvdL(`M${xx(.2)} ${Y0 + 18} V${Y1}`, { c: fdAc, sw: 1.2, so: .8, dash: '3 3' }) + `<circle cx="${xx(.2)}" cy="${yy(-1)}" r="4.4" style="fill:${fdAc};stroke:#fff;stroke-width:1.2"/>` + fdTx(xx(.2) + 6, yy(-1) - 8, '크로스오버', { a: 'start', s: 9, w: 800, c: fdAc }));
+          // 누설
+          o += pvdG(f, ['leak'], pvdL(`M${xx(.2)} ${yy(-1)} ` + Array.from({ length: 17 }, (_, i) => { const u = i / 16; return 'L' + xx(.2 + .55 * u).toFixed(1) + ' ' + yy(-1 - 3.6 * (1 - Math.exp(-4 * u)) / (1 - Math.exp(-4))).toFixed(1); }).join(' '), { c: '#ef4444', sw: 2.4, so: .95, dash: '6 3' }) + fdTx(xx(.74), yy(-4.5) + 13, '누설이면 여기서 멈춘다', { a: 'end', s: 9, w: 800, c: '#ef4444' }));
+          // 상승률
+          const x2 = xx(.75);
+          o += pvdG(f, ['rise'], pvdL(`M${x2} ${Y0 + 18} V${Y1}`, { c: '#94a3b8', sw: 1.2, so: .8, dash: '3 3' }) + fdTx(x2 + 3, Y0 + 28, '밸브 닫음', { a: 'start', s: 9, w: 800 })
+            + pvdL(`M${x2} ${yy(-7)} L${X1 - 2} ${yy(-4.9)}`, { c: '#ef4444', sw: 2.6, so: .95 }) + fdTx(X1 - 2, yy(-2.4), '누설: 계속 오른다', { a: 'end', s: 9.5, w: 800, c: '#ef4444' })
+            + pvdL('M' + Array.from({ length: 13 }, (_, i) => { const u = i / 12; return xx(.75 + .25 * u).toFixed(1) + ' ' + yy(-7 + 1.6 * (1 - Math.exp(-3 * u))).toFixed(1); }).join(' L'), { c: '#60a5fa', sw: 2.6, so: .95 }) + fdTx(X1 - 2, yy(-2.4) + 14, '아웃개싱: 점점 완만', { a: 'end', s: 9.5, w: 800, c: '#60a5fa' }));
+          o += fdTx(220, 272, '장비마다 정상값이 있다', { s: 9.5, w: 800, c: fdAc }) + fdTx(220, 286, '벗어나면 누설부터 의심한다', { s: 9.5, op: .9 });
+          return dgSvg('배기 곡선: ' + s.label, o, '0 0 440 296');
+        }
+      },
+    });
+    // ===== 현장 직무 > "가스 · 유량(MFC) · RF 파워 기초" 글용 그림 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 가스 라인 ----------
+      'fld-gas-line': {
+        title: '가스 라인: 공급에서 챔버, 배기까지',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '가스는 공급 배관에서 가스 패널로 들어와 레귤레이터와 필터를 지나고, 가스마다 있는 MFC로 양이 정해진 뒤 한곳에서 섞여 샤워헤드로 챔버에 들어간다. 반응을 마친 가스는 펌프가 빼낸다.' },
+          { id: 'src', label: '공급', focus: ['src'], desc: '가스는 가스 캐비닛이나 공장 배관으로 공급된다. 레귤레이터가 압력을 일정하게 맞추고 필터가 입자를 걸러 MFC가 안정적으로 일하게 한다. 공급 압력이 흔들리면 MFC가 제값을 못 낸다.' },
+          { id: 'mfc', label: 'MFC', focus: ['mfc'], desc: 'MFC가 가스마다 흐르는 양을 레시피가 정한 값(sccm)으로 맞춘다. 그림의 Ar 100, CF₄ 40, O₂ 10은 각각 분당 흐르는 양이다. 공정 가스 비율이 이 숫자로 정해진다.' },
+          { id: 'mix', label: '합류 · 샤워헤드', focus: ['mix'], desc: '가스는 한곳에서 합쳐진 뒤 챔버 위의 샤워헤드로 들어간다. 작은 구멍이 가스를 웨이퍼 위에 고르게 뿌려 주고, 여기서 RF 파워를 받아 플라즈마가 된다.' },
+          { id: 'exh', label: '배기', focus: ['exh'], desc: '반응하고 남은 가스와 부산물은 아래로 빠져 펌프가 빼낸다. 들어오는 양과 빠져나가는 양이 맞아야 챔버 압력이 일정하게 유지된다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const rows = [['Ar', 66, '#60a5fa', '100'], ['CF₄', 134, '#fbbf24', '40'], ['O₂', 202, '#34d399', '10']];
+          // 가스 패널 틀
+          o += fdRect(64, 30, 222, 228, { rx: 10, fill: 'rgba(148,163,184,.06)', so: .5, sw: 1.3, dash: '5 4' }) + fdTx(76, 250, '가스 패널', { a: 'start', s: 10, w: 800, op: .85 });
+          rows.forEach(([g, y, c, q], i) => {
+            // 실린더
+            let src = fdRect(14, y - 22, 26, 52, { rx: 11, fill: c + '40', c, so: .95, sw: 1.6 }) + fdRect(20, y - 28, 14, 8, { rx: 2, fill: 'rgba(148,163,184,.5)', so: .6 }) + fdTx(27, y + 4, g, { s: 9.5, w: 800 }) + pvdL(`M40 ${y} H98`, { c, sw: 2.2, so: .85 });
+            // 레귤레이터, 필터
+            src += `<circle cx="64" cy="${y}" r="9" style="fill:var(--tbl-bg);stroke:${c};stroke-width:1.6"/><path d="M64 ${y} l4 -5" style="stroke:${fdAc};stroke-width:1.6;stroke-linecap:round"/>` + fdRect(86, y - 7, 26, 14, { rx: 3, fill: 'rgba(148,163,184,.22)', c, so: .8, sw: 1.4 }) + pvdL(`M92 ${y - 3} v6 M99 ${y - 3} v6 M106 ${y - 3} v6`, { c, sw: 1, so: .6 });
+            if (i === 0) src += fdTx(64, y - 15, '레귤레이터', { s: 8, op: .8 }) + fdTx(99, y + 22, '필터', { s: 8, op: .8 });
+            o += pvdG(f, ['src'], src);
+            // MFC + 밸브
+            let m = pvdL(`M112 ${y} H146`, { c, sw: 2.2, so: .85 }) + fdRect(146, y - 19, 62, 38, { rx: 5, fill: 'var(--tbl-bg)', c, so: .95, sw: 1.8 }) + fdRect(152, y - 13, 50, 14, { rx: 2, fill: '#0f172a', c: '#475569', so: .8, sw: .8 }) + fdTx(177, y - 2.5, q, { s: 10, w: 800, c: '#86efac' }) + fdTx(177, y + 13, g + ' MFC', { s: 8.5, w: 700 })
+              + pvdL(`M208 ${y} H238`, { c, sw: 2.2, so: .85 }) + `<path d="M226 ${y - 7} l12 7 l-12 7 z M250 ${y - 7} l-12 7 l12 7 z" style="fill:${c};fill-opacity:.6"/>` + pvdL(`M250 ${y} H290`, { c, sw: 2.2, so: .85 });
+            if (i === 0) m += fdTx(177, y - 26, 'sccm', { s: 8.5, w: 800, c: fdAc }) + fdTx(238, y - 12, '밸브', { s: 8, op: .8 });
+            o += pvdG(f, ['mfc'], m);
+          });
+          // 합류
+          let mx = pvdL('M290 66 V202', { c: '#94a3b8', sw: 3, so: .8 }) + pvdL('M290 134 H372 V162', { c: '#94a3b8', sw: 3, so: .8 }) + fdArr(372, 168, 'd', '#94a3b8');
+          // 챔버
+          mx += fdRect(318, 160, 108, 108, { rx: 6, fill: 'rgba(96,165,250,.1)', c: '#60a5fa', so: .9, sw: 1.8 }) + fdRect(328, 172, 88, 7, { rx: 2, fill: 'url(#fdMt)', so: .7 });
+          for (let i = 0; i < 7; i++) mx += `<circle cx="${338 + i * 11.5}" cy="175.5" r="1.6" style="fill:var(--tbl-bg)"/>`;
+          mx += `<ellipse cx="372" cy="214" rx="34" ry="16" style="fill:url(#fdPl)"/>` + fdRect(342, 244, 60, 8, { rx: 2, fill: 'url(#fdMt)', so: .6 }) + fdRect(348, 239, 48, 5, { rx: 1.5, fill: 'url(#fdSi)', so: .7 }) + fdTx(372, 193, '샤워헤드', { s: 8.5, w: 700 }) + fdTx(334, 154, '챔버', { a: 'start', s: 10, w: 800 });
+          o += pvdG(f, ['mix'], mx);
+          o += pvdG(f, ['exh'], pvdL('M372 268 V300', { c: fdAc, sw: 3, so: .5 }) + fdFlow('M372 268 V298', fdAc, 1.6) + fdArr(372, 304, 'd', fdAc) + fdTx(372, 322, '펌프로 배기', { s: 9.5, w: 800, c: fdAc }));
+          o += fdTx(150, 284, '가스마다 MFC가 하나씩', { s: 9.5, w: 800, c: fdAc }) + fdTx(150, 298, 'sccm = 1분에 cm³ (표준 상태)', { s: 8.5, op: .85 });
+          return dgSvg('가스 라인: ' + s.label, o, '0 0 440 336');
+        }
+      },
+
+      // ---------- MFC 내부 ----------
+      'fld-mfc': {
+        title: 'MFC 내부: 열로 유량을 읽고 밸브로 맞춘다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: 'MFC는 흐르는 가스의 양을 재는 센서와 양을 조절하는 밸브, 그리고 둘을 잇는 제어 회로가 하나로 묶인 장치다. 설정값과 실제값이 다르면 밸브를 움직여 계속 맞춘다.' },
+          { id: 'split', label: '유로 분기', focus: ['split'], desc: '들어온 가스는 두 갈래로 나뉜다. 대부분은 가는 관 다발(층류 소자)로 지나가고, 일정한 비율의 극히 일부가 가는 센서 관으로 들어간다. 분기 비율이 일정하므로 일부만 재도 전체 유량을 알 수 있다.' },
+          { id: 'heat', label: '열 센서', focus: ['heat'], desc: '센서 관에는 가열하는 코일이 둘 감겨 있다. 가스가 흐르면 열이 하류 쪽으로 밀려 두 코일의 온도 차이가 생기고, 이 차이가 질량 유량에 비례한다. 부피가 아니라 질량(분자 수)을 잰다.' },
+          { id: 'valve', label: '제어 밸브', focus: ['valve'], desc: '제어 밸브는 전기 신호로 통로를 얼마나 열지 정한다. 열수록 많이 흐르고 닫을수록 적게 흐른다. 센서가 읽은 값과 설정값의 차이에 맞춰 계속 움직인다.' },
+          { id: 'loop', label: '피드백', focus: ['loop'], desc: '제어 회로가 설정값과 센서가 읽은 실제값을 비교해 차이가 없어지도록 밸브를 조절한다. 이렇게 계속 확인하며 맞추기 때문에 공급 압력이 조금 변해도 유량이 일정하다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC, W = '#7dd3fc';
+          let o = fdDefs();
+          // 본체 (유로)
+          o += fdRect(24, 64, 392, 56, { rx: 8, fill: 'rgba(148,163,184,.1)', so: .6, sw: 1.5 }) + pvdL('M4 92 H24', { c: W, sw: 3, so: .9 }) + fdArr(26, 92, 'r', W) + fdTx(14, 82, '입구', { s: 9, w: 700, c: W }) + pvdL('M416 92 H434', { c: W, sw: 3, so: .9 }) + fdArr(436, 92, 'r', W) + fdTx(426, 82, '출구', { s: 9, w: 700, c: W });
+          // 층류 소자와 센서 관 (유로 분기)
+          let sp = fdFlow('M24 92 H100', W, 1.8) + fdRect(100, 72, 82, 40, { rx: 4, fill: 'rgba(96,165,250,.14)', c: C.eq, so: .9, sw: 1.6 });
+          for (let i = 0; i < 6; i++) sp += pvdL(`M104 ${78 + i * 6.5} H178`, { c: C.eq, sw: 1.2, so: .65 });
+          sp += fdFlow('M182 92 H250', W, 1.8) + fdTx(141, 46, '층류 소자', { s: 9.5, w: 800 }) + fdTx(141, 58, '(가는 관 다발)', { s: 8, op: .8 })
+            + pvdL('M94 92 V150 H190 V92', { c: C.eq, sw: 2.6, so: .95 }) + fdFlow('M94 94 V150 H190 V94', W, 1.4) + fdTx(196, 112, '센서 관', { a: 'start', s: 9, w: 800, c: C.eq });
+          o += pvdG(f, ['split', 'heat', 'loop'], sp);
+          // 코일 (R₂가 더 뜨겁다)
+          const coil = (x, hot) => `<rect x="${x}" y="144" width="18" height="12" rx="2" style="fill:${hot ? 'rgba(239,68,68,.5)' : 'rgba(251,146,60,.35)'};stroke:${hot ? '#ef4444' : fdAc};stroke-width:1.6"/><path d="M${x + 4} 144 v12 M${x + 9} 144 v12 M${x + 14} 144 v12" style="stroke:${hot ? '#ef4444' : fdAc};stroke-width:1"/>`;
+          o += pvdG(f, ['heat'], coil(112, false) + coil(152, true) + fdTx(121, 138, 'R₁', { s: 8.5, w: 800, c: fdAc }) + fdTx(161, 138, 'R₂', { s: 8.5, w: 800, c: '#ef4444' }) + fdTx(200, 138, '유량 있으면', { a: 'start', s: 8.5, w: 800, c: '#ef4444' }) + fdTx(200, 150, 'R₂가 뜨겁다', { a: 'start', s: 8.5, w: 800, c: '#ef4444' }));
+          // 제어 밸브
+          let vv = fdRect(250, 72, 70, 40, { rx: 4, fill: 'rgba(52,211,153,.12)', c: C.op, so: .9, sw: 1.6 }) + fdFlow('M320 92 H416', W, 1.8) + `<path d="M270 100 h30 l-5 -10 h-20 z" style="fill:${C.op};fill-opacity:.55;stroke:${C.op};stroke-width:1.4"/><path d="M285 100 v20" style="stroke:${C.op};stroke-width:3"/>` + fdRect(274, 120, 22, 24, { rx: 3, fill: 'rgba(52,211,153,.35)', c: C.op, so: .95, sw: 1.5 }) + `<path d="M278 128 h14 M278 133 h14 M278 138 h14" style="stroke:${C.op};stroke-width:1.1"/>` + fdTx(285, 46, '제어 밸브', { s: 9.5, w: 800 }) + fdTx(285, 58, '(열린 정도 조절)', { s: 8, op: .8 });
+          o += pvdG(f, ['valve', 'loop'], vv);
+          // 제어 회로
+          let ct = fdRect(40, 184, 360, 74, { rx: 10, fill: 'rgba(148,163,184,.08)', c: fdAc, so: .85, sw: 1.5 }) + fdTx(52, 198, '제어 회로', { a: 'start', s: 9.5, w: 800, c: fdAc });
+          ct += fdRect(56, 208, 90, 40, { rx: 6, fill: 'var(--tbl-bg)', c: C.eq, so: .9, sw: 1.4 }) + fdTx(101, 225, '센서 신호', { s: 9.5, w: 800 }) + fdTx(101, 239, '실제값 49.8', { s: 8.5, op: .9 })
+            + fdRect(168, 208, 104, 40, { rx: 6, fill: 'var(--tbl-bg)', c: fdAc, so: .95, sw: 1.8 }) + fdTx(220, 225, '비교', { s: 9.5, w: 800 }) + fdTx(220, 239, '설정값 − 실제값', { s: 8.5, op: .9 })
+            + fdRect(294, 208, 90, 40, { rx: 6, fill: 'var(--tbl-bg)', c: C.op, so: .9, sw: 1.4 }) + fdTx(339, 225, '밸브 구동', { s: 9.5, w: 800 }) + fdTx(339, 239, '열기 · 닫기', { s: 8.5, op: .9 })
+            + pvdL('M146 228 H162', { c: C.eq, sw: 2, so: .9 }) + fdArr(166, 228, 'r', C.eq) + pvdL('M272 228 H288', { c: C.op, sw: 2, so: .9 }) + fdArr(292, 228, 'r', C.op);
+          o += pvdG(f, ['loop'], ct);
+          o += pvdG(f, ['loop', 'heat'], pvdL('M134 150 V170 H118 V204', { c: C.eq, sw: 1.8, so: .85, dash: '4 3' }) + fdArr(118, 206, 'd', C.eq));
+          o += pvdG(f, ['loop', 'valve'], pvdL('M339 206 V170 H285 V150', { c: C.op, sw: 1.8, so: .85, dash: '4 3' }) + fdArr(285, 146, 'u', C.op));
+          o += pvdG(f, ['loop'], pvdL('M220 276 V262', { c: fdAc, sw: 2, so: .9 }) + fdArr(220, 258, 'u', fdAc) + fdTx(220, 290, '설정값 50 sccm (레시피)', { s: 9.5, w: 800, c: fdAc }));
+          return dgSvg('MFC 내부: ' + s.label, o, '0 0 440 300');
+        }
+      },
+
+      // ---------- RF 파워와 플라즈마 ----------
+      'fld-rf': {
+        title: 'RF 파워: 플라즈마를 켜고 이온의 세기를 정한다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: 'RF 발생기가 만든 전력은 매처를 거쳐 챔버에 전달된다. 코일에 걸리는 소스 파워가 플라즈마의 양(밀도)을 만들고, 웨이퍼 아래 척에 걸리는 바이어스 파워가 이온이 웨이퍼를 때리는 세기를 정한다.' },
+          { id: 'gen', label: 'RF 발생기', focus: ['gen'], desc: 'RF 발생기는 정해진 주파수의 전력을 만든다. 소스용은 13.56 MHz 근처를 흔히 쓰고, 바이어스용은 더 낮은 주파수를 쓰는 장비도 많다. 주파수와 전력 값은 장비와 공정마다 다르다.' },
+          { id: 'match', label: '매처', focus: ['match'], desc: '플라즈마는 상태에 따라 전기 저항이 바뀌어서 그대로 두면 전력이 발생기로 되돌아온다. 매처가 이를 맞춰서 전력이 잘 들어가게 한다. 화면의 반사 전력이 크면 매칭이 잘 안 되는 것이다.' },
+          { id: 'src', label: '소스 파워', focus: ['src'], desc: '소스 파워는 코일을 통해 챔버 안에 전기장을 만들어 가스를 이온과 라디칼로 쪼갠다. 파워가 커지면 플라즈마가 짙어져 이온과 라디칼이 늘고 반응이 빨라진다.' },
+          { id: 'bias', label: '바이어스 파워', focus: ['bias'], desc: '바이어스 파워는 웨이퍼 쪽에 전압을 걸어 이온을 웨이퍼로 끌어당긴다. 파워가 커지면 이온이 더 세게 부딪혀 깎는 힘과 곧게 파는 정도가 커지지만, 마스크와 아래 막도 더 많이 상한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 챔버
+          o += fdRect(150, 66, 190, 180, { rx: 8, fill: 'rgba(96,165,250,.08)', c: '#60a5fa', so: .85, sw: 1.8 }) + fdTx(245, 84, '챔버', { s: 9.5, w: 800, op: .8 });
+          // 플라즈마 (고정) + 코일 (소스)
+          o += `<ellipse cx="245" cy="148" rx="82" ry="48" style="fill:url(#fdPl)"/>` + `<ellipse cx="245" cy="148" rx="46" ry="28" style="fill:url(#fdPl2)"/>`;
+          let src = fdRect(176, 50, 138, 10, { rx: 3, fill: 'rgba(148,163,184,.4)', so: .7 }) + [0, 1, 2, 3, 4].map((i) => `<circle cx="${190 + i * 26}" cy="43" r="6.5" style="fill:rgba(251,146,60,.4);stroke:${fdAc};stroke-width:1.7"/>`).join('') + pvdL('M190 36.5 H294', { c: fdAc, sw: 1.6, so: .7 }) + fdTx(332, 46, '코일', { a: 'start', s: 9, w: 800, c: fdAc })
+            + fdTx(380, 112, '플라즈마', { s: 9, w: 800, c: '#a78bfa' }) + fdTx(380, 124, '밀도 ↑', { s: 9, w: 800, c: '#a78bfa' }) + pvdL('M342 118 H352', { c: '#a78bfa', sw: 1.4, so: .8 });
+          o += pvdG(f, ['src'], src);
+          // 척 + 웨이퍼 (바이어스)
+          let bs = fdRect(176, 222, 138, 14, { rx: 3, fill: 'url(#fdMt)', c: C.eq, so: .9, sw: 1.5 }) + fdRect(188, 214, 114, 7, { rx: 2, fill: 'url(#fdSi)', so: .8 }) + pvdL('M180 202 H310', { c: '#c4b5fd', sw: 1.2, so: .7, dash: '3 3' }) + fdTx(318, 205, '시스', { a: 'start', s: 8.5, w: 700, c: '#a78bfa' });
+          for (let i = 0; i < 6; i++) bs += pvdL(`M${204 + i * 18} 176 V204`, { c: '#a78bfa', sw: 2, so: .95 }) + fdArr(204 + i * 18, 212, 'd', '#a78bfa');
+          bs += fdTx(245, 170, '이온이 웨이퍼를 때린다', { s: 8.5, w: 800, c: '#a78bfa' }) + pvdL('M245 236 V268', { c: C.eq, sw: 2, so: .9 });
+          o += pvdG(f, ['bias'], bs);
+          // 발생기 + 매처 (왼쪽: 소스, 아래: 바이어스)
+          const box = (x, y, w, t, sub, c) => fdRect(x, y, w, 36, { rx: 6, fill: 'var(--tbl-bg)', c, so: .95, sw: 1.6 }) + fdTx(x + w / 2, y + 16, t, { s: 10, w: 800 }) + fdTx(x + w / 2, y + 29, sub, { s: 8, op: .85 });
+          o += pvdG(f, ['gen'], box(8, 24, 56, 'RF', '소스', fdAc) + box(8, 282, 56, 'RF', '바이어스', C.eq));
+          o += pvdG(f, ['match'], box(86, 24, 54, '매처', '소스', fdAc) + box(86, 282, 54, '매처', '바이어스', C.eq) + fdRect(86, 68, 54, 38, { rx: 5, fill: '#0f172a', c: '#475569', so: .8, sw: .8 }) + fdTx(113, 82, '순방향 300 W', { s: 7.8, w: 700, c: '#86efac' }) + fdTx(113, 96, '반사 3 W', { s: 8, w: 800, c: '#fca5a5' }));
+          o += pvdG(f, ['gen', 'match', 'src'], pvdL('M64 42 H86 M140 42 H156 V43 H184', { c: fdAc, sw: 2, so: .9 }));
+          o += pvdG(f, ['gen', 'match', 'bias'], pvdL('M64 300 H86 M140 300 H245 V268', { c: C.eq, sw: 2, so: .9 }));
+          // 가스 · 배기
+          o += pvdL('M120 120 H150', { c: '#7dd3fc', sw: 2, so: .9 }) + fdArr(152, 120, 'r', '#7dd3fc') + fdTx(112, 124, '가스', { a: 'end', s: 9, w: 700, c: '#7dd3fc' }) + pvdL('M340 214 H372', { c: fdAc, sw: 2, so: .8 }) + fdArr(374, 214, 'r', fdAc) + fdTx(398, 218, '배기', { s: 9, w: 700, c: fdAc });
+          o += fdTx(335, 292, '소스: 플라즈마의 양', { s: 9.5, w: 800, c: fdAc }) + fdTx(335, 306, '바이어스: 이온의 세기', { s: 9.5, w: 800, c: C.eq });
+          return dgSvg('RF 파워: ' + s.label, o, '0 0 440 328');
+        }
+      },
+    });
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
@@ -9519,7 +9759,7 @@
               <div><dt>분류</dt><dd>${escH(t.category)} / ${escH(t.subject)}</dd></div>
               ${fldK ? `<div><dt>등급</dt><dd>${escH(FLD_TIER[fldK].n)} · ${FLD_TIER[fldK].p ? FLD_TIER[fldK].p + ' 토큰' : '무료'}</dd></div>` : `<div><dt>대상 장비</dt><dd>${escH(t.equip || '-')}</dd></div>`}
               <div><dt>읽는 시간</dt><dd>약 ${t0.premium && t0.mins ? t0.mins : Math.max(1, Math.round(String(t.content).length / 650))}분</dd></div>
-              ${fldK ? `<div><dt>눌러 보는 그림</dt><dd>${(String(t.content).match(/\{\{diagram:/g) || []).length}개</dd></div>` : `<div><dt>연계 체험</dt><dd>${labK ? escH(LABS[labK].title) : '준비 중'}</dd></div>`}
+              ${fldK ? `<div><dt>눌러 보는 그림</dt><dd>${t0.premium && t0.figs ? t0.figs : (String(t.content).match(/\{\{diagram:/g) || []).length}개</dd></div>` : `<div><dt>연계 체험</dt><dd>${labK ? escH(LABS[labK].title) : '준비 중'}</dd></div>`}
             </dl>
           </header>
           ${locked ? '' : `<div class="adv-bodywrap"><div class="custom-table-container theory-body adv-body prose prose-slate dark:prose-invert max-w-none">${math.restore(safeHtml(marked.parse(rawMarkdown)))}</div></div>`}
