@@ -53,7 +53,7 @@
 <script src="biz-info.js"></script>
 <script>
 (function () {
-  var B = window.BIZ || {}, rows = [['상호', B.name], ['대표자', B.rep], ['사업자등록번호', B.regNo], ['통신판매업 신고번호', B.mailOrderNo], ['사업장 주소', B.address], ['전화번호', B.tel], ['고객센터 이메일', B.email], ['개인정보 보호책임자', B.privacyOfficer + (B.email ? ' (' + B.email + ')' : '')]];
+  var B = window.BIZ || {}, rows = [['상호', B.name], ['대표자', B.rep], ['사업자등록번호', B.regNo], ['통신판매업 신고번호', B.mailOrderNo], ['사업장 주소', B.address], ['전화번호', B.tel], ['고객센터 이메일', B.email], ['호스팅서비스 제공자', B.host], ['개인정보 보호책임자', B.privacyOfficer + (B.email ? ' (' + B.email + ')' : '')]];
   var t = document.getElementById('bizTable');
   if (t) t.innerHTML = rows.filter(function (r) { return r[0] !== '전화번호' || r[1]; }).map(function (r) { return '<tr><th>' + r[0] + '</th><td>' + (r[1] ? String(r[1]).replace(/[&<>]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }) : '준비 중') + '</td></tr>'; }).join('');
   document.querySelectorAll('[data-biz]').forEach(function (e) { e.textContent = B[e.getAttribute('data-biz')] || '준비 중'; });

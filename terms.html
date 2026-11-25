@@ -37,7 +37,7 @@
     <h2>제5조 (토큰)</h2>
     <ol>
       <li>무료 토큰은 하루 학습 미션을 채우고 출석하면 하루 5개, 가입 24시간 뒤 환영 토큰 10개를 받습니다. 보유 한도는 30개이며, 한도를 넘는 만큼은 지급하지 않습니다. 지급 기준은 서비스 사정에 따라 바뀔 수 있고, 바뀔 때는 미리 공지합니다.</li>
-      <li>유료 토큰은 판매 화면에 표시된 금액으로 살 수 있고, 유효기간이 없습니다.</li>
+      <li>유료 토큰은 판매 화면에 표시된 금액(부가가치세 포함)으로 살 수 있고, 유효기간이 없습니다.</li>
       <li>토큰은 현금으로 바꿀 수 없고 다른 계정으로 옮기거나 팔 수 없습니다. 해금에는 무료 토큰을 먼저 쓰고 남은 부분에 유료 토큰을 씁니다.</li>
       <li>환불은 <a href="refund.html">환불정책</a>에 따릅니다.</li>
       <li>계정을 삭제하면 남은 무료·유료 토큰은 사라집니다. 환불 요건을 채운 유료 토큰은 삭제 전에 환불을 신청해야 하며, 결제·해금 기록은 법령에 따라 보관합니다.</li>
@@ -62,7 +62,7 @@
 <script src="biz-info.js"></script>
 <script>
 (function () {
-  var B = window.BIZ || {}, rows = [['상호', B.name], ['대표자', B.rep], ['사업자등록번호', B.regNo], ['통신판매업 신고번호', B.mailOrderNo], ['사업장 주소', B.address], ['전화번호', B.tel], ['고객센터 이메일', B.email], ['개인정보 보호책임자', B.privacyOfficer + (B.email ? ' (' + B.email + ')' : '')]];
+  var B = window.BIZ || {}, rows = [['상호', B.name], ['대표자', B.rep], ['사업자등록번호', B.regNo], ['통신판매업 신고번호', B.mailOrderNo], ['사업장 주소', B.address], ['전화번호', B.tel], ['고객센터 이메일', B.email], ['호스팅서비스 제공자', B.host], ['개인정보 보호책임자', B.privacyOfficer + (B.email ? ' (' + B.email + ')' : '')]];
   var t = document.getElementById('bizTable');
   if (t) t.innerHTML = rows.filter(function (r) { return r[0] !== '전화번호' || r[1]; }).map(function (r) { return '<tr><th>' + r[0] + '</th><td>' + (r[1] ? String(r[1]).replace(/[&<>]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }) : '준비 중') + '</td></tr>'; }).join('');
   document.querySelectorAll('[data-biz]').forEach(function (e) { e.textContent = B[e.getAttribute('data-biz')] || '준비 중'; });
