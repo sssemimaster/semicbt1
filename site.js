@@ -10651,6 +10651,11 @@
     // =====================================================
     const PRM = { free: 0, paid: 0, unlocked: new Set(), bundles: [], cache: {}, loaded: false, queue: [], pumpP: null, lastSent: 0, welcomed: false, busy: false };
     const PRICE_HINT = { theory: 15, lab: 10, bundle: 22 };
+    // 글마다 값이 다를 수 있다: 현장 직무 글은 로드맵 등급(FLD_TIER)의 값을 쓴다. 실제 결제액은 서버 카탈로그가 정한다
+    function pmPrice(id, kind) {
+      if (kind === 'theory') { const t = allTheories.find((x) => x.id === id); if (t && t.subject === FLD_SUB) { const k = (FLD_MAP.flatMap((g) => g.items).find((it) => it[1] === t.title) || [])[0]; if (k && FLD_TIER[k].p) return FLD_TIER[k].p; } }
+      return PRICE_HINT[kind];
+    }
     // 무료 맛보기: 토큰 없이 로그인만 하면 열리는 심화 이론 1편·장비 체험 1개(같은 장비). 서버 FREE_PREVIEW 와 같은 목록으로 맞춘다
     const FREE_PREVIEW = new Set(['TH-543f9c26', 'lab-etch']);   // 화면 안내용일 뿐, 실제 가격은 서버 카탈로그가 정한다
     async function apiJson(path, method, body) {
@@ -10783,7 +10788,7 @@
     async function premiumUnlock(id) {
       if (PRM.busy || document.getElementById('pmc')) return;
       const bd = (PRM.bundles || []).find((b) => b.id === id), isLab = String(id).indexOf('lab-') === 0;
-      const price = bd ? bd.price : PRICE_HINT[isLab ? 'lab' : 'theory'];
+      const price = bd ? bd.price : pmPrice(id, isLab ? 'lab' : 'theory');
       const name = bd ? '이론 + 장비 체험 번들' : isLab ? ((LABS[id.slice(4)] || {}).title || '장비 체험') : ((allTheories.find((x) => x.id === id) || {}).title || '이 글');
       if (!(await pmConfirm(name, price))) return;
       return premiumUnlockDo(id);
@@ -10876,7 +10881,7 @@
         pts = ['<b>한 편에 끝까지</b> — 개요 · 구조 · 레시피 · 결과 읽기 · 트러블슈팅' + (t.mins ? ` (약 ${t.mins}분 분량)` : ''), '<b>상황별 대처</b> — 현장에서 마주치는 상황마다 어떻게 대응하는지 정리했어요']
           .concat(t.lab && LABS[t.lab] ? [`<b>바로 실습</b> — 읽은 뒤 “${escH(LABS[t.lab].title)}”에서 같은 조건으로 따라 해 볼 수 있어요`] : []);
       }
-      const price = PRICE_HINT[kind], have = PRM.free + PRM.paid;
+      const price = pmPrice(id, kind), have = PRM.free + PRM.paid;
       let body;
       if (!acct.user && FREE_PREVIEW.has(id)) body = `<button type="button" class="pmg-cta" onclick="pmGateLogin()">구글 로그인하고 무료로 보기</button><p class="pmg-wallet">무료 맛보기예요 · 로그인만 하면 토큰 없이 바로 볼 수 있어요</p>`;
       else if (!acct.user) body = `<button type="button" class="pmg-cta" onclick="pmGateLogin()">구글 로그인하고 시작하기</button><p class="pmg-wallet">로그인하고 하루 학습 미션을 채우면 토큰을 5개씩 받아요</p>`;
@@ -10908,7 +10913,7 @@
     function premiumLock(id, kind) {
       const el = document.createElement('div'); el.className = 'pm-lock';
       const whatTopic = kind === 'lab' ? '이 장비 체험은' : '이 글의 나머지는', whatObj = kind === 'lab' ? '이 장비 체험을' : '이 글의 나머지를', whatFree = kind === 'lab' ? '이 장비 체험은' : '이 글은';
-      const price = PRICE_HINT[kind];
+      const price = pmPrice(id, kind);
       const head = (ic, t, p) => `<div class="pml-ic" aria-hidden="true">${ico(ic)}</div><h4>${t}</h4>${p ? `<p>${p}</p>` : ''}`;
       let h;
       if (!acct.user && FREE_PREVIEW.has(id)) h = head('unlock', `${whatFree} 무료 맛보기예요`, '구글 로그인만 하면 토큰 없이 바로 볼 수 있어요.') + `<div class="pml-btns"><button type="button" class="tkb" onclick="openAcct()">로그인하고 무료로 보기</button></div>`;
