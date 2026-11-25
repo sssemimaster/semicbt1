@@ -549,7 +549,7 @@
     }
     function payRender() {
       const o = document.getElementById('payM'); if (!o) return;
-      const have = PRM.free + PRM.paid, ready = !!PAY.key, test = ready && window.NICEPAY_TEST === true;   // 샌드박스 키는 운영 키와 모양이 같아서 설정 파일의 표시(NICEPAY_TEST)로 구분
+      const have = PRM.free + PRM.paid, ready = !!PAY.key;
       const best = PAY.packs.reduce((m, p) => (p.amount / p.tokens < m.amount / m.tokens ? p : m));
       const packs = PAY.packs.map((p) => {
         const busy = PAY.busy && PAY.busyPack === p.id, th = Math.floor(p.tokens / PRICE_HINT.theory);
@@ -610,7 +610,7 @@
         <div class="pay-bal">${TK('pay-bal-tk')}<div><small>내 토큰</small><b>${have}</b></div><div class="pay-bal-s"><span>무료 ${PRM.free}</span><span>유료 ${PRM.paid}</span></div></div>
         <button type="button" class="earn-link" onclick="earnOpen()">${ico('info')} 토큰 획득법</button>
         ${pendMsg}
-        ${ready ? (test ? `<p class="pay-test">${ico('flask')}<span>테스트 결제 모드 · 실제로 요금이 청구되지 않아요</span></p>` : '') : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
+        ${ready ? '' : '<p class="pay-test">결제 기능을 준비 중이에요. 곧 열려요!</p>'}
         <div class="pay-sec"><span class="pmg-tick"><i></i>CHARGE</span></div>
         <div class="pay-packs">${packs}</div>
         <p class="pay-secure">${ico('shield')}<span>카드 결제 · 나이스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
