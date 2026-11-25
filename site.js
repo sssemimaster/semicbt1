@@ -436,7 +436,7 @@
       sc.onload = () => {
         const B = window.BIZ, box = document.getElementById('bizInfo'); if (!B || !box) return;
         const it = (k, v) => v ? `<span class="inline-block mr-3"><span>${k}</span> <span data-noi18n>${escH(v)}</span></span>` : '';
-        box.innerHTML = it('상호', B.name) + it('대표', B.rep) + it('사업자등록번호', B.regNo) + it('통신판매업 신고', B.mailOrderNo) + it('주소', B.address) + it('전화', B.tel) + it('문의', B.email);
+        box.innerHTML = it('상호', B.name) + it('대표', B.rep) + it('사업자등록번호', B.regNo) + it('통신판매업 신고', B.mailOrderNo) + it('주소', B.address) + it('전화', B.tel) + it('문의', B.email) + it('호스팅', B.host);
       };
       document.head.appendChild(sc);
     }
@@ -615,6 +615,7 @@
         <div class="pay-packs">${packs}</div>
         <p class="pay-secure">${ico('shield')}<span>카드 결제 · 나이스페이먼츠 결제창에서 안전하게 진행돼요</span></p>
         <p class="pay-legal"><span>결제하면 아래 내용에 동의한 것으로 봐요</span> <a href="${ROOT}terms.html" target="_blank" rel="noopener">이용약관</a> · <a href="${ROOT}refund.html" target="_blank" rel="noopener">환불정책</a></p>
+        <p class="pay-legal"><span>표시된 금액은 부가가치세가 포함된 가격이에요</span></p>
         <p class="pay-legal"><span>해금에 쓴 토큰은 환불되지 않고, 결제 후 7일 이내에는 환불을 신청할 수 있어요</span></p>
         ${msgs}
         <button type="button" class="earn-link" onclick="payView('history')">${ico('info')} 결제 내역 · 환불 문의</button></div>`;
