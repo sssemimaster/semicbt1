@@ -9194,6 +9194,143 @@
         }
       },
     });
+    // ===== 현장 직무 > "생산 용어", "MES와 설비 상태" 글용 그림 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- Lot, Recipe, Route, WIP ----------
+      'fld-lot': {
+        title: 'Lot, Recipe, Route, WIP',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '현장의 생산 용어는 하나의 그림으로 이어진다. 웨이퍼 묶음이 Lot이고, 그 Lot을 어떻게 처리할지는 Recipe가, 어떤 순서로 지나갈지는 Route가 정한다. 지금 팹 안에서 진행 중인 Lot 전체가 WIP이다.' },
+          { id: 'lot', label: 'Lot', focus: ['lot'], desc: 'Lot은 함께 움직이는 웨이퍼 묶음이다. 보통 웨이퍼 25장이 FOUP 하나에 담겨 이동하고, 로트 번호로 추적한다. 같은 로트의 웨이퍼는 같은 조건을 거치므로 불량이 나면 로트 단위로 원인을 좁힌다.' },
+          { id: 'rcp', label: 'Recipe', focus: ['rcp'], desc: 'Recipe는 장비가 로트를 어떻게 처리할지 정해 둔 조건표다. 가스, 압력, 온도, 시간, RF 파워 같은 값이 들어 있다. 같은 장비도 Recipe를 바꾸면 전혀 다른 공정을 한다.' },
+          { id: 'route', label: 'Route', focus: ['route'], desc: 'Route는 로트가 지나갈 공정 순서다. 로트는 Route를 따라 세정, 산화, 노광 같은 단계를 차례로 지나며, 층마다 이 흐름을 되풀이한다. MES가 현재 어느 단계인지를 기록한다.' },
+          { id: 'wip', label: 'WIP', focus: ['wip'], desc: 'WIP(재공품)는 지금 팹 안에서 공정이 진행 중이거나 순서를 기다리는 로트 전체다. 단계마다 쌓인 대기 로트를 합친 수이고, 너무 많으면 사이클 타임이 길어지며 너무 적으면 장비가 놀게 된다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // FOUP + 웨이퍼 25장 + 로트 번호표
+          let lot = pvdR(22, 34, 92, 90, 'rgba(52,211,153,.12)', { rx: 8, so: .9, sw: 1.7 }) + pvdR(46, 26, 44, 10, 'rgba(148,163,184,.45)', { rx: 3, so: .6 });
+          for (let i = 0; i < 13; i++) lot += pvdR(32, 44 + i * 5.8, 72, 3, 'url(#fdSi)', { rx: 1.5, so: .4, sw: .6 });
+          lot += fdTx(68, 140, '웨이퍼 25장 = FOUP 1개', { s: 9, w: 700 }) + fdRect(124, 40, 92, 52, { rx: 6, fill: 'var(--tbl-bg)', c: C.op, so: .9, sw: 1.4 }) + fdTx(170, 56, '로트 번호', { s: 9, op: .7 }) + fdTx(170, 72, 'LOT A1234', { s: 11, w: 800 }) + pvdL('M134 82 V87 M138 82 V87 M142 82 V87 M147 82 V87 M151 82 V87 M155 82 V87 M160 82 V87 M164 82 V87 M169 82 V87 M174 82 V87 M178 82 V87 M183 82 V87 M188 82 V87 M193 82 V87 M198 82 V87 M203 82 V87', { so: .6, sw: 1 });
+          lot += pvdNum(28, 28, '1', C.op);
+          o += pvdG(f, ['lot'], lot);
+          // Recipe 카드
+          o += pvdG(f, ['rcp'], fdRect(232, 30, 194, 110, { rx: 8, fill: 'var(--tbl-bg)', c: C.pr, so: .9, sw: 1.5 }) + pvdNum(246, 46, '2', C.pr) + fdTx(260, 50, '레시피 (Recipe)', { a: 'start', s: 11, w: 800 }) + pvdL('M242 58 H416', { so: .3 }) + ['가스 종류 · 유량', '압력 · 온도', '시간 · RF 파워'].map((t, i) => `<circle cx="248" cy="${75 + i * 16}" r="2.4" style="fill:${C.pr}"/>` + fdTx(256, 78 + i * 16, t, { a: 'start', s: 10, w: 600 })).join('') + fdTx(329, 128, '이 로트를 어떻게 처리할지 정한 조건표', { s: 9, c: fdAc, w: 700 }));
+          // Route 박스 + 대기 로트(WIP)
+          const steps = ['세정', '산화', '노광', '식각', '증착', '측정'], q = [3, 1, 5, 2, 4, 1];
+          let rt = fdTx(32, 172, 'Route: 로트가 지나갈 공정 순서', { a: 'start', s: 10.5, w: 800 }) + pvdNum(20, 168, '3', fdAc);
+          let wp = '';
+          steps.forEach((n, i) => {
+            const x = 20 + i * 68;
+            rt += fdRect(x, 244, 58, 28, { rx: 5, fill: i === 3 ? 'rgba(251,146,60,.2)' : 'var(--tbl-bg)', c: i === 3 ? fdAc : 'currentColor', so: i === 3 ? .95 : .5, sw: i === 3 ? 1.8 : 1.1 }) + fdTx(x + 29, 262, n, { s: 10.5, w: 700 });
+            if (i < 5) rt += fdArr(x + 67.5, 258, 'r');
+            for (let k = 0; k < q[i]; k++) wp += fdRect(x + 5 + (k % 2) * 25, 232 - Math.floor(k / 2) * 13 - 8, 23, 10, { rx: 2, fill: 'rgba(52,211,153,.55)', c: C.op, so: .9, sw: 1 });
+          });
+          o += pvdG(f, ['route'], rt);
+          o += pvdG(f, ['wip'], wp + fdTx(32, 188, 'WIP: 단계마다 기다리는 로트의 합', { a: 'start', s: 10.5, w: 800, c: C.op }) + pvdNum(20, 184, '4', C.op) + fdTx(426, 190, '16 로트', { a: 'end', s: 12, w: 800, c: C.op }));
+          o += pvdG(f, ['route', 'wip'], fdTx(220, 296, '초록 막대 하나가 로트 하나, 주황 칸은 지금 처리 중인 단계', { s: 10, op: .9 }));
+          return dgSvg('생산 용어: ' + s.label, o, '0 0 440 308');
+        }
+      },
+
+      // ---------- 사이클 타임과 WIP ----------
+      'fld-cycle': {
+        title: '사이클 타임: 처리 시간보다 기다리는 시간이 길다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '로트 하나가 팹에 들어가서 나올 때까지 걸리는 전체 시간이 사이클 타임이다. 그 안에서 실제로 처리되는 시간은 짧고, 나머지는 장비 앞에서 기다리는 시간이다.' },
+          { id: 'ct', label: '사이클 타임', focus: ['ct'], desc: '사이클 타임(Cycle Time)은 로트를 투입한 뒤 완료되어 나올 때까지의 전체 시간이다. 공정이 수백 단계라 보통 수 주에서 수 개월이 걸린다. 구간만 따로 재서 단계별 사이클 타임으로 쓰기도 한다.' },
+          { id: 'q', label: '대기 시간', focus: ['q'], desc: '로트는 처리 시간보다 기다리는 시간이 훨씬 길다. 앞 로트가 끝나기를, 장비가 정비에서 돌아오기를, 다음 공정이 비기를 기다린다. 사이클 타임을 줄이는 일은 대부분 이 대기를 줄이는 일이다.' },
+          { id: 'qt', label: 'Q-time', focus: ['qt'], desc: 'Q-time은 공정과 공정 사이에 허용된 대기 시간 한도다. 세정 뒤에 오래 두면 표면이 다시 산화되는 것처럼 기다리는 동안 웨이퍼가 변하는 구간에 걸려 있다. 한도를 넘기면 재작업하거나 폐기해야 할 수 있다.' },
+          { id: 'lt', label: '리틀의 법칙', focus: ['lt'], desc: '안정적으로 돌아가는 라인에서는 WIP이 처리량(Throughput)과 사이클 타임의 곱이다. 하루 4로트를 내보내는 라인에서 사이클 타임이 4일이면 WIP은 16로트다. 같은 처리량이라면 WIP이 줄수록 사이클 타임도 짧아진다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const seg = [['w', 60], ['p', 16], ['w', 70], ['p', 14], ['w', 50], ['p', 22], ['w', 80], ['p', 14], ['w', 50]];
+          let x = 32, wd = '', pr = '';
+          seg.forEach(([k, w]) => { if (k === 'w') wd += fdRect(x, 78, w, 28, { rx: 3, fill: 'rgba(148,163,184,.28)', so: .35, sw: .8 }); else pr += fdRect(x, 78, w, 28, { rx: 3, fill: 'rgba(251,146,60,.8)', c: fdAc, so: .95, sw: 1.2 }); x += w; });
+          const xe = x;
+          o += pvdG(f, ['q'], wd + [62, 143, 217, 304, 383].map((cx) => fdTx(cx, 96, '대기', { s: 9.5, w: 700, op: .8 })).join(''));
+          o += pvdG(f, ['ct', 'q'], pr);
+          o += pvdG(f, ['ct'], pvdL(`M32 62 V54 H${xe} V62`, { c: C.eq, sw: 1.8, so: .95 }) + fdTx((32 + xe) / 2, 46, '사이클 타임 = 투입부터 완료까지 전체', { s: 10.5, w: 800, c: C.eq }) + fdTx(32, 124, '투입', { a: 'start', s: 9.5, w: 700 }) + fdTx(xe, 124, '완료', { a: 'end', s: 9.5, w: 700 }));
+          o += pvdG(f, ['q', 'ct'], fdTx(214, 140, '주황 = 실제로 처리되는 시간', { a: 'start', s: 9.5, w: 700, c: fdAc }) + fdTx(214, 154, '회색 = 장비 앞에서 기다리는 시간', { a: 'start', s: 9.5, w: 700, op: .85 }));
+          o += pvdG(f, ['qt'], pvdL('M108 112 V122 H178 V112', { c: '#f87171', sw: 1.8, so: .95 }) + fdTx(137, 136, 'Q-time 한도', { s: 9.5, w: 800, c: '#f87171' }));
+          // 리틀의 법칙
+          const bx = [[14, 'WIP', '16 로트', '팹 안의 로트', C.op], [158, '처리량', '4 로트/일', '하루에 나가는 양', C.pr], [302, '사이클 타임', '4 일', '들어와서 나가기까지', C.eq]];
+          let lt = fdTx(220, 186, '리틀의 법칙: WIP = 처리량 × 사이클 타임', { s: 11, w: 800, c: fdAc });
+          bx.forEach(([x0, t, v, d, c]) => { lt += fdRect(x0, 198, 124, 70, { rx: 8, fill: 'rgba(148,163,184,.08)', c, so: .95, sw: 1.6 }) + fdTx(x0 + 62, 216, t, { s: 10.5, w: 800 }) + fdTx(x0 + 62, 240, v, { s: 15, w: 800, c }) + fdTx(x0 + 62, 258, d, { s: 9, op: .85 }); });
+          lt += fdTx(146, 238, '=', { s: 18, w: 800 }) + fdTx(290, 238, '×', { s: 18, w: 800 });
+          o += pvdG(f, ['lt'], lt);
+          o += fdTx(220, 290, '같은 처리량이라면 WIP이 줄수록 사이클 타임도 짧아진다', { s: 9.5, c: fdAc, w: 700, op: .9 });
+          return dgSvg('사이클 타임: ' + s.label, o, '0 0 440 300');
+        }
+      },
+
+      // ---------- MES 작업 지시 흐름 ----------
+      'fld-mes': {
+        title: 'MES 작업 흐름: 지시, Track-in, 진행, Track-out',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 흐름', desc: 'MES는 지금 어느 로트를 어느 장비에서 어떤 조건으로 처리할지 정하고 그 결과를 기록하는 생산 관리 시스템이다. 오퍼레이터와 장비는 MES와 계속 정보를 주고받으며 일한다.' },
+          { id: 's1', label: '지시', focus: ['s1'], desc: 'MES가 로트의 현재 단계와 장비의 상태를 보고 다음에 처리할 로트와 장비를 정해 알려 준다. 우선순위가 높은 로트가 먼저 나오도록 순서를 조정한다.' },
+          { id: 's2', label: 'Track-in', focus: ['s2'], desc: '로트를 장비에 올리고 투입을 신고하는 일이 Track-in이다. MES가 이 로트와 장비, 레시피가 맞는지 확인한 뒤 허가하며, 맞지 않으면 시작되지 않는다. 잘못된 로트나 레시피가 들어가는 것을 막는 첫 관문이다.' },
+          { id: 's3', label: '진행', focus: ['s3'], desc: '장비는 처리하는 동안 상태와 공정 데이터를 MES와 설비 시스템으로 보낸다. 값이 벗어나거나 알람이 나면 기록되고 필요한 경우 장비가 멈춘다.' },
+          { id: 's4', label: 'Track-out', focus: ['s4'], desc: '처리가 끝나면 완료를 기록하는 Track-out이 된다. 결과와 처리 데이터가 로트 이력에 남고 MES가 로트를 다음 단계로 넘긴다. 이 기록 덕분에 나중에 불량 원인을 되짚을 수 있다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // MES 서버
+          let mes = pvdR(160, 20, 120, 64, 'rgba(96,165,250,.12)', { rx: 8, so: .9, sw: 1.6 }) + [0, 1, 2].map((i) => pvdR(172, 30 + i * 17, 70, 12, 'rgba(148,163,184,.3)', { rx: 3, so: .5, sw: .8 }) + `<circle cx="${252 + 0}" cy="${36 + i * 17}" r="3" style="fill:${['#34d399', '#34d399', '#fbbf24'][i]}"/>`).join('') + fdTx(220, 100, 'MES (생산 관리 시스템)', { s: 10.5, w: 800 });
+          o += mes;
+          // 오퍼레이터 + 단말
+          o += fdMan(62, 214, C.op, 1.1) + pvdR(88, 168, 40, 30, 'var(--tbl-bg)', { rx: 3, so: .85 }) + pvdL('M94 190 l6 -8 l6 5 l8 -10', { c: fdAc, sw: 1.6 }) + pvdR(104, 198, 8, 10, 'url(#fdMt)', { so: .5 }) + fdTx(88, 226, '단말', { s: 9, op: .7 }) + fdTx(52, 236, '오퍼레이터', { s: 9.5, w: 700 });
+          // 장비
+          o += fdCab(300, 150, 110, 90, { lamp: '#34d399' }) + fdRect(312, 164, 40, 26, { rx: 3, fill: 'rgba(96,165,250,.16)', so: .6 }) + fdRect(330, 205, 28, 24, { rx: 4, fill: 'rgba(52,211,153,.25)', c: C.op, so: .95, sw: 1.4 }) + fdTx(344, 224, 'FOUP', { s: 8.5, w: 700 }) + fdTx(355, 256, '장비', { s: 9.5, w: 700 });
+          // 화살표
+          o += pvdG(f, ['s1'], pvdL('M170 86 Q110 110 108 160', { c: fdAc, sw: 2.2, so: .95 }) + fdArr(108, 166, 'd', fdAc) + pvdNum(116, 118, '1', fdAc) + fdTx(146, 130, '다음 로트 · 장비 지정', { a: 'start', s: 9, w: 700, c: fdAc }));
+          o += pvdG(f, ['s2'], pvdL('M130 190 Q220 168 296 190', { c: C.op, sw: 2.2, so: .95 }) + fdArr(298, 191, 'r', C.op) + pvdNum(210, 160, '2', C.op) + fdTx(210, 178, '로트 올리고 투입 신고', { s: 9, w: 700, c: C.op }) + pvdL('M270 86 Q316 110 330 146', { c: C.op, sw: 1.6, so: .8, dash: '4 3' }) + fdArr(332, 148, 'd', C.op) + fdTx(318, 120, '레시피 전달', { a: 'start', s: 9, w: 700, c: C.op }));
+          o += pvdG(f, ['s3'], pvdL('M410 170 Q440 120 282 62', { c: C.eq, sw: 2.2, so: .95, dash: '5 3' }) + fdArr(280, 62, 'l', C.eq) + pvdNum(402, 124, '3', C.eq) + fdTx(412, 150, '상태 · 데이터', { a: 'end', s: 9, w: 700, c: C.eq }));
+          o += pvdG(f, ['s4'], pvdL('M300 232 Q200 262 120 226', { c: C.pr, sw: 2.2, so: .95 }) + fdArr(116, 224, 'l', C.pr) + pvdNum(206, 252, '4', C.pr) + fdTx(206, 272, '완료 기록 → 다음 공정', { s: 9, w: 700, c: C.pr }));
+          // 아래 설명
+          [['s1', '1', '지시', '다음 로트와', '장비를 정한다'], ['s2', '2', 'Track-in', '로트를 올리고', '투입을 기록'], ['s3', '3', '진행', '장비가 상태와', '데이터를 보낸다'], ['s4', '4', 'Track-out', '완료를 기록하고', '다음 공정으로']].forEach(([k, n, t, a1, a2], i) => { const x = 14 + i * 108; o += pvdG(f, [k], fdRect(x, 286, 100, 52, { rx: 7, fill: 'rgba(148,163,184,.08)', c: fdAc, so: .85, sw: 1.4 }) + pvdNum(x + 13, 300, n, fdAc) + fdTx(x + 26, 304, t, { a: 'start', s: 10.5, w: 800 }) + fdTx(x + 50, 322, a1, { s: 9, op: .9 }) + fdTx(x + 50, 333, a2, { s: 9, op: .9 })); });
+          return dgSvg('MES 작업 흐름: ' + s.label, o, '0 0 440 346');
+        }
+      },
+
+      // ---------- 설비 상태 ----------
+      'fld-state': {
+        title: '설비 상태: Run, Idle, Down, PM',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '설비는 항상 몇 가지 상태 중 하나에 있고, MES와 설비 시스템이 그 상태와 바뀐 시각을 기록한다. 이 기록으로 가동률을 계산하고 장비가 어디에서 시간을 잃는지 찾는다.' },
+          { id: 'run', label: 'Run', focus: ['run'], desc: 'Run은 로트를 실제로 처리하는 상태다. 돈이 되는 시간이며, 하루 중 Run의 비율을 높이는 것이 가동률의 핵심이다. Track-in으로 시작해 Track-out으로 끝난다.' },
+          { id: 'idle', label: 'Idle', focus: ['idle'], desc: 'Idle은 고장 없이 정상이지만 처리할 로트가 없어 기다리는 상태다. 앞 공정이 늦거나 로트가 도착하지 않았을 때 생긴다. 장비 문제가 아니라 흐름 문제인 경우가 많다.' },
+          { id: 'down', label: 'Down', focus: ['down'], desc: 'Down은 알람이나 고장으로 장비가 멈춘 상태다. 설비 엔지니어가 원인을 찾아 고치고, 복구 뒤에는 정상인지 확인한 다음 Idle로 돌아온다. 계획에 없던 정지라서 생산 손실이 크다.' },
+          { id: 'pm', label: 'PM', focus: ['pm'], desc: 'PM(예방정비)은 고장을 막으려고 미리 잡아 둔 계획 정비다. 부품을 바꾸고 청소하며 정비 뒤에는 성능을 확인한 다음 쓴다. 계획된 정지라서 로트를 비워 두고 들어간다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null;
+          const col = { run: '#34d399', idle: '#60a5fa', down: '#ef4444', pm: '#fbbf24' };
+          let o = fdDefs();
+          const node = (k, x, y, t, d) => pvdG(f, [k], fdRect(x, y, 100, 46, { rx: 9, fill: col[k] + '2e', c: col[k], so: .95, sw: 2 }) + fdTx(x + 50, y + 20, t, { s: 13, w: 800 }) + fdTx(x + 50, y + 35, d, { s: 9, op: .85 }));
+          o += node('idle', 170, 28, 'Idle', '로트 대기') + node('run', 20, 122, 'Run', '로트 처리 중') + node('pm', 320, 122, 'PM', '계획 정비') + node('down', 170, 204, 'Down', '알람 · 고장');
+          o += pvdG(f, ['idle', 'run'], pvdL('M170 58 Q70 58 70 120', { c: col.run, sw: 2.2, so: .9 }) + fdArr(70, 122, 'd', col.run) + fdArr(170, 58, 'r', col.run) + fdTx(28, 76, '투입(Track-in)', { a: 'start', s: 9, w: 700 }) + fdTx(28, 88, '완료(Track-out)', { a: 'start', s: 9, w: 700 }));
+          o += pvdG(f, ['idle', 'pm'], pvdL('M270 58 Q370 58 370 120', { c: col.pm, sw: 2.2, so: .9 }) + fdArr(370, 122, 'd', col.pm) + fdTx(412, 76, '계획 정비 시작', { a: 'end', s: 9, w: 700 }) + fdTx(412, 88, '정비 후 확인', { a: 'end', s: 9, w: 700 }));
+          o += pvdG(f, ['run', 'down'], pvdL('M70 170 Q70 227 168 227', { c: col.down, sw: 2.2, so: .9 }) + fdArr(170, 227, 'r', col.down) + fdTx(24, 206, '알람 · 고장', { a: 'start', s: 9, w: 700, c: '#f87171' }));
+          o += pvdG(f, ['down', 'idle'], pvdL('M220 204 V78', { c: col.idle, sw: 2.2, so: .9 }) + fdArr(220, 76, 'u', col.idle) + fdTx(228, 150, '복구 후 확인', { a: 'start', s: 9, w: 700 }));
+          // 하루 시간 구성 예시
+          const parts = [['run', 62, 'Run'], ['idle', 20, 'Idle'], ['pm', 10, 'PM'], ['down', 8, 'Down']];
+          let x = 24;
+          o += fdTx(24, 282, '하루 24시간을 상태별로 나눈 예시', { a: 'start', s: 10, w: 800 });
+          parts.forEach(([k, p, t]) => { const w = p * 3.92; o += pvdG(f, [k], fdRect(x, 292, w, 24, { rx: 3, fill: col[k] + '66', c: col[k], so: .9, sw: 1.2 }) + fdTx(x + w / 2, 308, p + '%', { s: 9.5, w: 800 }) + fdTx(x + w / 2, 330, t, { s: 9.5, w: 700 })); x += w; });
+          return dgSvg('설비 상태: ' + s.label, o, '0 0 440 340');
+        }
+      },
+    });
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
