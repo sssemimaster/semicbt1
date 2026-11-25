@@ -4453,7 +4453,6 @@ window.I18N_EN = {
 "해금할 때는 무료 토큰이 먼저 쓰여요": "Free tokens are used first when you unlock.",
 "무료 토큰(출석·미션 보상)은 환불·현금 전환 대상이 아니에요": "Free tokens (check-in and mission rewards) can't be refunded or cashed out.",
 "카드 취소가 반영되기까지는 카드사에 따라 며칠 걸릴 수 있어요": "Depending on your card issuer, a cancellation can take a few days to show up.",
-"테스트 결제 모드 · 실제로 요금이 청구되지 않아요": "Test payment mode · you won't be charged",
 "{0}토큰": "{0} tokens",
 "결제 완료": "Paid",
 "환불 처리 중": "Refund in progress",

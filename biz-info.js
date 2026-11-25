@@ -9,6 +9,6 @@ window.BIZ = {
   tel: '',                             // 전화번호 (없으면 비워 두면 표시하지 않는다)
   email: 'semicarve313@naver.com',     // 고객센터·개인정보 문의 이메일
   privacyOfficer: '채제욱',            // 개인정보 보호책임자
-  termsEffective: '2026년 12월 1일',                  // 이용약관·환불정책 시행일 (예: 2026년 12월 1일)
-  privacyEffective: '2026년 12월 1일',                // 개인정보 처리방침 시행일
+  termsEffective: '2026년 11월 25일',                  // 이용약관·환불정책 시행일 (예: 2026년 12월 1일)
+  privacyEffective: '2026년 11월 25일',                // 개인정보 처리방침 시행일
 };
