@@ -9331,6 +9331,83 @@
         }
       },
     });
+    // ===== 현장 직무 > "교대와 인수인계" 글용 그림 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 장비 앞에서 넘기는 장면 ----------
+      'fld-handover': {
+        title: '교대 인수인계: 장비 앞에서 네 가지를 넘긴다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '교대는 일을 끊는 순간이 아니라 이어 주는 순간이다. 넘기는 사람과 받는 사람이 장비 앞에서 만나 장비 상태, 로트 위치, 알람과 이상, 남은 일을 넘기고, 이 내용을 교대 일지에 적어서 남긴다.' },
+          { id: 'st', label: '장비 상태', focus: ['st'], desc: '지금 장비가 가동 중인지, 멈췄는지, 정비 중인지와 평소와 다른 점이 있는지를 넘긴다. 표시등과 화면을 같이 보면서 말하면 오해가 줄어든다.' },
+          { id: 'lot', label: '로트 위치', focus: ['lot'], desc: '장비 안과 앞에 있는 로트의 번호와 단계, 보류나 우선 처리 여부를 넘긴다. 어느 로트가 어디 있는지가 어긋나면 로트를 찾는 데 시간을 잃는다.' },
+          { id: 'al', label: '알람 · 이상', focus: ['al'], desc: '근무 중에 뜬 알람과 이상 징후, 거기에 어떻게 대응했는지를 넘긴다. 해결된 것과 아직 지켜봐야 하는 것을 나눠서 말한다.' },
+          { id: 'todo', label: '남은 일', focus: ['todo'], desc: '다음 사람이 이어서 해야 할 일과 시각을 넘긴다. 예정된 정비, 확인할 점검, 기다리는 연락처럼 사람이 바뀌면 사라지기 쉬운 일이 대상이다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 교대 시간띠
+          o += fdRect(14, 16, 230, 26, { rx: 13, fill: 'rgba(251,191,36,.26)', c: '#fbbf24', so: .9, sw: 1.4 }) + fdRect(196, 16, 230, 26, { rx: 13, fill: 'rgba(96,165,250,.24)', c: '#60a5fa', so: .9, sw: 1.4 }) + fdRect(196, 16, 48, 26, { rx: 0, fill: 'rgba(251,146,60,.42)', c: fdAc, so: 0 })
+            + `<circle cx="34" cy="29" r="5.2" style="fill:#fbbf24"/><path d="M34 19.5 v3 M34 35.5 v3 M24.5 29 h3 M40.5 29 h3 M27.5 22.5 l2 2 M38.5 33.5 l2 2 M27.5 35.5 l2 -2 M38.5 24.5 l2 -2" style="stroke:#fbbf24;stroke-width:1.5;stroke-linecap:round"/>`
+            + fdTx(48, 33, '주간조', { a: 'start', s: 10, w: 800 }) + `<path d="M406 22.5 a7.5 7.5 0 1 0 5 12.5 a6 6 0 0 1 -5 -12.5z" style="fill:#93c5fd"/>` + fdTx(396, 33, '야간조', { a: 'end', s: 10, w: 800 }) + fdTx(220, 33, '교대', { s: 9.5, w: 800, c: '#9a3412' });
+          o += fdTx(220, 58, '교대하는 15분이 일을 이어 주는 시간', { s: 10.5, w: 800, c: fdAc });
+          // 바닥, 장비
+          o += pvdL('M14 250 H426', { so: .25, sw: 1.2 });
+          o += fdCab(170, 120, 100, 130, { lamp: '#34d399' }) + fdRect(182, 134, 46, 30, { rx: 3, fill: 'rgba(96,165,250,.18)', so: .6 }) + pvdL('M188 154 l8 -8 l7 5 l10 -9 l9 7', { c: '#60a5fa', sw: 1.4, so: .8 })
+            + fdRect(230, 190, 30, 28, { rx: 4, fill: 'rgba(52,211,153,.28)', c: C.op, so: .95, sw: 1.5 }) + fdTx(245, 208, 'FOUP', { s: 8, w: 800 })
+            + fdTx(220, 266, '장비', { s: 9.5, w: 700, op: .85 });
+          // 클립보드(남은 일 메모)
+          const clip = fdRect(148, 168, 26, 38, { rx: 3, fill: 'var(--tbl-bg)', c: fdAc, so: .95, sw: 1.5 }) + fdRect(155, 164, 12, 7, { rx: 2, fill: fdAc, so: 0 }) + pvdL('M153 180 H169 M153 187 H169 M153 194 H164', { c: fdAc, sw: 1.2, so: .85 });
+          o += clip;
+          // 사람 둘
+          o += fdMan(66, 250, C.op, 1.45) + fdMan(374, 250, C.eq, 1.45) + fdTx(66, 270, '넘기는 사람', { s: 9.5, w: 700 }) + fdTx(374, 270, '받는 사람', { s: 9.5, w: 700 });
+          o += pvdL('M92 214 Q130 208 152 206', { c: C.op, sw: 2, so: .8, dash: '3 3' }) + pvdL('M348 214 Q310 208 276 206', { c: C.eq, sw: 2, so: .8, dash: '3 3' });
+          // 태그
+          const tag = (x, y, c, title, sub, glyph) => fdRect(x, y, 128, 36, { rx: 18, fill: c + '26', c, so: .95, sw: 1.6 }) + `<circle cx="${x + 18}" cy="${y + 18}" r="12" style="fill:${c}"/><g transform="translate(${x + 18} ${y + 18})">${glyph.map((d) => `<path d="${d}" style="fill:none;stroke:#0b1220;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/>`).join('')}</g>` + fdTx(x + 38, y + 16, title, { a: 'start', s: 10.5, w: 800 }) + fdTx(x + 38, y + 28, sub, { a: 'start', s: 8.5, op: .9 });
+          o += pvdG(f, ['st'], pvdL('M298 78 Q276 86 266 128', { c: C.op, sw: 1.8, so: .9 }) + `<circle cx="263" cy="127" r="7" style="fill:none;stroke:${C.op};stroke-width:1.8"/>` + tag(298, 60, C.op, '장비 상태', '가동 · 정지 · 이상', ['M-6 1 l3 -5 l3 8 l3 -6 l3 3']));
+          o += pvdG(f, ['lot'], pvdL('M298 126 Q292 180 264 200', { c: '#34d399', sw: 1.8, so: .9 }) + tag(298, 108, '#a3e635', '로트 위치', '로트 번호 · 단계', ['M-5 -4 h10 v8 h-10z', 'M-5 0 h10']));
+          o += pvdG(f, ['al'], pvdL('M142 78 Q172 86 186 130', { c: '#f87171', sw: 1.8, so: .9 }) + tag(14, 60, '#f87171', '알람 · 이상', '무엇을 어떻게 했나', ['M0 -6 L6 5 H-6 Z', 'M0 -2 v3', 'M0 3.4 v.1']));
+          o += pvdG(f, ['todo'], pvdL('M142 126 Q128 150 150 170', { c: fdAc, sw: 1.8, so: .9 }) + tag(14, 108, fdAc, '남은 일', '다음 사람이 할 일', ['M-5 -3 l2 2 l3 -4', 'M-5 4 h10']));
+          // 교대 일지
+          o += fdTx(146, 304, '적어서 남기고', { s: 9.5, w: 700, c: C.op }) + pvdL('M112 314 H186', { c: C.op, sw: 2.4, so: .95 }) + fdArr(190, 314, 'r', C.op)
+            + fdTx(294, 304, '읽고 이어받는다', { s: 9.5, w: 700, c: C.eq }) + pvdL('M254 314 H328', { c: C.eq, sw: 2.4, so: .95 }) + fdArr(332, 314, 'r', C.eq);
+          o += `<path d="M196 296 q12 -5 24 0 v32 q-12 -5 -24 0z M220 296 q12 -5 24 0 v32 q-12 -5 -24 0z" style="fill:var(--tbl-bg);stroke:${fdAc};stroke-width:1.6;stroke-linejoin:round"/>` + pvdL('M201 305 h14 M201 311 h14 M201 317 h10 M225 305 h14 M225 311 h14 M225 317 h10', { c: fdAc, sw: 1.1, so: .6 }) + fdTx(220, 342, '교대 일지', { s: 9.5, w: 800, c: fdAc });
+          return dgSvg('교대 인수인계: ' + s.label, o, '0 0 440 350');
+        }
+      },
+
+      // ---------- 일지: 흐릿한 일지와 쓸모 있는 일지 ----------
+      'fld-log': {
+        title: '일지: 읽는 사람이 바로 움직일 수 있게 쓴다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '같은 일을 적어도 흐릿하게 쓰면 읽는 사람이 되묻거나 다시 확인해야 하고, 구체적으로 쓰면 바로 움직일 수 있다. 일지는 쓰는 사람이 아니라 읽는 사람을 위한 글이다.' },
+          { id: 'bad', label: '흐릿한 일지', focus: ['bad'], desc: '장비 좀 이상함, 알람 떴다가 사라짐, 대충 조치함처럼 쓰면 어느 장비인지, 언제인지, 무엇을 했는지 알 수 없다. 받는 사람은 쓴 사람을 찾아 다시 물어야 하는데, 그 사람은 이미 퇴근했을 수 있다.' },
+          { id: 'good', label: '쓸모 있는 일지', focus: ['good'], desc: '시각, 장비, 현상, 조치, 남은 일이 한 줄씩 들어 있으면 읽는 사람이 되묻지 않고 바로 이어서 일할 수 있다. 숫자와 이름은 실제 화면에 나온 그대로 적는다.' },
+          { id: 'five', label: '다섯 가지', focus: ['good'], desc: '언제, 어디, 현상, 조치, 남은 일이 일지에 꼭 들어갈 다섯 가지다. 추측은 추측이라고 적고, 확인한 사실과 구분한다. 회사마다 양식은 다르지만 이 다섯 가지는 공통이다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC, five = s.id === 'five';
+          let o = fdDefs();
+          // 왼쪽: 흐릿한 일지
+          let bad = `<g transform="rotate(-1.8 113 150)">` + fdRect(14, 38, 198, 218, { rx: 6, fill: 'var(--tbl-bg)', c: '#94a3b8', so: .9, sw: 1.5 }) + [0, 1, 2, 3, 4, 5].map((i) => `<circle cx="${30 + i * 30}" cy="46" r="2.6" style="fill:rgba(148,163,184,.55)"/>`).join('') + fdTx(26, 70, '교대 일지', { a: 'start', s: 10, w: 800, op: .7 });
+          [['장비 좀 이상함', '어느 장비?'], ['알람 떴다가 사라짐', '언제? 몇 번?'], ['대충 조치함', '뭘 했지?'], ['잘 부탁드립니다', '뭘 부탁?']].forEach(([t, q], i) => { const y = 102 + i * 36; bad += fdTx(26, y, t, { a: 'start', s: 11, w: 700 }) + pvdL(`M26 ${y + 8} H198`, { so: .2, sw: 1 }) + fdRect(138, y - 15, 66, 20, { rx: 10, fill: 'rgba(248,113,113,.18)', c: '#f87171', so: .95, sw: 1.3, dash: '3 2' }) + fdTx(171, y - 1.5, q, { s: 8.5, w: 800, c: '#f87171' }); });
+          bad += pvdL('M26 238 q10 -9 20 0 t20 0 t20 0 t20 0 t20 0', { c: '#f87171', sw: 1.5, so: .7 }) + `</g>`;
+          bad += `<circle cx="20" cy="44" r="12" style="fill:#ef4444"/><path d="M15.5 39.5 l9 9 M24.5 39.5 l-9 9" style="stroke:#fff;stroke-width:2.2;stroke-linecap:round"/>` + fdTx(113, 280, '읽는 사람이 되묻게 된다', { s: 10, w: 800, c: '#f87171' });
+          o += pvdG(f, ['bad'], bad);
+          // 오른쪽: 쓸모 있는 일지
+          let good = fdRect(228, 38, 198, 218, { rx: 6, fill: 'var(--tbl-bg)', c: '#34d399', so: .95, sw: 1.8 }) + [0, 1, 2, 3, 4, 5].map((i) => `<circle cx="${244 + i * 30}" cy="46" r="2.6" style="fill:rgba(148,163,184,.55)"/>`).join('') + fdTx(240, 70, '교대 일지  14:20', { a: 'start', s: 10, w: 800, op: .8 });
+          [['언제', '#60a5fa', '14:20 경, 주간 근무 중'], ['어디', '#34d399', 'ETCH-03 챔버 B'], ['현상', '#f87171', '압력 알람 A-102'], ['조치', '#fbbf24', '재기동 후 정상 확인'], ['남은 일', fdAc, '18시 PM 점검표 확인']].forEach(([k, c, t], i) => { const y = 82 + i * 34; good += fdRect(238, y, 46, 22, { rx: 11, fill: c + (five ? '88' : '44'), c, so: .95, sw: five ? 2.2 : 1.4 }) + fdTx(261, y + 15, k, { s: 9.5, w: 800 }) + fdTx(292, y + 15, t, { a: 'start', s: 10, w: 700 }) + pvdL(`M238 ${y + 28} H416`, { so: .18, sw: 1 }); });
+          good += `<circle cx="420" cy="44" r="12" style="fill:#10b981"/><path d="M414 44.5 l4.2 4.2 l8 -9" style="fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"/>`
+            + `<g transform="translate(404 252) rotate(52)"><rect x="-4" y="-34" width="8" height="30" rx="1.5" style="fill:#fbbf24;stroke:#b45309;stroke-width:1.2"/><path d="M-4 -4 L0 6 L4 -4 Z" style="fill:#fde68a;stroke:#b45309;stroke-width:1.2"/><rect x="-4" y="-38" width="8" height="5" rx="1.5" style="fill:#f87171"/></g>`
+            + fdTx(327, 280, '읽는 사람이 바로 움직인다', { s: 10, w: 800, c: '#10b981' });
+          o += pvdG(f, ['good'], good);
+          o += fdTx(220, 312, '일지에는 언제 · 어디 · 현상 · 조치 · 남은 일', { s: 11, w: 800, c: fdAc });
+          return dgSvg('일지: ' + s.label, o, '0 0 440 324');
+        }
+      },
+    });
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
