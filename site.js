@@ -10496,11 +10496,11 @@
     }
     // =====================================================
     // 한 달(출석 30일) = 웨이퍼 한 장. 패턴 레벨은 3단계: 기초(기본 빛깔) → 푸른 웨이퍼(10일~) → 프리즘 웨이퍼(20일~).
-    // 단계가 오르면 웨이퍼 테두리 빛이 푸른빛, 무지갯빛으로 바뀌고, 칸마다 새겨지는 회로 선도 늘어난다. 30일을 채우면 다음 달 새 웨이퍼가 열린다.
+    // 단계가 오르면 웨이퍼 테두리 빛이 푸른빛, 무지갯빛으로 바뀌고, 회로선이 조금 가늘어진다. 30일을 채우면 다음 달 새 웨이퍼가 열린다.
     // =====================================================
     const STAGES = [['Seed Wafer', '기초 웨이퍼'], ['Blue Wafer', '푸른 웨이퍼'], ['Prism Wafer', '프리즘 웨이퍼']];
     const stageOf = (dm) => dm >= 20 ? 3 : dm >= 10 ? 2 : 1;
-    const LINE_W3 = [2.1, 1.7, 1.4];   // 단계가 오를수록 칸마다 선이 1개 → 2개 → 3개로 늘고 조금 가늘어진다
+    const LINE_W3 = [2.1, 1.7, 1.4];   // 단계가 오를수록 회로선이 조금 가늘어진다
     function waferInfo(N) {
       const m = N === 0 ? 0 : Math.floor((N - 1) / 30), dm = N - m * 30, level = stageOf(dm);
       const next = dm >= 30 ? '다음 출석에 새 웨이퍼' : dm < 10 ? `${10 - dm}일 후 푸른 웨이퍼` : dm < 20 ? `${20 - dm}일 후 프리즘 웨이퍼` : `${30 - dm}일 후 웨이퍼 완성`;
@@ -10521,29 +10521,7 @@
           x = Math.min(c.cx + 9, x + Math.round(6 + r2() * 5)); d += ` H${x}`;
           y = Math.max(c.cy - 9, Math.min(c.cy + 9, y + Math.round((r2() * 2 - 1) * 12))); d += ` V${y}`;
         }
-        c.start = [x0, y0]; c.end = [x, y]; c.d = d; c.extra = [];
-        // 추가 회로선은 이미 새겨진 선과 3.4 이상 떨어져야 한다 (너무 붙으면 선이 서로 번져 한 덩어리로 보인다)
-        const segs = (pts) => pts.slice(1).map((p, k) => [Math.min(p[0], pts[k][0]), Math.min(p[1], pts[k][1]), Math.max(p[0], pts[k][0]), Math.max(p[1], pts[k][1])]);
-        const gap = (a, b) => Math.hypot(Math.max(0, Math.max(a[0], b[0]) - Math.min(a[2], b[2])), Math.max(0, Math.max(a[1], b[1]) - Math.min(a[3], b[3])));
-        const mainPts = [[x0, y0]]; { let px = x0, py = y0; const nums = d.match(/[HV]-?\d+(?:\.\d+)?/g) || []; nums.forEach(t => { const v = +t.slice(1); if (t[0] === 'H') px = v; else py = v; mainPts.push([px, py]); }); }
-        const used = segs(mainPts);
-        for (let l = 1; l < 6; l++) {   // 추가 회로선: 칩 안의 가는 띠마다 하나씩
-          let ed = '', pts = null;
-          for (let tries = 0; tries < 8 && !pts; tries++) {
-            const by = c.cy - 9 + l * 3.2 + (r2() - .5) * 1.4; let ex = c.cx - 9 + r2() * 4, ey = by; const cand = [[ex, ey]]; let dd = `M${ex.toFixed(1)} ${ey.toFixed(1)}`; const n2 = 2 + Math.floor(r2() * 2);
-            for (let s2 = 0; s2 < n2; s2++) { ex = Math.min(c.cx + 9, ex + 4 + r2() * 5); dd += `H${ex.toFixed(1)}`; cand.push([ex, ey]); ey = Math.max(c.cy - 9, Math.min(c.cy + 9, by + (r2() - .5) * 4)); dd += `V${ey.toFixed(1)}`; cand.push([ex, ey]); }
-            const cs = segs(cand);
-            if (cs.every(a => used.every(b => gap(a, b) >= 3.4))) { pts = cs; ed = dd; }
-          }
-          if (!pts) {   // 그래도 안 맞으면 비어 있는 자리에 짧은 가로선 하나
-            for (let yy = c.cy - 9 + l * 1.5; yy <= c.cy + 9 && !pts; yy += 1.5) {
-              const cs = [[c.cx - 9, yy, c.cx - 9 + 6 + l, yy]];
-              if (used.every(b => gap(cs[0], b) >= 3.4)) { pts = cs; ed = `M${(c.cx - 9).toFixed(1)} ${yy.toFixed(1)}H${(c.cx - 3 + l).toFixed(1)}`; }
-            }
-          }
-          if (pts) pts.forEach(p => used.push(p));
-          c.extra.push(ed);
-        }
+        c.start = [x0, y0]; c.end = [x, y]; c.d = d;
       });
       return (_cellCache[m] = order);
     }
@@ -10605,9 +10583,8 @@
       for (let i = earned; i < 30 && i < cells.length; i++) h += `<path d="${cells[i].d}" fill="none" stroke="${dk ? '#64748b' : '#8da0b8'}" stroke-opacity="${dk ? .38 : .85}" stroke-width="1"/>`;
       if (lvl >= 3) for (let i = 0; i < earned - 1; i++) { const a = cells[i].end, b = cells[i + 1].start; if (Math.hypot(a[0] - b[0], a[1] - b[1]) > 70) continue; h += `<path d="M${a[0]} ${a[1]} H${b[0]} V${b[1]}" fill="none" stroke="${col(i)}" stroke-opacity=".5" stroke-width=".9" stroke-dasharray="2 2"/>`; }
       for (let i = 0; i < earned && i < cells.length; i++) {
-        const c = cells[i], cl = col(i); let ex = ''; for (let l = 0; l < nl - 1; l++) ex += c.extra[l];
+        const c = cells[i], cl = col(i);
         h += `<path ${i === earned - 1 && !o.still ? 'class="wafer-latest"' : ''} d="${c.d}" fill="none" stroke="${cl}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"${gf}/>`
-          + (ex ? `<path d="${ex}" fill="none" stroke="${cl}" stroke-opacity=".85" stroke-width="${(lw * .72).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>` : '')
           + `<circle cx="${c.end[0]}" cy="${c.end[1]}" r="${Math.max(1.2, lw * .9).toFixed(1)}" fill="${cl}"/>`;
       }
       if (o.sel != null && cells[o.sel]) { const c = cells[o.sel]; h += `<rect id="wfSel${u}" x="${c.cx - 14}" y="${c.cy - 14}" width="28" height="28" rx="3" fill="none" stroke="${dk ? '#fff' : '#0f172a'}" stroke-width="1.8"/>`; }
