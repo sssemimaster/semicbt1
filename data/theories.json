@@ -1532,5 +1532,43 @@
     "premium": true,
     "mins": 12,
     "figs": 6
+  },
+  {
+    "id": "TH-2ba865bf",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "RTL 설계 기초",
+    "tags": [
+      "설계 직무",
+      "RTL",
+      "Verilog",
+      "FSM",
+      "파이프라인"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 11,
+    "figs": 5
+  },
+  {
+    "id": "TH-cf1ed26d",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "합성과 제약(SDC)",
+    "tags": [
+      "설계 직무",
+      "합성",
+      "SDC",
+      "셀 라이브러리",
+      "제약"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 10,
+    "figs": 6
   }
 ]
