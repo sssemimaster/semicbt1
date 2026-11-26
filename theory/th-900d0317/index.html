@@ -660,10 +660,12 @@
     .adv-rm > .tk-key { margin: -.55rem 0 0; }
     .tk-key { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .5rem; margin: .35rem 0 0; font-size: .74rem; color: #64748b; }
     html.dark .tk-key { color: #94a3b8; }
-    /* 심화 이론 > 현장 직무: 장비 사용 가이드와 같은 도면 디자인에 테마색만 주황으로 (.fd-o). 바탕은 도면의 남색/흰색 그대로 둔다 */
+    /* 심화 이론 > 현장 직무 · 설계 직무: 장비 사용 가이드와 같은 도면 디자인에 테마색만 바꾼다 (.fd-o 주황 · .fd-v 보라). 바탕은 도면의 남색/흰색 그대로 둔다 */
     .adv-rm.fd-o, .adv-hero.fd-o, .adv-doc.fd-o { --adv-am: #ea580c; --adv-cy: #c2410c; --adv-strong: #9a3412; --adv-amt: rgba(234,88,12,.07); --adv-cyt: rgba(234,88,12,.07); --adv-grid: rgba(100,116,139,.07); }
     html.dark .adv-rm.fd-o, html.dark .adv-hero.fd-o, html.dark .adv-doc.fd-o { --adv-am: #fb923c; --adv-cy: #fdba74; --adv-strong: #fdba74; --adv-amt: rgba(251,146,60,.08); --adv-cyt: rgba(251,146,60,.08); --adv-grid: rgba(148,163,184,.05); }
-    .fd-o .adv-it.soon { opacity: .82; } .fd-o .adv-st.soon .adv-nd { color: var(--adv-am); border-color: var(--adv-am); }
+    .adv-rm.fd-v, .adv-hero.fd-v, .adv-doc.fd-v { --adv-am: #7c3aed; --adv-cy: #6d28d9; --adv-strong: #5b21b6; --adv-amt: rgba(124,58,237,.07); --adv-cyt: rgba(124,58,237,.07); --adv-grid: rgba(100,116,139,.07); }
+    html.dark .adv-rm.fd-v, html.dark .adv-hero.fd-v, html.dark .adv-doc.fd-v { --adv-am: #a78bfa; --adv-cy: #c4b5fd; --adv-strong: #c4b5fd; --adv-amt: rgba(167,139,250,.08); --adv-cyt: rgba(167,139,250,.08); --adv-grid: rgba(148,163,184,.05); }
+    .fd-o .adv-it.soon, .fd-v .adv-it.soon { opacity: .82; } .fd-o .adv-st.soon .adv-nd, .fd-v .adv-st.soon .adv-nd { color: var(--adv-am); border-color: var(--adv-am); }
     .fd-tl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
     .fd-tl > div { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'dp tx pr' 'tm tm tm'; align-items: center; gap: .35rem .7rem; padding: .75rem .9rem .6rem; border: 1px solid var(--adv-line); border-radius: 4px; background: var(--adv-panel); }
     .fd-tl .tk-dp { grid-area: dp; } .fd-tl .fd-tn { grid-area: tx; min-width: 0; } .fd-tl .tk-pr { grid-area: pr; } .fd-tl .fd-tm { grid-area: tm; }
@@ -672,7 +674,7 @@
     .fd-tm { padding-top: .4rem; border-top: 1px dashed var(--adv-line); font: 600 .68rem var(--adv-mono); color: var(--adv-dim); }
     .fd-rt { flex: none; font: 600 .7rem var(--adv-mono); color: var(--adv-dim); white-space: nowrap; }
     .fd-sn { flex: none; font: 700 .68rem var(--adv-mono); color: var(--adv-dim); padding: .15rem .45rem; border: 1px dashed var(--adv-line); border-radius: 3px; white-space: nowrap; }
-    @media (max-width: 640px) { .fd-tl { grid-template-columns: 1fr; } .fd-o .adv-it .fd-rt, .fd-o .adv-it .fd-sn { margin-left: 4.2rem; } .fd-o .adv-it .fd-sn { margin-left: auto; } }
+    @media (max-width: 640px) { .fd-tl { grid-template-columns: 1fr; } .fd-o .adv-it .fd-rt, .fd-o .adv-it .fd-sn, .fd-v .adv-it .fd-rt, .fd-v .adv-it .fd-sn { margin-left: 4.2rem; } .fd-o .adv-it .fd-sn, .fd-v .adv-it .fd-sn { margin-left: auto; } }
     .adv-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.3rem 2rem; border-top: 1px solid var(--adv-line); background: linear-gradient(90deg, var(--adv-amt), transparent 70%); }
     .adv-cta b { color: var(--adv-h); font-size: 1.02rem; }
     .adv-cta p { margin: .25rem 0 0; font-size: .86rem; color: var(--adv-dim); word-break: keep-all; }
