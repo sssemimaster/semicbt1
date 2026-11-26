@@ -12816,6 +12816,428 @@
       });
     })();
 
+    // ===== 설계 직무 > 유료 글 "설계 검증 기초" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const CLK = '#93c5fd', DAT = '#fcd34d', QQ = '#34d399', RED = '#f87171', OKC = '#4ade80', DUTC = '#a78bfa', GR = '#94a3b8', ID = '#e2e8f0', KW = '#c084fc';
+      const lab = (x, y, t, col, a = 'start', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const blk = (x, y, w, h, col, t1, t2, fo = .16) => A.rc(x, y, w, h, col, { fo, c: col, sw: 1.7, so: .95, rx: 5 }) + lab(x + w / 2, y + h / 2 + (t2 ? -1 : 4), t1, col, 'middle', 10.5) + (t2 ? lab(x + w / 2, y + h / 2 + 12, t2, GR, 'middle', 8.5) : '');
+      const cyc = (x0, cw, n, yt, yb) => { let d = `M${x0} ${yb}`; for (let i = 0; i < n; i++) { const x = x0 + i * cw; d += ` V${yt} H${x + cw / 2} V${yb} H${x + cw}`; } return d; };
+      const bits = (x0, cw, yt, yb, arr, col, sw = 1.8) => { let d = `M${x0} ${arr[0] ? yt : yb}`; arr.forEach((b, i) => { const y = b ? yt : yb; if (i) d += ` V${y}`; d += ` H${x0 + (i + 1) * cw}`; }); return A.ln(d, col, sw);
+      };
+      const ck = (x, y, col) => A.ln(`M${x - 6} ${y} l4.5 4.5 l8 -10`, col, 2.4);
+      const xx = (x, y, col) => A.ln(`M${x - 5} ${y - 5} l10 10 M${x + 5} ${y - 5} l-10 10`, col, 2.4);
+      const mono = (x, y, toks, s = 9.5) => `<text class="dg-t" x="${x}" y="${y}" xml:space="preserve" style="font-size:${s}px;font-weight:700;font-family:monospace;white-space:pre">${toks.map(([t, c]) => `<tspan style="fill:${c}">${escH(t)}</tspan>`).join('')}</text>`;
+      Object.assign(DIAGRAMS, {
+        // ---------- 테스트벤치의 구성 ----------
+        'dsn-tb': {
+          title: '테스트벤치: 자극을 넣고 결과를 정답과 비교한다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '테스트벤치는 검증 대상(DUT)을 둘러싼 가상 실험실이다. 한쪽에서 입력을 만들어 넣고, 다른 쪽에서 나온 출력을 정답과 비교해 맞는지 판정한다. 실제 칩이 아니라 코드로 만든 환경이라 기계가 몇 번이든 되풀이할 수 있다.' },
+            { id: 'stim', label: '자극 넣기', focus: ['stim'], desc: '자극 생성기가 어떤 입력을 넣을지 정하고, 드라이버가 그것을 칩이 이해하는 신호의 모양(클록에 맞춘 핀 값)으로 바꿔 넣는다. 무엇을 넣느냐가 검증의 품질을 가른다.' },
+            { id: 'dut', label: '검증 대상', focus: ['dut'], desc: 'DUT(Design Under Test)는 검증하려는 RTL이다. 테스트벤치는 DUT의 안쪽을 직접 만지지 않고 핀으로만 넣고 읽는다. 사용자가 칩을 쓰는 방식과 같다.' },
+            { id: 'mon', label: '출력 관찰', focus: ['mon'], desc: '모니터는 DUT의 출력 핀을 지켜보다가 나온 값을 한 건씩 모아 둔다. 판단은 하지 않고 관찰만 한다. 보는 일과 판정하는 일을 나누어 두면 코드를 재사용하기 쉽다.' },
+            { id: 'chk', label: '정답과 비교', focus: ['chk'], desc: '참조 모델은 같은 입력으로 올바른 결과를 계산하고, 스코어보드가 그것을 DUT의 실제 출력과 한 건씩 비교한다. 다르면 그 입력과 시각이 버그 후보로 기록된다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += A.rc(6, 8, 428, 218, GR, { fo: 0, c: GR, sw: 1.1, so: .6, dash: '5 4', rx: 8 }) + lab(16, 24, '테스트벤치', GR, 'start', 9.5);
+            const arw = (x1, x2, y, col) => A.ln(`M${x1} ${y} H${x2 - 6}`, col, 1.8) + fdArr(x2, y, 'r', col);
+            o += pvdG(f ? [f] : null, ['stim'], blk(16, 38, 82, 54, C.rtl, '자극 생성', '무엇을 넣을지') + blk(122, 38, 78, 54, C.rtl, '드라이버', '신호로 바꿔 넣기') + arw(98, 122, 65, C.rtl) + arw(200, 228, 65, C.rtl));
+            o += pvdG(f ? [f] : null, ['dut'], A.rc(228, 30, 92, 70, DUTC, { fo: .2, c: DUTC, sw: 2, so: 1, rx: 4 }) + [0, 1, 2, 3].map((i) => A.rc(238 + i * 20, 25, 8, 5, DUTC, { fo: .9, sw: 0 }) + A.rc(238 + i * 20, 100, 8, 5, DUTC, { fo: .9, sw: 0 })).join('') + lab(274, 62, 'DUT', DUTC, 'middle', 13) + lab(274, 78, '검증 대상', GR, 'middle', 8.5));
+            o += pvdG(f ? [f] : null, ['mon'], blk(344, 38, 82, 54, C.dv, '모니터', '출력을 지켜봄') + arw(320, 344, 65, C.dv));
+            o += pvdG(f ? [f] : null, ['chk'], blk(122, 150, 96, 50, C.pd, '참조 모델', '정답을 계산') + blk(262, 150, 122, 50, C.pd, '스코어보드', '비교해 판정') + A.ln('M161 92 V144', C.pd, 1.8) + fdArr(161, 150, 'd', C.pd) + A.ln('M218 175 H256', C.pd, 1.8) + fdArr(262, 175, 'r', C.pd) + A.ln('M385 92 V122 H340 V144', C.pd, 1.8) + fdArr(340, 150, 'd', C.pd) + lab(323, 218, '일치하면 통과, 다르면 버그 후보', GR, 'middle', 9));
+            return dgSvg('테스트벤치: ' + s.label, o, '0 0 440 236');
+          }
+        },
+        // ---------- 자극: 직접 vs 제약 랜덤 ----------
+        'dsn-stim': {
+          title: '직접 만든 테스트와 제약 랜덤 테스트',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '입력이 될 수 있는 모든 조합을 한 장의 판(입력 공간)으로 그렸다. 점 하나가 테스트 한 번이다. 직접 만든 테스트는 사람이 떠올린 곳만, 랜덤 테스트는 판 전체를 고루 훑는다.' },
+            { id: 'directed', label: '직접 테스트', focus: ['directed'], desc: '검증 엔지니어가 시나리오를 하나씩 손으로 짠다. 의도가 분명하고 디버그하기 쉽지만, 사람이 떠올린 곳에만 점이 찍힌다. 버그가 숨은 구석은 비어 있기 쉽다.' },
+            { id: 'random', label: '랜덤 테스트', focus: ['random'], desc: '입력을 무작위로 만들어 판 전체에 점을 흩뿌린다. 사람이 떠올리지 못한 구석에도 점이 닿아 예상 밖의 버그를 찾는다. 같은 시드(seed)를 쓰면 같은 점이 다시 찍혀 재현할 수 있다.' },
+            { id: 'cons', label: '제약', focus: ['cons'], desc: '무작위라도 칩이 받을 수 없는 입력(규격 밖)까지 넣으면 쓸모가 없다. 제약(constraint)은 이런 영역을 빼고 가능한 범위 안에서만 무작위로 뽑게 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const px = [14, 226], py = 44, pw = 200, ph = 148;
+            const frame = (x) => A.rc(x, py, pw, ph, GR, { fo: .07, c: GR, sw: 1.2, so: .8, rx: 4 });
+            const bug = (x) => `<circle cx="${x + 160}" cy="${py + 34}" r="19" style="fill:${RED};fill-opacity:.1;stroke:${RED};stroke-width:1.4;stroke-dasharray:4 3"/>` + lab(x + 160, py + 66, '구석 경우', RED, 'middle', 8.5);
+            o += frame(px[0]) + frame(px[1]) + bug(px[0]) + bug(px[1]);
+            const D = [[26, 114], [52, 94], [76, 108], [100, 84], [124, 102], [60, 58], [34, 36], [92, 126]];
+            o += pvdG(f ? [f] : null, ['directed'], lab(px[0] + pw / 2, 34, '직접 테스트', C.rtl, 'middle', 11) + D.map(([a, b]) => `<circle cx="${px[0] + a}" cy="${py + b}" r="4.6" style="fill:${C.rtl};stroke:#0f172a;stroke-width:1.2"/>`).join('') + lab(px[0] + pw / 2, 212, '떠올린 곳만 찍힌다', GR, 'middle', 9.5));
+            const r = dsArt.lcg ? dsArt.lcg(23) : (() => { let q = 23; return () => (q = (q * 1103515245 + 12345) % 2147483648) / 2147483648; })();
+            let dots = '', cnt = 0;
+            while (cnt < 44) { const a = 8 + r() * (pw - 16), b = 8 + r() * (ph - 16); if (b > 86 && b < 108) continue; const inBug = Math.hypot(a - 160, b - 34) < 19; dots += `<circle cx="${px[1] + a}" cy="${py + b}" r="${inBug ? 5 : 3.8}" style="fill:${inBug ? RED : C.rtl};fill-opacity:${inBug ? 1 : .9};stroke:#0f172a;stroke-width:1"/>`; cnt++; }
+            dots += `<circle cx="${px[1] + 156}" cy="${py + 30}" r="5" style="fill:${RED};stroke:#0f172a;stroke-width:1.2"/>`;
+            o += pvdG(f ? [f] : null, ['random'], lab(px[1] + pw / 2, 34, '제약 랜덤 테스트', C.dv, 'middle', 11) + dots + lab(px[1] + pw / 2, 212, '구석까지 점이 닿는다', GR, 'middle', 9.5));
+            o += pvdG(f ? [f] : null, ['cons'], A.rc(px[1], py + 88, pw, 18, GR, { fo: .3, c: GR, sw: 1, so: .9, dash: '3 3' }) + lab(px[1] + pw / 2, py + 100.5, '금지 입력 영역 (제약으로 제외)', f === 'cons' ? '#e2e8f0' : GR, 'middle', 8.5));
+            return dgSvg('입력 공간과 테스트: ' + s.label, o, '0 0 440 222');
+          }
+        },
+        // ---------- 예상값과 실제값 비교 ----------
+        'dsn-score': {
+          title: '스코어보드는 예상값과 실제값을 한 건씩 비교한다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 입력이 두 갈래로 간다. 하나는 DUT로 가서 실제값이 되고, 하나는 참조 모델로 가서 예상값이 된다. 두 줄을 건마다 맞대어 보는 것이 스코어보드의 일이다.' },
+            { id: 'in', label: '입력', focus: ['in'], desc: '한 건씩 번호가 붙은 입력이다. 여기서는 두 수를 더하는 덧셈기에 값 쌍을 넣었다. 15+1처럼 자릿수가 넘어가는 값은 버그가 숨기 좋은 경계 경우다.' },
+            { id: 'exp', label: '예상값', focus: ['exp'], desc: '참조 모델이 같은 입력으로 계산한 올바른 값이다. 스펙을 가장 단순하게 옮긴 코드로 만들고, 속도나 면적은 신경 쓰지 않는다. 틀리지 않는 것이 목적이다.' },
+            { id: 'act', label: '실제값', focus: ['act'], desc: 'DUT가 실제로 낸 값을 모니터가 읽어 온 것이다. 세 번째 건에서 16이 나와야 하는데 0이 나왔다.' },
+            { id: 'cmp', label: '비교', focus: ['cmp'], desc: '두 줄이 같으면 통과, 다르면 불일치다. 불일치가 난 입력과 시각이 곧바로 디버그의 출발점이 된다. 여기서는 올림(carry)이 사라진 것이 단서다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const X0 = 100, CW = 55, BAD = 2;
+            const IN = ['3+4', '9+8', '15+1', '7+7', '0+5', '12+9'], EX = ['7', '17', '16', '14', '5', '21'], AC = ['7', '17', '0', '14', '5', '21'];
+            const row = (id, y, name, sub, col, vals, badCol) => {
+              let t = lab(12, y + 15, name, col, 'start', 10.5) + lab(12, y + 27, sub, GR, 'start', 8.5);
+              vals.forEach((v, i) => { const bad = badCol != null && i === BAD; t += A.rc(X0 + i * CW, y, 51, 30, bad ? RED : col, { fo: bad ? .24 : .13, c: bad ? RED : col, sw: bad ? 1.9 : 1.2, rx: 4 }) + lab(X0 + i * CW + 25.5, y + 20, v, bad ? RED : col, 'middle', 11.5); });
+              return pvdG(f ? [f] : null, [id], t);
+            };
+            o += row('in', 34, '입력', '값의 쌍', C.rtl, IN) + row('exp', 86, '예상값', '참조 모델', C.dv, EX) + row('act', 138, '실제값', 'DUT의 출력', C.pd, AC, 1);
+            let c = lab(12, 205, '비교', DAT, 'start', 10.5) + lab(12, 217, '한 건씩 맞대어 봄', GR, 'start', 8.5);
+            IN.forEach((_, i) => { const cx = X0 + i * CW + 25.5; c += i === BAD ? A.rc(X0 + i * CW, 190, 51, 30, RED, { fo: .2, c: RED, sw: 1.9, rx: 4 }) + xx(cx, 205, RED) : A.rc(X0 + i * CW, 190, 51, 30, OKC, { fo: .1, c: OKC, sw: 1.1, so: .6, rx: 4 }) + ck(cx, 205, OKC); });
+            c += `<rect x="${X0 + BAD * CW - 3}" y="30" width="57" height="194" rx="6" style="fill:none;stroke:${RED};stroke-width:1.5;stroke-dasharray:4 3;stroke-opacity:${f === 'cmp' ? 1 : .55}"/>` + lab(X0 + 3 * CW, 244, '3번째 불일치: 15+1은 16이어야 하는데 0이 나왔다', RED, 'middle', 10);
+            o += pvdG(f ? [f] : null, ['cmp'], c);
+            return dgSvg('예상값과 실제값: ' + s.label, o, '0 0 440 254');
+          }
+        },
+        // ---------- 코드 커버리지와 기능 커버리지 ----------
+        'dsn-cov': {
+          title: '코드 커버리지가 100%여도 기능 커버리지는 비어 있을 수 있다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '커버리지는 테스트가 무엇을 얼마나 건드렸는지 세는 점수표다. 왼쪽은 코드의 줄을 센 것, 오른쪽은 일어나야 할 상황을 센 것이다. 두 점수는 서로 다른 것을 잰다.' },
+            { id: 'code', label: '코드 커버리지', focus: ['code'], desc: '코드 커버리지는 RTL의 줄, 분기, 조건이 한 번이라도 실행되었는지 도구가 자동으로 센다. 실행되지 않은 줄은 테스트가 닿지 않은 코드이므로 확인할 단서가 된다. 그러나 줄이 실행됐다는 것이 그 줄이 필요한 모든 상황을 겪었다는 뜻은 아니다.' },
+            { id: 'func', label: '기능 커버리지', focus: ['func'], desc: '기능 커버리지는 설계자와 검증 엔지니어가 정해 둔 상황(bin)이 일어났는지 센다. 예를 들어 FIFO의 상태와 동작을 짝지어 볼 수 있다. 사람이 스펙을 읽고 직접 목록을 정하므로 스펙의 요구가 얼마나 확인되었는지에 가깝다.' },
+            { id: 'hole', label: '비어 있는 칸', focus: ['hole'], desc: '비어 있는 칸은 아직 한 번도 겪지 못한 상황이다. 비어 있는 FIFO에서 읽기를 시도하는 경우, 가득 찬 FIFO에 쓰기를 시도하는 경우는 버그가 자주 숨는 곳이다. 이 칸을 채우는 테스트를 추가하는 것이 다음 할 일이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            // 왼쪽: 코드
+            let cd = A.panel(12, 40, 192, 124, C.rtl);
+            const cols = ['#c084fc', '#93c5fd', '#fcd34d', '#e2e8f0'], wd = [[26, 40, 22], [14, 52], [34, 30, 20], [22, 46], [40, 24], [14, 58, 16], [28, 36], [20, 50], [32, 28]];
+            wd.forEach((w, i) => { const y = 50 + i * 12.6; cd += A.rc(19, y, 4, 8, OKC, { fo: .95, sw: 0 }); let x = 30 + (i % 3 === 1 ? 10 : 0); w.forEach((ww, k) => { cd += A.rc(x, y + 1, ww, 5.5, cols[(i + k) % 4], { fo: .85, sw: 0 }); x += ww + 5; }); });
+            o += pvdG(f ? [f] : null, ['code'], lab(108, 31, '코드 커버리지', C.rtl, 'middle', 11) + cd + lab(108, 190, '100%', OKC, 'middle', 22) + lab(108, 208, '모든 줄이 한 번은 실행됐다', GR, 'middle', 9));
+            // 오른쪽: 기능
+            const gx = 296, gy = 62, cw = 44, ch = 33, rows = ['비어 있음', '반쯤 참', '가득'], cs = ['쓰기', '읽기', '동시'], holes = [[0, 1], [2, 0]];
+            let hit = '', hl = '';
+            rows.forEach((_, r) => cs.forEach((__, c) => { const x = gx + c * cw, y = gy + r * ch, isH = holes.some(([a, b]) => a === r && b === c); if (isH) hl += A.rc(x + 2, y + 2, cw - 4, ch - 4, RED, { fo: .14, c: RED, sw: 1.7, dash: '4 3', rx: 4 }) + lab(x + cw / 2, y + ch / 2 + 5, '?', RED, 'middle', 13); else hit += A.rc(x + 2, y + 2, cw - 4, ch - 4, OKC, { fo: .3, c: OKC, sw: 1.2, rx: 4 }) + ck(x + cw / 2, y + ch / 2, OKC); }));
+            o += lab(316, 31, '기능 커버리지', C.dv, 'middle', 11) + cs.map((t, c) => lab(gx + c * cw + cw / 2, 56, t, GR, 'middle', 9)).join('') + rows.map((t, r) => lab(gx - 5, gy + r * ch + ch / 2 + 3.5, t, GR, 'end', 9)).join('') + lab(228, 56, 'FIFO 상태', GR, 'start', 8.5);
+            o += pvdG(f ? [f] : null, ['func'], hit + lab(316, 190, '78%', DAT, 'middle', 22) + lab(316, 208, '9칸 중 7칸을 겪었다', GR, 'middle', 9));
+            o += pvdG(f ? [f] : null, ['hole'], hl);
+            o += lab(220, 232, '줄을 다 지나가도 상황을 다 겪은 것은 아니다', DAT, 'middle', 10);
+            return dgSvg('커버리지: ' + s.label, o, '0 0 440 242');
+          }
+        },
+        // ---------- 어서션 ----------
+        'dsn-sva': {
+          title: '어서션: 규칙을 지키는지 매 클록 지켜본다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '어서션은 설계가 늘 지켜야 하는 규칙을 코드로 적어 두고, 시뮬레이션 내내 자동으로 감시하게 하는 것이다. 여기서는 요청(req)이 오면 4클록 안에 응답(ack)이 와야 한다는 규칙을 본다.' },
+            { id: 'rule', label: '규칙', focus: ['rule'], desc: '규칙은 한 줄로 적는다. req가 오면 그다음 1에서 4클록 사이에 ack가 와야 한다는 뜻이다. 시간이 걸리는 규칙을 코드로 쓸 수 있다는 점이 어서션의 힘이다.' },
+            { id: 'pass', label: '통과', focus: ['pass'], desc: 'req가 오고 두 클록 뒤에 ack가 와서 4클록 창 안에 들어왔다. 규칙을 만족했으므로 어서션은 조용히 넘어간다.' },
+            { id: 'fail', label: '위반', focus: ['fail'], desc: 'req가 왔지만 4클록이 지나도록 ack가 오지 않았다. 창이 닫히는 순간 어서션이 실패를 알린다. 버그의 결과가 멀리 나타나기 전에, 규칙이 깨진 그 시점을 가리켜 준다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const X0 = 84, CW = 27, N = 12, XE = X0 + N * CW;
+            o += lab(70, 47, 'clk', CLK, 'end', 10) + A.ln(cyc(X0, CW, N, 34, 50), CLK, 1.6);
+            for (let i = 0; i <= N; i += 2) o += A.ln(`M${X0 + i * CW} 56 V196`, GR, .8, .2, '2 4');
+            const win = (y, col) => A.ln(`M${X0 + 3 * CW} ${y - 4} V${y} H${X0 + 7 * CW} V${y - 4}`, col, 1.5) + lab(X0 + 5 * CW, y + 11, '4클록 이내', col, 'middle', 9);
+            const blockP = lab(12, 70, '통과 사례', OKC, 'start', 10) + lab(70, 91, 'req', DAT, 'end', 10) + bits(X0, CW, 78, 92, [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], DAT) + lab(70, 117, 'ack', QQ, 'end', 10) + bits(X0, CW, 104, 118, [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], QQ) + win(126, OKC) + ck(XE + 8, 105, OKC);
+            const blockF = lab(12, 152, '위반 사례', RED, 'start', 10) + lab(70, 173, 'req', DAT, 'end', 10) + bits(X0, CW, 160, 174, [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], DAT) + lab(70, 199, 'ack', QQ, 'end', 10) + bits(X0, CW, 186, 200, [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], QQ) + win(208, RED) + A.ln(`M${X0 + 7 * CW} 158 V206`, RED, 1.6, .9, '4 3') + xx(XE + 8, 187, RED) + lab(X0 + 7 * CW + 5, 150, '여기서 실패', RED, 'start', 9);
+            o += pvdG(f ? [f] : null, ['pass'], blockP) + pvdG(f ? [f] : null, ['fail'], blockF);
+            o += pvdG(f ? [f] : null, ['rule'], A.panel(12, 230, 416, 36, DUTC) + mono(22, 246, [['assert property ', KW], ['(@(posedge clk) ', ID], ['req |-> ##[1:4] ack', DAT], [');', ID]], 11.5) + lab(22, 260, 'req가 오면 1에서 4클록 안에 ack가 와야 한다', '#cbd5e1', 'start', 10));
+            return dgSvg('어서션: ' + s.label, o, '0 0 440 274');
+          }
+        },
+        // ---------- 리그레션과 종료 판단 ----------
+        'dsn-reg': {
+          title: '리그레션과 검증 종료 판단',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '검증은 한 번 돌리고 끝나지 않는다. 밤마다 전체 테스트를 다시 돌리고, 커버리지와 새로 찾는 버그의 추세를 보면서 이제 멈춰도 되는지를 판단한다.' },
+            { id: 'night', label: '밤마다 리그레션', focus: ['night'], desc: '리그레션은 쌓인 모든 테스트를 정해진 주기(보통 매일 밤)로 다시 돌리는 일이다. 코드를 고칠 때마다 이전에 잘 되던 것이 깨지지 않았는지 확인한다. 초반에 빨간 칸이 많고 고칠수록 줄어든다.' },
+            { id: 'cov', label: '커버리지 추세', focus: ['cov'], desc: '테스트가 쌓이고 랜덤 시드가 돌수록 커버리지가 오르다가, 어느 지점부터 완만해진다. 목표(예: 기능 100%, 코드 95% 이상)에 닿았는지, 남은 구멍은 이유가 설명되는지를 본다.' },
+            { id: 'bug', label: '버그 발견 추세', focus: ['bug'], desc: '새로 찾는 버그의 수는 처음에 많다가 점차 줄어든다. 새 테스트를 넣어도 더는 버그가 나오지 않는 상태가 이어지면 설계가 안정되었다는 신호다.' },
+            { id: 'close', label: '종료 판단', focus: ['close'], desc: '세 가지가 함께 맞아야 검증을 마무리한다. 커버리지가 목표에 닿았고, 새 버그가 한동안 나오지 않았고, 전체 테스트가 통과한다. 하나라도 빠지면 아직 끝난 것이 아니다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const MX = 96, MW = 21, MS = 23, MY = 36, MH = 13, MR = 16, NC = 14;
+            const bad = new Set(['0,0', '0,2', '0,3', '1,1', '1,3', '2,0', '2,3', '3,2', '4,1', '5,0', '6,3', '7,1', '9,2']);
+            let m = lab(12, 24, '밤마다 전체 테스트를 다시 돈다 (행: 테스트, 열: 날짜)', GR, 'start', 10.5);
+            for (let r = 0; r < 4; r++) { m += lab(MX - 7, MY + r * MR + 10, 'T' + (r + 1), GR, 'end', 9.5); for (let c = 0; c < NC; c++) { const b = bad.has(c + ',' + r); m += A.rc(MX + c * MS, MY + r * MR, MW, MH, b ? RED : OKC, { fo: b ? .75 : .32, c: b ? RED : OKC, sw: .6, so: .7, rx: 2 }); } }
+            o += pvdG(f ? [f] : null, ['night'], m);
+            const X0 = 48, X1 = 420, Y0 = 202, YT = 122, px = (d) => X0 + d / (NC - 1) * (X1 - X0);
+            o += A.ln(`M${X0} ${YT - 6} V${Y0} H${X1 + 6}`, GR, 1.5) + fdArr(X1 + 8, Y0, 'r', GR) + lab(X1, Y0 + 15, '날짜', GR, 'end', 9) + lab(X0 + 4, YT - 8, '커버리지 · 새 버그 수', GR, 'start', 9);
+            let dc = '', db = '';
+            for (let i = 0; i <= 52; i++) { const d = i / 52 * (NC - 1), a = 1 / (1 + Math.exp(-(d - 5.5) / 1.9)), y = Y0 - 6 - a * 66, b = Y0 - 4 - 60 * Math.exp(-Math.pow((d - 3.2) / 2.6, 2)) - 5 * Math.exp(-Math.pow((d - 9) / 1.4, 2)); dc += (i ? ' L' : 'M') + px(d).toFixed(1) + ' ' + y.toFixed(1); db += (i ? ' L' : 'M') + px(d).toFixed(1) + ' ' + b.toFixed(1); }
+            o += pvdG(f ? [f] : null, ['cov'], A.ln(dc, OKC, 2.6) + lab(px(8.2), 166, '커버리지', OKC, 'start', 10));
+            o += pvdG(f ? [f] : null, ['bug'], A.ln(db, RED, 2.6) + lab(px(4.6), 144, '새로 찾는 버그', RED, 'start', 10));
+            o += pvdG(f ? [f] : null, ['close'], A.ln(`M${px(11.6)} ${YT - 4} V${Y0}`, DAT, 1.8, .95, '4 3') + `<circle cx="${px(11.6)}" cy="${YT - 4}" r="4.5" style="fill:${DAT}"/>` + lab(px(11.6) - 6, YT - 8, '종료 판단', DAT, 'end', 10) + lab(220, 238, '커버리지 목표 도달 · 새 버그 정체 · 전체 테스트 통과', DAT, 'middle', 10.5));
+            return dgSvg('리그레션과 종료 판단: ' + s.label, o, '0 0 440 246');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 유료(15토큰) 글 "버그 사냥 시나리오" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const CLK = '#93c5fd', DAT = '#fcd34d', QQ = '#34d399', RED = '#f87171', OKC = '#4ade80', DUTC = '#a78bfa', GR = '#94a3b8', ID = '#e2e8f0', KW = '#c084fc', AMB = '#fb923c';
+      const lab = (x, y, t, col, a = 'start', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const cyc = (x0, cw, n, yt, yb) => { let d = `M${x0} ${yb}`; for (let i = 0; i < n; i++) { const x = x0 + i * cw; d += ` V${yt} H${x + cw / 2} V${yb} H${x + cw}`; } return d; };
+      const bits = (x0, cw, yt, yb, arr, col, sw = 1.8) => { let d = `M${x0} ${arr[0] ? yt : yb}`; arr.forEach((b, i) => { const y = b ? yt : yb; if (i) d += ` V${y}`; d += ` H${x0 + (i + 1) * cw}`; }); return A.ln(d, col, sw); };
+      const bus = (x0, cw, yt, h, vals, col, bad) => {
+        let o = '', i = 0; const yb = yt + h, ym = yt + h / 2;
+        while (i < vals.length) { let j = i; while (j + 1 < vals.length && vals[j + 1] === vals[i] && !(bad && bad.includes(j + 1))) j++; const a = x0 + i * cw, b = x0 + (j + 1) * cw, bd = bad && bad.includes(i), c = bd ? RED : col; o += `<path d="M${a} ${ym} L${a + 3} ${yt} H${b - 3} L${b} ${ym} L${b - 3} ${yb} H${a + 3} Z" style="fill:${c};fill-opacity:${bd ? .3 : .16};stroke:${c};stroke-width:1.4"/>` + lab((a + b) / 2, ym + 3.5, vals[i], c, 'middle', 9.5); i = j + 1; }
+        return o;
+      };
+      const mono = (x, y, toks, s = 10) => `<text class="dg-t" x="${x}" y="${y}" xml:space="preserve" style="font-size:${s}px;font-weight:700;font-family:monospace;white-space:pre">${toks.map(([t, c]) => `<tspan style="fill:${c}">${escH(t)}</tspan>`).join('')}</text>`;
+      const badge = (x, y, n, col) => `<circle cx="${x}" cy="${y}" r="9" style="fill:${col};fill-opacity:.95;stroke:#0f172a;stroke-width:1.4"/>` + `<text class="dg-t" x="${x}" y="${y + 3.6}" text-anchor="middle" style="font-size:10.5px;font-weight:800;fill:#0f172a">${n}</text>`;
+      const card = (x, y, w, h, col, fo = .1) => A.rc(x, y, w, h, col, { fo, c: col, sw: 1.6, so: .9, rx: 6 });
+      Object.assign(DIAGRAMS, {
+        // ---------- 사냥의 여섯 걸음 ----------
+        'dsn-hunt': {
+          title: '버그 사냥의 여섯 걸음',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '실패 하나에서 원인까지는 정해진 길이 있다. 실패를 붙잡고, 원인 쪽으로 좁혀 가고, 고친 뒤 확인한다. 이 여섯 걸음을 순서대로 밟으면 막막한 파형 앞에서도 길을 잃지 않는다.' },
+            { id: 'catch', label: '실패 붙잡기', focus: ['catch'], desc: '먼저 같은 실패를 언제든 다시 만들 수 있게 한다(시드, 테스트 이름). 그다음 실패가 보인 곳이 아니라 처음으로 값이 틀어진 곳을 찾는다. 이 두 걸음 없이 원인을 짐작하면 헛다리를 짚는다.' },
+            { id: 'narrow', label: '원인 좁히기', focus: ['narrow'], desc: '틀어진 값을 만든 신호를 출력에서 입력 쪽으로 거슬러 오르며 원인 후보를 줄인다. 후보가 줄면 가설 하나를 세우고 파형으로 맞는지 시험한다. 가설이 틀리면 한 걸음 되돌아와 다시 세운다.' },
+            { id: 'fix', label: '고치고 확인', focus: ['fix'], desc: '원인이 확인되면 한 군데만 고친다. 그리고 처음 실패했던 테스트가 통과하는지, 다른 테스트가 새로 깨지지 않았는지 전체를 다시 돌려 확인한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const X = [44, 120, 196, 272, 348, 410], Y = 86, N = ['재현', '첫 이상', '거슬러 오르기', '가설', '고침', '재확인'], SB = ['같은 시드로', '처음 틀어진 곳', '원인 쪽으로', '하나씩 시험', '한 군데만', '전체 회귀'], G = ['catch', 'catch', 'narrow', 'narrow', 'fix', 'fix'], COL = [C.rtl, C.rtl, C.pd, C.pd, C.dv, C.dv];
+            o += A.ln(`M${X[0]} ${Y} H${X[5] + 4}`, GR, 2.2, .7) + fdArr(X[5] + 18, Y, 'r', GR);
+            N.forEach((n, i) => { o += pvdG(f ? [f] : null, [G[i]], `<circle cx="${X[i]}" cy="${Y}" r="17" style="fill:${COL[i]};fill-opacity:.2;stroke:${COL[i]};stroke-width:2.2"/>` + lab(X[i], Y + 5, String(i + 1), COL[i], 'middle', 15) + lab(X[i], Y + 38, n, COL[i], 'middle', 10) + lab(X[i], Y + 52, SB[i], GR, 'middle', 8.5)); });
+            o += pvdG(f ? [f] : null, ['narrow'], A.ln(`M${X[3]} ${Y - 18} C${X[3]} ${Y - 56} ${X[2]} ${Y - 56} ${X[2]} ${Y - 18}`, AMB, 1.8, .95, '4 3') + fdArr(X[2], Y - 18, 'd', AMB) + lab((X[2] + X[3]) / 2, Y - 54, '가설이 틀리면 되돌아간다', AMB, 'middle', 9.5));
+            o += pvdG(f ? [f] : null, ['catch'], A.rc(24, 140, 140, 28, C.rtl, { fo: .1, c: C.rtl, sw: 1.2, rx: 5, dash: '4 3' }) + lab(94, 158, '실패가 보인 곳 ≠ 원인', C.rtl, 'middle', 9.5));
+            o += pvdG(f ? [f] : null, ['fix'], A.rc(276, 140, 140, 28, C.dv, { fo: .1, c: C.dv, sw: 1.2, rx: 5, dash: '4 3' }) + lab(346, 158, '고친 뒤엔 반드시 전체 확인', C.dv, 'middle', 9.5));
+            return dgSvg('버그 사냥: ' + s.label, o, '0 0 440 184');
+          }
+        },
+        // ---------- 실패 보고서 ----------
+        'dsn-fail': {
+          title: '실패 보고서 한 장에서 읽을 것',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '밤사이 실패한 테스트가 남기는 보고서에는 사냥에 필요한 단서가 거의 다 들어 있다. 언제, 어디서, 무엇이 달랐는지, 그리고 다시 만드는 방법이다.' },
+            { id: 'where', label: '언제 · 어디서', focus: ['where'], desc: '첫 줄은 실패가 기록된 시뮬레이션 시각과 보고한 곳(여기서는 스코어보드)이다. 실패가 보인 지점이지 원인의 위치가 아니라는 점을 기억해 둔다.' },
+            { id: 'what', label: '무엇이 다른가', focus: ['what'], desc: '몇 번째 건에서 예상값과 실제값이 얼마나 달랐는지가 적혀 있다. 값의 차이에서 단서를 읽는다. 한 비트만 다른지, 통째로 0인지, 한 칸씩 밀렸는지가 원인의 종류를 가리킨다.' },
+            { id: 'repro', label: '다시 만드는 법', focus: ['repro'], desc: '테스트 이름과 시드(seed)가 있으면 같은 실패를 그대로 재현할 수 있다. 이 두 값을 적어 두지 않고 다른 설정으로 돌리면 실패가 사라져서 원인을 놓친다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += A.panel(10, 14, 318, 150, DUTC);
+            const L = [['where', [['ERROR', RED], ['  @ 48250 ns', ID], ['  scoreboard', '#93c5fd']]], ['what', [['item 37 ', DAT], ['MISMATCH', RED]]], ['what', [['expected = ', ID], ['0x10', OKC], ['  actual = ', ID], ['0x00', RED]]], ['what', [['fifo.count = 4  wr_en = 1', '#cbd5e1']]], ['repro', [['test = fifo_rand_full', KW]]], ['repro', [['seed = 20240826', KW]]]];
+            const ys = [38, 62, 82, 102, 128, 148];
+            L.forEach(([g, toks], i) => { o += pvdG(f ? [f] : null, [g], mono(22, ys[i], toks, 11)); });
+            const br = (id, y1, y2, col, txt) => pvdG(f ? [f] : null, [id], A.ln(`M336 ${y1} H342 V${y2} H336`, col, 1.5) + lab(350, (y1 + y2) / 2 + 3.5, txt, col, 'start', 10));
+            o += br('where', 28, 44, RED, '언제 · 어디서') + br('what', 54, 108, DAT, '무엇이 다른가') + br('repro', 118, 154, '#c4b5fd', '다시 만드는 법');
+            o += lab(220, 186, '이 보고서는 결과가 보인 곳이다. 원인은 이보다 앞에 있다.', GR, 'middle', 10);
+            return dgSvg('실패 보고서: ' + s.label, o, '0 0 440 198');
+          }
+        },
+        // ---------- 첫 이상과 관찰된 실패 ----------
+        'dsn-first': {
+          title: '실패가 보인 곳과 처음 틀어진 곳은 다르다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '버그는 칩 안쪽에서 먼저 값을 틀어 놓고, 그 결과가 몇 클록 뒤에 출력에서 드러난다. 사냥은 출력에서 시작하지만 목적지는 처음 틀어진 지점이다.' },
+            { id: 'seen', label: '실패가 보인 곳', focus: ['seen'], desc: '읽은 데이터(rd_data)가 예상과 달라서 스코어보드가 불일치를 보고한 시점이다. 여기서 원인을 찾으면 이미 여러 단계가 지난 뒤라 단서가 흩어져 있다.' },
+            { id: 'first', label: '처음 틀어진 곳', focus: ['first'], desc: 'FIFO가 네 칸 모두 차면 full이 올라가야 하는데 한 클록 늦게 올라갔다. 그 사이에 쓰기가 한 번 더 들어가 가장 오래된 값이 덮어씌워졌다. 이 클록이 진짜 원인의 자리다.' },
+            { id: 'gap', label: '둘 사이', focus: ['gap'], desc: '두 시점 사이의 거리가 멀수록 사냥이 어렵다. 어서션이나 내부 신호의 점검이 많을수록 이 거리가 짧아진다. 그래서 어서션이 디버그 시간을 줄여 준다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const X0 = 88, CW = 30, N = 11;
+            o += lab(10, 24, '클록 번호', GR, 'start', 9) + [0, 2, 4, 6, 8, 10].map((i) => lab(X0 + i * CW + CW / 2, 24, String(i), GR, 'middle', 9)).join('');
+            o += lab(78, 52, 'clk', CLK, 'end', 10) + A.ln(cyc(X0, CW, N, 38, 54), CLK, 1.5);
+            o += lab(78, 86, 'wr_en', DAT, 'end', 10) + bits(X0, CW, 70, 88, [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], DAT);
+            o += lab(78, 119, 'count', '#cbd5e1', 'end', 10) + bus(X0, CW, 104, 22, ['0', '0', '1', '2', '3', '4', '4', '4', '3', '3', '3'], '#94a3b8');
+            o += lab(78, 154, 'full', RED, 'end', 10) + bits(X0, CW, 138, 156, [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0], RED, 2.1);
+            o += A.ln(`M${X0 + 5 * CW} 140 l${CW} 0`, RED, 0.01);
+            o += lab(78, 189, 'rd_data', OKC, 'end', 10) + bus(X0, CW, 172, 22, ['--', '--', '--', '--', '--', '--', '--', 'D0', 'D1', 'D2', 'D2'], OKC, [10]);
+            o += lab(X0 + 5 * CW - 6, 215, 'full이 올라갔어야 할 클록', DAT, 'end', 9);
+            o += pvdG(f ? [f] : null, ['first'], `<rect x="${X0 + 5 * CW}" y="30" width="${CW}" height="168" rx="4" style="fill:${RED};fill-opacity:.12;stroke:${RED};stroke-width:1.6"/>` + badge(X0 + 5 * CW + CW / 2, 226, 1, RED) + lab(X0 + 5 * CW + CW / 2, 248, '처음 틀어짐', RED, 'middle', 10));
+            o += pvdG(f ? [f] : null, ['seen'], `<rect x="${X0 + 10 * CW}" y="30" width="${CW}" height="168" rx="4" style="fill:${AMB};fill-opacity:.14;stroke:${AMB};stroke-width:1.6"/>` + badge(X0 + 10 * CW + CW / 2, 226, 2, AMB) + lab(X0 + 10 * CW + CW / 2 - 4, 248, '실패가 보임', AMB, 'end', 10));
+            o += pvdG(f ? [f] : null, ['gap'], A.ln(`M${X0 + 10 * CW} 226 H${X0 + 6 * CW}`, AMB, 2, .95, '4 3') + fdArr(X0 + 6 * CW - 1, 226, 'l', AMB) + lab(X0 + 8 * CW, 218, '거슬러 오른다', AMB, 'middle', 9.5));
+            return dgSvg('첫 이상과 실패: ' + s.label, o, '0 0 440 264');
+          }
+        },
+        // ---------- 신호 거슬러 오르기 ----------
+        'dsn-trace': {
+          title: '틀린 출력에서 입력 쪽으로 거슬러 오른다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '틀린 출력 신호는 앞쪽의 어떤 신호들이 만든 결과다. 그 신호들을 하나씩 열어 맞는지 확인하면서 출력에서 입력 쪽으로 거슬러 오르면, 후보가 점점 줄어든다.' },
+            { id: 'wrong', label: '틀린 신호', focus: ['wrong'], desc: '읽은 데이터가 틀렸다. 그 앞의 메모리 값도 틀렸고, 쓰기 포인터도 한 칸 더 갔다. 틀린 신호를 따라가면 원인은 이 사슬의 맨 앞에 있다.' },
+            { id: 'ok', label: '맞는 신호', focus: ['ok'], desc: '읽기 포인터, 개수, 쓰기 요청은 파형에서 확인해 보니 정상이다. 맞는 신호는 후보에서 지워 가며 범위를 줄인다. 확인한 신호를 메모해 두면 같은 곳을 다시 보지 않는다.' },
+            { id: 'root', label: '원인 후보', focus: ['root'], desc: '틀린 신호의 입력이 모두 맞는데 출력이 틀린 곳이 원인이다. 여기서는 full 신호를 만드는 조건이 한 클록 늦다. 이 줄의 코드를 열어 보면 비교 조건의 경계가 틀려 있다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const nd = (x, y, name, st) => { const c = st === 'bad' ? RED : st === 'root' ? DAT : OKC; return A.rc(x, y, 76, 28, c, { fo: st === 'ok' ? .13 : .22, c, sw: st === 'ok' ? 1.4 : 2, rx: 5 }) + lab(x + 38, y + 18, name, c, 'middle', 10.5); };
+            const NODE = { rd_data: [344, 80, 'bad'], mem: [236, 40, 'bad'], rd_ptr: [236, 118, 'ok'], wr_ptr: [128, 40, 'bad'], count: [128, 118, 'ok'], full: [20, 40, 'root'], wr_en: [20, 118, 'ok'] };
+            const ed = (a, b, c) => { const [x1, y1] = NODE[a], [x2, y2] = NODE[b]; return A.ln(`M${x1 + 76} ${y1 + 14} L${x2 - 5} ${y2 + 14}`, c, 1.6, .85) + fdArr(x2 - 1, y2 + 14, 'r', c); };
+            const E = [['full', 'wr_ptr', RED], ['wr_en', 'wr_ptr', GR], ['wr_ptr', 'mem', RED], ['mem', 'rd_data', RED], ['rd_ptr', 'rd_data', GR], ['count', 'rd_ptr', GR]];
+            const wrongSet = new Set(['rd_data', 'mem', 'wr_ptr', 'full']), okSet = new Set(['rd_ptr', 'count', 'wr_en']);
+            const grp = (n) => n === 'full' ? 'root' : wrongSet.has(n) ? 'wrong' : 'ok';
+            E.forEach(([a, b, c]) => { o += pvdG(f ? [f] : null, [grp(a) === 'ok' || grp(b) === 'ok' ? 'ok' : 'wrong'], ed(a, b, c)); });
+            Object.entries(NODE).forEach(([n, [x, y, st]]) => { o += pvdG(f ? [f] : null, [st === 'root' ? 'root' : st === 'bad' ? 'wrong' : 'ok'], nd(x, y, n, st)); });
+            o += pvdG(f ? [f] : null, ['root'], lab(58, 90, '원인 후보', DAT, 'middle', 10) + `<rect x="14" y="34" width="88" height="40" rx="8" style="fill:none;stroke:${DAT};stroke-width:1.6;stroke-dasharray:4 3"/>`);
+            o += A.ln('M420 160 H40', AMB, 1.8, .95, '5 3') + fdArr(37, 160, 'l', AMB) + lab(230, 178, '출력에서 입력 쪽으로 한 단계씩 거슬러 오른다', AMB, 'middle', 10);
+            o += lab(382, 74, '틀림', RED, 'middle', 9) + lab(58, 114, '', GR);
+            return dgSvg('신호 따라가기: ' + s.label, o, '0 0 440 190');
+          }
+        },
+        // ---------- 파형을 읽는 순서 ----------
+        'dsn-order': {
+          title: '파형은 이 순서로 읽는다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '파형을 열면 신호가 수십 개라 어디부터 볼지 막막하다. 순서를 정해 두면 대부분의 문제가 앞쪽 두세 단계에서 걸러진다. 클록, 리셋, 입력, 상태, 출력의 순서다.' },
+            { id: 'clk', label: '1 클록', focus: ['clk'], desc: '가장 먼저 클록이 일정하게 뛰는지 본다. 클록이 멈췄거나 시뮬레이션이 일찍 끝났다면 나머지를 볼 필요가 없다. 테스트벤치가 클록을 제대로 만들어 주었는지의 확인이기도 하다.' },
+            { id: 'rst', label: '2 리셋', focus: ['rst'], desc: '리셋이 걸렸다가 풀렸는지 본다. 풀리기 전에 들어온 입력은 의미가 없고, 풀린 뒤에도 값이 정해지지 않은 채(X)로 남은 레지스터가 있다면 리셋이 빠진 곳이다.' },
+            { id: 'in', label: '3 입력', focus: ['in'], desc: '입력이 의도한 시점에 의도한 값으로 들어갔는지 본다. 테스트벤치가 엉뚱한 값을 넣었다면 DUT의 잘못이 아니다. 입력은 항상 믿지 말고 눈으로 확인한다.' },
+            { id: 'state', label: '4 상태', focus: ['state'], desc: '입력에 따라 상태가 설계대로 옮겨 가는지 본다. 옮겨 가야 할 때 안 옮기거나, 엉뚱한 상태로 간다면 여기가 원인에 가깝다. 상태를 먼저 보면 출력의 이유가 보인다.' },
+            { id: 'out', label: '5 출력', focus: ['out'], desc: '마지막으로 출력이 상태와 입력에 맞게 나왔는지 본다. 출력이 틀렸어도 상태까지는 맞다면 출력 논리를, 상태부터 틀렸다면 상태 전이를 의심한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const X0 = 168, CW = 24, N = 11, rows = [['clk', 'clk', '클록이 뛰는가', CLK, 34], ['rst', 'rst_n', '리셋이 풀렸는가', C.dft, 74], ['in', 'valid', '입력이 맞게 들어왔나', DAT, 114], ['state', 'state', '상태가 맞게 옮겨 가나', DUTC, 154], ['out', 'done', '출력이 맞게 나왔나', QQ, 194]];
+            const R = {
+              clk: (y) => A.ln(cyc(X0, CW, N, y - 8, y + 8), CLK, 1.5),
+              rst: (y) => bits(X0, CW, y - 8, y + 8, [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1], C.dft),
+              in: (y) => bits(X0, CW, y - 8, y + 8, [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0], DAT),
+              state: (y) => bus(X0, CW, y - 10, 20, ['IDLE', 'IDLE', 'IDLE', 'IDLE', 'RUN', 'RUN', 'RUN', 'DONE', 'DONE', 'IDLE', 'IDLE'], DUTC),
+              out: (y) => bits(X0, CW, y - 8, y + 8, [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0], QQ),
+            };
+            rows.forEach(([id, sig, q, col, y], i) => { o += pvdG(f ? [f] : null, [id], badge(22, y, i + 1, col) + lab(38, y - 2, sig, col, 'start', 10.5) + lab(38, y + 11, q, GR, 'start', 8.5) + R[id](y) + (f === id ? `<rect x="10" y="${y - 20}" width="420" height="40" rx="6" style="fill:none;stroke:${col};stroke-width:1.4;stroke-opacity:.9"/>` : '')); });
+            return dgSvg('파형 읽는 순서: ' + s.label, o, '0 0 440 226');
+          }
+        },
+        // ---------- 버그의 흔한 얼굴 ----------
+        'dsn-bugs': {
+          title: '버그의 흔한 여섯 얼굴',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '버그는 제각각 같아 보여도 자주 나타나는 모양이 있다. 파형의 증상을 보고 이 여섯 가지 중 어느 쪽인지 먼저 짐작하면 열어 볼 코드가 빨리 좁혀진다.' },
+            { id: 'off', label: '한 칸 어긋남', focus: ['off'], desc: '경계값에서만 틀린다. 비교 조건에서 이상과 초과, 개수와 개수 빼기 하나를 헷갈린 경우다. 가득 참, 비어 있음, 최댓값 같은 경계에 단서가 있다.' },
+            { id: 'rst', label: '리셋 빠짐', focus: ['rst'], desc: '시작 직후에만 틀린다. 리셋 값이 정해지지 않은 레지스터가 처음 몇 클록 동안 X나 이전 값을 내보낸다. 파형의 처음 부분에 알 수 없는 값이 보이면 의심한다.' },
+            { id: 'latch', label: '조건 빠짐', focus: ['latch'], desc: '바뀌어야 할 값이 그대로 남는다. if에 else가 없거나 case에 default가 없어서 의도치 않은 래치가 생긴 경우다. 합성 경고에 래치 알림이 있었는지 본다.' },
+            { id: 'asg', label: '대입 혼동', focus: ['asg'], desc: '한 박자 빠르거나 늦다. 순차 블록에서 블로킹 대입을 쓰거나 단계가 하나 모자란 경우다. 두 단 지연이 한 단으로 줄어든 모양이 흔하다.' },
+            { id: 'wid', label: '폭 잘림', focus: ['wid'], desc: '값이 큰 경우에만 틀린다. 더한 결과가 비트 폭을 넘어 윗자리가 잘리거나, 폭이 다른 신호를 조용히 이어 붙여서 생긴다. 틀린 값이 작은 쪽으로 돌아가 있으면 의심한다.' },
+            { id: 'cdc', label: '클록 경계', focus: ['cdc'], desc: '가끔만 틀리고 실행마다 다르다. 서로 다른 클록 영역 사이에서 값이 바뀌는 순간을 받는 쪽이 놓친 경우다. 재현이 어렵고, 시드에 따라 나타났다 사라진다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const W = 136, H = 112, GX = [8, 152, 296], GY = [8, 128];
+            const sig = (x, y, w, arr, col, sw = 1.6) => bits(x, w / arr.length, y, y + 12, arr, col, sw);
+            const K = [
+              ['off', '한 칸 어긋남', '경계값에서만 틀림', C.pd, (x, y) => sig(x + 12, y + 44, 112, [0, 0, 0, 1, 1, 1, 0, 0], QQ) + sig(x + 12, y + 66, 112, [0, 0, 0, 0, 1, 1, 1, 0], RED)],
+              ['rst', '리셋 빠짐', '시작 직후만 틀림', C.dft, (x, y) => `<path d="M${x + 12} ${y + 50} l3 -6 h26 l3 6 l-3 6 h-26 z" style="fill:${RED};fill-opacity:.25;stroke:${RED};stroke-width:1.4"/>` + lab(x + 41, y + 53, 'X', RED, 'middle', 9) + A.ln(`M${x + 44} ${y + 50} H${x + 124}`, QQ, 1.8) + A.ln(`M${x + 12} ${y + 72} H${x + 56} V${y + 62} H${x + 124}`, GR, 1.4)],
+              ['latch', '조건 빠짐', '값이 안 바뀜', C.rtl, (x, y) => sig(x + 12, y + 44, 112, [0, 1, 1, 0, 0, 1, 1, 0], QQ) + sig(x + 12, y + 66, 112, [0, 1, 1, 1, 1, 1, 1, 1], RED)],
+              ['asg', '대입 혼동', '한 박자 빠르거나 늦음', C.an, (x, y) => sig(x + 12, y + 44, 112, [0, 0, 1, 1, 0, 0, 0, 0], QQ) + sig(x + 12, y + 66, 112, [0, 0, 1, 1, 0, 0, 0, 0], RED) + A.ln(`M${x + 12} ${y + 82} H${x + 124}`, GR, .6, .4, '2 3')],
+              ['wid', '폭 잘림', '큰 값에서만 틀림', C.dv, (x, y) => [0, 1, 2, 3, 4, 5, 6].map((i) => A.rc(x + 14 + i * 15, y + 76 - Math.min(i, 4) * 8 - (i > 4 ? 0 : 0), 11, Math.min(i, 4) * 8 + 4, i > 4 ? RED : QQ, { fo: .5, c: i > 4 ? RED : QQ, sw: 1.2, rx: 1 })).join('') + A.ln(`M${x + 12} ${y + 44} H${x + 124}`, DAT, 1.2, .9, '3 3')],
+              ['cdc', '클록 경계', '가끔만 틀림', C.fw, (x, y) => A.ln(cyc(x + 12, 16, 7, y + 44, y + 56), CLK, 1.3) + A.ln(cyc(x + 12, 24, 4.6, y + 68, y + 80), QQ, 1.3) + `<circle cx="${x + 78}" cy="${y + 62}" r="6" style="fill:none;stroke:${RED};stroke-width:1.6;stroke-dasharray:2 2"/>`],
+            ];
+            K.forEach(([id, t, sy, col, ico], i) => { const x = GX[i % 3], y = GY[Math.floor(i / 3)]; o += pvdG(f ? [f] : null, [id], card(x, y, W, H, col) + lab(x + W / 2, y + 20, t, col, 'middle', 11) + ico(x, y) + lab(x + W / 2, y + H - 10, sy, GR, 'middle', 9)); });
+            return dgSvg('버그의 얼굴: ' + s.label, o, '0 0 440 246');
+          }
+        },
+        // ---------- 누구의 버그인가 ----------
+        'dsn-who': {
+          title: '불일치가 나면 누구의 버그인지부터 가른다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '스코어보드가 불일치를 알렸다고 DUT가 틀렸다는 뜻은 아니다. 세 곳이 틀릴 수 있다. 설계, 테스트벤치, 그리고 스펙의 해석이다. 먼저 누구의 문제인지를 가려야 엉뚱한 곳을 고치지 않는다.' },
+            { id: 'dut', label: '설계 버그', focus: ['dut'], desc: '스펙을 직접 읽어 보면 DUT의 동작이 분명히 틀린 경우다. 입력이 올바르고 참조 모델의 계산도 스펙과 맞는데 출력만 다르다. 설계자에게 파형과 함께 넘긴다.' },
+            { id: 'tb', label: '테스트벤치 버그', focus: ['tb'], desc: '입력이 규격 밖이거나, 모니터가 값을 한 클록 일찍 읽거나, 참조 모델이 스펙과 다르게 계산한 경우다. DUT의 출력이 스펙에 맞는데 비교가 틀렸다면 여기에 속한다. 검증 쪽에서 고친다.' },
+            { id: 'spec', label: '스펙이 모호', focus: ['spec'], desc: '스펙을 읽는 두 방법이 모두 그럴듯한 경우다. 누구의 코드가 틀린 것이 아니라 문장이 하나로 정해지지 않은 것이다. 아키텍트나 스펙 담당에게 물어 해석을 정하고 스펙 문장도 고친다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += A.rc(150, 8, 140, 30, C.pd, { fo: .18, c: C.pd, sw: 1.8, rx: 6 }) + lab(220, 28, '불일치가 났다', C.pd, 'middle', 11.5);
+            const COLS = [['dut', 8, '설계 버그', C.rtl, ['스펙에 비춰 보면', 'DUT의 동작이 틀림'], '설계자'], ['tb', 152, '테스트벤치 버그', C.dv, ['입력, 읽는 시점,', '참조 모델이 틀림'], '검증 엔지니어'], ['spec', 296, '스펙이 모호', C.an, ['두 해석이 모두', '그럴듯함'], '아키텍트 · 스펙']];
+            COLS.forEach(([id, x, t, col, cl, own]) => {
+              o += pvdG(f ? [f] : null, [id], A.ln(`M220 38 V52 H${x + 68} V62`, col, 1.8) + fdArr(x + 68, 63, 'd', col) + card(x, 66, 136, 134, col) + lab(x + 68, 88, t, col, 'middle', 11.5) + lab(x + 68, 114, cl[0], '#cbd5e1' === 0 ? col : GR, 'middle', 9.5) + lab(x + 68, 128, cl[1], GR, 'middle', 9.5) + A.rc(x + 14, 148, 108, 22, col, { fo: .25, c: col, sw: 1.2, rx: 11 }) + lab(x + 68, 163, own, col, 'middle', 10) + lab(x + 68, 188, '이 쪽에서 고친다', GR, 'middle', 8.5));
+            });
+            o += lab(220, 222, '먼저 가르고 나서 고친다', GR, 'middle', 10);
+            return dgSvg('누구의 버그인가: ' + s.label, o, '0 0 440 232');
+          }
+        },
+        // ---------- 커버리지 구멍에서 사냥 ----------
+        'dsn-hole': {
+          title: '커버리지의 빈 칸은 사냥감이 있는 곳이다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '실패한 테스트가 없을 때도 사냥은 있다. 커버리지 지도에서 한 번도 겪지 못한 칸을 찾아, 그 상황을 일부러 만드는 테스트를 짜면 숨어 있던 버그가 나온다.' },
+            { id: 'map', label: '커버리지 지도', focus: ['map'], desc: '가로는 동작, 세로는 FIFO가 얼마나 찼는지를 나눈 칸이다. 숫자는 그 상황이 몇 번 일어났는지다. 대부분은 여러 번 겪었지만 몇 칸은 0이다.' },
+            { id: 'hole', label: '빈 칸', focus: ['hole'], desc: '0인 칸이 아직 아무도 건드리지 못한 상황이다. 가득 찼을 때 쓰기를 시도하는 칸이 그 예다. 이런 칸에는 설계자도 테스트도 신경 쓰지 못한 버그가 숨는다.' },
+            { id: 'aim', label: '겨냥한 테스트', focus: ['aim'], desc: '빈 칸을 겨냥해 제약을 조정하거나 직접 테스트를 짠다. 가득 찬 상태에서 쓰기를 연달아 넣었더니 불일치가 나타났다. 빈 칸 하나가 곧 버그 하나가 된 것이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const GX = 92, GY = 44, cw = 52, ch = 28, cols = ['읽기', '동시', '쓰기'], rows = ['비어 있음', '1~3칸', '가득'];
+            const V = [[0, 0, 5], [96, 31, 140], [52, 0, 0]];
+            o += cols.map((t, c) => lab(GX + c * cw + cw / 2, 36, t, GR, 'middle', 9.5)).join('') + rows.map((t, r) => lab(GX - 6, GY + r * ch + ch / 2 + 3.5, t, GR, 'end', 9.5)).join('');
+            let mp = '', hl = '';
+            V.forEach((row, r) => row.forEach((v, c) => { const x = GX + c * cw, y = GY + r * ch; if (v === 0) hl += A.rc(x + 2, y + 2, cw - 4, ch - 4, RED, { fo: .16, c: RED, sw: 1.7, dash: '4 3', rx: 4 }) + lab(x + cw / 2, y + ch / 2 + 4, '0', RED, 'middle', 12); else mp += A.rc(x + 2, y + 2, cw - 4, ch - 4, OKC, { fo: Math.min(.55, .12 + v / 300), c: OKC, sw: 1.1, rx: 4 }) + lab(x + cw / 2, y + ch / 2 + 4, String(v), OKC, 'middle', 11); }));
+            o += pvdG(f ? [f] : null, ['map'], mp) + pvdG(f ? [f] : null, ['hole'], hl);
+            const tx = GX + 3 * cw + 14;
+            o += pvdG(f ? [f] : null, ['aim'], A.ln(`M${GX + 3 * cw - 2} ${GY + 2.5 * ch} H${tx - 4}`, DAT, 1.8, .95, '4 3') + fdArr(tx - 1, GY + 2.5 * ch, 'r', DAT) + A.rc(tx, GY + 2 * ch - 6, 150, 40, C.dv, { fo: .14, c: C.dv, sw: 1.6, rx: 6 }) + lab(tx + 75, GY + 2 * ch + 9, '가득 찬 채 쓰기를', C.dv, 'middle', 10) + lab(tx + 75, GY + 2 * ch + 22, '연달아 넣는 테스트', C.dv, 'middle', 10) + A.ln(`M${tx + 75} ${GY + 2 * ch + 34} V${GY + 2 * ch + 50}`, DAT, 1.8) + fdArr(tx + 75, GY + 2 * ch + 56, 'd', DAT) + A.rc(tx, GY + 2 * ch + 58, 150, 38, RED, { fo: .16, c: RED, sw: 1.8, rx: 6 }) + lab(tx + 75, GY + 2 * ch + 74, '불일치 발견', RED, 'middle', 11) + lab(tx + 75, GY + 2 * ch + 87, 'full 플래그가 한 클록 늦음', RED, 'middle', 9));
+            o += lab(220, 214, '빈 칸을 겨냥한 테스트가 숨은 버그를 드러낸다', GR, 'middle', 10);
+            return dgSvg('커버리지 구멍: ' + s.label, o, '0 0 440 222');
+          }
+        },
+        // ---------- 고친 뒤에 남길 것 ----------
+        'dsn-fix': {
+          title: '고친 뒤에 남기는 것: 재현 테스트와 어서션',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '버그를 고치면 끝이 아니다. 같은 버그가 다시 돌아오지 않도록 이 버그를 잡는 테스트를 남기고, 재발을 바로 알려 주는 어서션을 심는다. 한 번 잡은 버그가 검증 환경을 더 단단하게 만든다.' },
+            { id: 'repro', label: '재현 테스트', focus: ['repro'], desc: '실패한 상황을 가장 짧게 다시 만드는 테스트를 만든다. 긴 랜덤 테스트 대신 몇 줄짜리 직접 테스트다. 고치기 전에는 실패하고 고친 뒤에는 통과하는지로 수정을 증명한다.' },
+            { id: 'full', label: '전체 확인', focus: ['full'], desc: '고친 코드가 다른 곳을 깨뜨리지 않았는지 리그레션 전체를 다시 돌린다. 한 곳을 고친 일이 이웃에 영향을 주는 일은 설계에서 흔하다.' },
+            { id: 'keep', label: '남겨 두기', focus: ['keep'], desc: '재현 테스트를 리그레션 모음에 영구히 넣고, 이 버그가 일어날 수 없는 규칙을 어서션으로 심는다. 나중에 누가 코드를 고쳐도 같은 버그가 다시 오면 즉시 걸린다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const bx = (id, x, y, w, h, col, t1, t2) => pvdG(f ? [f] : null, [id], card(x, y, w, h, col, .14) + lab(x + w / 2, y + h / 2 - 1, t1, col, 'middle', 10.5) + (t2 ? lab(x + w / 2, y + h / 2 + 12, t2, GR, 'middle', 8.5) : ''));
+            o += bx('repro', 12, 28, 118, 56, C.rtl, '재현 테스트', '짧게, 고치기 전엔 실패') + bx('full', 160, 28, 118, 56, C.pd, '전체 리그레션', '이웃이 깨지지 않았나') + bx('keep', 308, 28, 120, 56, C.dv, '리그레션에 편입', '영구히 계속 돈다');
+            o += pvdG(f ? [f] : null, ['repro'], A.ln('M130 56 H152', C.rtl, 1.8) + fdArr(160, 56, 'r', C.rtl)) + pvdG(f ? [f] : null, ['full'], A.ln('M278 56 H300', C.pd, 1.8) + fdArr(308, 56, 'r', C.pd));
+            o += pvdG(f ? [f] : null, ['keep'], A.panel(212, 120, 216, 66, DUTC) + mono(222, 140, [['assert property ', KW], ['(@(posedge clk)', ID]], 10.5) + mono(222, 156, [['  full_flag == (count == DEPTH)', DAT]], 10.5) + mono(222, 172, [[');', ID]], 10.5) + lab(320, 112, '재발을 바로 알려 주는 어서션', DUTC, 'middle', 10));
+            o += pvdG(f ? [f] : null, ['repro'], [0, 1, 2, 3, 4].map((i) => A.rc(14 + i * 24, 140 + (i % 2) * 14, 20, 12, GR, { fo: .3, c: GR, sw: 1, rx: 2 })).join('') + A.rc(134, 140, 20, 12, OKC, { fo: .55, c: OKC, sw: 1.6, rx: 2 }) + lab(70, 178, '쌓인 테스트 모음', GR, 'middle', 9.5) + lab(144, 134, '새 테스트', OKC, 'middle', 9));
+            return dgSvg('고친 뒤: ' + s.label, o, '0 0 440 194');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
@@ -12926,6 +13348,103 @@
       });
       draw();
     }
+    // ===== 집중 연습: 버그 사냥 체험 (파형에서 원인 고르기) =====
+    const BH_SC = [
+      { k: '경계값', t: '가득 참 표시가 늦다', log: [['보고서', 'item 37 MISMATCH'], ['시각', '48250 ns'], ['테스트', 'fifo_rand_full']],
+        w: { hl: 5, rows: [{ n: 'clk', t: 'clk' }, { n: 'wr_en', t: 'bit', v: [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0], c: '#d97706' }, { n: 'count', t: 'bus', v: ['0', '0', '1', '2', '3', '4', '4', '4', '3', '3', '3', '3'], c: '#64748b' }, { n: 'full', t: 'bit', v: [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0], c: '#059669' }] },
+        sit: '깊이 4인 FIFO에서 읽은 데이터가 예상과 달라 스코어보드가 불일치를 알렸어요. 아래는 그 앞쪽의 파형이에요.',
+        ds: [
+          { q: '파형에서 가장 먼저 확인할 곳은 어디일까요?', a: 1, o: [['데이터가 틀린 마지막 클록의 읽기 로직부터 뜯어본다', '그곳은 실패가 보인 자리예요. 원인은 대개 그보다 앞에 있어요.'], ['count가 4가 된 클록에서 full도 함께 올라왔는지 본다', ''], ['클록 주기가 맞는지부터 확인한다', '클록은 규칙적으로 뛰고 있어요. 읽는 순서에서 이미 통과한 단계예요.'], ['테스트를 처음부터 다시 짜 본다', '원인을 모른 채 다시 짜면 같은 문제가 되풀이돼요.']], why: 'count가 가득을 뜻하는 4가 된 바로 그 클록에 full이 올라와야 해요. 한 클록 늦게 올라간 곳이 처음 틀어진 지점이고, 그 사이 쓰기가 한 번 더 들어가 값을 덮어요.' },
+          { q: '이 버그는 어느 얼굴에 가까울까요?', a: 0, o: [['한 칸 어긋남. 경계값에서만 틀린다', ''], ['리셋 빠짐. 시작 직후에만 틀린다', '시작 직후가 아니라 가득 찬 경계에서 틀렸어요.'], ['폭 잘림. 큰 값에서만 틀린다', '개수는 4까지 정상으로 세어졌어요. 값이 잘린 모양이 아니에요.'], ['클록 경계. 가끔만 틀린다', '클록은 하나뿐이고 같은 시드에서 매번 같은 곳이 틀려요.']], why: '가득 참 같은 경계에서만, 그것도 한 클록 어긋나 있으면 한 칸 어긋남이 전형이에요. 가득을 판단하는 비교 조건의 경계를 열어 봐요.' }] },
+      { k: '리셋 빠짐', t: '시작 직후 알 수 없는 값', log: [['보고서', 'item 1 MISMATCH'], ['시각', '120 ns']],
+        w: { hl: 3, rows: [{ n: 'clk', t: 'clk' }, { n: 'rst_n', t: 'bit', v: [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1], c: '#7c3aed' }, { n: 'load', t: 'bit', v: [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], c: '#d97706' }, { n: 'q', t: 'bus', v: ['X', 'X', 'X', 'X', 'X', 'X', '5A', '5A', '5A', '5A', '5A', '5A'], c: '#059669' }] },
+        sit: '첫 번째 읽기부터 불일치가 났어요. 리셋은 정상적으로 걸렸다 풀렸는데 q는 한참 알 수 없는 값(X)이에요.',
+        ds: [
+          { q: '리셋이 풀린 뒤에도 q가 X인 이유로 가장 알맞은 것은?', a: 0, o: [['리셋 때 q에 초기값을 넣지 않았다', ''], ['클록이 아직 안정되지 않았다', '클록은 처음부터 규칙적으로 뛰고 있어요.'], ['입력 데이터가 틀렸다', 'load는 아직 한 번도 들어오지 않았어요. 값이 정해지지 않은 것은 그 전의 문제예요.'], ['시뮬레이터의 오류다', '시뮬레이터를 의심하는 것은 맨 마지막이에요. 코드와 테스트부터 살펴요.']], why: '리셋이 풀려도 레지스터가 값을 받기 전까지는 초기값이 정해져 있어야 해요. 정해 주지 않으면 X가 남아 뒤의 로직으로 퍼져 나가요.' },
+          { q: '어떻게 고칠까요?', a: 1, o: [['스코어보드가 X를 무시하도록 만든다', '증상만 가릴 뿐이에요. 실제 칩에서는 X가 아니라 아무 값이나 나와요.'], ['always 블록의 리셋 분기에 q의 초기값 대입을 추가한다', ''], ['리셋 구간을 더 길게 늘린다', '리셋이 길어도 초기값을 정해 주지 않으면 값은 정해지지 않아요.']], why: '버그는 설계 코드의 리셋 분기에 있어요. 모든 레지스터에 리셋 값을 주고, 의도적으로 값이 필요 없는 곳만 예외로 남겨요.' }] },
+      { k: '조건', t: '값이 바뀌지 않는다', log: [['보고서', 'item 12 MISMATCH'], ['합성 경고', 'latch inferred (q)']],
+        w: { hl: 4, rows: [{ n: 'sel', t: 'bit', v: [0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0], c: '#7c3aed' }, { n: 'q 기대', t: 'bus', v: ['0', 'B', 'B', 'C', '0', '0', '0', 'E', 'E', '0', '0', '0'], c: '#059669' }, { n: 'q 실제', t: 'bus', v: ['0', 'B', 'B', 'C', 'C', 'C', 'C', 'E', 'E', 'E', 'E', 'E'], c: '#d97706', bad: [4, 5, 6, 9, 10, 11] }] },
+        sit: 'sel이 0이면 q는 0이어야 하는데 이전 값이 그대로 남아 있어요. 합성 로그에는 래치 경고도 하나 있었어요.',
+        ds: [
+          { q: '파형이 말해 주는 것은 무엇일까요?', a: 2, o: [['sel이 1일 때 값이 늦게 따라온다', '1일 때는 정상으로 따라와요. 틀린 곳은 0일 때예요.'], ['두 클록 영역 사이에서 값을 놓친다', '클록은 하나뿐이고 매번 같은 곳에서 틀려요.'], ['sel이 0일 때 q가 바뀌지 않고 이전 값을 붙잡고 있다', ''], ['q의 비트 폭이 모자란다', '폭이 모자라면 큰 값에서만 잘려요. 여기는 조건과 관련된 증상이에요.']], why: '값이 바뀌어야 할 조건에서 바뀌지 않고 붙잡혀 있어요. 조건에 빠진 경우가 있다는 뜻이고, 합성의 래치 경고가 같은 이야기를 해요.' },
+          { q: '원인 코드의 모양으로 가장 알맞은 것은?', a: 0, o: [['if (sel) q = d; 에 else가 없다', ''], ['q를 비블로킹 대입으로 썼다', '대입 종류는 한 박자의 차이를 만들지, 값을 붙잡지 않아요.'], ['case에 같은 값을 두 번 썼다', '그런 오류는 컴파일에서 먼저 경고가 나요. 여기서는 래치 경고가 단서예요.']], why: '모든 조건에서 값을 정해 주지 않으면 합성기는 이전 값을 기억하는 래치를 만들어요. else나 default로 모든 경우를 채워 줘요.' }] },
+      { k: '누구의 버그', t: 'DUT는 맞는데 불일치', log: [['보고서', 'item 5 MISMATCH'], ['expected', '0xA3'], ['actual', '0x00']],
+        w: { hl: 2, rows: [{ n: 'clk', t: 'clk' }, { n: 'sample', t: 'bit', v: [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], c: '#7c3aed' }, { n: 'valid_out', t: 'bit', v: [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0], c: '#059669' }, { n: 'dout', t: 'bus', v: ['00', '00', '00', 'A3', 'A3', '00', '00', '00', '00', '00', '00', '00'], c: '#d97706' }] },
+        sit: '스코어보드는 0x00을 읽었다고 하는데, 파형에서 DUT는 valid_out이 1일 때 0xA3을 내보내고 있어요. sample은 모니터가 값을 읽는 순간이에요.',
+        ds: [
+          { q: '이 불일치는 누구의 버그일까요?', a: 1, o: [['DUT. 출력이 스펙과 다르다', 'valid_out이 1인 클록에서 dout은 0xA3으로 스펙과 맞아요.'], ['테스트벤치. 모니터가 valid_out보다 한 클록 일찍 읽었다', ''], ['스펙이 모호하다', '스펙은 valid_out이 1일 때 값이 유효하다고 분명히 말해요.'], ['시뮬레이터의 버그다', '설명할 수 있는 원인이 아직 많이 남아 있어요.']], why: 'DUT의 출력은 스펙과 맞고 모니터가 값이 나오기 한 클록 전에 읽었어요. 이런 불일치는 테스트벤치의 버그이고 검증 쪽에서 고쳐요.' },
+          { q: '어떻게 고칠까요?', a: 0, o: [['모니터가 valid_out이 1인 클록에서 읽도록 고친다', ''], ['DUT의 출력을 한 클록 앞당긴다', '스펙에 맞는 DUT를 바꾸면 오히려 스펙과 어긋나요.'], ['비교에서 이 건을 예외로 둔다', '예외를 두면 진짜 버그도 함께 가려질 수 있어요.']], why: '모니터는 유효 신호를 기준으로 읽도록 해요. 읽는 시점을 고정된 클록 수로 정해 두면 DUT의 지연이 바뀔 때 다시 틀려요.' }] },
+      { k: '대입 혼동', t: '출력이 한 박자 빠르다', log: [['보고서', 'item 3 MISMATCH'], ['스펙', '입력 2클록 뒤에 출력']],
+        w: { hl: 1, rows: [{ n: 'clk', t: 'clk' }, { n: 'in', t: 'bus', v: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'], c: '#d97706' }, { n: '출력 기대', t: 'bus', v: ['-', '-', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], c: '#059669' }, { n: '출력 실제', t: 'bus', v: ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], c: '#ef4444', bad: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }] },
+        sit: '출력 값은 모두 맞는데 전부 한 클록씩 일찍 나와요. 설계는 입력을 레지스터 두 단에 거쳐 내보내는 구조예요.',
+        ds: [
+          { q: '가장 의심되는 코드는 무엇일까요?', a: 3, o: [['리셋 값이 정해지지 않았다', '시작 직후만이 아니라 전 구간에서 한 박자 일찍 나와요.'], ['if에 else가 없다', '값이 붙잡히는 모양이 아니에요. 값은 제때 따라오되 한 박자 일러요.'], ['출력 비트 폭이 작다', '값 자체는 맞고 시점만 달라요.'], ['순차 블록 안에서 두 단을 블로킹 대입(=)으로 이어 썼다', '']], why: '순차 블록 안에서 블로킹 대입을 쓰면 두 단이 한 클록 안에서 한꺼번에 갱신되어 한 단으로 합쳐져요. 순차 블록의 대입은 비블로킹(<=)으로 써요.' }] },
+      { k: '재현 필요', t: '가끔만 틀린다', log: [['보고서', 'seed 20240826에서만 실패'], ['다른 시드', '모두 통과']],
+        w: { hl: 6, rows: [{ n: 'clk_a', t: 'clk' }, { n: 'data_a', t: 'bus', v: ['3', '3', '4', '4', '4', '5', '5', '5', '6', '6', '6', '7'], c: '#d97706' }, { n: 'clk_b', t: 'clk', per: 1.5, c: '#ec4899' }, { n: 'data_b', t: 'bus', v: ['3', '3', '3', '4', '4', '4', '2', '2', '5', '5', '6', '6'], c: '#059669', bad: [6, 7] }] },
+        sit: '같은 테스트가 어떤 시드에서는 통과하고 어떤 시드에서는 실패해요. 두 개의 클록이 쓰이는 회로이고, b쪽에서 값이 가끔 엉뚱하게 넘어가요.',
+        ds: [
+          { q: '가장 먼저 할 일은 무엇일까요?', a: 3, o: [['통과하는 시드로 다시 돌려 확인한다', '통과하는 시드에는 버그가 나오지 않아요. 실패를 다시 만들어야 해요.'], ['가끔이니 일단 넘어간다', '가끔 나는 버그가 실제 칩에서는 가장 큰 문제가 돼요.'], ['시드를 바꿔 가며 계속 돌려 본다', '재현되는 시드가 이미 있어요. 그것을 붙잡는 것이 먼저예요.'], ['실패한 시드와 테스트 이름으로 같은 실패를 다시 만든다', '']], why: '사냥은 재현에서 시작해요. 실패한 시드와 테스트 이름으로 같은 파형을 얻고 나서야 원인을 좁힐 수 있어요.' },
+          { q: '파형에서 어디를 의심할까요?', a: 0, o: [['서로 다른 두 클록 사이로 값이 넘어가는 곳', ''], ['리셋이 풀리는 순간', '두 클록 모두 리셋은 정상이에요.'], ['출력의 비트 폭', '가끔만 틀리는 증상은 폭 문제와 거리가 멀어요.'], ['스코어보드의 비교 순서', '비교 순서가 문제라면 매번 같은 곳이 틀려요.']], why: 'a의 값이 바뀌는 순간에 b가 읽으면 중간 값을 잡아요. 시드에 따라 타이밍이 달라 가끔만 나타나고, 동기화 회로가 있는지 확인해요.' }] },
+    ];
+    const BH_TOTAL = BH_SC.reduce((a, c) => a + c.ds.length, 0);
+    function bhWave(w) {
+      const x0 = 66, cw = 22, rh = 28, N = 12, H = w.rows.length * rh + 10, X1 = x0 + N * cw;
+      let o = `<rect x="${x0 + w.hl * cw}" y="3" width="${cw}" height="${H - 6}" rx="3" style="fill:#ef4444;fill-opacity:.11;stroke:#ef4444;stroke-width:1.2"/>`;
+      w.rows.forEach((r, k) => {
+        const yc = 6 + k * rh + rh / 2, yt = yc - 7, yb = yc + 7, col = r.c || '#3b82f6', bad = new Set(r.bad || []);
+        o += `<text x="${x0 - 6}" y="${yc + 3.4}" text-anchor="end" style="font-size:9.5px;font-weight:700;fill:${col}">${escH(typeof T === 'function' ? T(r.n) : r.n)}</text>`;
+        if (r.t === 'clk') {
+          const per = r.per || 1; let d = `M${x0} ${yb}`;
+          for (let x = 0; x < N; x += per) { const a = x0 + x * cw, m = Math.min(a + per * cw / 2, X1), b = Math.min(a + per * cw, X1); d += ` V${yt} H${m} V${yb} H${b}`; }
+          o += `<path d="${d}" style="fill:none;stroke:${col};stroke-width:1.4"/>`;
+        } else if (r.t === 'bit') {
+          let d = `M${x0} ${r.v[0] ? yt : yb}`; r.v.forEach((b, i) => { const y = b ? yt : yb; if (i) d += ` V${y}`; d += ` H${x0 + (i + 1) * cw}`; });
+          o += `<path d="${d}" style="fill:none;stroke:${col};stroke-width:1.8"/>`;
+        } else {
+          let i = 0;
+          while (i < r.v.length) {
+            let j = i; while (j + 1 < r.v.length && r.v[j + 1] === r.v[i] && bad.has(j + 1) === bad.has(i)) j++;
+            const a = x0 + i * cw, b = x0 + (j + 1) * cw, c = (bad.has(i) || r.v[i] === 'X') ? '#ef4444' : col;
+            o += `<path d="M${a} ${yc} L${a + 3} ${yt} H${b - 3} L${b} ${yc} L${b - 3} ${yb} H${a + 3} Z" style="fill:${c};fill-opacity:.16;stroke:${c};stroke-width:1.3"/><text x="${(a + b) / 2}" y="${yc + 3.4}" text-anchor="middle" style="font-size:9.5px;font-weight:800;fill:${c}">${escH(r.v[i])}</text>`;
+            i = j + 1;
+          }
+        }
+      });
+      return `<svg viewBox="0 0 ${X1 + 8} ${H}" role="img" aria-label="${escH(T('파형 그림'))}">${o}</svg>`;
+    }
+    function bhHydrate(fig) {
+      if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc', 'pr-al', 'pr-bh');
+      const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
+      const st = { i: 0, j: 0, pick: null, ok: 0 };
+      const draw = () => {
+        const done = st.i >= BH_SC.length;
+        let h = `<div class="dg-head"><span class="dg-tag">${escH(tt('직접 해 보기'))}</span><span class="dg-title">${escH(tt('버그 사냥 연습'))}</span></div>`;
+        if (done) {
+          const r = st.ok, msg = r >= BH_TOTAL - 1 ? '실패에서 원인까지 가는 길이 몸에 익었어요. 이제 진짜 파형 앞에서도 같은 순서로 따라가 보세요.' : r >= Math.ceil(BH_TOTAL / 2) ? '좋아요. 놓친 장면은 해당 그림을 다시 보고 도전해 보세요.' : '여섯 걸음 그림과 파형 읽는 순서 그림을 다시 보고 도전해 보세요. 재현, 첫 이상, 거슬러 오르기의 순서부터 익히면 쉬워져요.';
+          h += `<p class="pr-score">${escH(tt('결과'))} <b>${r} / ${BH_TOTAL}</b></p><p class="dg-desc">${escH(tt(msg))}</p><div class="pr-row"><button type="button" class="dg-btn on" data-a="again">${escH(tt('다시 해 보기'))}</button></div>`;
+        } else {
+          const sc = BH_SC[st.i], d = sc.ds[st.j], n = st.i + 1, ans = st.pick != null;
+          h += `<p class="pr-q"><b>${escH(tt('사냥감'))} ${n} / ${BH_SC.length}</b> · ${escH(tt(sc.t))} <span class="al-k">${escH(tt(sc.k))}</span></p>`;
+          h += `<div class="al-scr al-alm"><div class="al-h"><i></i><b>${escH(tt('실패 보고'))}</b><span>${escH(tt(sc.t))}</span></div>${sc.log.map((r) => `<div class="al-r"><span>${escH(tt(r[0]))}</span><b>${escH(tt(r[1]))}</b></div>`).join('')}<div class="bh-w">${bhWave(sc.w)}</div></div>`;
+          h += `<p class="dg-desc">${escH(tt(sc.sit))}</p><p class="pr-hint al-q"><b>${escH(tt(d.q))}</b>${sc.ds.length > 1 ? ` <span>(${st.j + 1}/${sc.ds.length})</span>` : ''}</p>`;
+          h += `<div class="al-opts">${d.o.map((o, k) => `<button type="button" class="dg-btn al-o${ans ? (k === d.a ? ' good' : k === st.pick ? ' bad' : '') : ''}" data-a="opt" data-k="${k}" ${ans ? 'disabled' : ''}>${escH(tt(o[0]))}</button>`).join('')}</div>`;
+          if (ans) {
+            const okk = st.pick === d.a;
+            h += `<div class="pr-fb"><b>${escH(tt(okk ? '✔ 맞아요' : '✘ 아쉬워요'))}</b>${okk ? '' : `<p>${escH(tt(d.o[st.pick][1]))}</p>`}<p>${escH(tt(d.why))}</p></div><div class="pr-row"><button type="button" class="dg-btn on" data-a="next">${escH(tt(st.i + 1 >= BH_SC.length && st.j + 1 >= sc.ds.length ? '결과 보기' : '다음'))}</button></div>`;
+          }
+        }
+        fig.innerHTML = h + (cap ? `<figcaption>${escH(cap)}</figcaption>` : '');
+      };
+      fig.addEventListener('click', (e) => {
+        const act = e.target.closest && e.target.closest('[data-a]'); if (!act) return;
+        const a = act.dataset.a, sc = BH_SC[st.i];
+        if (a === 'opt' && st.pick == null && sc) { st.pick = +act.dataset.k; if (st.pick === sc.ds[st.j].a) st.ok++; }
+        else if (a === 'next') { st.pick = null; if (st.j + 1 < sc.ds.length) st.j++; else { st.i++; st.j = 0; } }
+        else if (a === 'again') { st.i = 0; st.j = 0; st.pick = null; st.ok = 0; }
+        draw();
+      });
+      draw();
+    }
     // ===== 실습: 수율 실험실 (yield-lab) =====
     const YL_Q = [
       { k: 'random', seed: 3, o: [['중앙으로 쏠린 가스·온도', '중앙에 몰리지 않고 전체에 고르게 퍼졌어요. 중앙 쏠림은 중앙이 유독 붉은 맵이에요.'], ['입자 같은 무작위 결함', ''], ['마스크(레티클) 결함', '마스크 결함이면 같은 자리가 일정한 간격으로 반복돼요. 여기는 위치에 규칙이 없어요.'], ['이송·연마 접촉 긁힘', '긁힘은 불량이 줄을 이뤄요. 여기는 줄이 없어요.']], a: 1, why: '위치에 규칙 없이 흩어진 불량은 입자 같은 무작위 결함의 모습이에요. 장비 하나보다 클린룸과 장비 청결 전반을 살펴요.' },
@@ -13005,6 +13524,7 @@
     function prHydrate(fig) {
       if (fig.dataset.pr === 'yield-lab') return ylHydrate(fig);
       if (fig.dataset.pr === 'alarm-drill') return alHydrate(fig);
+      if (fig.dataset.pr === 'bug-hunt') return bhHydrate(fig);
       if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc');
       const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
       const st = { i: 0, sel: null, ph: 'pick', g1: null, g2: null, full: 0 };

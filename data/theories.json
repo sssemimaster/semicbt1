@@ -1570,5 +1570,43 @@
     "premium": true,
     "mins": 15,
     "figs": 6
+  },
+  {
+    "id": "TH-4b96e006",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "설계 검증 기초",
+    "tags": [
+      "설계 직무",
+      "검증",
+      "테스트벤치",
+      "커버리지",
+      "어서션"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 15,
+    "figs": 6
+  },
+  {
+    "id": "TH-37c9d0c1",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "버그 사냥 시나리오",
+    "tags": [
+      "설계 직무",
+      "디버그",
+      "파형",
+      "재현",
+      "커버리지"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 20,
+    "figs": 10
   }
 ]
