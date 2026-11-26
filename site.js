@@ -10274,6 +10274,183 @@
       },
     });
 
+    // ===== 현장 직무 > 실무 이해 글: 5-Why와 불량 보고서 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 5-Why 사다리 ----------
+      'fld-why-ladder': {
+        title: '왜를 거듭하면 증상 아래의 원인이 나온다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '5-Why는 눈에 보이는 증상에서 출발해 "왜 그랬나?"를 거듭 물어 근본 원인까지 내려가는 방법이다. 한 단계씩 답이 사실로 확인되면 다음 질문으로 간다. 마지막에 닿은 원인을 고쳐야 같은 일이 되풀이되지 않는다.' },
+          { id: 'sym', label: '증상', focus: ['sym'], desc: '출발점은 눈에 보이는 증상이다. 막 두께가 웨이퍼마다 흔들린다처럼 측정이나 기록으로 말할 수 있는 사실이어야 한다. 증상을 모호하게 적으면 이후 질문이 모두 흐려진다.' },
+          { id: 'why', label: '왜의 연속', focus: ['why'], desc: '증상에서 "왜?"를 묻고, 나온 답에 다시 "왜?"를 묻는다. 압력이 높았고, 배기가 느렸고, 밸브가 덜 열렸다는 식으로 답이 점점 원인 쪽으로 내려간다. 다섯 번은 목표가 아니라 평균이고, 세 번에 끝나기도 일곱 번이 필요하기도 하다.' },
+          { id: 'root', label: '근본 원인', focus: ['root'], desc: '더 물어도 장비나 사람 탓이 아니라 우리가 바꿀 수 있는 시스템의 빈틈이 나오면 멈춘다. 여기서는 세정 주기가 너무 길게 정해져 있었다는 것이 근본 원인이다. 사람이 실수했다에서 멈추면 아직 덜 판 것이다.' },
+          { id: 'act', label: '대책', focus: ['act', 'root'], desc: '대책은 근본 원인에 맞춰 세운다. 밸브를 한 번 닦는 것은 증상을 지우는 일이고, 세정 주기를 줄이고 점검 항목을 늘리는 것이 같은 일이 반복되지 않게 하는 일이다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const items = [
+            ['sym', '#ef4444', '증상', '막 두께가 웨이퍼마다 흔들림'],
+            ['why', C.eq, '왜 1', '식각 때 압력이 높았다'],
+            ['why', C.eq, '왜 2', '배기가 느렸다'],
+            ['why', C.eq, '왜 3', '스로틀 밸브가 덜 열렸다'],
+            ['why', C.eq, '왜 4', '밸브에 부산물이 쌓였다'],
+            ['root', fdAc, '왜 5', '세정 주기가 너무 길었다'],
+          ];
+          items.forEach((it, i) => {
+            const x = 20 + i * 32, y = 20 + i * 50, col = it[1];
+            let b = fdRect(x, y, 214, 36, { rx: 8, fill: i === 5 ? 'rgba(251,146,60,.16)' : 'rgba(148,163,184,.07)', c: col, so: .95, sw: i === 5 ? 2.4 : 1.6 });
+            b += `<rect x="${x}" y="${y}" width="54" height="36" rx="8" style="fill:${col};fill-opacity:.9"/>` + fdTxM(x + 27, y + 22, it[2], { s: 9.5, w: 800, c: '#0b1220' }) + fdTxM(x + 62, y + 22, it[3], { a: 'start', s: 10, w: 700 });
+            o += pvdG(f, [it[0]], b);
+            if (i < 5) {
+              const xa = x + 32 + 24;
+              o += pvdG(f, [it[0], items[i + 1][0]], pvdL(`M${xa} ${y + 36} V${y + 46}`, { c: col, sw: 1.6, so: .9 }) + fdArr(xa, y + 50, 'd', col) + fdTxM(xa + 8, y + 47, '왜?', { a: 'start', s: 9, w: 800, c: col }));
+            }
+          });
+          o += pvdG(f, ['why'], fdTxM(334, 52, '답마다 증거를 확인하고', { a: 'start', s: 9.5, w: 800, c: C.eq }) + fdTxM(334, 66, '다음 왜로 내려간다', { a: 'start', s: 9.5, w: 800, c: C.eq }));
+          let ac = fdRect(16, 258, 150, 66, { rx: 8, fill: 'rgba(52,211,153,.1)', c: C.op, so: .95, sw: 1.8 }) + fdTxM(91, 278, '대책', { s: 11, w: 800, c: C.op }) + fdTxM(91, 294, '세정 주기를 줄이고', { s: 9 }) + fdTxM(91, 307, '점검 항목을 늘린다', { s: 9 });
+          ac += pvdL('M176 296 H168', { c: C.op, sw: 1.6, so: .9 }) + fdArr(166, 296, 'l', C.op);
+          o += pvdG(f, ['act'], ac);
+          return dgSvg('5-Why: ' + s.label, o, '0 0 440 336');
+        }
+      },
+
+      // ---------- 증거 검문 ----------
+      'fld-why-fact': {
+        title: '답마다 증거가 있어야 다음 왜로 간다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '왜에 대한 답이 나오면 바로 다음 왜로 가지 않고 먼저 증거가 있는지 묻는다. 증거가 있으면 다음 질문으로 가고, 없으면 확인부터 한다. 추측 위에 쌓은 5-Why는 그럴듯한 이야기일 뿐 원인이 아니다.' },
+          { id: 'answer', label: '왜의 답', focus: ['answer'], desc: '"압력이 높았다" 같은 답이 나온다. 이 문장이 측정값이나 알람 기록으로 뒷받침되는지가 다음 단계의 질문이다. 말이 그럴듯한 것과 사실인 것은 다르다.' },
+          { id: 'gate', label: '증거 검문', focus: ['gate'], desc: '각 답 앞에 "증거가 있나?"라는 검문을 둔다. 증거는 센서 기록, 알람 이력, 측정 결과, 현장에서 직접 본 상태처럼 다른 사람도 같은 것을 확인할 수 있는 것이다.' },
+          { id: 'yes', label: '있으면', focus: ['yes'], desc: '증거가 있으면 그 사실 위에 다음 왜를 쌓는다. 사실로 이어진 사슬은 끝에 닿았을 때 원인으로 믿을 수 있다.' },
+          { id: 'no', label: '없으면', focus: ['no'], desc: '증거가 없으면 먼저 확인한다. 기록을 찾아보고 측정하고 현장을 본다. 확인해 보니 다르면 답을 고쳐서 다시 검문한다. 확인할 수 없는 답은 가설로 표시해 두고 사실과 구분한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          o += pvdG(f, ['answer'], fdRect(14, 104, 108, 62, { rx: 8, fill: 'rgba(96,165,250,.1)', c: C.eq, so: .95, sw: 1.8 }) + fdTxM(68, 126, '왜의 답', { s: 10.5, w: 800, c: C.eq }) + fdTxM(68, 143, '"압력이 높았다"', { s: 9.5 }) + fdTxM(68, 156, '라는 문장', { s: 8.5, op: .85 }));
+          o += pvdG(f, ['answer', 'gate'], pvdL('M122 135 H132', { so: .8 }) + fdArr(140, 135, 'r', 'currentColor'));
+          o += pvdG(f, ['gate'], `<polygon points="190,88 242,135 190,182 138,135" style="fill:rgba(251,146,60,.12);stroke:${fdAc};stroke-width:2"/>` + fdTxM(190, 131, '증거가', { s: 10.5, w: 800, c: fdAc }) + fdTxM(190, 145, '있나?', { s: 10.5, w: 800, c: fdAc }));
+          o += pvdG(f, ['yes'], pvdL('M242 135 H292', { c: C.op, sw: 1.8, so: .95 }) + fdArr(300, 135, 'r', C.op) + fdTxM(267, 126, '있다', { s: 9.5, w: 800, c: C.op }) + fdRect(302, 100, 124, 70, { rx: 8, fill: 'rgba(52,211,153,.1)', c: C.op, so: .95, sw: 1.8 }) + fdTxM(364, 126, '다음 왜로', { s: 10.5, w: 800, c: C.op }) + fdTxM(364, 143, '사실 위에 쌓는다', { s: 9 }) + `<circle cx="364" cy="158" r="0" />`);
+          o += pvdG(f, ['no'], pvdL('M190 182 V210', { c: '#fbbf24', sw: 1.8, so: .95 }) + fdArr(190, 216, 'd', '#fbbf24') + fdTxM(200, 200, '없다', { a: 'start', s: 9.5, w: 800, c: '#fbbf24' }) + fdRect(100, 218, 180, 62, { rx: 8, fill: 'rgba(251,191,36,.12)', c: '#fbbf24', so: .95, sw: 1.8 }) + fdTxM(190, 240, '먼저 확인한다', { s: 10.5, w: 800, c: '#fbbf24' }) + fdTxM(190, 256, '기록·측정·현장 확인', { s: 9 }) + fdTxM(190, 269, '다르면 답을 고친다', { s: 8.5, op: .85 }));
+          o += pvdG(f, ['no'], pvdL('M100 249 H68 V170', { c: '#fbbf24', sw: 1.6, so: .9, dash: '4 3' }) + fdArr(68, 168, 'u', '#fbbf24'));
+          o += pvdG(f, ['all'].concat(f ? [] : []), fdTxM(350, 224, '증거 없는 답은', { s: 9.5, w: 800, c: '#ef4444' }) + fdTxM(350, 238, '추측이다', { s: 9.5, w: 800, c: '#ef4444' }));
+          return dgSvg('증거 검문: ' + s.label, o, '0 0 440 292');
+        }
+      },
+
+      // ---------- 원인 갈래(어골도) ----------
+      'fld-why-fish': {
+        title: '원인은 한 갈래가 아니라 여러 갈래다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '불량 하나에도 원인 후보는 여러 갈래에서 나온다. 갈래를 먼저 펼쳐 놓고, 가능성이 높거나 증거가 있는 갈래부터 5-Why로 파고든다. 하나만 보고 파면 놓치는 원인이 생긴다.' },
+          { id: 'head', label: '해결할 불량', focus: ['head'], desc: '물고기의 머리가 해결할 문제, 곧 증상이다. 막 두께 편차처럼 측정으로 말할 수 있는 하나의 문장으로 적는다. 머리가 흐리면 어느 뼈도 의미가 없다.' },
+          { id: 'bone', label: '갈래', focus: ['bone'], desc: '뼈 하나가 원인이 나올 수 있는 갈래다. 흔히 설비, 방법, 자재, 사람과 환경으로 나눈다. 각 갈래에 떠오르는 원인 후보를 적으면 한눈에 빠진 곳을 찾을 수 있다.' },
+          { id: 'drill', label: '하나 골라 파기', focus: ['drill', 'head'], desc: '모든 갈래를 한꺼번에 파지 않고 증거가 가장 강한 갈래를 골라 5-Why로 내려간다. 이 예에서는 설비 갈래의 배기 밸브 오염이 알람 기록과 맞아서 먼저 판다. 나머지 갈래는 가능성을 지우거나 남겨 둔다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          o += pvdL('M20 150 H330', { sw: 3.4, so: .85 }) + fdArr(332, 150, 'r', 'currentColor');
+          o += pvdG(f, ['head', 'drill'], fdRect(334, 116, 94, 68, { rx: 8, fill: 'rgba(239,68,68,.1)', c: '#ef4444', so: .95, sw: 2 }) + fdTxM(381, 144, '해결할 불량', { s: 10.5, w: 800, c: '#ef4444' }) + fdTxM(381, 162, '막 두께 편차', { s: 9 }));
+          const bones = [
+            ['설비', 108, 60, 150, true, ['배기 밸브 오염', '센서 영점 어긋남'], true],
+            ['방법', 228, 60, 270, true, ['세정 주기가 김', '교대 인계 누락'], false],
+            ['자재', 108, 240, 150, false, ['가스 순도 변동', '부품 로트 차이'], false],
+            ['사람·환경', 228, 240, 270, false, ['조립 토크 차이', '입력 실수'], false],
+          ];
+          bones.forEach((b) => {
+            const [name, bx, by, jx, top, causes, hot] = b;
+            const col = hot && f && f.includes('drill') ? fdAc : C.eq;
+            const y0 = top ? by + 4 : by - 4;
+            let g = pvdL(`M${bx} ${y0} L${jx} 150`, { c: col, sw: hot && f && f.includes('drill') ? 2.8 : 1.8, so: .95 });
+            g += fdRect(bx - 38, top ? by - 22 : by, 76, 22, { rx: 6, fill: 'rgba(96,165,250,.12)', c: col, so: .95, sw: 1.5 }) + fdTxM(bx, top ? by - 7 : by + 15, name, { s: 10, w: 800, c: col });
+            causes.forEach((t, i) => {
+              const yy = top ? 96 + i * 24 : 206 - i * 24;
+              const xx = bx + (jx - bx) * ((yy - y0) / (150 - y0));
+              g += fdTxM(xx - 6, yy + 3, t, { a: 'end', s: 9, op: .95 });
+            });
+            o += pvdG(f, hot ? ['bone', 'drill'] : ['bone'], g);
+          });
+          o += pvdG(f, ['drill'], fdTxM(220, 286, '증거가 강한 갈래를 골라 5-Why로 판다', { s: 9.5, w: 800, c: fdAc }));
+          return dgSvg('원인 갈래: ' + s.label, o, '0 0 440 298');
+        }
+      },
+
+      // ---------- 불량 보고서 구성 ----------
+      'fld-why-report': {
+        title: '불량 보고서는 여섯 칸으로 쓴다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '불량 보고서는 읽는 사람이 무슨 일인지, 왜 그랬는지, 어떻게 했는지를 순서대로 알 수 있게 쓴다. 여섯 칸을 순서대로 채우면 누가 읽어도 같은 이야기를 이해한다.' },
+          { id: 'what', label: '무슨 일', focus: ['what'], desc: '맨 위에 한 줄 요약을 두고, 이어 현상을 시간, 장소, 대상, 정도로 사실만 적는다. 영향 범위는 로트와 장수, 뒤 공정까지 쓴다. 원인이나 해석은 여기에 섞지 않는다.' },
+          { id: 'why', label: '왜', focus: ['why'], desc: '원인 분석 칸에는 5-Why의 사슬과 각 답의 증거를 적는다. 결론만 쓰지 않고 어떻게 거기까지 왔는지가 보이게 한다. 확인하지 못한 부분은 가설이라고 표시한다.' },
+          { id: 'fix', label: '어떻게', focus: ['fix'], desc: '조치 칸에는 당장 피해를 막은 임시 조치와 원인을 없애는 영구 대책을 나눠 쓴다. 마지막 칸에는 담당자, 기한, 효과를 어떻게 확인할지를 적어 같은 일이 반복되는지 지켜볼 수 있게 한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          o += '<g transform="translate(-26,0)">';
+          o += fdRect(60, 12, 320, 322, { rx: 10, fill: '#f8fafc', c: '#94a3b8', so: .8, sw: 1.6 });
+          o += `<path d="M350 12 V34 H380" style="fill:rgba(148,163,184,.25);stroke:#94a3b8;stroke-width:1.2"/>`;
+          const sec = [
+            ['what', C.eq, '한 줄 요약', '무엇이, 얼마나, 지금 상태'],
+            ['what', C.eq, '일어난 일', '언제·어디서·무엇이·얼마나'],
+            ['what', C.eq, '영향 범위', '로트·장수·뒤 공정'],
+            ['why', fdAc, '원인 분석', '5-Why와 각 답의 증거'],
+            ['fix', C.op, '조치', '임시 조치·영구 대책'],
+            ['fix', C.op, '재발 방지와 확인', '담당·기한·효과 확인'],
+          ];
+          sec.forEach((c, i) => {
+            const y = 38 + i * 49, col = c[1];
+            let b = fdRect(76, y, 288, 41, { rx: 6, fill: 'rgba(148,163,184,.06)', c: col, so: .9, sw: 1.4 }) + `<rect x="76" y="${y}" width="6" height="41" rx="3" style="fill:${col}"/>` + pvdNum(98, y + 20.5, i + 1, col) + fdTxM(116, y + 18, c[2], { a: 'start', s: 10.5, w: 800, c: col }) + fdTxM(116, y + 33, c[3], { a: 'start', s: 9, op: .9 });
+            o += pvdG(f, [c[0]], b);
+          });
+          const br = (y1, y2, col, t, g) => pvdG(f, [g], pvdL(`M372 ${y1} H380 V${y2} H372`, { c: col, sw: 1.6, so: .9 }) + fdTxM(384, (y1 + y2) / 2 + 3, t, { a: 'start', s: 9, w: 800, c: col }));
+          o += br(40, 128, C.eq, '무슨 일', 'what') + br(185, 227, fdAc, '왜', 'why') + br(234, 325, C.op, '어떻게', 'fix');
+          o += '</g>';
+          return dgSvg('보고서 구성: ' + s.label, o, '0 0 440 346');
+        }
+      },
+
+      // ---------- 임시 조치와 영구 대책 ----------
+      'fld-why-action': {
+        title: '새는 물을 받는 일과 새는 곳을 고치는 일',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '불량이 나면 두 가지 조치가 필요하다. 당장 피해를 막는 임시 조치와, 원인을 없애는 영구 대책이다. 임시 조치만 하면 같은 일이 되풀이되고, 영구 대책만 기다리면 그 사이 피해가 늘어난다.' },
+          { id: 'temp', label: '임시 조치', focus: ['temp'], desc: '임시 조치는 새는 물을 양동이로 받는 일이다. 의심 로트 홀드, 장비 정지, 시험 웨이퍼 확인처럼 피해가 퍼지는 것을 막지만 원인은 그대로 남아 있다. 빠르게 해야 하고, 임시라는 사실을 기록에 남겨야 한다.' },
+          { id: 'root', label: '영구 대책', focus: ['root'], desc: '영구 대책은 새는 곳 자체를 고치는 일이다. 5-Why로 찾은 근본 원인에 맞춰 세정 주기, 부품, 절차, 한계를 바꾼다. 같은 조건에서 다시 일어나지 않게 만드는 것이 목적이다.' },
+          { id: 'verify', label: '효과 확인', focus: ['verify'], desc: '고친 뒤에는 일정 기간 같은 불량이 다시 나오는지 지켜본다. 한 번 괜찮았다고 끝내지 않고 정해 둔 시점마다 확인해 대책이 효과가 있었는지 판단한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 임시
+          let tp = fdRect(16, 40, 168, 16, { rx: 4, fill: 'url(#fdMt)', so: .8 }) + `<path d="M96 56 L100 64 L104 56" style="fill:#0b1220;fill-opacity:.4"/>`;
+          [[100, 74], [102, 96], [99, 118]].forEach((p) => { tp += `<path d="M${p[0]} ${p[1] - 5} Q${p[0] + 4} ${p[1] + 1} ${p[0]} ${p[1] + 4} Q${p[0] - 4} ${p[1] + 1} ${p[0]} ${p[1] - 5} Z" style="fill:#7dd3fc;stroke:#0369a1;stroke-width:.8"/>`; });
+          tp += `<path d="M70 140 L130 140 L122 184 L78 184 Z" style="fill:rgba(251,191,36,.25);stroke:#92400e;stroke-width:1.6"/><path d="M76 164 H124" style="stroke:#7dd3fc;stroke-width:5;stroke-opacity:.7"/>` + pvdL('M10 186 H190', { sw: 1.4, so: .5 });
+          tp += fdTxM(100, 208, '임시 조치', { s: 11, w: 800, c: '#fbbf24' }) + fdTxM(100, 224, '새는 물을 받아 둔다', { s: 9 }) + fdTxM(100, 237, '원인은 그대로 남는다', { s: 9, op: .9 });
+          o += pvdG(f, ['temp'], tp);
+          // 영구
+          let rt = fdRect(250, 40, 170, 16, { rx: 4, fill: 'url(#fdMt)', so: .8 }) + fdRect(312, 34, 38, 28, { rx: 5, fill: 'rgba(52,211,153,.3)', c: C.op, so: .95, sw: 1.8 }) + [[320, 40], [342, 40], [320, 56], [342, 56]].map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="2" style="fill:#94a3b8;stroke:#475569;stroke-width:.8"/>`).join('');
+          rt += `<path d="M370 120 L336 84" style="stroke:#94a3b8;stroke-width:5;stroke-linecap:round"/><circle cx="332" cy="80" r="8" style="fill:none;stroke:#94a3b8;stroke-width:4"/>` + pvdL('M240 186 H430', { sw: 1.4, so: .5 }) + `<circle cx="330" cy="160" r="12" style="fill:rgba(52,211,153,.2);stroke:${C.op};stroke-width:1.8"/><path d="M324 160 L329 166 L337 154" style="fill:none;stroke:${C.op};stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round"/>`;
+          rt += fdTxM(335, 208, '영구 대책', { s: 11, w: 800, c: C.op }) + fdTxM(335, 224, '새는 곳을 고친다', { s: 9 }) + fdTxM(335, 237, '같은 일이 반복되지 않게', { s: 9, op: .9 });
+          o += pvdG(f, ['root'], rt);
+          o += pvdG(f, ['temp', 'root'], fdArr(208, 100, 'r', 'currentColor') + pvdL('M196 100 H204', { so: .6 }));
+          // 확인
+          let vf = pvdL('M40 274 H400', { sw: 2, so: .6 });
+          [[90, '첫 확인'], [220, '중간 확인'], [350, '마지막 확인']].forEach((p) => { vf += `<circle cx="${p[0]}" cy="274" r="9" style="fill:rgba(52,211,153,.25);stroke:${C.op};stroke-width:1.6"/><path d="M${p[0] - 4} 274 L${p[0] - 1} 278 L${p[0] + 5} 270" style="fill:none;stroke:${C.op};stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"/>` + fdTxM(p[0], 296, p[1], { s: 9, w: 700 }); });
+          vf += fdTxM(220, 256, '고친 뒤 일정 기간 지켜본다', { s: 10, w: 800, c: C.op });
+          o += pvdG(f, ['verify'], vf);
+          return dgSvg('조치: ' + s.label, o, '0 0 440 306');
+        }
+      },
+    });
+
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
