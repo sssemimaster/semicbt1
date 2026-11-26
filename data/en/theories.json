@@ -917,5 +917,244 @@
   ],
   "content": "### [Overview] Static electricity can kill a chip without being felt\n\nYou may have felt a small shock after touching a doorknob in winter. People typically begin to feel static discharge at around 3,000 V or higher, but a chip can be damaged by a much smaller voltage. Static electricity that you cannot feel can still be fatal to a semiconductor device.\n\nThe sudden flow of accumulated charge when objects at different electrical potentials touch is called {{term:ESD (Electrostatic Discharge)|Electrostatic discharge: the rapid transfer of accumulated static charge when objects touch or come close to one another.}}. A transistor's gate oxide may be only a few nanometers thick, so its insulation can fail at voltages of only tens of volts or less.\n\n{{diagram:fld-esd|How static electricity damages a chip: charging, discharge, and gate-oxide damage}}\n\nAn ESD event has three stages:\n\n1. **Charging:** Charge builds up on a surface as you walk, clothing rubs together, or plastic film or tape is peeled away. Charge accumulates more easily in dry air.\n2. **Discharge:** The accumulated charge flows into a wafer or device when contact is made.\n3. **Damage:** The thin insulating oxide cannot withstand the current, and a defect or breakdown path forms.\n\n| How charge builds up | Examples |\n|----------------------|----------|\n| Friction | Walking, clothing rubbing, standing up from a chair |\n| Contact and separation | Removing plastic film, peeling tape, taking off gloves |\n| Insulating surfaces | Plastic carriers, ordinary paper, Styrofoam |\n\n> 💡 [How to read this] ESD damage does not always appear as an immediate failure. It can weaken an oxide and create **latent damage** that causes a device to fail only after shipment or during use. The absence of an obvious defect does not mean there was no damage.\n\n### [Prevention] Prevent charge buildup and provide a safe path to ground\n\nESD prevention can be summarized in three steps: **avoid generating charge, drain accumulated charge to ground, and neutralize charge on objects that cannot be grounded**.\n\n{{diagram:fld-ground|Paths for dissipating static charge: wrist strap, grounded floor, ionizer, and grounded workbench}}\n\n| Tool | Purpose |\n|------|---------|\n| Wrist strap | Drains body charge to a ground point. Its internal resistance of about 1 MΩ helps limit shock current. |\n| ESD shoes and grounded flooring | Carry charge generated while walking to ground. |\n| Cleanroom garments | Conductive fibers help dissipate charge accumulated on clothing. |\n| Grounded workbench and mat | Bring the person and objects on the bench to the same electrical potential. |\n| Ionizer | Neutralizes charge on insulators that cannot be discharged through grounding. |\n| Humidity control | Maintains a controlled humidity level to reduce charge generation. |\n\nGrounding works only for **electrically conductive objects**. Charge on an insulator such as a plastic carrier will not drain simply because the carrier is placed on a grounded surface. An ionizer is used to neutralize that charge. Ionizer performance can degrade when its filters or discharge pins become dirty, so it must be checked periodically.\n\n{{toggle:Why does a wrist strap contain a resistor?|If a wrist strap connected the body directly to ground without resistance, a person could receive a large current after accidentally touching an energized electrical device. A resistor of about 1 MΩ limits that current while still allowing small static charges to drain away.}}\n\n### [Protected area] How to maintain an ESD-protected area\n\nAreas where ESD-sensitive devices are handled are designated as {{term:EPA (ESD Protected Area)|An area equipped with grounding, ionization, and material controls so that ESD-sensitive devices can be handled safely. It is identified by ESD signs at the entrance.}}. Signs are placed at the entrance. Inspection items are defined so that people and objects inside the area remain at a controlled electrical potential.\n\n| Item to check | When to check | What to verify |\n|----------------|---------------|----------------|\n| Wrist strap and footwear | On entry and at the start of a shift | Passing result on the ESD tester |\n| Workbench and mat | Periodically | Grounding lead is connected to the designated ground point |\n| Ionizer | Periodically | Clean filter and adequate neutralization performance |\n| Materials brought inside | Whenever an item is introduced | No ordinary plastic bags, paper, or Styrofoam are present |\n\nInspection records must be kept accurately. They provide evidence for tracing the cause if an ESD event occurs.\n\n### [Habits] ESD-safe habits on the fab floor\n\n- Test your wrist strap and shoes at the ESD tester when entering the area.\n- Wear the wrist strap so it touches your skin directly, and visually confirm that it is connected to the ground point.\n- Do not bring ordinary plastic bags, paper, or Styrofoam into an area marked for ESD protection.\n- Carry wafers and devices in designated carriers and, when possible, handle them by the edges.\n- Do not handle devices at an ungrounded station. Open packages inside the ESD-protected area.\n \n> 💡 [Caution] Wearing a wrist strap is not enough if its cord is disconnected or not attached to the ground point. Test it before starting work every time.\n\n> 💡 [From the field] Static electricity is invisible, so it can only be prevented reliably through consistent habits. Before moving a material, ask: **“Is this grounded, or is it an insulator?”**\n\n### [Next step] What comes next\n\nOnce you understand cleanroom and ESD practices, the next topic is workplace safety. The first article in the “Safety” stage covers the basics of safely handling chemicals and specialty gases in a semiconductor fab.",
   "_h": "4e3a9fb2"
+ },
+ {
+  "id": "TH-bea378b5",
+  "_h": "0c9fbdee",
+  "title": "Chemical and Specialty Gas Safety",
+  "tags": [
+   "Fab roles",
+   "Chemicals",
+   "Specialty gases",
+   "SDS",
+   "PPE"
+  ],
+  "content": "### [Overview] Danger comes from where you cannot see it\n\nSemiconductor processes use strong liquid chemicals for cleaning (hydrofluoric acid, sulfuric acid, hydrogen peroxide, and others) and specialty gases for making thin films (silane, phosphine, chlorine, and others). Some can harm a person in tiny amounts, and many have no color or smell. That is why people in the field do not judge by feel. They **read the signs, put on protective equipment, and act in the set order.**\n\nEach chemical is dangerous for a different reason. Some catch fire, some are toxic, some eat skin and metal, some are stored under high pressure, and some react when mixed. What shows these hazards at a glance are the signs and the {{term:SDS (Safety Data Sheet)|Safety Data Sheet. An official document that lists the properties, hazards, protective equipment, first aid, and disposal method for each chemical. It is the basic material to read before using a chemical.}}.\n\n### [Signs] Reading hazards from signs\n\n{{diagram:fld-hazard|How to read hazard signs: pictograms, hazard diamond, and specialty gases}}\n\n| Sign | Where it is | What it tells you |\n|------|-------------|-------------------|\n| GHS pictogram | Labels on chemical containers and gas cylinders | The kind of hazard: flammable, toxic, corrosive, compressed gas |\n| Hazard diamond | At the entrance of rooms, storerooms, and cabinets | The degree of health, fire, reactivity, and special hazards |\n| SDS | Kept on site or in the system | The details of properties, protective equipment, first aid, and leak response |\n\n> 💡 [How to read this] The same chemical can be more or less dangerous depending on concentration, amount, and temperature. If a container's label is damaged or the chemical is new to you, do not use it and check with the person in charge.\n\nSpecialty gases cannot be grouped under one hazard. Silane can ignite by itself on contact with air, so a leak is itself a fire risk. Phosphine and chlorine are toxic and dangerous even at very low concentrations. Nitrogen is not poisonous, but in a confined space it pushes out oxygen and causes suffocation. Responses differ by gas, so use the SDS and the on-site procedure as your standard.\n\n### [Protection] What protective equipment and facilities guard against\n\n| Protective equipment | What it guards against |\n|----------------------|------------------------|\n| Safety glasses, goggles | Protect the eyes from splashing or leaking liquid and gas |\n| Chemical-resistant gloves | Chemicals touching the skin |\n| Chemical-resistant apron, cleanroom suit | Chemicals splashing on the body and clothes |\n| Respirator, air-supplied breathing apparatus | Gas entering the lungs (trained people only) |\n\nProtective equipment is the last line of defense. Facilities stop the hazard before that. Specialty gases are kept inside a ventilated **gas cabinet**, and a **gas detector** sounds an alarm and automatically shuts off supply when it senses a leak. Piping is double-walled, and emergency showers and eyewash stations are placed throughout.\n\n> 💡 [Caution] Which glove material holds up differs by chemical. Do not use protective equipment that is torn or has holes, or filters past their expiry date. What to wear is set by the SDS and the procedure.\n\n### [Handling] Basics to follow when handling\n\n- Use only the designated containers with labels, and put the same label on anything you transfer into.\n- Never store or mix chemicals that react with each other (acids and bases, oxidizers and organics) in the same place.\n- Before handling, first check where the emergency shower, eyewash, emergency button, and exit are.\n- Do not lift a large container alone. Move it with the designated cart and in a secondary container.\n- If something spills or leaks, do not try to wipe it up alone. Alert others first, then handle it by procedure.\n\n> 💡 [From the field] Before you start work, say to yourself **\"where is the emergency shower, where is the exit.\"** Accidents grow in the few seconds spent looking for a location.\n\n### [Response] When a leak is suspected\n\nIf a detector sounds, or there is a smell, a sound, or an abnormal indicator, do not approach to check. The order is **alert, evacuate, isolate, report**.\n\n{{diagram:fld-leak|When a leak is suspected: alert, evacuate, isolate, muster and report}}\n\n1. **Alert**: Press the emergency button or shout to people nearby.\n2. **Evacuate**: Move together to the nearest exit, away from the leak. Do not delay to collect belongings.\n3. **Isolate**: Closing the supply valve is done only by a trained person and only when it is safe. Control access so no one else enters.\n4. **Muster and report**: Take a headcount at the assembly point and report the gas type, leak location, injured people, and time.\n\n{{toggle:Is it okay to assume it's fine because there is no smell|No. Some toxic gases have a faint smell or none at dangerous concentrations, and once you get used to a smell you notice it even less. Act on gas detectors and alarms, not on your nose.}}\n\n{{toggle:If you feel a chemical touched your skin or eyes|Go right away to the nearest emergency shower or eyewash, rinse thoroughly, and ask for help. Some chemicals, such as hydrofluoric acid, hurt little at first and get worse later, so always get medical care even if it looks minor. For specific first aid, follow the company procedure.}}\n\n### [Read next] Next article\n\nThe last line of defense for handling gases and chemicals safely is the tool's own protective devices. In the next article, 'Interlocks and Emergency Response', we look at when and why a tool stops."
+ },
+ {
+  "id": "TH-9d9a8089",
+  "_h": "f905533f",
+  "title": "Interlocks and Emergency Response",
+  "tags": [
+   "Fab roles",
+   "Interlock",
+   "Alarm",
+   "Emergency stop",
+   "LOTO"
+  ],
+  "content": "### [Overview] Why a tool stops by itself\n\nWhen a tool suddenly stops in the field, it is easy to panic. But most of the time that stop is not a failure. It is **the tool protecting itself.** A device that will not let the tool start when conditions are wrong, and stops it if they drift while running, is called an {{term:Interlock|A protective device that allows the tool to operate only when all set conditions are met, and blocks or stops it if even one is off.}}.\n\n{{diagram:fld-interlock|Interlock: the tool runs only when every condition that protects people, equipment, and wafers is met}}\n\n| Type | What it protects | Examples |\n|------|------------------|----------|\n| Safety interlock | People | Door open, gas leak detected, emergency stop pressed |\n| Equipment protection interlock | The tool | Low coolant, poor vacuum, overheating |\n| Process interlock | Wafers, lots | Gas flow out of range, power fault, recipe mismatch |\n\n> 💡 [How to read this] An interlock is not a device that cleans up after an accident but one that prevents it beforehand. A stopped tool is also a sign that the protective device did its job. So the first thing to do is find out why it stopped.\n\n### [Levels] Alarms come in levels\n\nNot every alarm weighs the same. The higher the level, the greater the danger and the bigger the action.\n\n{{diagram:fld-emo|Alarm levels: warning, alarm, emergency stop (EMO) and the action at each level}}\n\n| Level | State | First action |\n|-------|-------|--------------|\n| Warning | Value nearing the limit, tool keeps running | Check status, write in the log, call if needed |\n| Alarm | Condition out of range, tool stops or holds by itself | Confirm it stopped, call the equipment engineer |\n| Emergency stop | Situation dangerous to people or equipment | Emergency stop button, evacuate, report |\n\nThe **emergency stop** is the button you press when people are in danger. {{term:EMO (Emergency Stop)|Emergency Off. A red button that immediately cuts the tool's power and dangerous energy (gas, high voltage, and so on). Used in situations such as smoke, fire, gas leaks, and electric shock.}} If you suspect smoke, fire, a gas leak, or electric shock, press it to cut off the danger, evacuate safely, then report.\n\n### [Order] What to check when a tool has stopped\n\n1. First look at **whether people are safe.** If there is smoke, a smell, a leak, or a strange sound, move to emergency response.\n2. Read the **alarm number and message** on the screen and record them exactly. Do not rely on memory.\n3. Check **whether a lot is inside** the tool and which process step it was in.\n4. Do not restart on your own. **Call the equipment engineer.**\n5. Leave the time, alarm, what you did, and what is left in the log.\n\n### [Don't] Why you must not touch an interlock\n\nOne of the biggest causes of accidents in the field is **bypassing or clearing an interlock or alarm on your own.** If you release it because you are in a hurry, it is a bother, or it seems to be a false trigger, the tool runs with no protective device.\n\n- An alarm is a signal that tells you the cause. If you only clear it, the cause stays.\n- If an interlock must be released for maintenance, only a person with permission, procedure, and records may do it.\n- The procedure of cutting power and energy, then fitting locks and tags so a tool cannot suddenly start during maintenance, is called {{term:LOTO (Lock-Out/Tag-Out)|Lock-Out/Tag-Out. A safety procedure that cuts power and energy before maintenance and attaches locks and tags so that no one can turn the tool on.}}.\n\n> 💡 [Caution] If an alarm repeats, silencing it is not the fix. Record the very fact that the same alarm keeps repeating in the log and share it with the equipment engineer.\n\n{{toggle:When you hesitate over pressing the emergency stop|If you judge that people are in danger, press it without hesitating. Losses from pressing by mistake can be recovered, but harm from pressing too late cannot be undone. After pressing, report the situation accurately. For specific criteria, follow the company procedure.}}\n\n### [Read next] Next article\n\nOnce you have finished the safety steps, next comes learning the language of the field. In the 'Production Terms' article, we look at how Lot, WIP, Recipe, and Cycle time are used in the field."
+ },
+ {
+  "id": "TH-8ccda9fd",
+  "_h": "fad3ae12",
+  "title": "Production Terms (Lot · WIP · Recipe · Cycle Time)",
+  "tags": [
+   "Fab roles",
+   "Lot",
+   "WIP",
+   "Recipe",
+   "Cycle time",
+   "Q-time"
+  ],
+  "content": "### [Overview] What the field calls the same things\n\nIn the field you hear things like \"There are five lots of A1234 waiting in front of etch.\" That one sentence holds several production terms. Once you know them, field conversations and screens read at a glance.\n\n{{diagram:fld-lot|Lot, Recipe, Route, WIP: a bundle of wafers, its processing conditions, the order it passes through, and the inventory inside the fab}}\n\n| Term | One-line meaning | What people ask in the field |\n|------|------------------|------------------------------|\n| Lot | A bundle of wafers that move together | What is this lot number? |\n| Recipe | The table of conditions the tool will run | Was the right recipe selected? |\n| Route | The process order a lot will pass through | Which step is it on now? |\n| WIP | All lots in progress or waiting in the fab | How many lots are piled up ahead? |\n\n### [Lot] Wafers move in bundles\n\nA {{term:Lot|A bundle of wafers processed together under the same conditions and tracked under one number. Usually held in one FOUP.}} is not a single wafer but a **unit of bundle**. Wafers usually travel 25 at a time in one {{term:FOUP|A sealed container that holds several wafers and carries them around the cleanroom. It connects directly to the tool's load port.}}, tracked by a lot number.\n\nThere is a reason for bundling into lots. The same lot goes through the same tools and conditions, so when a defect appears, **you can narrow the cause by lot.** Which tool it passed and when is linked through a single lot number.\n\n> 💡 [From the field] The lot number must be the same on the FOUP, the terminal screen, and the log. If even one differs, stop and check. If lots are swapped, the wrong conditions go in.\n\n### [Recipe and Route] How, and in what order\n\nA **Recipe** is the table of conditions that says how the tool processes a lot. It holds gas type and flow, pressure, temperature, time, and RF power. Change the recipe and the same tool runs a completely different process. So a recipe is never edited on a whim, and changing one goes through an approved procedure.\n\nA **Route** is the order of process steps a lot will pass through. It goes through steps such as cleaning, oxidation, exposure, etch, deposition, and measurement in turn, and because semiconductors are built layer by layer, this flow repeats many times. Which step a lot is on now is recorded by the {{term:MES|Manufacturing Execution System. A production management system that manages and records lot locations, tools, and work history in real time.}}.\n\n### [WIP] Lots piled up in the fab\n\n**WIP** (work in progress) is the total of lots being processed or waiting for their turn in the fab right now. As in the figure, it is the sum of lots waiting at every step. If WIP is too high, lots wait long and cycle time grows; if too low, tools have no work in front of them and sit idle.\n\n{{toggle:Why think in lots rather than single wafers|Managing wafers one by one would mean far too many records and moves. Moving in bundles cuts movement and records, and lets you compare wafers that went through the same conditions, which makes tracing a cause easier. Lot size and how it is run do differ by company, though.}}\n\n### [Cycle time] Most of the time is waiting\n\n{{term:Cycle Time|The total time from a lot being released until it is complete.}} is the total time from a lot entering to coming out. With hundreds of process steps, it usually takes several weeks to several months.\n\n{{diagram:fld-cycle|In cycle time, processing is short and waiting in front of tools is long}}\n\nIn the figure, orange is time actually being processed and gray is waiting. Waiting is far longer. A lot waits for the previous one to finish, for the tool to return from maintenance, and for the next process to free up. So shortening cycle time is mostly about **shortening the waiting.**\n\n### [Q-time] Where waiting too long is not allowed\n\nNot all waiting is the same. {{term:Q-time|The allowed limit on waiting time between one process and the next. Exceeding it can require rework or scrap.}} is the time allowed from the end of one process to the start of the next. It applies where the wafer changes while waiting, as a surface oxidizes again if left long after cleaning.\n\nExceeding the limit means rework or, in bad cases, scrap. So a lot under Q-time is treated as a **lot to process first**, and if a tool stops, it is reported at once.\n\n> ⚠️ [Caution] Q-time limits differ by process and company. The examples in this article explain the concept; the real limit follows the work standard and the MES screen.\n\n### [Little's law] How WIP, throughput, and cycle time relate\n\nIn a line running steadily, three values are tied by one equation.\n\n**WIP = throughput × cycle time**\n\nIf {{term:Throughput|The amount that finishes the process and leaves per unit of time, for example the number of lots leaving per day.}} is 4 lots a day and cycle time is 4 days, WIP is 16 lots. At the same throughput, **the lower the WIP, the shorter the cycle time.** Conversely, pushing in lots without limit leaves throughput unchanged and only lengthens waiting.\n\n### [Read next] Next article\n\nHow these terms are recorded on screen continues in the next article. Seeing how the moments a lot goes onto and comes off a tool are kept in the MES, and how tool states are divided, connects today's terms to field work. After that comes shift handover, which is also about passing the state of lots and tools to the next person accurately."
+ },
+ {
+  "id": "TH-23d511ae",
+  "_h": "2dfa571e",
+  "title": "MES and Tool States",
+  "tags": [
+   "Fab roles",
+   "MES",
+   "Track-in",
+   "Track-out",
+   "Tool states",
+   "PM"
+  ],
+  "content": "### [Overview] Lots and tools managed in one place\n\nIn a fab where hundreds of lots move among hundreds of tools, production cannot be managed from human memory alone. So the {{term:MES|Manufacturing Execution System. A production management system that manages and records lot locations, tools, and work history in real time.}} decides \"which lot to process next on which tool\" and records all the results. Operators work by exchanging information with the MES through terminal screens.\n\n{{diagram:fld-mes|MES work flow: instruction, Track-in, run, Track-out}}\n\n| Step | What happens | What the MES keeps |\n|------|--------------|--------------------|\n| Instruction | Tells you the next lot and tool to process | The work target |\n| Track-in | Load the lot and report the release | Start time, worker, tool |\n| Run | The tool sends status and data | Process data, alarms |\n| Track-out | Record completion and pass the lot to the next process | End time, result |\n\n### [Track-in] The gate before starting\n\n{{term:Track-in|Loading a lot on a tool and reporting the start of processing to the MES.}} is not just a start button. It is the first gate where the MES checks and permits that **this lot is the right one to be processed on this tool with this recipe.** If the lot is at a different step, the tool is in a state that is not allowed, or the recipe does not match, it will not start.\n\nThanks to this gate, accidents of the wrong lot going in under the wrong conditions drop. If it blocks you, do not try to bypass it. Read the message on the screen and find the cause.\n\n> 💡 [From the field] The reason the MES refused is usually shown on the screen. If you write the message down as it is, passing it to the equipment or process engineer goes much faster.\n\n### [Run and Track-out] While processing and after\n\nDuring processing, the tool keeps sending status and process data to the MES and equipment systems. If a value drifts or an alarm occurs, it is recorded as is, and if needed the tool stops or the lot is put on hold.\n\nWhen processing finishes, {{term:Track-out|Recording completion and results in the MES and passing the lot on to the next step.}} takes place. Results and process data stay in the lot history, and the MES passes the lot to the next step. Because this history exists, even if a defect appears later you can trace backward **which tool processed it, when, and under what conditions.**\n\n{{toggle:What happens if you skip Track-in or do it wrong|The lot's location and history diverge from reality. The next person cannot find the lot, or has no history to trace the cause of a defect. So MES records are part of the work, and the actual work and the records must always match.}}\n\n### [Tool states] A tool is always in some state\n\nA tool is always in one of a few states, and each time the state changes it is recorded with the time.\n\n{{diagram:fld-state|Tool states: Run, Idle, Down, PM and an example of how a day splits}}\n\n| State | Meaning | What changes it |\n|-------|---------|-----------------|\n| Run | Processing a lot | Starts with Track-in, ends with Track-out |\n| Idle | Able to run but no lot to process | Waiting for a lot |\n| Down | Stopped by an alarm or failure | Alarm, failure, interlock |\n| PM | Under planned maintenance | Starts per the maintenance schedule |\n\n{{term:PM|Preventive Maintenance. Planned maintenance that replaces and inspects parts on a schedule before they fail.}} is a planned stop while Down is an unplanned stop. Even for the same stoppage, these two must be recorded separately to see where time is lost.\n\n> ⚠️ [Caution] State names and how they are divided differ by company and system. This article explains the idea with four common ones; the real criteria follow your site's state definitions.\n\n### [Why record] Uptime and improvement\n\nAs state records pile up, you can see how the 24 hours of a day were spent by state. In the figure's example, Run is 62%, Idle 20%, PM 10%, and Down 8%. From these numbers the tool's {{term:Utilization|The share of total time that a tool actually spent processing lots.}} is calculated.\n\nLong Idle means a shortage of work or a late previous process; long Down means equipment problems must be found. An operator recording the state accurately is the starting point of improvement. If the reason for a stop is not chosen properly, the data points to the wrong place.\n\n### [Read next] Next article\n\nThe state of tools and lots must be passed accurately to the next person at shift change. Passing on which lot is at which step, which tool is in which state, and what is not yet finished is what shift handover is about."
+ },
+ {
+  "id": "TH-2ea0a402",
+  "_h": "b560b26a",
+  "title": "Shift Handover",
+  "tags": [
+   "Fab roles",
+   "Shift change",
+   "Handover",
+   "Log",
+   "Communication"
+  ],
+  "content": "### [Overview] A shift change is the time that connects the work\n\nA semiconductor fab never stops. Only the people change. So what gets passed on at shift change decides the first hour of the next shift. Information that is not passed on turns into **time the next person must spend finding out from scratch.**\n\n{{diagram:fld-handover|Shift handover: the person handing over and the person taking over pass on four things at the tool}}\n\nA {{term:handover|The act of the person passing the work on explaining the current state and what must be done to the person taking over, and getting it confirmed.}} is not done by word of mouth alone. Write it in the log and leave it, and talk it through at the tool while confirming. Words are forgotten, but records remain.\n\n### [Four things] What gets passed on\n\n| Item | What it holds | What happens if it is missing |\n|------|---------------|-------------------------------|\n| Tool | Running, stopped, under maintenance, anything unusual | Time is spent hunting for an abnormality already known |\n| Lot | Lot number, step, hold or priority | Lots get lost or are processed in the wrong order |\n| Alarm | What the alarm was and how it was handled | The same alarm comes back and you start over from zero |\n| Remaining work | What to do and when | Scheduled checks or calls disappear |\n\n> 💡 [How to read this] These four came from the question \"what does the person taking over need to know to carry on right away, standing at the tool?\" Formats differ by company, but the question is the same.\n\n### [Log] So the reader can act right away\n\nA log is **written for the reader, not the writer.** Even for the same event, how it is written makes a big difference.\n\n{{diagram:fld-log|A vague log makes the reader ask again; a specific log lets them act at once}}\n\nWith a vague log, the person taking over must find the writer and ask again, and that person may already have gone home. A specific log contains five things.\n\n- **When**: Write the time. Not \"a while ago\" but \"around 14:20.\"\n- **Where**: Write the target exactly, such as the tool name, chamber, and lot number.\n- **Symptom**: Copy the alarm number and message from the screen as they are.\n- **Action**: Write what you did and how it turned out.\n- **What is left**: Write what the next person should continue and when.\n\n> ⚠️ [Caution] Do not mix confirmed facts with guesses. Mark a guess as \"guess\" and what you verified as \"confirmed.\" The reader will trust what is written and act on it.\n\n{{toggle:What not to write in a log|Feelings or judgments (\"this tool is always a problem,\" \"someone must have touched it\") and unconfirmed guesses written as facts. Do not use wording that blames individuals either. The log is the basis for the next person's decisions, so write it around facts and numbers.}}\n\n### [Order] What to do at shift change\n\n1. **Organize the log first.** Before the shift change, write all four items with nothing missing.\n2. **Look together at the tool.** Pointing at the indicator lights, the screen, and the lots as you speak reduces misunderstanding.\n3. **For alarms and abnormalities, say separately what is resolved and what is still to watch.**\n4. **Pass on remaining work with a time.** Not \"later\" but \"at 18:00.\"\n5. **Get the receiver's confirmation.** Take questions, check they understood, and then sign or mark it confirmed.\n\n> 💡 [From the field] The person taking over does not just listen. Ask on the spot about anything you do not know. A question asked at shift change costs one moment, but what goes unasked can come back as an accident.\n\n### [Read next] Next step\n\nWith this, the three steps of getting into the field, staying safe, and reading the production flow are connected. You have seen the rules and safety to follow in the field, the language and systems in use, and how to hand work over between people. Next we move on to the basic principles behind how tools run and the basics of maintenance. From there the content gets closer to equipment theory."
+ },
+ {
+  "id": "TH-543f9c26",
+  "_h": "60be9f06",
+  "title": "Plasma Etch (RIE) Tool Field Guide",
+  "tags": [
+   "Etch tools",
+   "Plasma",
+   "CCP",
+   "ICP",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-48959d30",
+  "_h": "8ae31845",
+  "title": "Lithography (Scanner) Tool Field Guide",
+  "tags": [
+   "Lithography tools",
+   "Scanner",
+   "ArF immersion",
+   "EUV",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-a9bbdb24",
+  "_h": "69c9416f",
+  "title": "PECVD (Plasma CVD) Tool Field Guide",
+  "tags": [
+   "Deposition tools",
+   "PECVD",
+   "Plasma",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-e9cf52fa",
+  "_h": "385e910a",
+  "title": "CMP (Chemical Mechanical Polishing) Tool Field Guide",
+  "tags": [
+   "Planarization tools",
+   "CMP",
+   "Slurry",
+   "Copper damascene",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-394c37e8",
+  "_h": "6c3a7dd0",
+  "title": "Ion Implanter Field Guide",
+  "tags": [
+   "Ion implant tools",
+   "Ion implantation",
+   "Doping",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-b2358c1b",
+  "_h": "5698fda3",
+  "title": "PVD (Sputtering) Tool Field Guide",
+  "tags": [
+   "Deposition tools",
+   "PVD",
+   "스퍼터링",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-851e3d9a",
+  "_h": "26635cc9",
+  "title": "Wet Clean (RCA) Tool Field Guide",
+  "tags": [
+   "Cleaning tools",
+   "RCA",
+   "Wet bench",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-2e93cdde",
+  "_h": "212af119",
+  "title": "Diffusion Furnace (Thermal Oxidation) Field Guide",
+  "tags": [
+   "Oxidation tools",
+   "Diffusion furnace",
+   "Thermal oxidation",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-bb1a3ed9",
+  "_h": "523084b3",
+  "title": "LPCVD (Low-Pressure CVD) Tool Field Guide",
+  "tags": [
+   "Deposition tools",
+   "LPCVD",
+   "Polysilicon",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-9283a295",
+  "_h": "0720f0ce",
+  "title": "ALD (Atomic Layer Deposition) Tool Field Guide",
+  "tags": [
+   "Deposition tools",
+   "ALD",
+   "Atomic layer deposition",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-b2865de3",
+  "_h": "5e11da00",
+  "title": "CD-SEM (Metrology) Tool Field Guide",
+  "tags": [
+   "Metrology tools",
+   "CD-SEM",
+   "Line width",
+   "Field practice",
+   "Troubleshooting"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-86dd9980",
+  "_h": "fcb640ba",
+  "title": "Vacuum and Pump Basics",
+  "tags": [
+   "Fab roles",
+   "Vacuum",
+   "Pump",
+   "Pressure",
+   "Leak"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
+ },
+ {
+  "id": "TH-f680dfa8",
+  "_h": "8721a375",
+  "title": "Gas, Flow (MFC), and RF Power Basics",
+  "tags": [
+   "Fab roles",
+   "Gas",
+   "MFC",
+   "RF power",
+   "Pressure"
+  ],
+  "content": "A deep-dive guide you can read once unlocked."
  }
 ]
