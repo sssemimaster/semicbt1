@@ -8690,7 +8690,9 @@
     const fdC = { op: '#34d399', eq: '#60a5fa', pr: '#fbbf24' }, fdAc = '#fb923c';
     const fdDefs = () => pvdDefs('fd') + `<defs><linearGradient id="fdBd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cbd5e1" stop-opacity=".6"/><stop offset="1" stop-color="#94a3b8" stop-opacity=".42"/></linearGradient></defs>`;
     const fdRect = (x, y, w, h, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx == null ? 6 : o.rx}" style="fill:${o.fill || 'var(--tbl-bg)'};stroke:${o.c || 'currentColor'};stroke-width:${o.sw || 1.2};stroke-opacity:${o.so == null ? .7 : o.so}${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
-    const fdTx = (x, y, t, o = {}) => pvdTx(x, y, t, { a: o.a || 'middle', st: `font-size:${o.s || 10}px;font-weight:${o.w || 600};${o.c ? 'fill:' + o.c + ';' : ''}opacity:${o.op == null ? 1 : o.op}` });
+    const fdTx = (x, y, t, o = {}) => { const r = pvdTx(x, y, t, { a: o.a || 'middle', st: `font-size:${o.s || 10}px;font-weight:${o.w || 600};${o.c ? 'fill:' + o.c + ';' : ''}opacity:${o.op == null ? 1 : o.op}` }); return o.ml ? r.replace('dg-t dg-lb dg-xs', o.ml === 2 ? 'dg-t' : 'dg-t dg-lb') : r; };
+    // 새 그림용: 글자 폭 제한을 넓혀(158) 영어도 줄어들지 않게 한다
+    const fdTxM = (x, y, t, o = {}) => fdTx(x, y, t, Object.assign({ ml: 2 }, o));
     const fdArr = (x, y, dir, c) => { const p = { r: `${x},${y} ${x - 6.5},${y - 3.6} ${x - 6.5},${y + 3.6}`, l: `${x},${y} ${x + 6.5},${y - 3.6} ${x + 6.5},${y + 3.6}`, d: `${x},${y} ${x - 3.6},${y - 6.5} ${x + 3.6},${y - 6.5}`, u: `${x},${y} ${x - 3.6},${y + 6.5} ${x + 3.6},${y + 6.5}` }[dir]; return `<polygon points="${p}" style="fill:${c || 'currentColor'};fill-opacity:.85"/>`; };
     const fdFlow = (d, c, w) => `<path class="dg-flow" d="${d}" style="stroke:${c || '#7dd3fc'};stroke-width:${w || 1.5};stroke-opacity:.8"/>`;
     // 방진복(후드 + 마스크)을 입은 사람. x=가운데, y=발끝, 키 약 46*k
@@ -9858,6 +9860,420 @@
         }
       },
     });
+    // ===== 현장 직무 > 실무 이해 글: 예방정비(PM)와 누설 점검 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 정비 시기는 부품 수명이 정한다 ----------
+      'fld-pm-cycle': {
+        title: '정비 시기는 부품의 수명이 정한다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '소모 부품은 쓸수록 닳는다. 설비는 웨이퍼 수와 RF 시간을 세다가 기준이 가까워지면 예방정비(PM)를 알려 준다. 기준 직전에 계획해서 바꾸면 정비가 되고, 기준을 넘겨 쓰면 불량과 정지로 돌아온다.' },
+          { id: 'cnt', label: '카운터', focus: ['cnt'], desc: '설비는 웨이퍼 장수, RF를 켠 시간, 펌프 가동 시간 같은 값을 계속 센다. 부품마다 정해 둔 기준에 가까워지면 화면에 정비 예정이 뜬다. 시계가 아니라 쓴 만큼으로 센다는 점이 중요하다.' },
+          { id: 'wear', label: '마모', focus: ['wear'], desc: '부품은 쓰는 동안 조금씩 닳거나 굳는다. 처음에는 공정 결과가 거의 변하지 않다가, 기준선에 가까워질수록 속도나 균일도가 서서히 달라진다. 이 변화는 알람 없이 찾아오는 경우가 많다.' },
+          { id: 'plan', label: '계획 정비', focus: ['plan', 'wear'], desc: '기준선에 닿기 전에 시간을 잡아 부품을 바꾸는 것이 예방정비다. 생산 계획에 맞춰 멈추는 시간을 정할 수 있고, 필요한 부품과 인원도 미리 준비한다.' },
+          { id: 'fail', label: '고장 정비', focus: ['fail', 'wear'], desc: '기준을 넘겨 계속 쓰면 어느 날 불량이 나거나 장비가 멈춘다. 이때는 원인을 찾는 시간까지 더해져 정지가 훨씬 길어지고, 이미 돌린 웨이퍼의 영향도 따져야 한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const gx = 44, gy = 30, gw = 372, gh = 150;
+          let g = fdRect(gx, gy, gw, gh, { rx: 6, fill: 'rgba(148,163,184,.07)', so: .5, sw: 1.2 });
+          g += pvdL(`M${gx} 118 H${gx + gw}`, { c: fdAc, sw: 1.4, so: .9, dash: '5 4' }) + fdTxM(gx + gw - 6, 112, '교체 기준', { a: 'end', s: 9, w: 800, c: fdAc });
+          g += pvdL(`M${gx} 156 H${gx + gw}`, { c: '#ef4444', sw: 1.4, so: .9, dash: '2 3' }) + fdTxM(gx + 8, 150, '여기부터 불량·정지', { a: 'start', s: 9, w: 800, c: '#ef4444' });
+          g += pvdL('M52 50 C140 52 220 78 250 118 C276 150 310 164 400 172', { c: C.eq, sw: 2.6, so: 1 });
+          g += fdTxM(gx + 8, gy + 14, '부품 두께', { a: 'start', s: 9, w: 700, op: .85 }) + fdTxM(gx + 8, gy + gh - 6, '사용량 →', { a: 'start', s: 9, w: 700, op: .85 });
+          o += pvdG(f, ['wear', 'plan', 'fail'], g);
+          // 계획 정비 표시
+          let pl = pvdL('M232 34 V176', { c: C.op, sw: 1.6, so: .9, dash: '4 3' }) + `<circle cx="232" cy="104" r="5" style="fill:${C.op};stroke:#065f46;stroke-width:1.2"/>`;
+          o += pvdG(f, ['plan'], pl);
+          // 고장 표시
+          let fl = pvdL('M310 34 V176', { c: '#ef4444', sw: 1.6, so: .9, dash: '4 3' }) + `<circle cx="310" cy="160" r="5" style="fill:#ef4444;stroke:#7f1d1d;stroke-width:1.2"/>`;
+          o += pvdG(f, ['fail'], fl);
+          // 카드 A / B
+          let ca = fdRect(44, 194, 178, 58, { rx: 8, fill: 'rgba(52,211,153,.1)', c: C.op, so: .9, sw: 1.6 }) + fdMan(66, 246, C.op, .8) + fdTxM(88, 212, 'A 계획 정비', { a: 'start', s: 10.5, w: 800, c: C.op }) + fdTxM(88, 226, '기준 직전, 시간을 잡아 교체', { a: 'start', s: 9 }) + fdTxM(88, 239, '부품과 인원을 미리 준비', { a: 'start', s: 9 });
+          o += pvdG(f, ['plan'], ca);
+          let cb = fdRect(238, 194, 178, 58, { rx: 8, fill: 'rgba(239,68,68,.08)', c: '#ef4444', so: .9, sw: 1.6 }) + `<path d="M262 244 L274 220 L286 244 Z" style="fill:#fbbf24;stroke:#92400e;stroke-width:1.4"/><path d="M274 228 V236" style="stroke:#7c2d12;stroke-width:2;stroke-linecap:round"/><circle cx="274" cy="240.5" r="1.3" style="fill:#7c2d12"/>` + fdTxM(298, 212, 'B 고장 정비', { a: 'start', s: 10.5, w: 800, c: '#ef4444' }) + fdTxM(298, 226, '멈춘 뒤에야 원인을 찾는다', { a: 'start', s: 9 }) + fdTxM(298, 239, '정지가 길고 영향 로트도 확인', { a: 'start', s: 9 });
+          o += pvdG(f, ['fail'], cb);
+          // 카운터
+          let ct = fdRect(44, 264, 372, 56, { rx: 8, fill: 'rgba(96,165,250,.07)', c: C.eq, so: .7, sw: 1.3 });
+          const rows = [['웨이퍼 수', '11,820 / 12,000', .985], ['RF 시간', '430 / 500 h', .86], ['펌프 가동', '2,100 / 4,000 h', .52]];
+          rows.forEach((r, i) => {
+            const y = 276 + i * 15, col = r[2] > .9 ? fdAc : C.eq;
+            ct += fdTxM(54, y + 3, r[0], { a: 'start', s: 9, w: 700 }) + fdRect(134, y - 4, 170, 8, { rx: 3, fill: 'rgba(148,163,184,.15)', so: .4, sw: 1 }) + fdRect(134, y - 4, 170 * r[2], 8, { rx: 3, fill: col, c: col, so: .9, sw: 1 }) + fdTxM(312, y + 3, r[1], { a: 'start', s: 9, w: 700, c: col });
+          });
+          o += pvdG(f, ['cnt'], ct);
+          return dgSvg('정비 시기: ' + s.label, o, '0 0 440 330');
+        }
+      },
+
+      // ---------- PM 한 번의 순서 ----------
+      'fld-pm-flow': {
+        title: '예방정비 한 번은 이런 순서로 진행된다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '정비는 안전하게 멈추고, 열어서 작업하고, 닫은 뒤 제대로 되었는지 확인해 생산으로 돌려보내는 흐름이다. 작업 자체보다 앞뒤의 안전 확보와 확인 단계가 정비의 품질을 정한다.' },
+          { id: 'safe', label: '안전 확보', focus: ['safe'], desc: '먼저 전원과 가스, 고전압을 막고 잠금 장치와 표지로 누구도 켜지 못하게 한다. 이어 챔버 안의 가스를 질소로 쓸어내고 대기압으로 올려 연다. 이 단계를 건너뛰고 열면 독성 가스나 고전압에 노출된다.' },
+          { id: 'work', label: '열고 바꾸고 닫기', focus: ['work'], desc: '챔버를 열어 부품을 꺼내고, 닦거나 새것으로 교체한다. 닫을 때는 O-링이 제자리에 앉았는지, 볼트를 정해진 순서와 토크로 조였는지가 이후 누설 여부를 가른다.' },
+          { id: 'verify', label: '확인 후 복귀', focus: ['verify'], desc: '닫은 챔버를 다시 진공으로 만들고 누설이 없는지 확인한다. 이어 시즈닝으로 챔버 벽 상태를 맞추고, 시험 웨이퍼로 두께와 파티클을 재 본 뒤에야 생산으로 돌린다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const cw = 94, ch = 104, xs = [18, 122, 226, 330], ys = [24, 160];
+          const lock = `<rect x="-13" y="-4" width="26" height="20" rx="4" style="fill:rgba(251,191,36,.7);stroke:#92400e;stroke-width:1.4"/><path d="M-8 -4 V-11 a8 8 0 0 1 16 0 V-4" style="fill:none;stroke:#92400e;stroke-width:2.2"/><circle cx="0" cy="5" r="2.4" style="fill:#7c2d12"/>`;
+          const purge = `<rect x="-22" y="-12" width="44" height="32" rx="4" style="fill:rgba(96,165,250,.12);stroke:${C.eq};stroke-width:1.6"/>` + fdArr(-9, -9, 'd', '#7dd3fc') + fdArr(9, -9, 'd', '#7dd3fc') + fdTxM(0, 11, 'N₂', { s: 11, w: 800, c: '#7dd3fc' });
+          const open = `<rect x="-22" y="2" width="44" height="18" rx="3" style="fill:rgba(96,165,250,.12);stroke:${C.eq};stroke-width:1.6"/><rect x="-25" y="-22" width="50" height="9" rx="3" style="fill:url(#fdMt);stroke:${C.eq};stroke-width:1.3"/>` + fdArr(0, -12, 'u', fdAc) + pvdL('M-16 -12 V2 M16 -12 V2', { c: fdAc, sw: 1, so: .7, dash: '2 2' });
+          const swap = `<circle cx="-15" cy="0" r="9" style="fill:none;stroke:#94a3b8;stroke-width:3.2;stroke-dasharray:5 2.5"/><circle cx="15" cy="0" r="9" style="fill:none;stroke:${C.op};stroke-width:3.4"/>` + fdArr(3, 0, 'r', fdAc) + fdTxM(-15, 20, '낡음', { s: 8.5, op: .8 }) + fdTxM(15, 20, '새것', { s: 8.5, c: C.op, w: 800 });
+          let bolts = '', bp = [];
+          for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 - Math.PI / 2; bp.push([17 * Math.cos(a), 17 * Math.sin(a)]); bolts += `<circle cx="${bp[i][0].toFixed(1)}" cy="${bp[i][1].toFixed(1)}" r="3.4" style="fill:#94a3b8;stroke:${C.eq};stroke-width:1.3"/>`; }
+          const asm = `<circle cx="0" cy="0" r="22" style="fill:rgba(96,165,250,.1);stroke:${C.eq};stroke-width:1.6"/>` + bolts + pvdL(`M${bp[0]} L${bp[3]} L${bp[1]} L${bp[4]} L${bp[2]} L${bp[5]}`, { c: fdAc, sw: 1.1, so: .9, dash: '2 2' });
+          const pump = `<path d="M-22 12 A22 22 0 0 1 22 12" style="fill:rgba(52,211,153,.1);stroke:${C.op};stroke-width:2"/><path d="M0 12 L-12 -6" style="stroke:${fdAc};stroke-width:2.4;stroke-linecap:round"/><circle cx="0" cy="12" r="2.6" style="fill:${fdAc}"/>` + fdArr(0, 24, 'd', C.op) + fdTxM(0, -16, 'Torr', { s: 8.5, op: .8 });
+          const leak = `<rect x="-22" y="-12" width="44" height="30" rx="4" style="fill:rgba(96,165,250,.12);stroke:${C.eq};stroke-width:1.6"/>` + [[27, -6], [32, 3], [27, 10]].map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="2.6" style="fill:#7dd3fc;stroke:#0369a1;stroke-width:1"/>`).join('') + fdTxM(0, 9, 'He', { s: 10, w: 800, c: '#7dd3fc' });
+          const season = `<circle cx="0" cy="0" r="17" style="fill:url(#fdSi);stroke:#64748b;stroke-width:1.4"/><path d="M-8 1 L-2 8 L9 -7" style="fill:none;stroke:${C.op};stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round"/>`;
+          const steps = [
+            ['safe', C.pr, lock, '1 잠금·표지', '전원·가스 차단'],
+            ['safe', C.pr, purge, '2 퍼지·벤트', '질소로 쓸고 대기압'],
+            ['work', C.eq, open, '3 챔버 열기', '부품을 꺼냄'],
+            ['work', C.eq, swap, '4 닦고 교체', 'O-링·소모 부품'],
+            ['work', C.eq, asm, '5 조립', '순서·토크대로 조임'],
+            ['verify', C.op, pump, '6 펌프다운', '진공으로 다시 만듦'],
+            ['verify', C.op, leak, '7 누설 점검', '새는 곳이 없는지'],
+            ['verify', C.op, season, '8 시즈닝·확인', '시험 웨이퍼 합격'],
+          ];
+          steps.forEach((st, i) => {
+            const x = xs[i % 4], y = ys[Math.floor(i / 4)], col = st[1];
+            let c = fdRect(x, y, cw, ch, { rx: 8, fill: 'rgba(148,163,184,.07)', c: col, so: .85, sw: 1.5 });
+            c += `<g transform="translate(${x + cw / 2} ${y + 42})">${st[2]}</g>`;
+            c += fdTxM(x + cw / 2, y + 82, st[3].slice(2), { s: 10, w: 800, c: col }) + fdTxM(x + cw / 2, y + 95, st[4], { s: 8.5, op: .85 }) + pvdNum(x + 12, y + 12, i + 1, col);
+            o += pvdG(f, [st[0]], c);
+          });
+          // 연결
+          const link = (x, y) => fdArr(x, y, 'r', 'currentColor');
+          [0, 1, 2].forEach((i) => { o += pvdG(f, [steps[i][0], steps[i + 1][0]], link(xs[i + 1] - 1, ys[0] + 52)); });
+          [0, 1, 2].forEach((i) => { o += pvdG(f, [steps[i + 4][0], steps[i + 5][0]], link(xs[i + 1] - 1, ys[1] + 52)); });
+          o += pvdG(f, ['work', 'verify'], pvdL('M377 128 V144 H65 V158', { so: .5, sw: 1.4 }) + fdArr(65, 160, 'd', 'currentColor'));
+          o += pvdG(f, ['verify'], pvdL('M377 264 V282', { so: .5, sw: 1.4 }) + fdArr(377, 286, 'd', C.op) + fdTxM(377, 300, '생산 복귀', { s: 10, w: 800, c: C.op }));
+          return dgSvg('PM 순서: ' + s.label, o, '0 0 440 310');
+        }
+      },
+
+      // ---------- 챔버 소모 부품 ----------
+      'fld-pm-parts': {
+        title: '챔버 안에서 닳고 쌓이는 부품들',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '챔버 안에는 공정이 반복될수록 닳거나 막이 쌓이거나 굳는 부품이 있다. 각 부품은 마모되는 모습이 다르고, 그 모습이 공정 결과의 어떤 변화로 나타나는지도 다르다.' },
+          { id: 'seal', label: '실링류', focus: ['seal'], desc: 'O-링은 열과 화학 가스에 굳고 갈라지며 눌린 자국이 남는다. 게이트 밸브와 배기 포트의 실도 같다. 조금만 상해도 누설의 길이 되어 진공이 나빠진다.' },
+          { id: 'wall', label: '벽과 샤워헤드', focus: ['wall'], desc: '샤워헤드의 작은 구멍이 막이나 입자로 좁아지면 가스가 고르게 나가지 못한다. 챔버 벽의 라이너에는 막이 쌓였다가 두꺼워지면 조각이 떨어져 웨이퍼 위 입자가 된다.' },
+          { id: 'wafer', label: '웨이퍼 둘레', focus: ['wafer'], desc: '포커스링은 웨이퍼 가장자리의 플라즈마를 고르게 하는 링인데, 식각되면서 서서히 얇아져 가장자리 속도가 달라진다. 정전척 표면이 닳으면 웨이퍼를 잡는 힘과 냉각이 흔들린다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          o += fdRect(136, 40, 168, 200, { rx: 6, fill: 'rgba(96,165,250,.06)', c: C.eq, so: .9, sw: 1.8 });
+          o += fdRect(128, 28, 184, 14, { rx: 3, fill: 'url(#fdMt)', so: .8 });
+          o += `<ellipse cx="220" cy="118" rx="62" ry="38" fill="url(#fdPl)"/>`;
+          // 실링류
+          const ring = (x, y) => `<circle cx="${x}" cy="${y}" r="3.6" style="fill:${fdAc};stroke:#7c2d12;stroke-width:1.2"/>`;
+          let se = ring(137, 45) + ring(303, 45) + fdRect(304, 148, 10, 34, { rx: 2, fill: 'rgba(148,163,184,.25)', so: .6 }) + fdRect(314, 140, 12, 50, { rx: 3, fill: 'url(#fdMt)', c: fdAc, so: .8, sw: 1.4 }) + ring(320, 146) + ring(320, 184) + fdRect(196, 240, 48, 12, { rx: 3, fill: 'url(#fdMt)', so: .8 }) + ring(197, 241) + ring(243, 241);
+          o += pvdG(f, ['seal'], se);
+          o += pvdL('M220 252 V282', { sw: 3, so: .35 });
+          // 샤워헤드·라이너
+          let sh = fdRect(150, 54, 140, 10, { rx: 2, fill: 'url(#fdMt)', so: .8 });
+          for (let x = 160; x <= 280; x += 12) sh += `<circle cx="${x}" cy="59" r="1.6" style="fill:#0b1220;fill-opacity:.7"/>`;
+          sh += `<circle cx="196" cy="59" r="2.4" style="fill:#fbbf24"/><circle cx="244" cy="59" r="2.4" style="fill:#fbbf24"/>`;
+          let ln = fdRect(138, 66, 7, 170, { rx: 2, fill: 'rgba(148,163,184,.4)', so: .5, sw: 1 }) + fdRect(295, 66, 7, 70, { rx: 2, fill: 'rgba(148,163,184,.4)', so: .5, sw: 1 }) + fdRect(295, 190, 7, 46, { rx: 2, fill: 'rgba(148,163,184,.4)', so: .5, sw: 1 });
+          ln += fdRect(145, 96, 5, 50, { rx: 2, fill: 'rgba(251,191,36,.5)', so: .3, sw: .8 }) + fdPart(158, 172, 3.4, '#334155') + fdPart(150, 205, 2.8, '#334155');
+          o += pvdG(f, ['wall'], sh + ln);
+          // 웨이퍼 둘레
+          let wf = fdRect(168, 168, 104, 5, { rx: 1.5, fill: '#cbd5e1', so: .6 }) + fdRect(162, 173, 116, 26, { rx: 3, fill: 'url(#fdMt)', c: C.pr, so: .8, sw: 1.4 }) + fdRect(212, 199, 16, 41, { rx: 2, fill: 'url(#fdMt)', so: .6 });
+          wf += fdRect(148, 165, 14, 9, { rx: 2, fill: 'rgba(251,146,60,.55)', c: fdAc, so: .9, sw: 1.3 }) + fdRect(278, 165, 14, 9, { rx: 2, fill: 'rgba(251,146,60,.55)', c: fdAc, so: .9, sw: 1.3 });
+          o += pvdG(f, ['wafer'], wf);
+          // 왼쪽 라벨
+          const lab = (g, yy, x1, x2, ly, t1, t2, c, right) => pvdG(f, [g], pvdL(`M${x1} ${ly} H${x2}`, { c, sw: 1.2, so: .9 }) + fdTxM(right ? 336 : 108, yy, t1, { a: right ? 'start' : 'end', s: 10, w: 800, c }) + fdTxM(right ? 336 : 108, yy + 12, t2, { a: right ? 'start' : 'end', s: 8.5, op: .85 }));
+          o += lab('wall', 50, 112, 152, 59, '샤워헤드', '구멍 막힘 → 균일도', fdAc);
+          o += lab('wall', 112, 112, 138, 120, '챔버 라이너', '쌓인 막 → 파티클', fdAc);
+          o += lab('wafer', 170, 112, 148, 170, '포커스링', '닳음 → 가장자리 속도', fdAc);
+          o += lab('seal', 42, 308, 332, 45, 'O-링', '굳음·균열 → 누설', C.pr, true);
+          o += lab('seal', 152, 326, 332, 165, '게이트 밸브 실', '긁힘 → 누설', C.pr, true);
+          o += lab('wafer', 196, 278, 332, 195, '정전척', '표면 마모 → 척킹', fdAc, true);
+          o += lab('seal', 236, 246, 332, 246, '배기 포트 O-링', '눌림 → 누설', C.pr, true);
+          o += fdTxM(220, 296, '닳는 속도는 쓴 양에 비례한다', { s: 9.5, w: 800, c: fdAc });
+          return dgSvg('챔버 부품: ' + s.label, o, '0 0 440 306');
+        }
+      },
+
+      // ---------- 상승률(ROR) 시험 ----------
+      'fld-leak-ror': {
+        title: '밸브를 닫고 압력이 오르는 속도를 잰다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '상승률 시험은 챔버를 충분히 진공으로 만든 뒤 펌프로 가는 밸브를 닫고, 압력이 얼마나 빨리 오르는지 재는 방법이다. 오르는 모양이 직선인지 곡선인지로 누설과 탈가스를 가려낸다.' },
+          { id: 'setup', label: '시험 준비', focus: ['setup'], desc: '목표 압력까지 펌프다운한 뒤 안정되면 챔버와 펌프 사이 밸브를 닫는다. 이제 챔버 안의 압력을 올릴 수 있는 것은 새어 드는 공기와 벽에서 나오는 가스뿐이다. 이 상태에서 시간을 재기 시작한다.' },
+          { id: 'leak', label: '누설이면', focus: ['leak'], desc: '틈으로 공기가 계속 들어오면 압력은 시간에 비례해 거의 직선으로 오른다. 밖은 대기압이라 새어 드는 속도가 일정하기 때문이다. 같은 시험을 반복해도 기울기가 비슷하게 나온다.' },
+          { id: 'gas', label: '탈가스이면', focus: ['gas'], desc: '챔버 벽에 붙어 있던 수분과 가스가 떨어져 나오는 현상이 탈가스다. 처음에는 빠르게 오르지만 나올 것이 줄어들면서 곡선이 점점 완만해진다. 정비 직후나 대기에 오래 열어 둔 뒤에 두드러진다.' },
+          { id: 'judge', label: '판정', focus: ['judge'], desc: '정해진 시간 동안 오른 압력을 시간으로 나눠 상승률을 구하고 기준과 비교한다. 기준은 장비와 공정마다 다르다. 곡선이면 시간을 더 두고 다시 재고, 직선으로 계속 오르면 누설을 찾는다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 왼쪽 장면
+          let sc = fdRect(56, 78, 100, 92, { rx: 6, fill: 'rgba(96,165,250,.07)', c: C.eq, so: .9, sw: 1.8 }) + fdTxM(106, 128, '챔버', { s: 11, w: 800, c: C.eq });
+          sc += pvdL('M106 78 V64', { sw: 3, so: .35 }) + `<circle cx="106" cy="48" r="15" style="fill:none;stroke:currentColor;stroke-width:1.6;stroke-opacity:.8"/><path d="M106 48 L115 40" style="stroke:${fdAc};stroke-width:2.2;stroke-linecap:round"/><circle cx="106" cy="48" r="2.2" style="fill:${fdAc}"/>` + fdTxM(128, 30, '압력계', { a: 'start', s: 9, w: 700 });
+          sc += pvdL('M106 170 V206', { sw: 3, so: .35 });
+          sc += `<polygon points="94,206 106,216 94,226" style="fill:rgba(239,68,68,.35);stroke:#ef4444;stroke-width:1.4"/><polygon points="118,206 106,216 118,226" style="fill:rgba(239,68,68,.35);stroke:#ef4444;stroke-width:1.4"/>` + pvdL('M98 210 L114 222 M114 210 L98 222', { c: '#ef4444', sw: 2, so: 1 }) + fdTxM(134, 212, '밸브 닫음', { a: 'start', s: 9.5, w: 800, c: '#ef4444' });
+          sc += pvdL('M106 226 V246', { sw: 3, so: .35 }) + fdRect(76, 246, 60, 26, { rx: 5, fill: 'rgba(52,211,153,.14)', c: C.op, so: .9, sw: 1.5 }) + fdTxM(106, 263, '펌프(정지)', { s: 9, w: 800, c: C.op });
+          o += pvdG(f, ['setup'], sc);
+          // 틈과 공기
+          let lk = fdArr(54, 112, 'r', '#ef4444') + fdArr(54, 124, 'r', '#ef4444') + `<circle cx="38" cy="112" r="2.4" style="fill:#ef4444"/><circle cx="28" cy="124" r="2.4" style="fill:#ef4444"/><circle cx="70" cy="140" r="2.4" style="fill:#ef4444"/><circle cx="84" cy="150" r="2.4" style="fill:#ef4444"/>` + fdTxM(8, 150, '틈으로', { a: 'start', s: 9, w: 800, c: '#ef4444' }) + fdTxM(8, 162, '새는 공기', { a: 'start', s: 8.5, c: '#ef4444' });
+          o += pvdG(f, ['leak', 'setup'], lk);
+          let gs = [[124, 90], [138, 100], [128, 150], [142, 142]].map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="2.4" style="fill:#fbbf24;stroke:#92400e;stroke-width:.9"/>`).join('') + [[154, 104, 146, 98], [154, 146, 147, 150]].map((a) => pvdL(`M${a[0]} ${a[1]} L${a[2]} ${a[3]}`, { c: '#fbbf24', sw: 1.2, so: .9 })).join('');
+          o += pvdG(f, ['gas', 'setup'], gs);
+          // 그래프
+          let gr = pvdL('M222 40 V196 H424', { sw: 1.6, so: .7 }) + fdTxM(226, 34, '압력', { a: 'start', s: 9.5, w: 700, op: .9 }) + fdTxM(424, 188, '시간 →', { a: 'end', s: 9.5, w: 700, op: .9 });
+          o += pvdG(f, ['leak', 'gas', 'judge'], gr);
+          o += pvdG(f, ['leak', 'judge'], pvdL('M222 186 L412 64', { c: '#ef4444', sw: 2.8, so: 1 }) + fdTxM(238, 66, '누설: 일정한 기울기', { a: 'start', s: 10, w: 800, c: '#ef4444' }) + fdTxM(238, 79, '직선으로 계속 오른다', { a: 'start', s: 8.5, c: '#ef4444' }));
+          o += pvdG(f, ['gas'], pvdL('M222 186 C246 138 292 124 412 118', { c: '#fbbf24', sw: 2.8, so: 1 }) + fdTxM(412, 148, '탈가스: 점점 완만해진다', { a: 'end', s: 10, w: 800, c: '#fbbf24' }));
+          // 판정 상자
+          let jd = pvdL('M268 196 V156', { c: C.eq, sw: 1.1, so: .6, dash: '3 3' }) + pvdL('M392 196 V77', { c: C.eq, sw: 1.1, so: .6, dash: '3 3' }) + `<circle cx="268" cy="156" r="4" style="fill:${C.eq}"/><circle cx="392" cy="77" r="4" style="fill:${C.eq}"/>` + fdTxM(268, 208, 't₁', { s: 9.5, w: 800, c: C.eq }) + fdTxM(392, 208, 't₂', { s: 9.5, w: 800, c: C.eq });
+          jd += fdRect(214, 224, 212, 58, { rx: 8, fill: 'rgba(96,165,250,.08)', c: C.eq, so: .9, sw: 1.6 }) + fdTxM(320, 244, '상승률 = (P₂ − P₁) ÷ (t₂ − t₁)', { s: 11, w: 800, c: C.eq }) + fdTxM(320, 260, '기준 이하이면 합격', { s: 9.5, w: 700 }) + fdTxM(320, 273, '기준은 장비·공정마다 다르다', { s: 8.5, op: .8 });
+          o += pvdG(f, ['judge'], jd);
+          return dgSvg('상승률 시험: ' + s.label, o, '0 0 440 290');
+        }
+      },
+
+      // ---------- 헬륨 누설 검사 ----------
+      'fld-leak-he': {
+        title: '헬륨을 뿌려 새는 곳을 찾는다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '헬륨 누설 검사는 진공이 된 챔버에 감지기를 달고, 의심되는 이음매 밖에 헬륨을 조금씩 뿌린다. 틈이 있으면 헬륨이 빨려 들어가고, 감지기가 이를 읽어 새는 곳을 알려 준다.' },
+          { id: 'setup', label: '준비', focus: ['setup'], desc: '챔버를 진공으로 만든 뒤 배기 쪽에 헬륨 감지기를 연결한다. 감지기는 헬륨만 골라 세는 장치다. 시험 전에 배경 신호를 확인해 두어야 이후 신호가 올랐다는 것을 알 수 있다.' },
+          { id: 'spray', label: '헬륨 뿌리기', focus: ['spray'], desc: '헬륨 가스를 가는 관으로 이음매 한 곳씩 짧게 뿌린다. 헬륨은 원자가 아주 작고 공기에 거의 없는 가스라서 작은 틈도 지나가고, 신호가 오르면 곧 그곳이 샌다는 증거가 된다.' },
+          { id: 'signal', label: '신호 읽기', focus: ['signal'], desc: '뿌린 즉시가 아니라 잠시 뒤에 신호가 오르고, 뿌리기를 멈추면 서서히 내려간다. 이 지연 때문에 한 곳에 오래 뿌리거나 서두르면 어디가 샌 건지 헷갈리게 된다.' },
+          { id: 'order', label: '순서', focus: ['order'], desc: '헬륨은 가벼워서 위로 올라간다. 아래부터 뿌리면 퍼진 헬륨이 위쪽 이음매에 닿아 신호가 헷갈리므로, 위에서 아래로 한 곳씩 뿌린다. 한 곳이 반응하면 거기서 멈추고 고친 뒤 다시 확인한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 챔버
+          let ch = fdRect(150, 58, 130, 112, { rx: 6, fill: 'rgba(96,165,250,.07)', c: C.eq, so: .9, sw: 1.8 }) + fdRect(144, 48, 142, 11, { rx: 3, fill: 'url(#fdMt)', so: .8 }) + fdRect(132, 92, 18, 18, { rx: 2, fill: 'url(#fdMt)', so: .8 }) + fdRect(280, 100, 12, 36, { rx: 2, fill: 'url(#fdMt)', so: .8 }) + fdTxM(215, 118, '진공 챔버', { s: 10.5, w: 800, c: C.eq });
+          ch += pvdL('M215 170 V212 H326', { sw: 3, so: .35 }) + fdFlow('M215 171 V212 H324', C.eq, 1.4) + fdRect(212, 164, 6, 8, { rx: 1, fill: 'url(#fdMt)', so: .6 });
+          let dt = fdRect(326, 186, 100, 66, { rx: 8, fill: 'rgba(52,211,153,.1)', c: C.op, so: .9, sw: 1.8 }) + fdRect(336, 196, 80, 26, { rx: 3, fill: '#0b1220', c: C.op, so: .8, sw: 1.2 }) + pvdL('M341 214 H360 L366 202 L372 214 H388 L392 208 H411', { c: C.op, sw: 1.5, so: 1 }) + fdTxM(376, 241, 'He 감지기', { s: 9.5, w: 800, c: C.op });
+          o += pvdG(f, ['setup', 'signal'], ch + dt);
+          // 작업자와 스프레이
+          let sp = fdMan(56, 214, C.pr, 1.15) + pvdL('M66 182 L100 160 L130 104', { c: '#94a3b8', sw: 2.2, so: .9 }) + `<circle cx="130" cy="104" r="2.6" style="fill:#94a3b8"/>`;
+          sp += `<ellipse cx="136" cy="100" rx="22" ry="17" style="fill:rgba(125,211,252,.22);stroke:#7dd3fc;stroke-width:1;stroke-dasharray:3 3"/>` + [[128, 96], [138, 92], [142, 104], [132, 108]].map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="2.3" style="fill:#7dd3fc;stroke:#0369a1;stroke-width:.9"/>`).join('') + fdTxM(104, 86, 'He', { s: 10, w: 800, c: '#7dd3fc' }) + fdTxM(52, 236, '이음매 밖에만 뿌린다', { s: 9, w: 800, c: C.pr });
+          o += pvdG(f, ['spray', 'order'], sp);
+          // 신호 그래프
+          let sg = pvdL('M24 296 H290', { sw: 1.4, so: .7 }) + pvdL('M24 296 V252', { sw: 1.4, so: .7 }) + fdTxM(28, 250, '신호', { a: 'start', s: 9, w: 700 }) + fdTxM(290, 310, '시간 →', { a: 'end', s: 9, w: 700 });
+          sg += pvdL('M24 292 H100 L112 292 L148 262 Q168 258 192 286 L214 292 H290', { c: C.op, sw: 2.4, so: 1 });
+          sg += pvdL('M112 296 V258', { c: C.pr, sw: 1.2, so: .9, dash: '3 3' }) + `<circle cx="112" cy="258" r="3.4" style="fill:${C.pr}"/>` + fdTxM(112, 252, '뿌림', { s: 8.5, w: 800, c: C.pr }) + pvdL('M112 304 H148', { c: fdAc, sw: 1.3, so: .9 }) + fdArr(149, 304, 'r', fdAc) + fdTxM(130, 316, '지연', { s: 8.5, w: 800, c: fdAc }) + fdTxM(236, 276, '멈추면 서서히 내려감', { s: 8.5, op: .85 });
+          o += pvdG(f, ['signal'], sg);
+          // 순서 번호
+          let od = pvdNum(215, 40, 1, fdAc) + pvdNum(122, 76, 2, fdAc) + pvdNum(306, 118, 2, fdAc) + pvdNum(236, 182, 3, fdAc);
+          od += pvdL('M24 66 V176', { c: fdAc, sw: 1.8, so: .9 }) + fdArr(24, 180, 'd', fdAc) + fdTxM(24, 56, '위', { s: 9.5, w: 800, c: fdAc }) + fdTxM(24, 194, '아래', { s: 9.5, w: 800, c: fdAc });
+          o += pvdG(f, ['order'], od);
+          return dgSvg('헬륨 검사: ' + s.label, o, '0 0 440 322');
+        }
+      },
+    });
+
+    // ===== 현장 직무 > 실무 이해 글: FDC와 OCAP =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 센서 값이 경고가 되기까지 ----------
+      'fld-fdc-flow': {
+        title: '센서 값이 경고가 되기까지',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: 'FDC는 장비에 달린 센서 값을 계속 모아 정상 범위와 비교하고, 벗어나면 경고나 중단으로 알려 주는 시스템이다. 압력, 유량, 파워, 온도가 웨이퍼 한 장을 처리하는 동안 어떻게 움직였는지 기록하는 것이 출발점이다.' },
+          { id: 'sense', label: '센서', focus: ['sense'], desc: '장비에는 압력계, MFC, RF 전원, 온도 센서처럼 수십에서 수백 개의 센서가 달려 있다. 이 값들은 원래 장비를 제어하려고 읽는 것인데, FDC는 같은 값을 따로 모아 장비의 건강 상태를 보는 데 쓴다.' },
+          { id: 'collect', label: '수집', focus: ['collect'], desc: '센서 값은 보통 1초 안팎의 간격으로 수집 서버에 쌓인다. 어느 장비, 어느 챔버, 어느 로트, 어느 웨이퍼, 어느 레시피 단계에서 나온 값인지 이름표를 함께 붙여 저장한다.' },
+          { id: 'judge', label: '판정', focus: ['judge'], desc: '쌓인 값을 레시피 단계별로 평균, 최대, 변화 속도 같은 숫자로 요약하고, 미리 정해 둔 규칙과 비교한다. 같은 센서라도 단계마다 정상 범위가 다르므로 규칙은 단계별로 따로 둔다.' },
+          { id: 'act', label: '조치', focus: ['act'], desc: '규칙을 벗어나면 정도에 따라 경고나 중단이 나온다. 경고는 알려 주기만 하고 장비는 계속 돌지만, 중단은 장비를 멈추거나 웨이퍼 투입을 막는다. 어느 쪽이든 어떤 센서가 어느 단계에서 벗어났는지가 함께 남는다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 센서
+          let se = fdRect(14, 70, 80, 112, { rx: 6, fill: 'rgba(96,165,250,.07)', c: C.eq, so: .9, sw: 1.8 }) + fdTxM(54, 130, '챔버', { s: 11, w: 800, c: C.eq }) + fdRect(26, 150, 56, 4, { rx: 1, fill: '#cbd5e1', so: .5 });
+          ['압력', '유량', 'RF', '온도'].forEach((t, i) => {
+            const y = 76 + i * 28;
+            se += pvdL(`M94 ${y + 10} H110`, { c: C.eq, sw: 1.2, so: .9 }) + fdRect(110, y, 62, 20, { rx: 4, fill: 'rgba(96,165,250,.14)', c: C.eq, so: .9, sw: 1.4 }) + fdTxM(141, y + 14, t, { s: 9, w: 800, c: C.eq });
+          });
+          o += pvdG(f, ['sense'], se);
+          // 수집
+          let co = '';
+          [0, 1, 2, 3].forEach((i) => { co += fdFlow(`M168 ${86 + i * 28} H198`, C.eq, 1.4); });
+          co += fdRect(198, 70, 66, 112, { rx: 8, fill: 'rgba(52,211,153,.1)', c: C.op, so: .9, sw: 1.8 }) + fdTxM(231, 92, '수집', { s: 10.5, w: 800, c: C.op }) + fdTxM(231, 104, '1초 간격', { s: 8.5, op: .85 });
+          [120, 140, 160].forEach((y) => { co += `<ellipse cx="231" cy="${y}" rx="18" ry="6" style="fill:rgba(52,211,153,.18);stroke:${C.op};stroke-width:1.3"/>`; });
+          o += pvdG(f, ['collect'], co);
+          o += pvdG(f, ['collect', 'judge'], fdArr(272, 126, 'r', 'currentColor'));
+          // 판정
+          let ju = fdRect(274, 70, 80, 112, { rx: 8, fill: 'rgba(251,146,60,.08)', c: fdAc, so: .9, sw: 1.8 }) + fdTxM(314, 88, '규칙 비교', { s: 10, w: 800, c: fdAc });
+          ju += fdRect(284, 108, 60, 30, { rx: 2, fill: 'rgba(52,211,153,.18)', so: .3, sw: .8 }) + pvdL('M284 130 L296 122 L306 126 L316 118 L324 98 L334 120 L344 124', { c: '#ef4444', sw: 1.8, so: 1 }) + fdTxM(314, 156, '단계별로', { s: 8.5, op: .85 }) + fdTxM(314, 168, '범위가 다르다', { s: 8.5, op: .85 });
+          o += pvdG(f, ['judge'], ju);
+          o += pvdG(f, ['judge', 'act'], fdArr(362, 126, 'r', 'currentColor'));
+          // 조치
+          let ac = fdRect(364, 70, 64, 52, { rx: 8, fill: 'rgba(251,191,36,.12)', c: C.pr, so: .9, sw: 1.6 }) + `<path d="M386 100 Q386 84 396 83 Q406 84 406 100 Z" style="fill:#fbbf24;stroke:#92400e;stroke-width:1.3"/><circle cx="396" cy="104" r="2.4" style="fill:#92400e"/>` + fdTxM(396, 116, '경고', { s: 9, w: 800, c: C.pr });
+          ac += fdRect(364, 130, 64, 52, { rx: 8, fill: 'rgba(239,68,68,.1)', c: '#ef4444', so: .9, sw: 1.6 }) + `<polygon points="388,137 404,137 412,145 412,157 404,165 388,165 380,157 380,145" style="fill:#ef4444;fill-opacity:.85;stroke:#7f1d1d;stroke-width:1.2"/><path d="M386 151 H406" style="stroke:#fff;stroke-width:3;stroke-linecap:round"/>` + fdTxM(396, 177, '중단', { s: 9, w: 800, c: '#ef4444' });
+          o += pvdG(f, ['act'], ac);
+          o += pvdG(f, ['act'], fdTxM(220, 210, '경고는 알림, 중단은 정지', { s: 10, w: 800, c: fdAc }) + fdTxM(220, 225, '센서·단계도 함께 기록', { s: 9, op: .9 }));
+          return dgSvg('FDC 흐름: ' + s.label, o, '0 0 440 240');
+        }
+      },
+
+      // ---------- 트레이스 ----------
+      'fld-fdc-trace': {
+        title: '정상 웨이퍼들의 띠에서 벗어난 한 장',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '센서 값을 시간 순서로 그린 곡선을 트레이스라 한다. 정상 웨이퍼 수십 장의 곡선을 겹치면 좁은 띠가 되고, 이 띠에서 벗어나는 웨이퍼가 이상 후보다. 레시피 단계마다 값의 모양이 다르다.' },
+          { id: 'band', label: '정상 띠', focus: ['band'], desc: '같은 레시피로 돌린 정상 웨이퍼의 곡선을 겹치면 거의 같은 모양의 띠가 나온다. 이 띠가 그 센서의 평소 모습이다. 띠의 폭은 정상일 때의 자연스러운 흔들림의 크기를 뜻한다.' },
+          { id: 'step', label: '단계 구간', focus: ['step'], desc: '레시피는 안정화, 식각, 마무리처럼 단계로 나뉘고 단계마다 목표 값이 다르다. 그래서 하루 전체의 평균이 아니라 단계 안에서의 값을 따로 본다. 단계 전환 때의 값 변화는 이상이 아니다.' },
+          { id: 'out', label: '벗어난 웨이퍼', focus: ['out'], desc: '이 웨이퍼는 식각 단계 중간부터 값이 서서히 올라 정상 띠를 벗어났다. 경고 한계를 넘는 순간 FDC가 알린다. 중단 한계에는 닿지 않아서 장비는 계속 돌았지만 이 웨이퍼는 의심 대상이 된다.' },
+          { id: 'sum', label: '요약값', focus: ['sum'], desc: '곡선 전체를 비교하기는 무거우므로 단계마다 평균, 최대, 변화 속도 같은 요약값을 뽑아 규칙과 비교한다. 평균은 멀쩡해도 최대나 변화 속도에서 이상이 드러나는 경우가 있다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const gx = 44, gy = 24, gw = 372, gh = 186;
+          o += fdRect(gx, gy, gw, gh, { rx: 6, fill: 'rgba(148,163,184,.06)', so: .5, sw: 1.2 });
+          // 단계
+          let st = `<rect x="136" y="${gy}" width="180" height="${gh}" style="fill:rgba(96,165,250,.08)"/>` + pvdL(`M136 ${gy} V${gy + gh} M316 ${gy} V${gy + gh}`, { sw: 1, so: .5, dash: '3 3' });
+          st += fdTxM(90, 222, '1 안정화', { s: 9.5, w: 800 }) + fdTxM(226, 222, '2 식각', { s: 9.5, w: 800 }) + fdTxM(366, 222, '3 배기', { s: 9.5, w: 800 });
+          o += pvdG(f, ['step'], st);
+          // 정상 띠
+          const nor = 'M54 190 C74 190 82 112 104 110 L136 110 L316 110 C340 110 350 190 370 190 L406 190';
+          o += pvdG(f, ['band'], `<path d="${nor}" style="fill:none;stroke:${C.op};stroke-width:24;stroke-opacity:.2;stroke-linecap:round;stroke-linejoin:round"/>` + pvdL(nor, { c: C.op, sw: 1.8, so: .9 }) + fdTxM(146, 142, '정상 띠', { a: 'start', s: 9.5, w: 800, c: C.op }));
+          // 한계와 이탈
+          let ou = pvdL(`M136 74 H316`, { c: '#fbbf24', sw: 1.4, so: .95, dash: '5 3' }) + fdTxM(140, 69, '경고 한계', { a: 'start', s: 9, w: 800, c: '#fbbf24' }) + pvdL(`M136 48 H316`, { c: '#ef4444', sw: 1.4, so: .95, dash: '2 3' }) + fdTxM(140, 43, '중단 한계', { a: 'start', s: 9, w: 800, c: '#ef4444' });
+          ou += pvdL('M54 190 C74 190 82 112 104 110 L136 110 L190 110 C220 108 236 80 262 66 L292 68 L316 78 C340 100 350 190 370 190 L406 190', { c: '#ef4444', sw: 2.4, so: 1 });
+          ou += `<circle cx="226" cy="92" r="5" style="fill:#ef4444;stroke:#7f1d1d;stroke-width:1.3"/>` + fdTxM(222, 126, '벗어나기 시작', { a: 'end', s: 9, w: 800, c: '#ef4444' }) + pvdL('M200 120 L222 98', { c: '#ef4444', sw: 1.1, so: .8 });
+          o += pvdG(f, ['out'], ou);
+          // 요약
+          const cards = [['평균', 70, '#fbbf24'], ['최대', 102, '#ef4444'], ['변화 속도', 106, '#ef4444']];
+          let sm = '';
+          cards.forEach((c, i) => {
+            const x = 44 + i * 128;
+            sm += fdRect(x, 234, 116, 56, { rx: 8, fill: 'rgba(251,146,60,.07)', c: fdAc, so: .8, sw: 1.4 }) + fdTxM(x + 58, 250, c[0], { s: 10, w: 800, c: fdAc }) + fdRect(x + 12, 262, 78, 8, { rx: 3, fill: 'rgba(52,211,153,.25)', so: .3, sw: .8 });
+            sm += `<circle cx="${x + c[1]}" cy="266" r="4.2" style="fill:${c[2]};stroke:#0b1220;stroke-width:1"/>` + fdTxM(x + 58, 284, c[0] === '평균' ? '범위 안쪽' : '범위 밖', { s: 8.5, op: .85 });
+          });
+          o += pvdG(f, ['sum'], sm);
+          return dgSvg('트레이스: ' + s.label, o, '0 0 440 300');
+        }
+      },
+
+      // ---------- 한계 정하기 ----------
+      'fld-fdc-limit': {
+        title: '한계는 너무 좁아도, 넓어도 곤란하다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '정상 웨이퍼의 센서 값은 평소 값을 가운데로 종 모양으로 흩어진다. 한계는 이 종의 바깥 어디에 선을 긋느냐의 문제이고, 선이 가운데에 가까울수록 이상을 잘 잡지만 정상도 자주 걸린다.' },
+          { id: 'bell', label: '정상 분포', focus: ['bell'], desc: '같은 레시피를 수백 장 돌려 쌓은 값은 대부분 평소 값 근처에 모이고, 멀어질수록 드물어진다. 한계를 정하려면 먼저 이 정상 분포의 폭을 알아야 한다.' },
+          { id: 'warn', label: '경고 한계', focus: ['warn'], desc: '경고 한계는 평소와 눈에 띄게 다르지만 아직 불량을 만들 정도는 아닌 선이다. 넘으면 알려 주기만 해서 사람이 추세를 볼 시간을 준다.' },
+          { id: 'stop', label: '중단 한계', focus: ['stop'], desc: '중단 한계는 계속 돌리면 불량이 날 가능성이 큰 선이다. 넘으면 장비가 멈추거나 웨이퍼 투입이 막힌다. 제품 규격보다 안쪽에 두어 규격을 넘기 전에 막는다.' },
+          { id: 'trade', label: '좁게와 넓게', focus: ['trade', 'bell'], desc: '한계를 너무 좁게 잡으면 정상 웨이퍼도 자주 걸려 사람이 경고에 무뎌진다. 너무 넓게 잡으면 진짜 이상이 한계 안에서 지나가 불량이 뒤 공정에서야 발견된다. 그래서 한계는 데이터로 정하고 주기적으로 다시 본다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const base = 150, cx = 220, sg = 55, yy = (x) => base - 104 * Math.exp(-.5 * ((x - cx) / sg) ** 2);
+          const seg = (a, b, fill) => { let d = `M${a} ${base}`; for (let x = a; x <= b; x += 4) d += ` L${x} ${yy(x).toFixed(1)}`; return `<path d="${d} L${b} ${yy(b).toFixed(1)} L${b} ${base} Z" style="fill:${fill};stroke:none"/>`; };
+          let be = seg(20, 70, 'rgba(239,68,68,.35)') + seg(370, 420, 'rgba(239,68,68,.35)') + seg(70, 120, 'rgba(251,191,36,.35)') + seg(320, 370, 'rgba(251,191,36,.35)') + seg(120, 320, 'rgba(52,211,153,.3)');
+          let cv = 'M20 ' + base; for (let x = 20; x <= 420; x += 4) cv += ` L${x} ${yy(x).toFixed(1)}`;
+          be += pvdL(cv, { c: C.eq, sw: 2.2, so: 1 }) + pvdL(`M14 ${base} H426`, { sw: 1.4, so: .6 }) + fdTxM(cx, base + 15, '평소 값', { s: 9.5, w: 800, c: C.op }) + fdTxM(cx, 22, '정상 웨이퍼의 값 분포', { s: 10, w: 800 });
+          o += pvdG(f, ['bell', 'trade'], be);
+          const ln = (x, y0, c, dash) => pvdL(`M${x} ${y0} V${base}`, { c, sw: 1.7, so: .95, dash });
+          o += pvdG(f, ['warn', 'trade'], ln(120, 52, '#fbbf24', '5 3') + ln(320, 52, '#fbbf24', '5 3') + fdTxM(124, 48, '경고 한계', { a: 'start', s: 9.5, w: 800, c: '#fbbf24' }));
+          o += pvdG(f, ['stop', 'trade'], ln(70, 38, '#ef4444', '2 3') + ln(370, 38, '#ef4444', '2 3') + fdTxM(74, 34, '중단 한계', { a: 'start', s: 9.5, w: 800, c: '#ef4444' }));
+          o += pvdG(f, ['stop'], ln(36, 26, '#94a3b8', '2 2') + ln(404, 26, '#94a3b8', '2 2') + fdTxM(40, 22, '규격', { a: 'start', s: 9, w: 800, c: '#94a3b8' }));
+          // 구간 표시
+          o += pvdG(f, ['warn', 'stop'], fdTxM(95, base + 15, '경고 구간', { s: 8.5, w: 800, c: '#fbbf24' }) + fdTxM(345, base + 15, '경고 구간', { s: 8.5, w: 800, c: '#fbbf24' }) + fdTxM(46, base + 15, '중단', { s: 8.5, w: 800, c: '#ef4444' }) + fdTxM(394, base + 15, '중단', { s: 8.5, w: 800, c: '#ef4444' }));
+          // 비교 카드
+          let tr = fdRect(18, 190, 196, 66, { rx: 8, fill: 'rgba(251,191,36,.1)', c: '#fbbf24', so: .9, sw: 1.5 }) + fdTxM(116, 208, '한계를 너무 좁게', { s: 10.5, w: 800, c: '#fbbf24' }) + fdTxM(116, 224, '정상 웨이퍼도 자주 경고', { s: 9 }) + fdTxM(116, 238, '→ 경고에 무뎌진다', { s: 9, w: 800 });
+          tr += fdRect(226, 190, 196, 66, { rx: 8, fill: 'rgba(239,68,68,.08)', c: '#ef4444', so: .9, sw: 1.5 }) + fdTxM(324, 208, '한계를 너무 넓게', { s: 10.5, w: 800, c: '#ef4444' }) + fdTxM(324, 224, '진짜 이상이 한계 안에서 통과', { s: 9 }) + fdTxM(324, 238, '→ 불량을 뒤에서 발견', { s: 9, w: 800 });
+          o += pvdG(f, ['trade'], tr);
+          return dgSvg('한계: ' + s.label, o, '0 0 440 268');
+        }
+      },
+
+      // ---------- OCAP 흐름 ----------
+      'fld-ocap-flow': {
+        title: 'OCAP: 이상이 났을 때 누가 무엇을 하는가',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: 'OCAP은 이상이 감지됐을 때 누가 무엇을 어떤 순서로 하는지를 미리 정해 둔 절차다. 알람이 울린 뒤에 대응을 생각하면 늦으므로, 알람마다 정해 둔 길을 그대로 따른다.' },
+          { id: 'detect', label: '감지와 확인', focus: ['detect'], desc: 'FDC 알람이 울리면 오퍼레이터가 먼저 화면에서 알람 이름, 장비와 챔버, 레시피 단계, 시각을 확인해 기록한다. 원인을 추측하기 전에 사실부터 모은다.' },
+          { id: 'branch', label: '경고냐 중단이냐', focus: ['branch'], desc: '알람의 종류에 따라 길이 갈린다. 중단이면 장비는 정지하고 해당 로트는 홀드가 걸린다. 경고라면 장비는 계속 돌되 오퍼레이터가 추세를 지켜보고 엔지니어에게 알린다.' },
+          { id: 'resolve', label: '진단과 해제', focus: ['resolve'], desc: '엔지니어가 원인을 진단하고 조치한다. 조치가 끝나면 시험 웨이퍼 등으로 정상으로 돌아왔는지 확인하고, 그제야 홀드를 풀어 재가동한다. 풀 권한도 정해진 사람에게만 있다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const bell = '<path d="M-9 7 Q-9 -8 0 -9 Q9 -8 9 7 Z" style="fill:#fbbf24;stroke:#92400e;stroke-width:1.3"/><circle cx="0" cy="11" r="2.6" style="fill:#92400e"/>';
+          const note = '<rect x="-10" y="-11" width="20" height="24" rx="2.5" style="fill:#f1f5f9;stroke:#475569;stroke-width:1.3"/><path d="M-6 -4 H6 M-6 1 H6 M-6 6 H2" style="stroke:#64748b;stroke-width:1.4"/>';
+          const stop = '<polygon points="-6,-11 6,-11 11,-6 11,6 6,11 -6,11 -11,6 -11,-6" style="fill:#ef4444;fill-opacity:.85;stroke:#7f1d1d;stroke-width:1.2"/><path d="M-6 0 H6" style="stroke:#fff;stroke-width:3;stroke-linecap:round"/>';
+          const eye = `<path d="M-12 0 Q0 -10 12 0 Q0 10 -12 0 Z" style="fill:#f1f5f9;stroke:${C.eq};stroke-width:1.4"/><circle cx="0" cy="0" r="3.6" style="fill:${C.eq}"/>`;
+          const wr = `<path d="M-10 10 L4 -4" style="stroke:#94a3b8;stroke-width:4;stroke-linecap:round"/><circle cx="7" cy="-7" r="6" style="fill:none;stroke:#94a3b8;stroke-width:3"/>`;
+          const ok = `<circle cx="0" cy="0" r="11" style="fill:rgba(52,211,153,.2);stroke:${C.op};stroke-width:1.6"/><path d="M-5 0 L-1 5 L6 -5" style="fill:none;stroke:${C.op};stroke-width:3;stroke-linecap:round;stroke-linejoin:round"/>`;
+          const nd = (x, y, w, h, col, ic, t1, t2) => fdRect(x, y, w, h, { rx: 8, fill: 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 }) + `<g transform="translate(${x + w / 2} ${y + 24})">${ic}</g>` + fdTxM(x + w / 2, y + h - 22, t1, { s: 10, w: 800, c: col }) + fdTxM(x + w / 2, y + h - 9, t2, { s: 8.5, op: .85 });
+          o += pvdG(f, ['detect'], nd(14, 28, 92, 74, '#fbbf24', bell, 'FDC 알람', '규칙을 벗어남') + nd(130, 28, 92, 74, C.eq, note, '1 상태 기록', '이름·단계·시각'));
+          o += pvdG(f, ['detect'], fdArr(129, 66, 'r', 'currentColor'));
+          o += pvdG(f, ['detect', 'branch'], fdArr(245, 66, 'r', 'currentColor'));
+          // 분기
+          let br = `<polygon points="296,34 346,66 296,98 246,66" style="fill:rgba(251,146,60,.12);stroke:${fdAc};stroke-width:1.6"/>` + fdTxM(296, 64, '중단', { s: 10, w: 800, c: fdAc }) + fdTxM(296, 77, '알람인가', { s: 9, w: 800, c: fdAc });
+          br += pvdL('M346 66 H370', { so: .7 }) + fdArr(372, 66, 'r', 'currentColor') + fdTxM(358, 58, '아니오', { s: 8.5, w: 800 });
+          br += nd(374, 28, 62, 74, C.pr, eye, '경고', '관찰·보고');
+          br += pvdL('M296 98 V132', { so: .7 }) + fdArr(296, 138, 'd', 'currentColor') + fdTxM(308, 118, '예', { a: 'start', s: 8.5, w: 800 });
+          br += nd(250, 138, 92, 74, '#ef4444', stop, '정지·홀드', '장비와 로트');
+          o += pvdG(f, ['branch'], br);
+          // 해결
+          o += pvdG(f, ['resolve', 'branch'], pvdL('M250 175 H232', { so: .7 }) + fdArr(228, 175, 'l', 'currentColor'));
+          o += pvdG(f, ['resolve'], nd(130, 138, 92, 74, C.eq, wr, '2 진단·조치', '엔지니어') + pvdL('M130 175 H112', { so: .7 }) + fdArr(108, 175, 'l', 'currentColor') + nd(14, 138, 92, 74, C.op, ok, '3 확인·해제', '시험 후 재가동'));
+          o += fdTxM(220, 238, '알람마다 정해진 길이 있다', { s: 10, w: 800, c: fdAc });
+          return dgSvg('OCAP 흐름: ' + s.label, o, '0 0 450 250');
+        }
+      },
+
+      // ---------- 영향 로트 ----------
+      'fld-ocap-lot': {
+        title: '이상이 감지되면 어느 로트까지 의심하나',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: 'FDC 알람은 이상이 생긴 직후가 아니라 감지된 시점에 울린다. 그래서 마지막으로 정상을 확인한 이후에 지나간 로트는 모두 의심 대상이고, 아직 투입하지 않은 로트는 멈춰 세운다.' },
+          { id: 'ok', label: '확인된 로트', focus: ['ok'], desc: '마지막 정상 확인보다 앞서 처리된 로트는 그 시점의 검사나 측정으로 이미 정상이 확인되었다. 이 로트들은 이번 이상의 영향권 밖으로 본다.' },
+          { id: 'suspect', label: '의심 로트', focus: ['suspect'], desc: '마지막 정상 확인 이후 알람이 울리기 전까지 처리된 로트는 이상이 언제 시작됐는지 알 수 없으므로 모두 의심한다. 보통 홀드를 걸고 측정해 영향이 있었는지 확인한다.' },
+          { id: 'wait', label: '투입 보류', focus: ['wait'], desc: '알람 시점에 처리 중인 로트는 멈춘 상태에서 상태를 확인하고, 아직 대기 중인 로트는 원인이 해소될 때까지 이 장비에 넣지 않는다. 다른 장비로 돌리는 것은 생산 담당과 협의한다.' },
+          { id: 'release', label: '해제 판단', focus: ['release'], desc: '의심 로트의 측정 결과가 정상이면 홀드를 풀고, 이상이면 엔지니어가 재작업이나 폐기를 판단한다. 이 판단은 오퍼레이터가 아니라 정해진 담당자가 한다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const lots = [['ok', C.op], ['ok', C.op], ['suspect', C.pr], ['suspect', C.pr], ['suspect', C.pr], ['wait', '#ef4444'], ['wait', '#94a3b8'], ['wait', '#94a3b8']];
+          o += pvdL('M14 104 H430', { sw: 1.6, so: .6 }) + fdArr(432, 104, 'r', 'currentColor') + fdTxM(430, 92, '시간 →', { a: 'end', s: 9, w: 700, op: .85 });
+          lots.forEach((l, i) => {
+            const x = 16 + i * 52, g = l[0], c = l[1];
+            let b = fdRect(x, 118, 42, 46, { rx: 6, fill: 'rgba(148,163,184,.08)', c, so: .95, sw: 1.7 }) + fdRect(x + 6, 111, 30, 9, { rx: 3, fill: c, c, so: .9, sw: 1 }) + fdTxM(x + 21, 146, 'L' + (i + 1), { s: 10.5, w: 800, c });
+            b += [0, 1, 2].map((k) => `<circle cx="${x + 12 + k * 9}" cy="156" r="2.4" style="fill:${c};fill-opacity:.8"/>`).join('');
+            o += pvdG(f, [g === 'wait' ? 'wait' : g, ...(i === 5 ? ['wait'] : [])], b);
+          });
+          // 마커
+          o += pvdG(f, ['ok', 'suspect'], pvdL('M115 104 V176', { c: C.op, sw: 1.8, so: .95, dash: '4 3' }) + fdTxM(115, 188, '마지막 정상 확인', { s: 9, w: 800, c: C.op }));
+          o += pvdG(f, ['suspect', 'wait'], pvdL('M323 90 V176', { c: '#ef4444', sw: 1.8, so: .95, dash: '4 3' }) + `<path d="M315 78 Q315 66 323 65 Q331 66 331 78 Z" style="fill:#fbbf24;stroke:#92400e;stroke-width:1.2"/><circle cx="323" cy="81" r="2" style="fill:#92400e"/>` + fdTxM(323, 188, '알람 발생', { s: 9, w: 800, c: '#ef4444' }));
+          // 묶음 표시
+          o += pvdG(f, ['ok'], pvdL('M16 172 H110', { c: C.op, sw: 2, so: .9 }) + fdTxM(63, 204, '정상 확인됨', { s: 9, w: 800, c: C.op }));
+          o += pvdG(f, ['suspect'], pvdL('M120 172 H266', { c: C.pr, sw: 2, so: .9 }) + fdTxM(193, 204, '의심: 홀드 후 측정', { s: 9.5, w: 800, c: C.pr }));
+          o += pvdG(f, ['wait'], pvdL('M276 172 H422', { c: '#ef4444', sw: 2, so: .9 }) + fdTxM(349, 204, '처리 중·대기: 보류', { s: 9, w: 800, c: '#ef4444' }));
+          // 해제 판단
+          let rl = fdRect(14, 220, 200, 56, { rx: 8, fill: 'rgba(52,211,153,.1)', c: C.op, so: .9, sw: 1.5 }) + fdTxM(114, 238, '측정이 정상', { s: 10.5, w: 800, c: C.op }) + fdTxM(114, 254, '→ 홀드 해제, 다시 흐른다', { s: 9 }) + fdTxM(114, 267, '해제는 정해진 담당자만', { s: 8.5, op: .85 });
+          rl += fdRect(226, 220, 200, 56, { rx: 8, fill: 'rgba(239,68,68,.08)', c: '#ef4444', so: .9, sw: 1.5 }) + fdTxM(326, 238, '측정이 이상', { s: 10.5, w: 800, c: '#ef4444' }) + fdTxM(326, 254, '→ 엔지니어가 재작업·폐기 판단', { s: 9 }) + fdTxM(326, 267, '오퍼레이터는 홀드 유지', { s: 8.5, op: .85 });
+          o += pvdG(f, ['release'], rl);
+          return dgSvg('영향 로트: ' + s.label, o, '0 0 450 286');
+        }
+      },
+    });
+
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];

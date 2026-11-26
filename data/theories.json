@@ -1335,5 +1335,43 @@
     "premium": true,
     "mins": 14,
     "figs": 5
+  },
+  {
+    "id": "TH-490a07dd",
+    "category": "심화 이론",
+    "subject": "현장 직무",
+    "title": "예방정비(PM)와 누설 점검",
+    "tags": [
+      "현장 직무",
+      "예방정비",
+      "PM",
+      "누설 점검",
+      "헬륨"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 13,
+    "figs": 5
+  },
+  {
+    "id": "TH-c7188c38",
+    "category": "심화 이론",
+    "subject": "현장 직무",
+    "title": "FDC와 OCAP",
+    "tags": [
+      "현장 직무",
+      "FDC",
+      "OCAP",
+      "알람",
+      "한계"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 12,
+    "figs": 5
   }
 ]
