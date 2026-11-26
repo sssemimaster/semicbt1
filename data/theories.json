@@ -1772,5 +1772,62 @@
     "premium": true,
     "mins": 15,
     "figs": 6
+  },
+  {
+    "id": "TH-51c10225",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "스캔 체인과 ATPG",
+    "tags": [
+      "설계 직무",
+      "스캔 체인",
+      "ATPG",
+      "DFT",
+      "고장 모델"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 15,
+    "figs": 6
+  },
+  {
+    "id": "TH-84f39c0a",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "고장 찾기 연습",
+    "tags": [
+      "설계 직무",
+      "고장 모델",
+      "ATPG",
+      "DFT",
+      "고장"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 20,
+    "figs": 10
+  },
+  {
+    "id": "TH-32c85e9a",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "테이프아웃에서 포스트 실리콘 디버그까지",
+    "tags": [
+      "설계 직무",
+      "테이프아웃",
+      "디버그",
+      "수율",
+      "ECO"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 15,
+    "figs": 6
   }
 ]
