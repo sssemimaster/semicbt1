@@ -1373,5 +1373,24 @@
     "premium": true,
     "mins": 12,
     "figs": 5
+  },
+  {
+    "id": "TH-ef716684",
+    "category": "심화 이론",
+    "subject": "현장 직무",
+    "title": "5-Why와 불량 보고서",
+    "tags": [
+      "현장 직무",
+      "5-Why",
+      "불량 보고서",
+      "원인 분석",
+      "재발 방지"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 13,
+    "figs": 5
   }
 ]
