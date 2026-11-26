@@ -10522,9 +10522,26 @@
           y = Math.max(c.cy - 9, Math.min(c.cy + 9, y + Math.round((r2() * 2 - 1) * 12))); d += ` V${y}`;
         }
         c.start = [x0, y0]; c.end = [x, y]; c.d = d; c.extra = [];
+        // 추가 회로선은 이미 새겨진 선과 3.4 이상 떨어져야 한다 (너무 붙으면 선이 서로 번져 한 덩어리로 보인다)
+        const segs = (pts) => pts.slice(1).map((p, k) => [Math.min(p[0], pts[k][0]), Math.min(p[1], pts[k][1]), Math.max(p[0], pts[k][0]), Math.max(p[1], pts[k][1])]);
+        const gap = (a, b) => Math.hypot(Math.max(0, Math.max(a[0], b[0]) - Math.min(a[2], b[2])), Math.max(0, Math.max(a[1], b[1]) - Math.min(a[3], b[3])));
+        const mainPts = [[x0, y0]]; { let px = x0, py = y0; const nums = d.match(/[HV]-?\d+(?:\.\d+)?/g) || []; nums.forEach(t => { const v = +t.slice(1); if (t[0] === 'H') px = v; else py = v; mainPts.push([px, py]); }); }
+        const used = segs(mainPts);
         for (let l = 1; l < 6; l++) {   // 추가 회로선: 칩 안의 가는 띠마다 하나씩
-          const by = c.cy - 9 + l * 3.2 + (r2() - .5) * 1.4; let ex = c.cx - 9 + r2() * 4, ey = by, ed = `M${ex.toFixed(1)} ${ey.toFixed(1)}`; const n2 = 2 + Math.floor(r2() * 2);
-          for (let s = 0; s < n2; s++) { ex = Math.min(c.cx + 9, ex + 4 + r2() * 5); ed += `H${ex.toFixed(1)}`; ey = Math.max(c.cy - 9, Math.min(c.cy + 9, by + (r2() - .5) * 4)); ed += `V${ey.toFixed(1)}`; }
+          let ed = '', pts = null;
+          for (let tries = 0; tries < 8 && !pts; tries++) {
+            const by = c.cy - 9 + l * 3.2 + (r2() - .5) * 1.4; let ex = c.cx - 9 + r2() * 4, ey = by; const cand = [[ex, ey]]; let dd = `M${ex.toFixed(1)} ${ey.toFixed(1)}`; const n2 = 2 + Math.floor(r2() * 2);
+            for (let s2 = 0; s2 < n2; s2++) { ex = Math.min(c.cx + 9, ex + 4 + r2() * 5); dd += `H${ex.toFixed(1)}`; cand.push([ex, ey]); ey = Math.max(c.cy - 9, Math.min(c.cy + 9, by + (r2() - .5) * 4)); dd += `V${ey.toFixed(1)}`; cand.push([ex, ey]); }
+            const cs = segs(cand);
+            if (cs.every(a => used.every(b => gap(a, b) >= 3.4))) { pts = cs; ed = dd; }
+          }
+          if (!pts) {   // 그래도 안 맞으면 비어 있는 자리에 짧은 가로선 하나
+            for (let yy = c.cy - 9 + l * 1.5; yy <= c.cy + 9 && !pts; yy += 1.5) {
+              const cs = [[c.cx - 9, yy, c.cx - 9 + 6 + l, yy]];
+              if (used.every(b => gap(cs[0], b) >= 3.4)) { pts = cs; ed = `M${(c.cx - 9).toFixed(1)} ${yy.toFixed(1)}H${(c.cx - 3 + l).toFixed(1)}`; }
+            }
+          }
+          if (pts) pts.forEach(p => used.push(p));
           c.extra.push(ed);
         }
       });
