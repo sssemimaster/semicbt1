@@ -14792,6 +14792,656 @@
         },
       });
     })();
+    // ===== 설계 직무 > 테스트 설계: 유료(10토큰) 글 "스캔 체인과 ATPG" 그림 =====
+    (() => {
+      const A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c';
+      const lab = (x, y, t, col, a = 'middle', s = 10.5) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const box = (x, y, w, h, col) => R(x, y, w, h, col, { fo: .16, c: col, sw: 1.5, rx: 5 });
+      const dot = (x, y, r, col) => `<circle cx="${x}" cy="${y}" r="${r}" style="fill:${col};fill-opacity:.95"/>`;
+      const arr = (x, y, d, col) => { const p = { r: `M${x} ${y} l-7 -4 v8 z`, l: `M${x} ${y} l7 -4 v8 z`, d: `M${x} ${y} l-4 -7 h8 z`, u: `M${x} ${y} l-4 7 h8 z` }[d]; return `<path d="${p}" style="fill:${col}"/>`; };
+      const ff = (x, y, col, t) => R(x, y, 34, 30, col, { fo: .18, c: col, sw: 1.5, rx: 4 }) + `<path d="M${x} ${y + 21} l6 -4 l-6 -4" style="fill:none;stroke:${col};stroke-width:1.2"/>` + (t ? lab(x + 19, y + 19, t, col, 'middle', 12) : '');
+      const cloud = (x, y, w, h, col, t) => R(x, y, w, h, col, { fo: .08, c: col, sw: 1.3, rx: 14, dash: '4 3' }) + (t ? lab(x + w / 2, y + h / 2 + 4, t, col, 'middle', 10.5) : '');
+      const gnd = (x, y, col) => A.ln(`M${x} ${y} V${y + 12}`, col, 2) + A.ln(`M${x - 11} ${y + 12} H${x + 11}`, col, 2) + A.ln(`M${x - 7} ${y + 17} H${x + 7}`, col, 2) + A.ln(`M${x - 3} ${y + 22} H${x + 3}`, col, 2);
+      Object.assign(DIAGRAMS, {
+        // ---------- 안을 볼 수 없는 문제 ----------
+        'dsn-dftwhy': {
+          title: '안을 볼 수 없는 문제',
+          wide: true,
+          states: [
+            { id: 'ctl', label: '넣기 어렵다', desc: '깊은 곳의 플립플롭에 원하는 값을 넣으려면 입력을 정해진 순서로 여러 번 넣어 그 상태에 이르게 해야 한다. 이것이 제어성의 문제다.' },
+            { id: 'obs', label: '읽기 어렵다', desc: '깊은 곳의 값이 달라져도 몇 단계를 더 거쳐야 핀에 나타난다. 도중에 지워지면 읽을 수 없다. 이것이 관측성의 문제다.' },
+            { id: 'scan', label: '스캔으로 열기', desc: '시험 모드에서 모든 플립플롭을 줄로 엮어 핀에서 직접 쓰고 읽는다. 깊은 곳도 얕은 곳처럼 된다.' },
+          ],
+          svg(s) {
+            const id = s.id, X = [80, 142, 204, 266, 328];
+            let o = fdDefs();
+            o += cloud(56, 30, 328, 112, GR, '');
+            const col = id === 'ctl' ? CLK : id === 'obs' ? ORG : OKC;
+            X.forEach((x, i) => { o += ff(x, 44, id === 'scan' ? OKC : GR, '') + ff(x, 92, id === 'scan' ? OKC : GR, ''); });
+            if (id !== 'scan') o += R(204, 92, 34, 30, RED, { fo: .35, c: RED, sw: 2, rx: 4 });
+            if (id === 'ctl') {
+              o += lab(32, 24, '입력 핀', GR) + A.ln('M10 59 H80', CLK, 2.4) + arr(80, 59, 'r', CLK);
+              o += A.ln('M114 59 H128 M176 59 H190 V107 H204', CLK, 1.6, 1, '4 3') + arr(204, 107, 'r', CLK);
+              o += lab(150, 82, '?', CLK, 'middle', 14) + lab(220, 160, '여러 클록을 거쳐야 이 상태에 닿는다', CLK, 'middle', 11);
+            } else if (id === 'obs') {
+              o += lab(408, 24, '출력 핀', GR) + A.ln('M238 107 H258 M300 107 H320 M362 107 H372 V59 H430', ORG, 1.6, 1, '4 3') + arr(430, 59, 'r', ORG);
+              o += lab(310, 100, '×', RED, 'middle', 20) + lab(220, 160, '도중에 차이가 지워지면 읽을 수 없다', ORG, 'middle', 11);
+            } else {
+              o += lab(32, 24, 'SI', OKC) + lab(32, 124, 'SO', OKC) + A.ln('M10 59 H80', OKC, 2.4) + arr(80, 59, 'r', OKC);
+              o += A.ln('M114 59 H142 M176 59 H204 M238 59 H266 M300 59 H328 M362 59 H372 V107 H362', OKC, 2) + A.ln('M328 107 H300 M266 107 H238 M204 107 H176 M142 107 H114', OKC, 2) + A.ln('M80 107 H66 V138 H10', OKC, 2) + arr(10, 138, 'l', OKC);
+              o += lab(220, 160, '시험하는 동안 모든 플립플롭이 핀과 이어진다', OKC, 'middle', 11);
+            }
+            o += lab(221, 136, id === 'scan' ? '' : '여기', RED, 'middle', 10);
+            return dgSvg('DFT: ' + s.label, o, '0 0 440 176');
+          }
+        },
+        // ---------- 스캔 플립플롭 ----------
+        'dsn-scanff': {
+          title: '스캔 플립플롭',
+          wide: true,
+          states: [
+            { id: 'nm', label: '평소 동작', desc: '선택 신호가 0이면 선택기가 회로에서 온 값 D를 고른다. 일반 플립플롭과 똑같이 동작한다.' },
+            { id: 'tm', label: '시험 동작', desc: '선택 신호가 1이면 선택기가 옆 플립플롭에서 온 값 SI를 고른다. 플립플롭이 줄의 한 칸이 된다.' },
+            { id: 'ch', label: '줄로 엮기', desc: '플립플롭들의 출력을 다음 플립플롭의 SI로 이으면 시험 모드에서 하나의 긴 시프트 레지스터가 된다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            if (id !== 'ch') {
+              const tm = id === 'tm';
+              o += `<path d="M140 48 H196 V128 H140 Z" style="fill:${AMB};fill-opacity:.15;stroke:${AMB};stroke-width:1.6"/>` + lab(168, 92, '선택기', AMB, 'middle', 11);
+              o += A.ln('M70 68 H140', tm ? GR : OKC, tm ? 1.4 : 3.2) + lab(64, 72, 'D', tm ? GR : OKC, 'end', 12) + lab(64, 86, '회로에서', GR, 'end', 9.5);
+              o += A.ln('M70 112 H140', tm ? OKC : GR, tm ? 3.2 : 1.4) + lab(64, 116, 'SI', tm ? OKC : GR, 'end', 12) + lab(64, 130, '옆 칸에서', GR, 'end', 9.5);
+              o += A.ln('M168 150 V128', PUR, 2) + lab(168, 166, 'SE = ' + (tm ? '1' : '0'), PUR, 'middle', 11.5);
+              o += A.ln('M196 90 H240', OKC, 3) + ff(240, 75, CLK, '');
+              o += A.ln('M274 90 H340', OKC, 2.6) + lab(348, 94, 'Q', OKC, 'start', 12);
+              o += lab(300, 52, tm ? '시험: 줄의 한 칸' : '평소: 일반 플립플롭', tm ? OKC : CLK, 'middle', 11.5);
+            } else {
+              [0, 1, 2].forEach(i => {
+                const x0 = 40 + i * 130;
+                o += `<path d="M${x0} 66 H${x0 + 24} V118 H${x0} Z" style="fill:${AMB};fill-opacity:.15;stroke:${AMB};stroke-width:1.3"/>`;
+                o += A.ln(`M${x0 + 12} 40 V78 H${x0}`, GR, 1.2) + lab(x0 + 12, 32, 'D', GR, 'middle', 10);
+                o += A.ln(`M${x0} 106 H${x0 - 14}`, OKC, 2.2);
+                o += A.ln(`M${x0 + 24} 92 H${x0 + 40}`, OKC, 2.2) + ff(x0 + 40, 77, CLK, '');
+                o += A.ln(`M${x0 + 74} 92 H${x0 + 96} V106 H${x0 + 116}`, OKC, 2.2);
+              });
+              o += lab(22, 98, 'SI', OKC, 'end', 11) + A.ln('M24 106 H26', OKC, 0) + A.ln('M26 106 H40', OKC, 2.2);
+              o += lab(412, 96, 'SO', OKC, 'start', 11) + A.ln('M334 92 H350 V106 H410', OKC, 2.2) + lab(220, 156, 'Q가 다음 칸의 SI로 이어져 하나의 긴 줄이 된다', OKC, 'middle', 11);
+            }
+            return dgSvg('스캔 FF: ' + s.label, o, '0 0 440 176');
+          }
+        },
+        // ---------- 시프트·캡처·시프트 ----------
+        'dsn-scanshift': {
+          title: '스캔 시험의 세 박자',
+          wide: true,
+          states: [
+            { id: 'sh', label: '시프트(채우기)', desc: '스캔 입력으로 비트를 한 줄 밀어 넣어 모든 플립플롭을 원하는 값으로 채운다.' },
+            { id: 'cap', label: '캡처(한 번 계산)', desc: '선택기를 평소 쪽으로 돌리고 클록을 한 번만 친다. 플립플롭의 값이 조합회로를 통과해 새 값으로 바뀐다.' },
+            { id: 'out', label: '시프트(읽기)', desc: '캡처된 값을 스캔 출력으로 밀어내며 읽는다. 같은 동안 다음 패턴을 밀어 넣는다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const c = id === 'sh' ? OKC : id === 'cap' ? AMB : PUR;
+            const vals = id === 'sh' ? ['1', '0', '1', '1'] : ['0', '1', '1', '0'];
+            const xs = [100, 160, 220, 280];
+            o += lab(14, 24, id === 'cap' ? 'SE = 0' : 'SE = 1', PUR, 'start', 11.5);
+            o += lab(36, 56, 'SI', id === 'sh' ? OKC : GR, 'middle', 11) + A.ln('M50 74 H' + xs[0], id === 'sh' ? OKC : GR, id === 'sh' ? 2.4 : 1.2);
+            xs.forEach((x, i) => { o += ff(x, 58, c, vals[i]); if (i < 3) o += A.ln(`M${x + 34} 73 H${xs[i + 1]}`, id === 'cap' ? GR : c, id === 'cap' ? 1 : 2.2, id === 'cap' ? .4 : 1); });
+            o += A.ln(`M${xs[3] + 34} 73 H340`, id === 'out' ? PUR : GR, id === 'out' ? 2.4 : 1.2) + lab(362, 77, 'SO', id === 'out' ? PUR : GR, 'start', 11);
+            if (id === 'sh') {
+              o += lab(74, 44, '1 0 1 1', OKC, 'middle', 11) + arr(92, 74, 'r', OKC);
+              o += lab(220, 128, '클록마다 한 칸씩 밀려 들어간다', OKC, 'middle', 11.5) + lab(220, 148, '플립플롭 수만큼 클록을 치면 다 채워진다', GR, 'middle', 10);
+            } else if (id === 'cap') {
+              o += cloud(100, 112, 214, 36, AMB, '조합회로');
+              xs.forEach(x => { o += A.ln(`M${x + 9} 88 V112`, AMB, 1.6) + A.ln(`M${x + 25} 112 V88`, AMB, 1.6) + arr(x + 25, 88, 'u', AMB); });
+              o += lab(207, 40, '클록 한 번', AMB, 'middle', 11.5) + lab(207, 170, '값이 한 번 계산되어 바뀐다', AMB, 'middle', 11.5);
+            } else {
+              o += lab(366, 44, '0 1 1 0', PUR, 'middle', 11) + arr(358, 74, 'r', PUR);
+              o += lab(220, 128, '클록마다 한 칸씩 밀려 나온다', PUR, 'middle', 11.5) + lab(220, 148, '기대값과 비교한다', GR, 'middle', 10);
+            }
+            return dgSvg('스캔 시험: ' + s.label, o, '0 0 440 180');
+          }
+        },
+        // ---------- 고장 모델 ----------
+        'dsn-faultmodel': {
+          title: '고장 모델',
+          wide: true,
+          states: [
+            { id: 'sa', label: '고정 고장', desc: '선이 늘 0이나 1에 묶여 있다고 보는 가장 기본적인 모델이다. 선마다 두 가지 고장이 있다.' },
+            { id: 'tr', label: '전이 고장', desc: '선의 값이 바뀌긴 하지만 너무 늦게 바뀐다. 제 속도로 시험해야 잡힌다.' },
+            { id: 'br', label: '브리지 고장', desc: '가까운 두 선이 서로 붙은 불량이다. 두 선의 값이 서로 영향을 준다.' },
+          ],
+          svg(s) {
+            let o = fdDefs();
+            if (s.id === 'sa') {
+              o += A.ln('M50 64 H112', CLK, 2.4) + A.ln('M50 108 H112', CLK, 2.4);
+              o += `<path d="M112 46 H152 A40 40 0 0 1 152 126 H112 Z" style="fill:${CLK};fill-opacity:.16;stroke:${CLK};stroke-width:1.8"/>` + lab(134, 90, 'AND', CLK, 'middle', 10.5);
+              o += A.ln('M192 86 H330', CLK, 2.4) + dot(264, 86, 5, RED) + gnd(264, 91, RED);
+              o += lab(44, 68, 'A', GR, 'end', 11) + lab(44, 112, 'B', GR, 'end', 11) + lab(340, 90, 'Y', GR, 'start', 12);
+              o += lab(290, 118, '늘 0 (0 고정)', RED, 'start', 11.5) + lab(220, 164, '입력이 무엇이든 이 선은 0으로 읽힌다', GR, 'middle', 11);
+            } else if (s.id === 'tr') {
+              o += A.ln('M60 40 V130 H386', GR, 1.2);
+              o += A.ln('M60 80 H386', GR, 1, .6, '3 4') + lab(380, 74, '기준', GR, 'end', 10);
+              o += A.ln('M60 120 H130 V50 H386', OKC, 2.4) + lab(392, 54, '정상', OKC, 'start', 10.5);
+              o += A.ln('M60 120 H130 L290 50 H386', RED, 2.4) + lab(392, 124, '느림', RED, 'start', 10.5);
+              o += A.ln('M200 34 V130', AMB, 1.6, 1, '4 3') + dot(200, 94, 5, RED);
+              o += lab(200, 24, '읽는 시각', AMB, 'middle', 11) + lab(220, 156, '읽는 시각에 아직 기준을 못 넘었다', RED, 'middle', 11.5);
+            } else {
+              o += A.ln('M50 60 H390', CLK, 2.6) + A.ln('M50 112 H390', ORG, 2.6);
+              o += A.ln('M220 60 V112', RED, 2.6) + dot(220, 60, 4, RED) + dot(220, 112, 4, RED) + lab(234, 90, '붙음', RED, 'start', 11.5);
+              o += lab(48, 50, '선 1 = 1', CLK, 'start', 11) + lab(48, 134, '선 2 = 0', ORG, 'start', 11) + lab(392, 134, '1로 끌려간다', RED, 'end', 11);
+              o += lab(220, 164, '한 선의 값이 다른 선을 끌어당긴다', GR, 'middle', 11);
+            }
+            return dgSvg('고장 모델: ' + s.label, o, '0 0 440 176');
+          }
+        },
+        // ---------- ATPG 흐름 ----------
+        'dsn-atpgflow': {
+          title: 'ATPG의 흐름',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '고장 목록에서 하나를 골라 패턴을 만들고, 같이 잡히는 고장을 지우며 목록이 빌 때까지 되풀이한다.' },
+            { id: 'gen', label: '패턴 만들기', focus: ['gen'], desc: '고른 고장에 대해 정상과 다른 값을 만드는 활성화와, 그 차이를 출력으로 옮기는 전파를 함께 만족하는 입력을 찾는다.' },
+            { id: 'sim', label: '고장 시뮬레이션', focus: ['sim'], desc: '만든 패턴으로 모든 고장 후보를 시뮬레이션해 같이 잡히는 고장을 찾는다. 한 패턴이 수백 개를 잡기도 한다.' },
+            { id: 'cov', label: '커버리지', focus: ['cov'], desc: '목록이 비면 잡은 비율이 곧 고장 커버리지다. 못 잡은 고장은 이유별로 정리한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const B = (id, x, nm, sub, col) => pvdG(f ? [f] : null, [id], box(x, 44, 92, 52, col) + lab(x + 46, 66, nm, col, 'middle', 11) + lab(x + 46, 84, sub, GR, 'middle', 9.5));
+            o += B('lst', 12, '고장 목록', '선마다 0·1', GR) + A.ln('M104 70 H122', GR, 1.8) + arr(122, 70, 'r', GR);
+            o += B('gen', 122, '패턴 만들기', '활성화+전파', CLK) + A.ln('M214 70 H232', GR, 1.8) + arr(232, 70, 'r', GR);
+            o += B('sim', 232, '시뮬레이션', '같이 잡힌 것', AMB) + A.ln('M324 70 H342', GR, 1.8) + arr(342, 70, 'r', GR);
+            o += B('cov', 342, '목록 정리', '잡힌 고장 제거', OKC);
+            o += pvdG(f ? [f] : null, ['lst'], A.ln('M388 96 V126 H58 V104', GR, 1.6) + arr(58, 98, 'u', GR) + lab(223, 120, '목록이 빌 때까지 되풀이', GR, 'middle', 10.5));
+            o += pvdG(f ? [f] : null, ['cov'], lab(223, 156, '잡힌 고장 ÷ 전체 고장 = 고장 커버리지', OKC, 'middle', 11.5));
+            return dgSvg('ATPG: ' + s.label, o, '0 0 440 172');
+          }
+        },
+        // ---------- 시험 시간 줄이기 ----------
+        'dsn-scancomp': {
+          title: '시험 시간 줄이기',
+          wide: true,
+          states: [
+            { id: 'one', label: '체인 하나', desc: '플립플롭을 한 줄로 엮으면 패턴 하나를 밀어 넣는 데 플립플롭 수만큼의 클록이 든다.' },
+            { id: 'mul', label: '체인 여러 줄', desc: '줄을 여럿으로 나누어 한꺼번에 밀어 넣으면 시간이 줄 수만큼 짧아진다. 대신 핀이 줄마다 필요하다.' },
+            { id: 'cmp', label: '압축', desc: '핀 몇 개로 넣은 값을 칩 안의 해독기가 많은 체인으로 펼치고, 나오는 값은 압축기가 접어 읽는다.' },
+          ],
+          svg(s) {
+            let o = fdDefs();
+            const bar = (x, y, w, c) => R(x, y, w, 12, c, { fo: .3, c, sw: 1.2, rx: 3 });
+            const tbar = (x, y, w) => R(x, y, w, 12, ORG, { fo: .5, c: ORG, sw: 1, rx: 3 });
+            if (s.id === 'one') {
+              o += lab(14, 44, '체인', GR, 'start', 10.5) + bar(70, 36, 340, CLK) + lab(240, 66, '긴 체인 1줄 · 핀 1쌍', CLK, 'middle', 11);
+              o += lab(14, 114, '시간', GR, 'start', 10.5) + tbar(70, 106, 340) + lab(240, 136, 'N 클록', ORG, 'middle', 11.5);
+            } else if (s.id === 'mul') {
+              [0, 1, 2, 3].forEach(i => { o += bar(70, 24 + i * 20, 85, CLK) + lab(62, 34 + i * 20, '핀', GR, 'end', 10); });
+              o += lab(170, 66, '짧은 체인 4줄', CLK, 'start', 11) + lab(14, 130, '시간', GR, 'start', 10.5) + tbar(70, 122, 85) + lab(112, 152, 'N ÷ 4', ORG, 'middle', 11.5);
+              o += lab(300, 140, '핀도 4쌍이 든다', RED, 'middle', 11.5);
+            } else {
+              o += lab(14, 62, '핀 2개', GR, 'start', 10.5) + A.ln('M62 74 H96', CLK, 2.2) + box(96, 50, 56, 50, PUR) + lab(124, 80, '해독기', PUR, 'middle', 10.5);
+              [0, 1, 2, 3, 4, 5].forEach(i => { o += A.ln(`M152 ${62 + i * 5} H188`, CLK, 1.2) + bar(188, 28 + i * 16, 100, CLK) + A.ln(`M288 ${34 + i * 16} H322`, CLK, 1.2); });
+              o += box(322, 50, 62, 50, PUR) + lab(353, 80, '압축기', PUR, 'middle', 10.5) + A.ln('M384 74 H410', CLK, 2.2) + lab(414, 78, '핀', GR, 'start', 10.5);
+              o += lab(240, 142, '체인 수십 줄을 핀 몇 개로 다룬다', PUR, 'middle', 11.5);
+            }
+            return dgSvg('시험 시간: ' + s.label, o, '0 0 440 170');
+          }
+        },
+      });
+    })();
+    // ===== 설계 직무 > 테스트 설계: 유료(15토큰) 글 "고장 찾기 연습" 그림 =====
+    (() => {
+      const A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c';
+      const lab = (x, y, t, col, a = 'middle', s = 10.5) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const box = (x, y, w, h, col) => R(x, y, w, h, col, { fo: .16, c: col, sw: 1.5, rx: 5 });
+      const dot = (x, y, r, col) => `<circle cx="${x}" cy="${y}" r="${r}" style="fill:${col};fill-opacity:.95"/>`;
+      const arr = (x, y, d, col) => { const p = { r: `M${x} ${y} l-7 -4 v8 z`, l: `M${x} ${y} l7 -4 v8 z`, d: `M${x} ${y} l-4 -7 h8 z`, u: `M${x} ${y} l-4 7 h8 z` }[d]; return `<path d="${p}" style="fill:${col}"/>`; };
+      const cloud = (x, y, w, h, col, t) => R(x, y, w, h, col, { fo: .08, c: col, sw: 1.3, rx: 14, dash: '4 3' }) + (t ? lab(x + w / 2, y + h / 2 + 4, t, col, 'middle', 10.5) : '');
+      const andG = (x, y, S, col) => `<path d="M${x} ${y} H${x + S / 2} A${S / 2} ${S / 2} 0 0 1 ${x + S / 2} ${y + S} H${x} Z" style="fill:${col};fill-opacity:.16;stroke:${col};stroke-width:1.8"/>` + lab(x + S * .38, y + S / 2 + 4, 'AND', col, 'middle', S > 50 ? 11 : 9.5);
+      const orG = (x, y, S, col) => `<path d="M${x} ${y} Q${x + S * .55} ${y} ${x + S} ${y + S / 2} Q${x + S * .55} ${y + S} ${x} ${y + S} Q${x + S * .25} ${y + S / 2} ${x} ${y} Z" style="fill:${col};fill-opacity:.16;stroke:${col};stroke-width:1.8"/>` + lab(x + S * .5, y + S / 2 + 4, 'OR', col, 'middle', S > 50 ? 11 : 9.5);
+      const bits = (x, y, marks, col, cnt = 10) => Array.from({ length: cnt }, (_, i) => R(x + i * 20, y, 16, 16, marks.includes(i) ? col : GR, { fo: marks.includes(i) ? .55 : .12, c: marks.includes(i) ? col : GR, sw: 1.1, rx: 3 })).join('');
+      Object.assign(DIAGRAMS, {
+        // ---------- 고장이 보이려면 ----------
+        'dsn-fdetect': {
+          title: '고장이 보이려면',
+          wide: true,
+          states: [
+            { id: 'act', label: '① 활성화', desc: '고장 선이 정상이라면 1이 되도록 입력 A와 B를 모두 1로 둔다. 정상 값 1과 고장 값 0이 서로 달라진다.' },
+            { id: 'prop', label: '② 전파', desc: 'OR의 다른 입력 C를 0으로 두어야 이 선의 차이가 출력까지 지나간다. C가 1이면 차이가 가려진다.' },
+            { id: 'obs', label: '③ 읽기', desc: '출력 핀에서 정상이라면 1인데 0으로 읽히면 이 칩은 불량으로 잡힌다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const w0 = id === 'act' ? OKC : GR, w1 = id === 'act' ? GR : ORG;
+            o += andG(100, 40, 40, id === 'act' ? OKC : GR) + orG(230, 70, 40, id === 'act' ? GR : CLK);
+            o += A.ln('M36 52 H100', OKC, 2.2) + A.ln('M36 68 H100', OKC, 2.2);
+            o += lab(26, 56, 'A', GR, 'end', 11.5) + lab(26, 72, 'B', GR, 'end', 11.5) + lab(26, 102, 'C', GR, 'end', 11.5);
+            o += lab(70, 46, '1', OKC, 'middle', 12) + lab(70, 83, '1', OKC, 'middle', 12);
+            o += A.ln('M140 60 H190 V82 H230', id === 'act' ? OKC : ORG, 2.4);
+            o += dot(165, 60, 5, RED) + lab(165, 48, '0 고정', RED, 'middle', 10.5);
+            o += lab(204, 72, '1/0', RED, 'start', 11.5);
+            o += A.ln('M36 98 H230', id === 'act' ? GR : CLK, id === 'act' ? 1.2 : 2.4, id === 'act' ? .5 : 1);
+            o += lab(70, 112, id === 'act' ? '?' : '0', id === 'act' ? GR : CLK, 'middle', 12);
+            o += A.ln('M270 90 H340', id === 'act' ? GR : ORG, id === 'act' ? 1.2 : 2.4, id === 'act' ? .5 : 1) + lab(305, 82, id === 'act' ? '?' : '1/0', id === 'act' ? GR : RED, 'middle', 11.5);
+            o += box(340, 74, 76, 32, id === 'obs' ? RED : GR) + lab(378, 94, '출력 핀', id === 'obs' ? RED : GR, 'middle', 10.5);
+            if (id === 'obs') o += lab(378, 128, '기대 1 ≠ 실제 0', RED, 'middle', 11) + lab(378, 144, '불량으로 잡힌다', RED, 'middle', 10.5);
+            o += lab(14, 176, '값 표기: 정상 / 고장', GR, 'start', 10);
+            const cap = { act: '정상일 때 이 선을 1로 만든다', prop: 'C = 0이면 차이가 출력까지 지나간다', obs: '정상과 다르게 읽히면 불량이다' }[id];
+            o += lab(150, 150, cap, id === 'act' ? OKC : id === 'prop' ? CLK : RED, 'middle', 11.5);
+            return dgSvg('고장 보이기: ' + s.label, o, '0 0 440 184');
+          }
+        },
+        // ---------- 게이트가 길을 막는 경우 ----------
+        'dsn-fmask': {
+          title: '게이트가 길을 막는 경우',
+          wide: true,
+          states: [
+            { id: 'and', label: 'AND에서 막힘', desc: 'AND의 다른 입력이 0이면 이쪽 입력이 무엇이든 출력은 0이다. 고장의 차이가 사라진다.' },
+            { id: 'or', label: 'OR에서 막힘', desc: 'OR의 다른 입력이 1이면 이쪽 입력이 무엇이든 출력은 1이다. 고장의 차이가 사라진다.' },
+            { id: 'pass', label: '통과하는 경우', desc: 'AND는 다른 입력이 1일 때, OR는 다른 입력이 0일 때 차이가 지나간다. 이 값을 제어값이 아닌 값이라 한다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const isOr = id === 'or';
+            const blocked = id !== 'pass';
+            const gc = blocked ? RED : OKC;
+            const side = id === 'and' ? '0' : isOr ? '1' : '1';
+            o += isOr ? orG(170, 40, 70, gc) : andG(170, 40, 70, gc);
+            o += A.ln('M60 61 H' + (isOr ? 178 : 170), ORG, 2.6) + lab(60, 52, '1/0', RED, 'start', 12) + lab(60, 34, '고장이 있는 선', GR, 'start', 10);
+            o += A.ln('M60 89 H' + (isOr ? 178 : 170), blocked ? AMB : OKC, 2.6) + lab(60, 106, side, blocked ? AMB : OKC, 'start', 12.5) + lab(60, 124, id === 'and' ? '다른 입력 (제어값 0)' : isOr ? '다른 입력 (제어값 1)' : '다른 입력 (제어값 아님)', GR, 'start', 10);
+            o += A.ln('M240 75 H340', blocked ? GR : ORG, blocked ? 1.6 : 2.6);
+            if (blocked) o += lab(285, 66, id === 'and' ? '0/0' : '1/1', GR, 'middle', 12.5) + lab(355, 80, '×', RED, 'middle', 22) + lab(220, 150, '차이가 사라져 고장이 보이지 않는다', RED, 'middle', 11.5);
+            else o += lab(285, 66, '1/0', RED, 'middle', 12.5) + lab(355, 80, '✓', OKC, 'middle', 16) + lab(220, 150, 'AND는 1, OR는 0이어야 차이가 지나간다', OKC, 'middle', 11.5);
+            return dgSvg('전파 막힘: ' + s.label, o, '0 0 440 168');
+          }
+        },
+        // ---------- 같은 고장 묶기 ----------
+        'dsn-fcollapse': {
+          title: '같은 고장 묶기',
+          wide: true,
+          states: [
+            { id: 'eq', label: '등가 고장', desc: 'AND의 입력이 0에 묶인 고장과 출력이 0에 묶인 고장은 어떤 입력으로 시험해도 출력이 똑같아 구별할 수 없다. 하나로 묶는다.' },
+            { id: 'dom', label: '한 패턴이 둘을 잡음', desc: '입력 A가 1에 묶인 고장을 잡는 패턴(A=0, B=1)은 출력이 1에 묶인 고장도 함께 잡는다. 앞의 것만 시험하면 된다.' },
+            { id: 'cnt', label: '줄어든 고장 수', desc: '선 세 개의 AND 하나에는 고장이 여섯 개이지만 같은 것을 묶고 겹치는 것을 줄이면 세 개만 시험하면 된다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            if (id !== 'cnt') {
+              o += andG(160, 36, 60, CLK);
+              o += A.ln('M60 54 H160', CLK, 2.2) + A.ln('M60 78 H160', CLK, 2.2) + A.ln('M220 66 H340', CLK, 2.2);
+              o += (id === 'eq' ? lab(54, 58, 'A', GR, 'end', 11.5) + lab(54, 82, 'B', GR, 'end', 11.5) : '') + lab(348, 70, 'Y', GR, 'start', 11.5);
+              if (id === 'eq') {
+                [[110, 54], [110, 78], [280, 66]].forEach(([x, y]) => { o += dot(x, y, 5, RED); });
+                o += lab(110, 42, '0 고정', RED, 'middle', 10.5) + lab(110, 98, '0 고정', RED, 'middle', 10.5) + lab(280, 54, '0 고정', RED, 'middle', 10.5);
+                o += A.ln('M110 104 V118 H280 V72', RED, 1.4, .8, '4 3');
+                o += lab(195, 138, '셋 모두 출력이 늘 0으로 보인다 → 하나로 묶는다', RED, 'middle', 11.5);
+              } else {
+                o += dot(110, 54, 5, RED) + dot(280, 66, 5, AMB);
+                o += lab(110, 42, 'A 1 고정', RED, 'middle', 10.5) + lab(280, 54, 'Y 1 고정', AMB, 'middle', 10.5);
+                o += lab(54, 58, 'A=0', OKC, 'end', 11.5) + lab(54, 82, 'B=1', OKC, 'end', 11.5);
+                o += lab(195, 138, 'A=0, B=1로 두 고장이 모두 보인다', OKC, 'middle', 11.5) + lab(195, 156, '출력 고장은 따로 시험하지 않아도 된다', GR, 'middle', 10);
+              }
+            } else {
+              const row = (y, w, col, t, n) => R(150, y, w, 18, col, { fo: .3, c: col, sw: 1.2, rx: 4 }) + lab(140, y + 13, t, GR, 'end', 10.5) + lab(150 + w + 8, y + 13, n, col, 'start', 12);
+              o += row(34, 180, GR, '전부', '6') + row(68, 120, CLK, '등가로 묶음', '4') + row(102, 90, OKC, '겹침까지 줄임', '3');
+              o += lab(220, 150, '시험할 고장이 절반으로 줄어든다', OKC, 'middle', 11.5);
+            }
+            return dgSvg('고장 접기: ' + s.label, o, '0 0 440 168');
+          }
+        },
+        // ---------- 잡을 수 없는 고장 ----------
+        'dsn-fredund': {
+          title: '중복 회로의 고장',
+          wide: true,
+          states: [
+            { id: 'ckt', label: '중복 회로', desc: 'y = A + A·B에서 AND 경로는 A가 1일 때만 영향을 주므로 A 경로가 이미 같은 일을 한다. AND는 중복이다.' },
+            { id: 'tab', label: '모든 입력 비교', desc: 'AND 출력이 0에 묶여도 어떤 A, B 조합에서도 정상 출력과 고장 출력이 같다.' },
+            { id: 'res', label: '결론', desc: '어떤 입력으로도 드러나지 않는 고장이다. 잡을 수 없는 고장으로 분류해 커버리지의 분모에서 뺀다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const dim = id !== 'ckt';
+            o += `<g style="opacity:${dim ? .55 : 1}">`;
+            o += andG(120, 66, 40, CLK) + orG(230, 40, 40, CLK);
+            o += A.ln('M40 52 H230', CLK, 2.2) + A.ln('M80 52 V78 H120', CLK, 2.2) + dot(80, 52, 3, CLK) + A.ln('M40 94 H120', CLK, 2.2);
+            o += A.ln('M160 86 H190 V68 H230', CLK, 2.2) + A.ln('M270 60 H340', CLK, 2.2);
+            o += lab(32, 56, 'A', GR, 'end', 11.5) + lab(32, 98, 'B', GR, 'end', 11.5) + lab(348, 64, 'Y', GR, 'start', 11.5);
+            o += dot(176, 86, 5, RED) + lab(176, 108, '0 고정', RED, 'middle', 10.5) + `</g>`;
+            if (id === 'ckt') o += lab(220, 20, 'y = A + A·B', CLK, 'middle', 11.5) + lab(220, 150, 'A 경로가 이미 같은 일을 하고 있다', CLK, 'middle', 11.5);
+            else if (id === 'tab') {
+              const rows = [['00', '0', '0'], ['01', '0', '0'], ['10', '1', '1'], ['11', '1', '1']];
+              rows.forEach((r, i) => { const x = 36 + i * 96; o += box(x, 128, 84, 30, OKC) + lab(x + 42, 140, 'A B = ' + r[0], GR, 'middle', 10) + lab(x + 42, 153, r[1] + ' / ' + r[2], OKC, 'middle', 11.5); });
+              o += lab(426, 122, '정상 / 고장', GR, 'end', 10);
+            } else o += lab(220, 136, '어떤 입력으로도 정상과 달라지지 않는다', AMB, 'middle', 11.5) + lab(220, 156, '→ 잡을 수 없는 고장 : 분모에서 뺀다', AMB, 'middle', 11.5);
+            return dgSvg('중복 고장: ' + s.label, o, '0 0 440 170');
+          }
+        },
+        // ---------- X가 길을 막는 모습 ----------
+        'dsn-fxblock': {
+          title: '값을 모르는 상태(X)',
+          wide: true,
+          states: [
+            { id: 'spread', label: 'X가 퍼짐', desc: 'X가 AND의 한 입력에 들어오고 다른 입력이 1이면 출력도 알 수 없는 값 X가 된다.' },
+            { id: 'stop', label: '제어값이 막음', desc: 'AND의 다른 입력이 0이면 X가 있어도 출력은 0으로 확정된다. 제어값이 X를 가린다.' },
+            { id: 'hide', label: '고장이 가려짐', desc: '고장의 차이가 있는 입력이 X와 만나면 출력의 정상 값과 고장 값 중 하나를 알 수 없어 고장을 읽을 수 없다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            if (id === 'hide') {
+              o += orG(170, 40, 70, AMB) + A.ln('M60 61 H178', ORG, 2.6) + lab(60, 52, '1/0', RED, 'start', 12.5) + A.ln('M60 89 H178', PUR, 2.6) + lab(60, 106, 'X', PUR, 'start', 13);
+              o += A.ln('M240 75 H340', PUR, 2.6) + lab(285, 66, '1/X', PUR, 'middle', 12.5) + lab(220, 140, '고장 쪽이 0인지 1인지 알 수 없다', PUR, 'middle', 11.5) + lab(220, 158, '→ 읽을 수 없어 고장이 가려진다', PUR, 'middle', 11.5);
+            } else {
+              const stop = id === 'stop';
+              o += andG(170, 40, 70, stop ? OKC : PUR);
+              o += A.ln('M60 61 H170', PUR, 2.6) + lab(60, 52, 'X', PUR, 'start', 13);
+              o += A.ln('M60 89 H170', stop ? AMB : GR, 2.6) + lab(60, 106, stop ? '0' : '1', stop ? AMB : GR, 'start', 12.5);
+              o += A.ln('M240 75 H340', stop ? OKC : PUR, 2.6) + lab(285, 66, stop ? '0' : 'X', stop ? OKC : PUR, 'middle', 13);
+              o += lab(220, 150, stop ? '제어값 0이 X를 가려 출력이 확정된다' : 'X가 게이트를 지나 계속 퍼진다', stop ? OKC : PUR, 'middle', 11.5);
+            }
+            return dgSvg('X 전파: ' + s.label, o, '0 0 440 168');
+          }
+        },
+        // ---------- 전이 고장 ----------
+        'dsn-fdelay': {
+          title: '전이 고장 시험의 두 박자',
+          wide: true,
+          states: [
+            { id: 'launch', label: '① 바꾸기', desc: '먼저 선을 0으로 만들어 둔 뒤 클록 한 번으로 1로 바꾼다. 이 클록이 값을 출발시킨다.' },
+            { id: 'cap', label: '② 읽기', desc: '실제 동작 속도의 다음 클록에서 결과를 잡는다. 두 클록의 간격이 선이 값을 전해야 하는 시간이다.' },
+            { id: 'fail', label: '느린 선', desc: '선이 느리면 읽는 순간 아직 이전 값이다. 정상 속도의 선만 통과하고 느린 선은 불합격한다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const L1 = id === 'launch' ? AMB : GR, L2 = id === 'launch' ? GR : AMB;
+            o += lab(14, 44, '클록', GR, 'start', 10.5);
+            o += A.ln('M60 62 H90 V36 H120 V62 H250 V36 H280 V62 H400', GR, 1.4, .8);
+            o += A.ln('M90 62 V36 H120 V62', L1, 2.8) + A.ln('M250 62 V36 H280 V62', L2, 2.8);
+            o += lab(105, 28, '바꾸기', L1, 'middle', 10.5) + lab(265, 28, '읽기', L2, 'middle', 10.5);
+            o += lab(14, 124, '선의 값', GR, 'start', 10.5);
+            o += A.ln('M60 146 H110', GR, 1.6);
+            if (id === 'launch') o += A.ln('M110 146 L125 104', OKC, 2.4) + A.ln('M110 146 L140 130', RED, 2.4) + lab(240, 130, '값이 출발한다', AMB, 'middle', 11.5);
+            else if (id === 'cap') o += A.ln('M110 146 L130 104 H400', OKC, 2.4) + A.ln('M105 80 H265', AMB, 1.4) + arr(265, 80, 'r', AMB) + arr(105, 80, 'l', AMB) + lab(185, 76, '한 주기', AMB, 'middle', 10.5) + lab(330, 134, '정상: 제때 도착', OKC, 'middle', 10.5);
+            else o += A.ln('M110 146 L130 104 H400', OKC, 2.4, .5) + A.ln('M110 146 L360 104', RED, 2.4) + A.ln('M265 52 V160', AMB, 1.4, .9, '4 3') + dot(265, 120, 5, RED) + lab(330, 138, '읽는 순간 아직 이전 값', RED, 'middle', 10.5) + lab(220, 176, '느린 선은 불합격이다', RED, 'middle', 11.5);
+            return dgSvg('지연 시험: ' + s.label, o, '0 0 440 186');
+          }
+        },
+        // ---------- 패턴 수와 커버리지 ----------
+        'dsn-fcurve': {
+          title: '패턴 수와 커버리지',
+          wide: true,
+          states: [
+            { id: 'rise', label: '가파른 구간', desc: '처음 몇백 개의 패턴이 대부분의 고장을 잡는다. 커버리지가 빠르게 오른다.' },
+            { id: 'flat', label: '평평한 꼬리', desc: '남은 고장은 서로 겹치지 않아 패턴 하나가 고장 하나만 잡는다. 패턴을 늘려도 커버리지는 조금만 오른다.' },
+            { id: 'bad', label: '비정상 곡선', desc: '곡선이 목표보다 한참 아래에서 일찍 평평해지면 X, 중복, 제어되지 않는 클록 같은 구조적 문제를 의심한다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            o += A.ln('M60 24 V150 H400', GR, 1.3) + lab(230, 172, '패턴 수 →', GR, 'middle', 10.5) + lab(14, 36, '커버리지', GR, 'start', 10.5);
+            o += A.ln('M60 40 H400', OKC, 1.2, .8, '4 3') + lab(398, 34, '목표', OKC, 'end', 10.5);
+            const main = 'M60 150 Q100 56 190 46 T400 38';
+            o += `<path d="${main}" style="fill:none;stroke:${id === 'bad' ? GR : CLK};stroke-width:2.6;stroke-opacity:${id === 'bad' ? .6 : 1}"/>`;
+            if (id === 'rise') o += `<path d="M60 150 Q80 90 120 62" style="fill:none;stroke:${OKC};stroke-width:4"/>` + lab(160, 100, '처음 몇백 개가 대부분을 잡는다', OKC, 'start', 11);
+            else if (id === 'flat') o += `<path d="M260 42 T400 38" style="fill:none;stroke:${AMB};stroke-width:4"/>` + lab(330, 74, '패턴 100개를 더해도 0.1%', AMB, 'middle', 11) + lab(330, 92, '여기서 멈출지 정한다', GR, 'middle', 10);
+            else o += `<path d="M60 150 Q90 100 140 88 T400 84" style="fill:none;stroke:${RED};stroke-width:2.8"/>` + lab(300, 118, '목표 아래에서 일찍 평평해진다', RED, 'middle', 11) + lab(300, 136, '→ 구조적 문제를 의심한다', RED, 'middle', 10.5);
+            return dgSvg('패턴 곡선: ' + s.label, o, '0 0 440 184');
+          }
+        },
+        // ---------- 메모리를 행진하는 시험 ----------
+        'dsn-fmbist': {
+          title: '메모리를 행진하는 시험',
+          wide: true,
+          states: [
+            { id: 'up', label: '위로 훑기', desc: '주소를 처음부터 끝까지 훑으며 각 칸에서 읽고, 쓰고, 다시 읽는다.' },
+            { id: 'down', label: '아래로 훑기', desc: '같은 일을 반대 방향으로 반복한다. 이웃과의 간섭과 쓰기 순서에 따른 불량이 드러난다.' },
+            { id: 'map', label: '비트맵', desc: '틀린 셀의 위치를 점으로 찍으면 모양이 불량의 종류를 알려 준다. 점 하나는 셀, 세로 줄은 비트선, 넓은 퍼짐은 공정이나 전원의 문제다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const gx = 100, gy = 24, cw = 22, ch = 20, nc = 8, nr = 6;
+            for (let r = 0; r < nr; r++) for (let c = 0; c < nc; c++) {
+              let col = GR, fo = .12;
+              if (id === 'map') { if ((r === 1 && c === 2) || c === 5 && r >= 0 || (r >= 3 && c >= 7)) { col = RED; fo = .6; } }
+              else if (r === 2) { col = id === 'up' ? OKC : PUR; fo = .35; }
+              o += R(gx + c * cw, gy + r * ch, cw - 3, ch - 3, col, { fo, c: col, sw: 1, rx: 2 });
+            }
+            if (id !== 'map') {
+              const up = id === 'up', col = up ? OKC : PUR;
+              o += A.ln(`M80 ${up ? 140 : 28} V${up ? 40 : 128}`, col, 2.6) + arr(80, up ? 34 : 134, up ? 'u' : 'd', col);
+              o += lab(70, 90, up ? '주소 ↑' : '주소 ↓', col, 'end', 10.5);
+              ['읽기 0', '쓰기 1', '읽기 1'].forEach((t, i) => { o += box(300, 30 + i * 32, 90, 24, col) + lab(345, 46 + i * 32, t, col, 'middle', 11); });
+              o += A.ln('M' + (gx + nc * cw) + ' 64 H298', col, 1.4, 1, '3 3');
+              o += lab(345, 134, '한 칸에서 이 순서로', GR, 'middle', 10.5) + lab(220, 172, up ? '모든 칸을 위로 한 번' : '모든 칸을 아래로 한 번', col, 'middle', 11.5);
+            } else {
+              o += lab(300, 56, '세로 줄: 비트선 불량', RED, 'start', 11) + lab(300, 38, '점 하나: 셀 불량', RED, 'start', 11) + lab(300, 136, '넓은 퍼짐: 공정·전원', RED, 'start', 11);
+              o += lab(220, 172, '틀린 셀의 위치 모양이 원인을 알려 준다', GR, 'middle', 11.5);
+            }
+            return dgSvg('메모리 시험: ' + s.label, o, '0 0 440 184');
+          }
+        },
+        // ---------- 불량 진단 ----------
+        'dsn-fdiag': {
+          title: '불량 진단',
+          wide: true,
+          states: [
+            { id: 'fail', label: '틀린 비트 모으기', desc: '불합격한 칩에서 어느 패턴의 어느 비트가 틀렸는지를 모은다.' },
+            { id: 'match', label: '후보와 맞춰 보기', desc: '고장 후보를 하나씩 넣어 시뮬레이션하고, 만들어진 틀린 비트가 실제와 같은지 맞춰 본다.' },
+            { id: 'zoom', label: '위치 좁히기', desc: '맞는 후보가 모이는 구역으로 좁힌다. 같은 자리로 모이는 불합격 칩이 많을수록 그 자리가 원인일 확률이 높다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            if (id === 'zoom') {
+              o += R(70, 24, 220, 130, GR, { fo: .08, c: GR, sw: 1.5, rx: 8 });
+              for (let i = 0; i < 4; i++) o += A.ln(`M70 ${56 + i * 26} H290`, GR, .8, .4) + A.ln(`M${114 + i * 44} 24 V154`, GR, .8, .4);
+              o += R(158, 82, 88, 52, RED, { fo: .22, c: RED, sw: 2, rx: 4 });
+              [[190, 100], [210, 112], [222, 96], [176, 118]].forEach(([x, y]) => { o += dot(x, y, 4, RED); });
+              o += lab(330, 70, '불합격 칩 여러 개의', RED, 'start', 10.5) + lab(330, 88, '후보가 같은 자리로', RED, 'start', 10.5) + lab(330, 106, '모인다', RED, 'start', 10.5);
+              o += lab(330, 140, '→ 현미경으로 확인', GR, 'start', 10.5);
+            } else {
+              o += lab(14, 42, id === 'fail' ? '패턴 1' : '실제', RED, 'start', 11) + bits(70, 30, [2, 5, 6], RED);
+              if (id === 'fail') o += lab(14, 76, '패턴 2', GR, 'start', 11) + bits(70, 64, [], RED) + lab(14, 106, '패턴 3', GR, 'start', 11) + bits(70, 94, [0, 7], RED) + lab(220, 150, '어느 패턴의 어느 비트가 틀렸는지 모은다', RED, 'middle', 11.5);
+              else {
+                const cands = [['후보 1', [2, 5, 8], AMB, '다름'], ['후보 2', [2, 5, 6], OKC, '같음'], ['후보 3', [1, 5], AMB, '다름']];
+                cands.forEach((c, i) => { const y = 66 + i * 30; o += lab(14, y + 13, c[0], GR, 'start', 10.5) + bits(70, y, c[1], c[2]) + lab(308, y + 13, c[3], c[2], 'start', 11); if (i === 1) o += R(66, y - 4, 232, 24, OKC, { fo: .05, c: OKC, sw: 1.6, rx: 4 }); });
+                o += lab(220, 170, '맞는 후보에 높은 점수를 준다', OKC, 'middle', 11.5);
+              }
+            }
+            return dgSvg('불량 진단: ' + s.label, o, '0 0 440 184');
+          }
+        },
+      });
+    })();
+    // ===== 설계 직무 > 테스트 설계: 유료(10토큰) 글 "테이프아웃에서 포스트 실리콘 디버그까지" 그림 =====
+    (() => {
+      const A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c';
+      const lab = (x, y, t, col, a = 'middle', s = 10.5) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const box = (x, y, w, h, col) => R(x, y, w, h, col, { fo: .16, c: col, sw: 1.5, rx: 5 });
+      const dot = (x, y, r, col) => `<circle cx="${x}" cy="${y}" r="${r}" style="fill:${col};fill-opacity:.95"/>`;
+      const arr = (x, y, d, col) => { const p = { r: `M${x} ${y} l-7 -4 v8 z`, l: `M${x} ${y} l7 -4 v8 z`, d: `M${x} ${y} l-4 -7 h8 z`, u: `M${x} ${y} l-4 7 h8 z` }[d]; return `<path d="${p}" style="fill:${col}"/>`; };
+      Object.assign(DIAGRAMS, {
+        // ---------- 테이프아웃 전의 서명 ----------
+        'dsn-tapeout': {
+          title: '테이프아웃 전의 서명',
+          wide: true,
+          states: [
+            { id: 'five', label: '다섯 갈래', desc: '타이밍, 전력, 물리 검증, 시험, 기능 검증의 다섯 갈래를 각자 확인한다. 한 갈래도 건너뛰지 않는다.' },
+            { id: 'fail', label: '하나라도 미통과', desc: '한 갈래라도 통과하지 못하면 파일을 보내지 않는다. 한 번 보낸 파일은 되돌릴 수 없고 고치려면 다시 제작해야 한다.' },
+            { id: 'pass', label: '모두 통과', desc: '다섯 갈래가 모두 통과하면 최종 설계 파일을 제조사로 보낸다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const names = [['타이밍', 'STA'], ['전력', 'IR·EM'], ['물리 검증', 'DRC·LVS'], ['시험', 'DFT'], ['기능 검증', 'SIM']];
+            names.forEach((n, i) => {
+              const x = 10 + i * 84, bad = id === 'fail' && i === 3, ok = id === 'pass';
+              const col = bad ? RED : ok ? OKC : CLK;
+              o += box(x, 24, 76, 52, col) + lab(x + 38, 46, n[0], col, 'middle', 11) + lab(x + 38, 64, n[1], GR, 'middle', 9.5);
+              o += lab(x + 38, 94, bad ? '×' : ok ? '✓' : '', col, 'middle', 15);
+              o += A.ln(`M${x + 38} 98 V108`, bad ? RED : ok ? OKC : GR, 1.6);
+            });
+            const fc = id === 'pass' ? OKC : id === 'fail' ? GR : CLK;
+            o += A.ln('M48 108 H388', fc, 1.6);
+            o += A.ln('M218 108 V120', fc, 1.6);
+            o += box(158, 120, 120, 34, fc) + lab(218, 142, '최종 설계 파일', fc, 'middle', 11);
+            if (id === 'pass') o += A.ln('M278 137 H340', OKC, 2.6) + arr(340, 137, 'r', OKC) + lab(386, 141, '제조사로', OKC, 'middle', 11);
+            else if (id === 'fail') o += A.ln('M278 137 H340', RED, 1.6, .8, '4 3') + lab(386, 141, '보내지 않는다', RED, 'middle', 11);
+            else o += lab(386, 141, '모두 통과해야 보낸다', GR, 'middle', 10.5);
+            return dgSvg('테이프아웃: ' + s.label, o, '0 0 440 168');
+          }
+        },
+        // ---------- 제작의 흐름 ----------
+        'dsn-mfgflow': {
+          title: '제작의 흐름',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '파일은 마스크가 되고, 웨이퍼 위에 층이 쌓여 칩이 되며, 잘라 포장한 뒤 시험을 거쳐 돌아온다.' },
+            { id: 'mask', label: '마스크', focus: ['mask'], desc: '파일의 모양을 담은 틀인 마스크를 만든다. 층마다 한 장이 필요하다.' },
+            { id: 'fab', label: '웨이퍼 제작', focus: ['fab'], desc: '마스크로 웨이퍼 위에 층을 하나씩 쌓아 회로를 새긴다. 층이 수십 장이라 한두 달이 걸린다.' },
+            { id: 'pkg', label: '자르기·포장', focus: ['pkg'], desc: '다 만든 웨이퍼를 칩 단위로 잘라 포장한다.' },
+            { id: 'tst', label: '시험', focus: ['tst'], desc: '칩을 시험해 합격품을 가려 돌려보낸다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const steps = [['mask', '마스크', '파일 → 틀', CLK, 60], ['fab', '웨이퍼 제작', '층을 쌓는다', AMB, 200], ['pkg', '자르기·포장', '칩 단위로', PUR, 70], ['tst', '시험', '합격품 선별', OKC, 50]];
+            steps.forEach((t, i) => {
+              const x = 12 + i * 104;
+              o += pvdG(f ? [f] : null, [t[0]], box(x, 28, 88, 52, t[3]) + lab(x + 44, 50, t[1], t[3], 'middle', 11) + lab(x + 44, 68, t[2], GR, 'middle', 9.5));
+              if (i < 3) o += A.ln(`M${x + 88} 54 H${x + 104}`, GR, 1.8) + arr(x + 104, 54, 'r', GR);
+            });
+            o += lab(14, 112, '걸리는 시간', GR, 'start', 10.5);
+            let x = 14;
+            steps.forEach(t => { const w = t[4]; o += pvdG(f ? [f] : null, [t[0]], R(x, 120, w - 4, 12, t[3], { fo: .4, c: t[3], sw: 1.2, rx: 3 })); x += w; });
+            o += pvdG(f ? [f] : null, ['fab'], lab(174, 152, '층이 수십 장이라 이 과정만 한두 달', AMB, 'middle', 11));
+            return dgSvg('제작 흐름: ' + s.label, o, '0 0 440 164');
+          }
+        },
+        // ---------- 브링업 ----------
+        'dsn-bringup': {
+          title: '브링업의 순서',
+          wide: true,
+          states: [
+            { id: 'seq', label: '순서', desc: '전원, 클록, 리셋, 시험 접속, 처음 동작의 순서로 한 단계씩 켠다. 앞 단계가 확인되어야 다음으로 간다.' },
+            { id: 'ok', label: '모두 통과', desc: '각 단계를 확인하며 순서대로 켜면 마지막에 처음 동작에 이른다.' },
+            { id: 'stuck', label: '중간에 막힘', desc: '문제가 생기면 어느 단계에서 막혔는지가 바로 드러난다. 앞 단계는 정상이고 뒤는 아직 확인하지 못한다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const st = [['전원', '전류 확인'], ['클록', '발진 확인'], ['리셋', '해제 확인'], ['시험 접속', '응답 확인'], ['처음 동작', '코드 실행']];
+            st.forEach((t, i) => {
+              const cx = 44 + i * 88;
+              let col = CLK;
+              if (id === 'ok') col = OKC;
+              else if (id === 'stuck') col = i === 0 ? OKC : i === 1 ? RED : GR;
+              o += `<circle cx="${cx}" cy="56" r="20" style="fill:${col};fill-opacity:.16;stroke:${col};stroke-width:1.8"/>` + lab(cx, 62, id === 'stuck' && i === 1 ? '×' : id === 'ok' || (id === 'stuck' && i === 0) ? '✓' : String(i + 1), col, 'middle', 15);
+              o += lab(cx, 98, t[0], col, 'middle', 11.5) + lab(cx, 116, t[1], GR, 'middle', 10);
+              if (i < 4) { const lc = id === 'ok' || (id === 'stuck' && i === 0) ? OKC : id === 'stuck' ? GR : CLK; o += A.ln(`M${cx + 20} 56 H${cx + 68}`, lc, 2, id === 'stuck' && i > 0 ? .4 : 1) + arr(cx + 68, 56, 'r', lc); }
+            });
+            if (id === 'stuck') o += lab(132, 144, '여기서 막혔다', RED, 'middle', 11.5) + lab(300, 144, '뒤는 아직 확인할 수 없다', GR, 'middle', 11);
+            else if (id === 'ok') o += lab(220, 144, '한 단계씩 확인하며 올라간다', OKC, 'middle', 11.5);
+            else o += lab(220, 144, '한 번에 모두 켜지 않는다', CLK, 'middle', 11.5);
+            return dgSvg('브링업: ' + s.label, o, '0 0 440 160');
+          }
+        },
+        // ---------- 시무 도표 ----------
+        'dsn-shmoo': {
+          title: '시무 도표',
+          wide: true,
+          states: [
+            { id: 'map', label: '도표', desc: '가로축에 전압, 세로축에 클록 속도를 놓고 각 점에서 시험이 통과했는지를 칠한다.' },
+            { id: 'edge', label: '경계', desc: '통과하는 구역과 실패하는 구역의 경계가 칩의 동작 가능 범위다. 속도를 높일수록 더 높은 전압이 필요하다.' },
+            { id: 'mar', label: '여유', desc: '실제로 쓸 조건이 경계에서 얼마나 떨어져 있는지가 여유다. 여유가 작으면 온도나 공정 변화에 약하다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const gx = 70, gy = 18, cw = 26, ch = 18, nc = 10, nr = 7;
+            const th = r => 1.5 + r * 0.85;
+            for (let r = 0; r < nr; r++) for (let c = 0; c < nc; c++) {
+              const pass = c >= th(r);
+              const edge = pass && c < th(r) + 1;
+              const y = gy + (nr - 1 - r) * ch;
+              let col = pass ? OKC : RED;
+              o += R(gx + c * cw, y, cw - 2, ch - 2, col, { fo: pass ? .35 : .2, c: id === 'edge' && edge ? AMB : col, sw: id === 'edge' && edge ? 2 : .8, rx: 2 });
+            }
+            o += lab(gx + nc * cw / 2, gy + nr * ch + 18, '전압 →', GR, 'middle', 11) + lab(14, 28, '속도 ↑', GR, 'start', 11);
+            o += lab(14, 112, '느림', GR, 'start', 9.5) + lab(14, 46, '빠름', GR, 'start', 9.5);
+            if (id === 'edge') o += lab(350, 60, '실패', RED, 'start', 11) + lab(350, 100, '통과', OKC, 'start', 11) + lab(350, 80, '← 경계', AMB, 'start', 11);
+            if (id === 'mar') {
+              const px = gx + 7 * cw + 11, py = gy + (nr - 1 - 3) * ch + 8;
+              o += dot(px, py, 6, AMB) + A.ln(`M${px - 8} ${py} H${gx + 4 * cw + 12}`, AMB, 1.8) + arr(gx + 4 * cw + 12, py, 'l', AMB);
+              o += lab(350, 56, '쓸 조건', AMB, 'start', 11) + lab(350, 74, '여유', AMB, 'start', 11) + lab(350, 92, '= 경계까지의 거리', GR, 'start', 10);
+            }
+            if (id === 'map') o += lab(350, 56, '통과', OKC, 'start', 11) + lab(350, 76, '실패', RED, 'start', 11);
+            return dgSvg('시무 도표: ' + s.label, o, '0 0 440 186');
+          }
+        },
+        // ---------- 원인 가르기 ----------
+        'dsn-sidebug': {
+          title: '원인 가르기',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '증상이 어떻게 나타나는지에 따라 원인의 갈래를 좁힌다.' },
+            { id: 'same', label: '모두 같다', focus: ['same'], desc: '모든 칩에서 모든 조건에 같은 증상이 나타나면 설계의 오류나 사양의 오해를 의심한다.' },
+            { id: 'vary', label: '칩마다 다르다', focus: ['vary'], desc: '칩마다, 웨이퍼 위치마다 증상이 다르면 공정의 흩어짐을 의심한다.' },
+            { id: 'env', label: '장비에 따라', focus: ['env'], desc: '장비나 보드를 바꾸면 증상이 달라지면 시험 환경의 문제를 의심한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += box(12, 62, 70, 44, GR) + lab(47, 88, '증상', GR, 'middle', 12);
+            const rows = [['same', '모든 칩에서 같다', '설계 오류 · 사양 오해', CLK, 22], ['vary', '칩마다·위치마다 다르다', '공정 문제', AMB, 76], ['env', '장비를 바꾸면 달라진다', '시험 환경', PUR, 130]];
+            rows.forEach(r => {
+              o += pvdG(f ? [f] : null, [r[0]], A.ln(`M82 84 H100 V${r[4] + 17} H112`, r[3], 1.6) + box(112, r[4], 142, 34, r[3]) + lab(183, r[4] + 21, r[1], r[3], 'middle', 10.5) + A.ln(`M254 ${r[4] + 17} H272`, r[3], 1.8) + arr(272, r[4] + 17, 'r', r[3]) + box(272, r[4], 156, 34, r[3]) + lab(350, r[4] + 21, r[2], r[3], 'middle', 11));
+            });
+            return dgSvg('원인 가르기: ' + s.label, o, '0 0 440 176');
+          }
+        },
+        // ---------- 고치는 길 ----------
+        'dsn-ecorange': {
+          title: '고치는 길',
+          wide: true,
+          states: [
+            { id: 'sw', label: '소프트웨어 우회', desc: '칩은 그대로 두고 코드나 설정을 바꿔 문제를 피해 간다. 마스크를 건드리지 않아 비용이 가장 낮다.' },
+            { id: 'metal', label: '금속층만 수정', desc: '아래쪽 소자층은 그대로 두고 위쪽 금속층의 마스크만 바꾼다. 처음부터 다시 만드는 것보다 싸고 빠르다.' },
+            { id: 'full', label: '전체 수정', desc: '모든 층의 마스크를 새로 만들어 처음부터 다시 제작한다. 가장 비싸고 오래 걸리지만 어떤 오류든 고칠 수 있다.' },
+          ],
+          svg(s) {
+            const id = s.id;
+            let o = fdDefs();
+            const layers = [['금속 3', 0], ['금속 2', 0], ['금속 1', 0], ['소자', 1], ['소자', 1], ['기판', 1]];
+            layers.forEach((l, i) => {
+              const y = 22 + i * 22;
+              const changed = id === 'full' || (id === 'metal' && l[1] === 0);
+              const col = changed ? (id === 'full' ? RED : AMB) : GR;
+              o += R(110, y, 150, 18, col, { fo: changed ? .4 : .12, c: col, sw: 1.3, rx: 3 }) + lab(185, y + 13, i < 3 ? '위쪽 금속층' : i < 5 ? '아래 소자층' : '기판', col, 'middle', 10);
+            });
+            o += lab(100, 80, id === 'sw' ? '바꾸는 층 없음' : id === 'metal' ? '위쪽만 바꾼다' : '모든 층을 바꾼다', id === 'sw' ? OKC : id === 'metal' ? AMB : RED, 'end', 10.5);
+            const cost = { sw: 30, metal: 80, full: 150 }[id], col = { sw: OKC, metal: AMB, full: RED }[id];
+            o += lab(290, 40, '비용·시간', GR, 'start', 10.5) + R(290, 50, 140, 14, GR, { fo: .1, c: GR, sw: 1, rx: 4 }) + R(290, 50, cost * 140 / 150, 14, col, { fo: .5, c: col, sw: 1.2, rx: 4 });
+            o += lab(290, 90, { sw: '가장 낮다', metal: '중간', full: '가장 크다' }[id], col, 'start', 12);
+            return dgSvg('고치는 길: ' + s.label, o, '0 0 440 164');
+          }
+        },
+      });
+    })();
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
@@ -15159,6 +15809,107 @@
       });
       draw();
     }
+    // ===== 실습: 고장을 드러내는 패턴 고르기 (fault-drill) =====
+    const FD_C = { a: '#2563eb', b: '#d97706', bad: '#ef4444', ok: '#059669', g: '#64748b', pur: '#7c3aed' };
+    const FD_SC = [
+      { k: '기본', t: 'AND 출력이 0에 묶인 회로', fig: 'ao', ckt: { g: [['n1', 'and', 'A', 'B'], ['Y', 'or', 'n1', 'C']], out: 'Y' }, flt: ['n1', 0], pats: [[1, 1, 1], [1, 1, 0], [1, 0, 0], [0, 0, 1]], names: ['A', 'B', 'C'],
+        log: [['회로', 'Y = (A AND B) OR C'], ['의심 고장', 'AND 게이트의 출력이 0에 묶임'], ['질문', '이 고장이 출력 핀에서 보이는 입력은?']],
+        sit: '네 가지 입력 가운데 하나만 고장이 출력까지 전해집니다. 활성화와 전파를 차례로 따져 보세요.',
+        why1: 'A와 B가 모두 1이어야 AND의 출력이 1이 되어 고장이 활성화되고, OR의 다른 입력 C가 0이어야 그 차이가 출력으로 지나가요.',
+        q2: { q: '여덟 가지 입력 조합 가운데 이 고장을 드러내는 것은 몇 가지일까요?', a: 0, o: [['한 가지', ''], ['두 가지', '활성화에 A와 B가, 전파에 C가 정해지므로 세 입력 모두 값이 하나로 정해져요.'], ['네 가지', 'C가 0이고 A, B가 모두 1이어야 해서 네 가지가 될 수 없어요.'], ['여덟 가지 모두', '여덟 가지 모두라면 고장이 늘 보인다는 뜻인데, 앞에서 본 것처럼 막히는 경우가 있어요.']], why: '세 입력이 모두 정해지므로 여덟 가지 가운데 단 한 가지뿐이에요. 입력이 수십 개로 늘어도 한 고장을 잡는 조합은 전체의 극히 일부라서 ATPG가 필요해요.' } },
+      { k: 'OR 입력', t: '입력 하나가 1에 묶인 회로', fig: 'oa', ckt: { g: [['n1', 'or', 'A', 'B'], ['Y', 'and', 'n1', 'C']], out: 'Y' }, flt: ['A', 1], pats: [[0, 1, 1], [0, 0, 0], [1, 0, 1], [0, 0, 1]], names: ['A', 'B', 'C'],
+        log: [['회로', 'Y = (A OR B) AND C'], ['의심 고장', '입력 A가 1에 묶임'], ['질문', '이 고장이 출력 핀에서 보이는 입력은?']],
+        sit: '이번에는 입력선 하나가 1에 묶였어요. 1에 묶인 고장은 정상일 때 그 선이 0이어야 차이가 생깁니다.',
+        why1: 'A가 0이어야 정상과 고장이 달라지고(활성화), B가 0이어야 OR가 A의 값을 그대로 내보내며, C가 1이어야 AND를 지나가요.',
+        q2: { q: 'A가 1에 묶인 고장을 전파하려면 OR의 다른 입력 B는 어떤 값이어야 할까요?', a: 0, o: [['0 (제어값이 아닌 값)', ''], ['1 (OR의 제어값)', 'OR는 한 입력이 1이면 다른 입력과 상관없이 1을 내요. B가 1이면 A의 차이가 가려져요.'], ['어느 쪽이든 상관없다', 'B가 1이면 OR의 출력이 늘 1이라 차이가 전해지지 않아요.'], ['시험 중에 바꿔 가며 넣는다', '값을 바꿔 가며 넣어도 전파되는 입력 값은 B가 0일 때뿐이에요.']], why: 'OR를 지나려면 다른 입력이 제어값 1이 아닌 0이어야 해요. AND를 지나려면 1이어야 하고요. 길 위의 게이트마다 제어값이 아닌 값을 맞춰 줘야 해요.' } },
+      { k: 'XOR', t: 'XOR가 낀 회로', fig: 'xa', ckt: { g: [['n1', 'xor', 'A', 'B'], ['Y', 'and', 'n1', 'C']], out: 'Y' }, flt: ['A', 0], pats: [[0, 1, 1], [1, 1, 0], [1, 1, 1], [0, 0, 1]], names: ['A', 'B', 'C'],
+        log: [['회로', 'Y = (A XOR B) AND C'], ['의심 고장', '입력 A가 0에 묶임'], ['질문', '이 고장이 출력 핀에서 보이는 입력은?']],
+        sit: 'XOR는 한 입력의 차이를 다른 입력과 상관없이 그대로 내보내요. 그렇다면 어디서 막힐까요?',
+        why1: 'A가 1이어야 활성화되고, XOR는 B가 무엇이든 차이를 통과시키지만 뒤의 AND가 C를 1로 요구해요.',
+        q2: { q: '다른 입력이 무엇이든 차이를 그대로 통과시키는 게이트는 무엇일까요?', a: 2, o: [['AND 게이트', 'AND는 다른 입력이 0이면 차이를 가려요.'], ['OR 게이트', 'OR는 다른 입력이 1이면 차이를 가려요.'], ['XOR 게이트', ''], ['NAND 게이트', 'NAND도 AND처럼 다른 입력이 0이면 차이를 가려요.']], why: 'XOR는 어느 입력도 다른 입력을 가리지 않아요. 그래서 XOR가 많은 회로는 전파가 쉽고 AND와 OR가 깊이 쌓인 회로는 어려워요.' } },
+      { k: '중복', t: '같은 일을 하는 경로가 있는 회로', fig: 'rd', ckt: { g: [['n1', 'and', 'A', 'B'], ['Y', 'or', 'A', 'n1']], out: 'Y' }, flt: ['n1', 0], pats: [[0, 0], [0, 1], [1, 0], [1, 1]], names: ['A', 'B'], none: true,
+        log: [['회로', 'Y = A OR (A AND B)'], ['의심 고장', 'AND 게이트의 출력이 0에 묶임'], ['질문', '이 고장이 출력 핀에서 보이는 입력은?']],
+        sit: 'A 경로와 AND 경로가 겹쳐 있어요. 네 가지 입력을 모두 따져 보세요. 어쩌면 답이 입력이 아닐 수도 있어요.',
+        why1: '이 회로는 A가 1일 때만 AND 경로가 의미가 있는데, 그때는 이미 A가 OR를 1로 만들어요. 그래서 AND가 고장 나도 출력이 달라지지 않아요.',
+        q2: { q: '이 고장은 커버리지 보고서에서 어떻게 분류될까요?', a: 2, o: [['미검출: 패턴을 더 만들면 잡힌다', '어떤 패턴을 만들어도 출력이 같아서 더 만들어도 잡히지 않아요.'], ['검출됨', '정상과 고장의 출력이 같아 잡히지 않았어요.'], ['잡을 수 없는 고장: 분모에서 뺀다', ''], ['X 때문에 못 잡은 고장', '여기에는 값을 모르는 입력이 없어요. 회로의 중복이 원인이에요.']], why: '어떤 입력으로도 드러나지 않는 고장은 잡을 수 없는 고장으로 분류하고 커버리지의 분모에서 빼요. 이런 고장이 몰린 블록은 설계에 중복이 있다는 단서예요.' } },
+      { k: 'X', t: '값을 모르는 입력이 있는 회로', fig: 'xq', ckt: { g: [['n1', 'and', 'A', 'Q'], ['Y', 'or', 'n1', 'C']], out: 'Y', cst: { Q: 'x' } }, flt: ['C', 0], pats: [[1, 1], [0, 1], [0, 0], [1, 0]], names: ['A', 'C'], none: true,
+        log: [['회로', 'Y = (A AND Q) OR C'], ['의심 고장', '입력 C가 0에 묶임'], ['값을 모르는 입력', 'Q는 초기화되지 않은 플립플롭의 출력 (X)']],
+        sit: 'Q는 초기화되지 않아 0인지 1인지 알 수 없어요. 이 X가 고장의 차이를 어디서 가릴까요?',
+        why1: 'C가 1이어야 활성화되고, A가 0이면 Q가 무엇이든 AND가 0이라 X가 가려져요. A가 1이면 X가 OR로 넘어가 고장 쪽 출력을 알 수 없게 돼요.',
+        q2: { q: 'A=1에서도 고장을 읽으려면 어떻게 해야 할까요?', a: 1, o: [['고장 선 C를 더 굵게 한다', '선 굵기는 값을 모르는 상태를 없애지 않아요.'], ['Q의 출처를 찾아 리셋이나 스캔으로 값을 정해 준다', ''], ['출력 핀을 하나 더 만든다', '출력이 늘어도 X가 가리는 문제는 그대로예요.'], ['시험 클록을 느리게 한다', '클록 속도는 값을 정해 주지 않아요.']], why: 'X는 값이 정해지기 전에는 게이트를 지나며 퍼지고 고장의 차이를 가려요. 초기화나 스캔으로 값을 정해 주면 가려졌던 고장이 드러나요.' } },
+    ];
+    const FD_TOTAL = FD_SC.length * 2;
+    function fdEv(t, v) { const xs = v.includes('x'); if (t === 'and') return v.includes(0) ? 0 : xs ? 'x' : 1; if (t === 'or') return v.includes(1) ? 1 : xs ? 'x' : 0; return xs ? 'x' : v[0] ^ v[1]; }
+    function fdSim(sc, vec, flt) {
+      const val = {}; sc.names.forEach((n, i) => { val[n] = vec[i]; }); Object.assign(val, sc.ckt.cst || {});
+      if (flt && val[flt[0]] !== undefined) val[flt[0]] = flt[1];
+      sc.ckt.g.forEach((g) => { val[g[0]] = fdEv(g[1], [val[g[2]], val[g[3]]]); if (flt && flt[0] === g[0]) val[g[0]] = flt[1]; });
+      return val;
+    }
+    function fdOpts(sc) {
+      if (sc._o) return sc._o;
+      const tt = (s) => (typeof T === 'function' ? T(s) : s), rows = [];
+      sc.pats.forEach((p) => { const g = fdSim(sc, p, null), f = fdSim(sc, p, sc.flt), o = sc.ckt.out; const det = g[o] !== 'x' && f[o] !== 'x' && g[o] !== f[o]; let why = 'det'; if (!det) why = g[sc.flt[0]] === sc.flt[1] ? 'act' : (g[o] === 'x' || f[o] === 'x') ? 'x' : 'blk'; rows.push({ txt: p.map((v, i) => sc.names[i] + '=' + v).join(' · '), g: g[o], f: f[o], det, why }); });
+      const fbs = { act: '이 입력에서는 고장 선이 정상일 때도 이미 고장 값과 같아요. 활성화가 되지 않아 차이가 생기지 않아요.', blk: '고장 선에는 차이가 생기지만 가는 길의 게이트가 다른 입력으로 차이를 가려서 출력까지 가지 못해요. 전파가 막혔어요.', x: '차이가 출력까지 가려 하지만 값을 모르는 X와 만나 정상과 고장 중 어느 쪽인지 읽을 수 없어요.' };
+      const o = rows.map((r) => [r.txt, r.det ? '' : fbs[r.why]]); let a = rows.findIndex((r) => r.det);
+      if (sc.none) { o.push(['어떤 입력으로도 드러나지 않는다', a >= 0 ? '이 회로에는 고장을 드러내는 입력이 있어요. 활성화와 전파를 하나씩 따져 보세요.' : '']); if (a < 0) a = o.length - 1; }
+      if (a >= 0 && !sc.none) { /* 정답은 계산 결과 */ }
+      sc._o = { o, a, rows }; return sc._o;
+    }
+    function fdFig(k) {
+      const C = FD_C, tr = (s) => (typeof T === 'function' ? T(s) : s);
+      const tx = (x, y, t, c, a = 'middle') => `<text x="${x}" y="${y}" text-anchor="${a}" style="font-size:9.5px;font-weight:800;fill:${c}">${escH(tr(t))}</text>`;
+      const ln = (d, c = C.a, w = 1.8) => `<path d="${d}" style="fill:none;stroke:${c};stroke-width:${w}"/>`;
+      const gt = (t, x, y, c = C.a) => (t === 'and' ? `<path d="M${x} ${y} h16 a14 14 0 0 1 0 28 h-16 z"` : `<path d="M${x} ${y} q16 0 32 14 q-16 14 -32 14 q9 -14 0 -28 z"`) + ` style="fill:${c};fill-opacity:.16;stroke:${c};stroke-width:1.6"/>` + (t === 'xor' ? ln(`M${x - 5} ${y} q9 14 0 28`, c, 1.4) : '') + tx(x + 14, y + 17, t === 'and' ? 'AND' : t === 'or' ? 'OR' : 'XOR', c).replace('font-size:9.5px', 'font-size:7.5px');
+      const fl = (x, y, t, dy = -8) => `<circle cx="${x}" cy="${y}" r="4" style="fill:${C.bad}"/>` + tx(x, y + dy, t, C.bad);
+      let o = '';
+      if (k === 'ao' || k === 'oa' || k === 'xa') {
+        const t1 = k === 'ao' ? 'and' : k === 'oa' ? 'or' : 'xor', t2 = k === 'ao' ? 'or' : 'and';
+        o = gt(t1, 110, 16) + gt(t2, 230, 28) + ln('M44 24 H110') + ln('M44 36 H110') + ln('M142 30 H190 V36 H230') + ln('M44 48 H230') + ln('M262 42 H330') + tx(38, 27, 'A', C.g, 'end') + tx(38, 39, 'B', C.g, 'end') + tx(38, 51, 'C', C.g, 'end') + tx(336, 45, 'Y', C.g, 'start');
+        o += k === 'ao' ? fl(170, 30, '0 고정', -8) : fl(76, 24, k === 'oa' ? '1 고정' : '0 고정', -8);
+      } else if (k === 'rd') {
+        o = gt('and', 110, 34) + gt('or', 230, 10) + ln('M44 18 H230') + ln('M76 18 V42 H110') + `<circle cx="76" cy="18" r="2.5" style="fill:${C.a}"/>` + ln('M44 54 H110') + ln('M142 48 H190 V30 H230') + ln('M262 24 H330') + tx(38, 21, 'A', C.g, 'end') + tx(38, 57, 'B', C.g, 'end') + tx(336, 27, 'Y', C.g, 'start') + fl(170, 48, '0 고정', 14);
+      } else {
+        o = gt('and', 110, 16) + gt('or', 230, 28) + `<rect x="8" y="28" width="32" height="16" rx="3" style="fill:${C.pur};fill-opacity:.2;stroke:${C.pur};stroke-width:1.4"/>` + tx(24, 39, 'Q = X', C.pur).replace('font-size:9.5px', 'font-size:7.5px') + ln('M40 36 H110', C.pur) + ln('M60 24 H110') + ln('M142 30 H190 V36 H230') + ln('M60 48 H230') + ln('M262 42 H330') + tx(54, 27, 'A', C.g, 'end') + tx(54, 51, 'C', C.g, 'end') + tx(336, 45, 'Y', C.g, 'start') + fl(170, 48, '0 고정', 14);
+      }
+      return `<svg viewBox="0 0 400 80" role="img" aria-label="${escH(tr('회로 그림'))}">${o}</svg>`;
+    }
+    function fdHydrate(fig) {
+      if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc', 'pr-al', 'pr-bh');
+      const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
+      const st = { i: 0, j: 0, pick: null, ok: 0 };
+      const dq = (sc) => (st.j === 0 ? { q: '이 고장을 드러내는 입력 패턴을 고르세요.', ...fdOpts(sc), why: sc.why1 } : sc.q2);
+      const draw = () => {
+        const done = st.i >= FD_SC.length;
+        let h = `<div class="dg-head"><span class="dg-tag">${escH(tt('직접 해 보기'))}</span><span class="dg-title">${escH(tt('고장을 드러내는 패턴 고르기'))}</span></div>`;
+        if (done) {
+          const r = st.ok, msg = r >= FD_TOTAL - 1 ? '활성화와 전파를 차례로 따지는 감이 잡혔어요. 막히면 고장 선의 정상 값이 고장 값과 다른지, 그다음 길 위의 게이트가 차이를 가리지 않는지를 보세요.' : r >= Math.ceil(FD_TOTAL / 2) ? '좋아요. 놓친 회로는 활성화와 전파를 하나씩 다시 따져 보세요.' : '활성화, 전파, 제어값, 중복, X의 그림을 다시 보고 도전해 보세요. 고장 선의 정상 값부터 확인하는 것이 시작이에요.';
+          h += `<p class="pr-score">${escH(tt('결과'))} <b>${r} / ${FD_TOTAL}</b></p><p class="dg-desc">${escH(tt(msg))}</p><div class="pr-row"><button type="button" class="dg-btn on" data-a="again">${escH(tt('다시 해 보기'))}</button></div>`;
+        } else {
+          const sc = FD_SC[st.i], d = dq(sc), n = st.i + 1, ans = st.pick != null;
+          h += `<p class="pr-q"><b>${escH(tt('회로'))} ${n} / ${FD_SC.length}</b> · ${escH(tt(sc.t))} <span class="al-k">${escH(tt(sc.k))}</span></p>`;
+          h += `<div class="al-scr al-alm"><div class="al-h"><i></i><b>${escH(tt('회로와 고장'))}</b><span>${escH(tt(sc.t))}</span></div>${sc.log.map((r) => `<div class="al-r"><span>${escH(tt(r[0]))}</span><b>${escH(tt(r[1]))}</b></div>`).join('')}<div class="bh-w">${fdFig(sc.fig)}</div></div>`;
+          h += `<p class="dg-desc">${escH(tt(sc.sit))}</p><p class="pr-hint al-q"><b>${escH(tt(d.q))}</b> <span>(${st.j + 1}/2)</span></p>`;
+          h += `<div class="al-opts">${d.o.map((o, k) => `<button type="button" class="dg-btn al-o${ans ? (k === d.a ? ' good' : k === st.pick ? ' bad' : '') : ''}" data-a="opt" data-k="${k}" ${ans ? 'disabled' : ''}>${st.j === 0 && k < sc.pats.length ? escH(o[0]) : escH(tt(o[0]))}</button>`).join('')}</div>`;
+          if (ans) {
+            const okk = st.pick === d.a;
+            h += `<div class="pr-fb"><b>${escH(tt(okk ? '✔ 맞아요' : '✘ 아쉬워요'))}</b>${okk ? '' : `<p>${escH(tt(d.o[st.pick][1]))}</p>`}<p>${escH(tt(d.why))}</p>`;
+            if (st.j === 0) h += `<div class="al-scr al-alm">${d.rows.map((r) => `<div class="al-r"><span>${escH(r.txt)}</span><b>${escH(tt('정상'))} ${r.g === 'x' ? 'X' : r.g} · ${escH(tt('고장'))} ${r.f === 'x' ? 'X' : r.f}</b></div>`).join('')}</div>`;
+            h += `</div><div class="pr-row"><button type="button" class="dg-btn on" data-a="next">${escH(tt(st.i + 1 >= FD_SC.length && st.j >= 1 ? '결과 보기' : '다음'))}</button></div>`;
+          }
+        }
+        fig.innerHTML = h + (cap ? `<figcaption>${escH(cap)}</figcaption>` : '');
+      };
+      fig.addEventListener('click', (e) => {
+        const act = e.target.closest && e.target.closest('[data-a]'); if (!act) return;
+        const a = act.dataset.a, sc = FD_SC[st.i];
+        if (a === 'opt' && st.pick == null && sc) { st.pick = +act.dataset.k; if (st.pick === dq(sc).a) st.ok++; }
+        else if (a === 'next') { st.pick = null; if (st.j + 1 < 2) st.j++; else { st.i++; st.j = 0; } }
+        else if (a === 'again') { st.i = 0; st.j = 0; st.pick = null; st.ok = 0; }
+        draw();
+      });
+      draw();
+    }
     // ===== 실습: 수율 실험실 (yield-lab) =====
     const YL_Q = [
       { k: 'random', seed: 3, o: [['중앙으로 쏠린 가스·온도', '중앙에 몰리지 않고 전체에 고르게 퍼졌어요. 중앙 쏠림은 중앙이 유독 붉은 맵이에요.'], ['입자 같은 무작위 결함', ''], ['마스크(레티클) 결함', '마스크 결함이면 같은 자리가 일정한 간격으로 반복돼요. 여기는 위치에 규칙이 없어요.'], ['이송·연마 접촉 긁힘', '긁힘은 불량이 줄을 이뤄요. 여기는 줄이 없어요.']], a: 1, why: '위치에 규칙 없이 흩어진 불량은 입자 같은 무작위 결함의 모습이에요. 장비 하나보다 클린룸과 장비 청결 전반을 살펴요.' },
@@ -15241,6 +15992,7 @@
       if (fig.dataset.pr === 'bug-hunt') return bhHydrate(fig);
       if (fig.dataset.pr === 'sta-drill') return stHydrate(fig);
       if (fig.dataset.pr === 'match-drill') return mdHydrate(fig);
+      if (fig.dataset.pr === 'fault-drill') return fdHydrate(fig);
       if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc');
       const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
       const st = { i: 0, sel: null, ph: 'pick', g1: null, g2: null, full: 0 };
