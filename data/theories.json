@@ -1734,5 +1734,43 @@
     "premium": true,
     "mins": 15,
     "figs": 6
+  },
+  {
+    "id": "TH-f50ee0c1",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "매칭과 레이아웃 기생 성분",
+    "tags": [
+      "설계 직무",
+      "아날로그",
+      "매칭",
+      "기생 성분",
+      "레이아웃"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 20,
+    "figs": 10
+  },
+  {
+    "id": "TH-3c816f7a",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "SRAM · DRAM 셀과 주변회로",
+    "tags": [
+      "설계 직무",
+      "메모리",
+      "SRAM",
+      "DRAM",
+      "센스 앰프"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 15,
+    "figs": 6
   }
 ]
