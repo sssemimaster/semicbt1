@@ -11424,16 +11424,16 @@
         } else if (k === 'dv') {
           o += bx(14, 20, 70, 62, c, big ? '테스트벤치' : '', { fill: 'rgba(52,211,153,.14)' }) + bx(118, 20, 64, 62, c, big ? '설계(DUT)' : '', { fill: 'rgba(148,163,184,.14)' }) + bx(216, 20, 70, 62, c, big ? '정답과 비교' : '', { fill: 'rgba(52,211,153,.14)' });
           o += pvdL('M84 40 H108', { c, sw: 2, so: .9 }) + fdArr(114, 40, 'r', c) + pvdL('M182 40 H206', { c, sw: 2, so: .9 }) + fdArr(212, 40, 'r', c) + pvdL('M84 66 H108', { c, sw: 2, so: .9, dash: '3 3' }) + fdArr(114, 66, 'r', c);
-          const bad = new Set([5, 19]);
-          for (let r = 0; r < 2; r++) for (let i = 0; i < 14; i++) { const n = r * 14 + i, x = 20 + i * 19.5, y = 104 + r * 16; o += `<circle cx="${x}" cy="${y}" r="5.2" style="fill:${bad.has(n) ? '#ef4444' : c};fill-opacity:${bad.has(n) ? .95 : .6}"/>`; }
+          const bad = new Set([4, 12]);
+          for (let r = 0; r < 2; r++) for (let i = 0; i < 9; i++) { const n = r * 9 + i, x = 28 + i * 30, y = 108 + r * 20; o += `<circle cx="${x}" cy="${y}" r="7" style="fill:${bad.has(n) ? '#ef4444' : c};fill-opacity:${bad.has(n) ? .95 : .6}"/>`; }
           if (big) o += T(14, 150, '● 통과', c, 8, 'start') + T(70, 150, '● 실패', '#ef4444', 8, 'start');
-          o += `<g transform="translate(${20 + 5 * 19.5} 104)"><path d="M-6 -8 l-4 -5 M6 -8 l4 -5 M-8 0 l-6 1 M8 0 l6 1" style="stroke:#ef4444;stroke-width:1.4;stroke-linecap:round"/></g>`;
+          o += `<g transform="translate(${28 + 4 * 30} 108)"><path d="M-8 -10 l-4 -5 M8 -10 l4 -5 M-10 0 l-6 1 M10 0 l6 1" style="stroke:#ef4444;stroke-width:1.6;stroke-linecap:round"/></g>`;
         } else if (k === 'pd') {
           o += fdRect(14, 12, 272, 146, { rx: 4, fill: 'rgba(251,191,36,.05)', c, so: .9, sw: 1.6 });
           o += fdRect(24, 22, 84, 54, { rx: 3, fill: 'rgba(251,191,36,.26)', c, so: .9, sw: 1.2 }) + fdRect(192, 22, 84, 54, { rx: 3, fill: 'rgba(251,191,36,.26)', c, so: .9, sw: 1.2 });
           let sd = 7;
           const rnd = () => (sd = (sd * 1103515245 + 12345) % 2147483648) / 2147483648;
-          for (let r = 0; r < 6; r++) { let x = 22; while (x < 270) { const w = 8 + Math.floor(rnd() * 14); if (x + w > 278) break; o += `<rect x="${x}" y="${92 + r * 11}" width="${w}" height="8" rx="1.5" style="fill:${r % 2 ? '#fbbf24' : '#fcd34d'};fill-opacity:${.35 + rnd() * .3};stroke:${c};stroke-opacity:.5;stroke-width:.6"/>`; x += w + 2; } }
+          for (let r = 0; r < 4; r++) { let x = 22; while (x < 270) { const w = 16 + Math.floor(rnd() * 16); if (x + w > 278) break; o += `<rect x="${x}" y="${94 + r * 15}" width="${w}" height="11" rx="2" style="fill:#fbbf24;fill-opacity:${.3 + rnd() * .25};stroke:${c};stroke-opacity:.5;stroke-width:.8"/>`; x += w + 3; } }
           o += pvdL('M108 34 H192 M108 52 H192 M108 66 H150 V92', { c: '#60a5fa', sw: 1.5, so: .9 }) + pvdL('M70 76 V86 H230 V76', { c: '#a78bfa', sw: 1.5, so: .9 });
           o += `<circle cx="205" cy="118" r="24" style="fill:#ef4444;fill-opacity:.2;stroke:#ef4444;stroke-opacity:.8;stroke-width:1.4;stroke-dasharray:4 3"/>`;
           if (big) o += T(205, 122, '혼잡', '#ef4444', 9);
@@ -11481,13 +11481,23 @@
             let o = fdDefs();
             const keys = Object.keys(dsRoleNm);
             if (!f) {
-              const NM = { arch: '아키텍처', rtl: 'RTL 설계', dv: '설계 검증', pd: '물리설계', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
+              const NM = { arch: '아키텍처', rtl: 'RTL', dv: '검증', pd: '물리', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
+              const ic = (k, cx, cy, c) => {
+                const g = { arch: pvdL(`M${cx - 9} ${cy - 7} h8 v6 h-8 z M${cx + 3} ${cy - 7} h8 v6 h-8 z M${cx - 9} ${cy + 3} h20 v6 h-20 z M${cx - 5} ${cy - 1} v4 M${cx + 7} ${cy - 1} v4`, { c, sw: 1.8, so: 1 }),
+                  rtl: fdTxM(cx, cy + 5, '</>', { s: 15, w: 800, c }),
+                  dv: pvdL(`M${cx - 9} ${cy + 1} l6 7 l12 -15`, { c, sw: 3.2, so: 1 }),
+                  pd: pvdL(`M${cx - 10} ${cy - 8} h20 v16 h-20 z M${cx - 10} ${cy} h20 M${cx} ${cy - 8} v16`, { c, sw: 1.8, so: 1 }),
+                  an: pvdL(`M${cx - 11} ${cy} q5.5 -13 11 0 t11 0`, { c, sw: 2.6, so: 1 }),
+                  dft: pvdL(`M${cx - 12} ${cy} h6 M${cx - 6} ${cy - 5} h8 v10 h-8 z M${cx + 2} ${cy} h10`, { c, sw: 2, so: 1 }),
+                  fw: fdTxM(cx, cy + 5, '>_', { s: 14, w: 800, c }) }[k];
+                return `<circle cx="${cx}" cy="${cy}" r="21" style="fill:${c};fill-opacity:.14;stroke:${c};stroke-width:1.8;stroke-opacity:.95"/>` + g;
+              };
               keys.forEach((k, i) => {
-                const x = 14 + (i % 4) * 106, y = 14 + Math.floor(i / 4) * 140;
-                o += fdRect(x, y, 100, 62, { rx: 6, fill: 'rgba(148,163,184,.07)', c: C[k], so: .9, sw: 1.5 }) + `<g transform="translate(${x + 1} ${y + 3}) scale(.328)">${screen(k, false)}</g>` + dsPerson(x + 50, y + 112, C[k], 1) + fdTxM(x + 50, y + 130, NM[k], { s: 9.5, w: 800, c: C[k] });
+                const cx = 36 + i * 61.5;
+                o += ic(k, cx, 74, C[k]) + dsPerson(cx, 190, C[k], 1.7) + fdTxM(cx, 216, NM[k], { s: 9.5, w: 800, c: C[k] });
               });
-              o += fdRect(332, 154, 100, 62, { rx: 6, fill: 'rgba(167,139,250,.1)', c: AC, so: .9, sw: 1.6 }) + fdRect(358, 164, 48, 42, { rx: 5, fill: 'rgba(167,139,250,.2)', c: AC, so: .9, sw: 1.6 }) + [0, 1, 2, 3].map((i) => `<rect x="${362 + i * 11}" y="160" width="5" height="5" style="fill:#64748b;fill-opacity:.7"/><rect x="${362 + i * 11}" y="205" width="5" height="5" style="fill:#64748b;fill-opacity:.7"/>`).join('') + fdTxM(382, 190, '칩', { s: 11, w: 800, c: AC }) + fdTxM(382, 230, '하나의 칩', { s: 9.5, w: 800, c: AC }) + fdTxM(382, 244, '일곱 개의 화면', { s: 8.5, op: .85 });
-              return dgSvg('직무별 화면: ' + s.label, o, '0 0 440 304');
+              o += fdTxM(220, 26, '한 칩, 일곱 직무', { s: 12, w: 800, c: AC }) + fdTxM(220, 250, '직무를 눌러 그 직무의 모니터 화면을 본다', { s: 10, op: .85 });
+              return dgSvg('직무별 화면: ' + s.label, o, '0 0 440 262');
             }
             o += fdRect(14, 10, 412, 250, { rx: 10, fill: 'rgba(148,163,184,.06)', c: C[f], so: .95, sw: 1.8 });
             o += `<circle cx="28" cy="24" r="3.4" style="fill:${C[f]}"/>` + fdTxM(38, 27, dsRoleNm[f], { a: 'start', s: 10, w: 800, c: C[f] });
@@ -11497,14 +11507,14 @@
           }
         },
 
-        // ---------- 한 프로젝트에서 누가 언제 바쁜가 ----------
+        // ---------- 한 프로젝트에서 누가 언제 앞장서나 ----------
         'dsn-team': {
-          title: '칩 한 개를 만드는 동안 누가 언제 바쁜가',
+          title: '칩 한 개를 만드는 동안 시기별로 앞장서는 직무',
           wide: true,
           states: [
-            { id: 'all', label: '전체 보기', desc: '막대 다섯 개는 칩 프로젝트의 다섯 시기이고, 막대가 높을수록 그 시기에 그 직무가 바쁘다. 한 직무가 한 시기에만 일하지 않고, 서로 바쁜 때가 어긋나며 이어진다. 시기를 눌러 그때 누가 일하는지 본다. 회사와 칩마다 다르므로 흐름을 잡는 용도다.' },
+            { id: 'all', label: '전체 보기', desc: '칩 프로젝트는 다섯 시기로 나뉘고, 시기마다 가장 바쁜 직무가 바뀐다. 왼쪽에서 오른쪽으로 흐르며 바통을 넘기듯 이어진다. 시기를 눌러 그때 앞장서는 직무를 본다. 회사와 칩마다 다르므로 흐름을 잡는 용도다.' },
             { id: 'p1', label: '정의', focus: ['p1'], desc: '목표를 정하는 시기다. 아키텍트가 가장 바쁘고, 다른 직무는 목표를 읽고 가능한지 의견을 낸다. 여기서 놓친 요구가 뒤에서 큰 비용으로 돌아온다.' },
-            { id: 'p2', label: '설계·검증', focus: ['p2'], desc: 'RTL을 쓰고 검증하는 시기다. 디지털 설계와 검증이 가장 바쁘고, 아날로그 설계도 회로를 만든다. 펌웨어는 아직 칩이 없어서 모델 위에서 코드를 쓰기 시작한다.' },
+            { id: 'p2', label: '설계·검증', focus: ['p2'], desc: 'RTL을 쓰고 검증하는 시기다. 디지털 설계와 검증이 가장 바쁘고, 아날로그 설계도 회로를 만든다. 가장 길고 사람이 많이 몰리는 시기다.' },
             { id: 'p3', label: '물리 구현', focus: ['p3'], desc: '게이트를 놓고 배선하는 시기다. 물리설계가 가장 바쁘고, DFT가 테스트 길을 넣는다. 타이밍이 안 맞으면 설계 쪽으로 되돌아가 협의한다.' },
             { id: 'p4', label: '제조 중', focus: ['p4'], desc: '파일을 넘기고 칩이 만들어지길 기다리는 시기다. 설계자들은 한숨 돌리는 듯해도 DFT는 테스트 패턴을, 펌웨어는 칩이 올 때 쓸 코드를 마무리한다.' },
             { id: 'p5', label: '칩 복귀', focus: ['p5'], desc: '만든 칩이 돌아와 처음 켜 보는 시기다. DFT와 펌웨어가 가장 먼저 바쁘고, 문제가 나오면 설계자와 검증이 원인을 찾으러 다시 모인다.' },
@@ -11512,25 +11522,19 @@
           svg(s) {
             const f = s.focus ? s.focus[0] : null;
             let o = fdDefs();
-            const PH = [['p1', '정의', '#f472b6'], ['p2', '설계·검증', '#60a5fa'], ['p3', '물리 구현', '#fbbf24'], ['p4', '제조 중', '#a78bfa'], ['p5', '칩 복귀', '#34d399']];
-            const keys = Object.keys(dsRoleNm), NM = { arch: '아키텍처', rtl: 'RTL', dv: '검증', pd: '물리', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
-            const LV = { arch: [3, 1, 0, 0, 1], rtl: [1, 3, 1, 0, 2], dv: [1, 3, 2, 1, 2], pd: [0, 1, 3, 1, 1], an: [1, 3, 2, 0, 2], dft: [0, 1, 3, 2, 3], fw: [1, 2, 2, 3, 3] };
-            o += pvdL('M30 38 H410', { c: 'currentColor', sw: 2.4, so: .3 });
-            PH.forEach(([id, nm, col], i) => {
-              const x = 44 + i * 88;
-              o += pvdG(f, [id], `<circle cx="${x}" cy="38" r="9" style="fill:${col};fill-opacity:.9"/>` + fdTxM(x, 41.5, String(i + 1), { s: 9.5, w: 800, c: '#0f172a' }) + fdTxM(x, 62, nm, { s: 9.5, w: 800, c: col }));
-            });
-            keys.forEach((k, ki) => {
-              const cx = 38 + ki * 61, lv = f ? LV[k][PH.findIndex((p) => p[0] === f)] : 3;
-              o += dsPerson(cx, 176, C[k], 1.05, lv ? 1 : .26) + (f && lv === 3 ? `<path d="M${cx - 9} 118 l-3 -8 M${cx} 116 v-9 M${cx + 9} 118 l3 -8" style="stroke:${C[k]};stroke-width:2;stroke-linecap:round"/>` : '');
-              LV[k].forEach((v, pi) => {
-                const col = PH[pi][2], h = 5 + v * 15, bx0 = cx - 25 + pi * 10.5;
-                o += pvdG(f, [PH[pi][0]], `<rect x="${bx0}" y="${250 - h}" width="8" height="${h}" rx="2" style="fill:${col};fill-opacity:${v ? .85 : .25}"/>`);
+            const PH = [['p1', '정의', '#f472b6', ['arch']], ['p2', '설계 · 검증', '#60a5fa', ['rtl', 'dv', 'an']], ['p3', '물리 구현', '#fbbf24', ['pd', 'dft']], ['p4', '제조', '#a78bfa', ['dft', 'fw']], ['p5', '칩 복귀', '#34d399', ['dft', 'fw']]];
+            const NM = { arch: '아키텍트', rtl: 'RTL', dv: '검증', pd: '물리', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
+            o += pvdL('M26 50 H414', { c: 'currentColor', sw: 3, so: .25 });
+            PH.forEach(([id, nm, col, who], i) => {
+              const x = 48 + i * 86, on = !f || f === id;
+              o += pvdG(f, [id], `<circle cx="${x}" cy="50" r="15" style="fill:${col};fill-opacity:.95"/>` + fdTxM(x, 55.5, String(i + 1), { s: 15, w: 800, c: '#0f172a' }) + fdTxM(x, 86, nm, { s: 10, w: 800, c: col }) + pvdL(`M${x} 94 V108`, { c: col, sw: 1.6, so: .6, dash: '3 3' }));
+              who.forEach((k, j) => {
+                const y = 150 + j * 52;
+                o += pvdG(f, [id], dsPerson(x - 22, y + 14, dsC[k], .85) + fdTxM(x - 9, y + 7, NM[k], { a: 'start', s: 9.5, w: 800, c: dsC[k] }));
               });
-              o += pvdL(`M${cx - 27} 250 H${cx + 27}`, { c: 'currentColor', sw: 1, so: .35 }) + fdTxM(cx, 268, NM[k], { s: 9, w: 800, c: C[k] });
             });
-            o += fdTxM(220, 292, f ? '높은 막대 = 그 시기에 바쁜 직무' : '막대 다섯 개 = 위의 다섯 시기 (왼쪽부터)', { s: 8.5, op: .85 });
-            return dgSvg('프로젝트 시기: ' + s.label, o, '0 0 440 300');
+            o += fdTxM(220, 292, f ? '이 시기에 가장 바쁜 직무' : '시기마다 앞장서는 직무가 바뀐다', { s: 10.5, op: .85 });
+            return dgSvg('프로젝트 시기: ' + s.label, o, '0 0 440 302');
           }
         },
 
@@ -11539,7 +11543,7 @@
           title: '설계는 어느 회사에서 하나',
           wide: true,
           states: [
-            { id: 'all', label: '전체 보기', desc: '설계 직무는 세 종류의 회사에 있다. 위쪽은 설계만 하는 팹리스 회사들과 그 설계를 받아 만들어 주는 파운드리, 아래쪽은 설계와 제조를 한 울타리 안에서 하는 IDM이다. 설계 파일(GDS)이 어디로 가는지가 구분의 열쇠다.' },
+            { id: 'all', label: '전체 보기', desc: '설계 직무는 세 종류의 회사에 있다. 위쪽은 설계만 하는 팹리스와 그 설계를 받아 만들어 주는 파운드리, 아래쪽은 설계와 제조를 한 울타리 안에서 하는 IDM이다. 설계 파일(GDS)이 어디로 가는지가 구분의 열쇠다.' },
             { id: 'fabless', label: '팹리스', focus: ['fabless'], desc: '팹리스는 공장 없이 설계만 하는 회사다. 설계한 칩의 제조는 파운드리에 맡긴다. 설계 직무의 비중이 가장 크고 공정 규칙(PDK)은 파운드리가 주는 것을 받아 쓴다.' },
             { id: 'foundry', label: '파운드리', focus: ['foundry'], desc: '파운드리는 여러 회사의 설계를 받아 제조만 하는 회사다. 설계 직무는 고객이 쓸 공정 규칙과 부품 라이브러리(PDK), 표준 셀을 만드는 쪽에 있다.' },
             { id: 'idm', label: 'IDM', focus: ['idm'], desc: 'IDM은 설계와 제조를 한 회사 안에서 모두 하는 회사다. 설계와 공정이 가까워서 서로의 요구를 바로 맞출 수 있다. 설계자가 공정 팀과 가까이서 협의하기도 한다.' },
@@ -11547,27 +11551,25 @@
           svg(s) {
             const f = s.focus || null;
             let o = fdDefs();
-            const win = (x, y, w, h, c) => { let r = ''; for (let i = 0; i < Math.floor(w / 14); i++) for (let j = 0; j < Math.floor(h / 14); j++) r += `<rect x="${x + 5 + i * 14}" y="${y + 6 + j * 14}" width="8" height="8" rx="1" style="fill:${c};fill-opacity:.35"/>`; return r; };
-            const office = (x, y, w, h, c) => fdRect(x, y, w, h, { rx: 3, fill: 'rgba(148,163,184,.1)', c, so: .95, sw: 1.6 }) + win(x, y, w, h - 14, c) + `<rect x="${x + w / 2 - 5}" y="${y + h - 13}" width="10" height="13" style="fill:${c};fill-opacity:.5"/>`;
-            const fab = (x, y, w, h, c) => { const n = Math.max(2, Math.floor(w / 28)), sw = w / n; let r = `<rect x="${x}" y="${y + 14}" width="${w}" height="${h - 14}" rx="2" style="fill:rgba(148,163,184,.1);stroke:${c};stroke-width:1.6;stroke-opacity:.95"/>`; let d = `M${x} ${y + 14}`; for (let i = 0; i < n; i++) d += ` L${x + i * sw} ${y} L${x + (i + 1) * sw} ${y + 14}`; r += pvdL(d, { c, sw: 1.6, so: .95 }) + `<rect x="${x + w - 18}" y="${y - 14}" width="8" height="26" style="fill:rgba(148,163,184,.25);stroke:${c};stroke-width:1.2;stroke-opacity:.9"/>`; for (let i = 0; i < n; i++) r += `<rect x="${x + 6 + i * sw}" y="${y + 24}" width="${sw - 12}" height="12" rx="2" style="fill:${c};fill-opacity:.3"/>`; return r + `<circle cx="${x + w / 2}" cy="${y + h - 14}" r="8" style="fill:none;stroke:${c};stroke-width:1.4;stroke-opacity:.9"/><path d="M${x + w / 2 - 8} ${y + h - 14} h16 M${x + w / 2} ${y + h - 22} v16" style="stroke:${c};stroke-width:.8;stroke-opacity:.6"/>`; };
-            const gds = (x, y, c, t) => fdRect(x, y, 30, 16, { rx: 3, fill: 'rgba(15,23,42,.1)', c, so: .95, sw: 1.3 }) + fdTxM(x + 15, y + 11.5, t || 'GDS', { s: 8, w: 800, c });
-            const RT = C_REF();
-            function C_REF() { return dsC; }
-            o += pvdG(f, ['fabless'], [['팹리스 A', 14], ['팹리스 B', 82], ['팹리스 C', 150]].map(([n, x], i) => office(x, 52 + (i % 2) * 8, 54, 64 - (i % 2) * 8, RT.rtl) + fdTxM(x + 27, 140, n, { s: 9, w: 800, c: RT.rtl })).join('') + fdTxM(110, 28, '설계만 하는 회사들', { s: 10, w: 800, c: RT.rtl }));
-            o += pvdG(f, ['foundry'], [78, 98, 118].map((y, i) => pvdL(`M${[68, 136, 204][i]} ${[86, 82, 82][i]} C 240 ${y - 10}, 250 ${y}, 296 ${y}`, { c: RT.pd, sw: 1.6, so: .85, dash: '4 3' })).join('') + fdArr(298, 78, 'r', RT.pd) + fdArr(298, 98, 'r', RT.pd) + fdArr(298, 118, 'r', RT.pd) + gds(238, 64, RT.pd) + gds(242, 106, RT.pd, 'GDS') + fab(302, 52, 124, 90, RT.pd) + fdTxM(364, 160, '파운드리', { s: 10, w: 800, c: RT.pd }) + fdTxM(364, 174, '여러 고객의 칩을 만든다', { s: 8.5, op: .85 }));
-            o += pvdL('M14 190 H426', { c: 'currentColor', sw: 1, so: .3, dash: '4 4' });
-            o += pvdG(f, ['idm'], fdRect(14, 200, 412, 100, { rx: 12, fill: 'rgba(167,139,250,.06)', c: dsAc, so: .8, sw: 1.6, dash: '6 4' }) + office(50, 222, 76, 64, dsAc) + fab(250, 214, 130, 72, dsAc) + pvdL('M130 254 H244', { c: dsAc, sw: 1.8, so: .9, dash: '4 3' }) + fdArr(248, 254, 'r', dsAc) + gds(172, 232, dsAc) + fdTxM(88, 297, '설계', { s: 8.5, w: 800 }) + fdTxM(315, 297, '제조', { s: 8.5, w: 800 }) + fdTxM(220, 214, 'IDM: 같은 울타리 안', { s: 9.5, w: 800, c: dsAc }));
-            return dgSvg('회사의 종류: ' + s.label, o, '0 0 440 312');
+            const office = (x, y, w, h, c) => { let r = fdRect(x, y, w, h, { rx: 4, fill: 'rgba(148,163,184,.1)', c, so: .95, sw: 1.8 }); for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) r += `<rect x="${x + 10 + i * ((w - 20) / 3)}" y="${y + 10 + j * 15}" width="${(w - 20) / 3 - 6}" height="9" rx="1.5" style="fill:${c};fill-opacity:.35"/>`; return r + `<rect x="${x + w / 2 - 6}" y="${y + h - 16}" width="12" height="16" style="fill:${c};fill-opacity:.55"/>`; };
+            const fab = (x, y, w, h, c) => { const n = 3, sw = w / n; let r = `<rect x="${x}" y="${y + 16}" width="${w}" height="${h - 16}" rx="2" style="fill:rgba(148,163,184,.1);stroke:${c};stroke-width:1.8;stroke-opacity:.95"/>`; let d = `M${x} ${y + 16}`; for (let i = 0; i < n; i++) d += ` L${x + i * sw} ${y} L${x + (i + 1) * sw} ${y + 16}`; r += pvdL(d, { c, sw: 1.8, so: .95 }) + `<rect x="${x + w - 20}" y="${y - 14}" width="9" height="28" style="fill:rgba(148,163,184,.25);stroke:${c};stroke-width:1.2;stroke-opacity:.9"/>`; for (let i = 0; i < n; i++) r += `<rect x="${x + 8 + i * sw}" y="${y + 28}" width="${sw - 16}" height="14" rx="2" style="fill:${c};fill-opacity:.32"/>`; return r; };
+            const gds = (cx, y, c) => fdRect(cx - 17, y, 34, 18, { rx: 3, fill: 'rgba(148,163,184,.18)', c, so: .95, sw: 1.4 }) + fdTxM(cx, y + 12.5, 'GDS', { s: 9.5, w: 800, c });
+            const RT = dsC;
+            o += pvdG(f, ['fabless'], office(30, 40, 84, 80, RT.rtl) + fdTxM(72, 144, '팹리스', { s: 12, w: 800, c: RT.rtl }) + fdTxM(72, 160, '설계만 한다', { s: 10, op: .9 }));
+            o += pvdG(f, ['foundry'], pvdL('M122 82 H292', { c: RT.pd, sw: 2.2, so: .95, dash: '5 4' }) + fdArr(300, 82, 'r', RT.pd) + gds(208, 62, RT.pd) + fab(306, 44, 108, 76, RT.pd) + fdTxM(360, 144, '파운드리', { s: 12, w: 800, c: RT.pd }) + fdTxM(360, 160, '제조만 한다', { s: 10, op: .9 }));
+            o += pvdL('M14 184 H426', { c: 'currentColor', sw: 1, so: .3, dash: '4 4' });
+            o += pvdG(f, ['idm'], fdRect(14, 196, 412, 100, { rx: 12, fill: 'rgba(167,139,250,.06)', c: dsAc, so: .8, sw: 1.6, dash: '6 4' }) + office(40, 214, 72, 62, dsAc) + fab(298, 220, 100, 56, dsAc) + pvdL('M118 250 H290', { c: dsAc, sw: 2.2, so: .95, dash: '5 4' }) + fdArr(296, 250, 'r', dsAc) + gds(204, 230, dsAc) + fdTxM(76, 290, '설계', { s: 10, w: 800 }) + fdTxM(348, 290, '제조', { s: 10, w: 800 }) + fdTxM(220, 208, 'IDM: 한 울타리 안', { s: 11, w: 800, c: dsAc }));
+            return dgSvg('회사의 종류: ' + s.label, o, '0 0 440 306');
           }
         },
 
-        // ---------- 직무로 이어지는 과목 노선도 ----------
+        // ---------- 직무마다 쓰는 바탕 과목 ----------
         'dsn-skills': {
-          title: '직무로 이어지는 바탕 과목 노선도',
+          title: '직무마다 쓰는 바탕 과목',
           wide: true,
           states: [
-            { id: 'all', label: '전체 보기', desc: '왼쪽은 학교에서 배우는 바탕 과목이고 오른쪽은 설계 직무다. 선은 그 직무에서 흔히 중요하게 쓰이는 과목을 이은 것이다. 디지털 논리와 컴퓨터 구조 쪽으로 선이 많이 모여, 그 과목이 여러 직무의 공통 바탕임을 보여 준다. 직무를 눌러 그 직무의 노선을 따라가 본다.' },
-            { id: 'arch', label: '아키텍처', focus: ['arch'], desc: '컴퓨터 구조와 디지털 논리, 알고리즘이 바탕이다. 칩이 어떤 일을 어떻게 빠르게 하도록 구성할지 정하는 일이라 구조에 대한 이해가 중심이다.' },
+            { id: 'all', label: '전체 보기', desc: '동그라미 하나가 학교에서 배우는 바탕 과목이고, 안의 숫자는 그 과목을 중요하게 쓰는 직무의 수다. 클수록 여러 직무의 공통 바탕이다. 디지털 논리와 코딩, 컴퓨터 구조가 가장 널리 쓰인다. 직무를 눌러 그 직무에 필요한 과목을 본다.' },
+            { id: 'arch', label: '아키텍처', focus: ['arch'], desc: '컴퓨터 구조와 디지털 논리, 코딩이 바탕이다. 칩이 어떤 일을 어떻게 빠르게 하도록 구성할지 정하는 일이라 구조에 대한 이해가 중심이다.' },
             { id: 'rtl', label: 'RTL 설계', focus: ['rtl'], desc: '디지털 논리와 컴퓨터 구조, 코딩이 바탕이다. 하드웨어를 코드로 쓰기 때문에 논리회로를 이해하고 코드로 옮기는 두 가지가 모두 필요하다.' },
             { id: 'dv', label: '설계 검증', focus: ['dv'], desc: '디지털 논리, 컴퓨터 구조, 코딩이 바탕이다. 검증 환경을 만드는 일이 소프트웨어 개발과 닮아서 코딩 실력이 특히 중요하게 쓰인다.' },
             { id: 'pd', label: '물리설계', focus: ['pd'], desc: '디지털 논리, 반도체 소자, 공정 이해가 바탕이다. 게이트가 실제로 어떻게 놓이고 연결되는지, 소자의 속도와 전력이 어디서 나오는지 이해하면 도움이 된다.' },
@@ -11578,26 +11580,15 @@
           svg(s) {
             const f = s.focus ? s.focus[0] : null;
             let o = fdDefs();
-            const SK = ['디지털 논리', '회로 이론', '반도체 소자', '컴퓨터 구조', '코딩 · 알고리즘', '공정 이해'];
-            const MAP = { arch: [3, 0, 4], rtl: [0, 3, 4], dv: [0, 3, 4], pd: [0, 2, 5], an: [1, 2], dft: [0, 4, 5], fw: [3, 4] };
-            const keys = Object.keys(dsRoleNm), NM = { arch: '아키텍처', rtl: 'RTL 설계', dv: '설계 검증', pd: '물리설계', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
-            const sy = (i) => 36 + i * 46, ty = (i) => 28 + i * 38;
-            const used = new Set(f ? MAP[f] : []);
-            keys.forEach((k, ki) => MAP[k].forEach((si) => {
-              const on = !f || f === k;
-              o += pvdL(`M150 ${sy(si)} C 230 ${sy(si)}, 250 ${ty(ki)}, 322 ${ty(ki)}`, { c: C_S(k), sw: f === k ? 3 : 1.7, so: on ? (f ? .95 : .6) : .1 });
-            }));
-            function C_S(k) { return dsC[k]; }
-            SK.forEach((n, i) => {
-              const on = !f || used.has(i);
-              o += `<g opacity="${on ? 1 : .22}">` + fdRect(12, sy(i) - 15, 138, 30, { rx: 15, fill: 'rgba(148,163,184,.1)', c: f && used.has(i) ? dsC[f] : 'currentColor', so: f && used.has(i) ? .95 : .6, sw: f && used.has(i) ? 2 : 1.2 }) + `<circle cx="150" cy="${sy(i)}" r="4.5" style="fill:#e2e8f0;stroke:currentColor;stroke-opacity:.6;stroke-width:1.2"/>` + fdTxM(78, sy(i) + 3.5, n, { s: 10, w: 800 }) + '</g>';
+            const SK = [['디지털 논리', 5, 80, 82], ['컴퓨터 구조', 4, 220, 82], ['코딩 · 알고리즘', 5, 360, 82], ['회로 이론', 1, 80, 192], ['반도체 소자', 2, 220, 192], ['공정 이해', 2, 360, 192]];
+            const MAP = { arch: [0, 1, 2], rtl: [0, 1, 2], dv: [0, 1, 2], pd: [0, 4, 5], an: [3, 4], dft: [0, 2, 5], fw: [1, 2] };
+            const on = new Set(f ? MAP[f] : []);
+            SK.forEach(([n, cnt, cx, cy], i) => {
+              const r = 22 + cnt * 5, hi = !f || on.has(i), col = f ? dsC[f] : dsAc;
+              o += `<g opacity="${hi ? 1 : .2}"><circle cx="${cx}" cy="${cy}" r="${r}" style="fill:${col};fill-opacity:${f && on.has(i) ? .3 : .16};stroke:${col};stroke-width:${f && on.has(i) ? 2.6 : 1.8};stroke-opacity:.95"/>` + (f && on.has(i) ? pvdL(`M${cx - 9} ${cy + 1} l6 7 l12 -15`, { c: col, sw: 3.4, so: 1 }) : fdTxM(cx, cy + 8, String(cnt), { s: 24, w: 800, c: col }) + fdTxM(cx, cy + 22, '개 직무', { s: 8.5, op: .8 })) + fdTxM(cx, cy + r + 16, n, { s: 11.5, w: 800 }) + '</g>';
             });
-            keys.forEach((k, i) => {
-              const on = !f || f === k;
-              o += `<g opacity="${on ? 1 : .22}">` + fdRect(322, ty(i) - 14, 106, 28, { rx: 8, fill: 'rgba(148,163,184,.08)', c: dsC[k], so: .95, sw: f === k ? 2.2 : 1.6 }) + `<circle cx="322" cy="${ty(i)}" r="4.5" style="fill:${dsC[k]}"/>` + fdTxM(378, ty(i) + 3.5, NM[k], { s: 10, w: 800, c: dsC[k] }) + '</g>';
-            });
-            o += fdTxM(80, 18, '바탕 과목', { s: 9, w: 800, op: .8 }) + fdTxM(378, 12, '설계 직무', { s: 9, w: 800, op: .8 });
-            return dgSvg('과목 노선도: ' + s.label, o, '0 0 440 300');
+            o += fdTxM(220, 20, f ? '필요한 과목: ' + dsRoleNm[f] : '숫자 = 그 과목을 쓰는 직무의 수', { s: 11, w: 800, c: f ? dsC[f] : 'currentColor', op: f ? 1 : .85 });
+            return dgSvg('바탕 과목: ' + s.label, o, '0 0 440 290');
           }
         },
       });
