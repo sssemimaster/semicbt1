@@ -430,6 +430,17 @@
     figure.pr-spc .pr-fb { margin: .6rem 0 .2rem; padding: .7rem .85rem; border-radius: 12px; background: var(--badge-bg); font-size: .88rem; line-height: 1.7; } figure.pr-spc .pr-fb p { margin: .3rem 0 0 !important; }
     figure.pr-spc .pr-score { text-align: center; font-size: 1.15rem; margin: .9rem 0 .2rem; } figure.pr-spc .pr-hit { cursor: crosshair; } figure.pr-spc .pr-chart svg { touch-action: manipulation; }
     .lang-en figure.pr-spc .dg-btn { font-size: .72rem; line-height: 1.2; padding: .38rem .55rem; white-space: normal; }
+    figure.pr-al .al-k { display: inline-block; margin-left: .3rem; padding: .05rem .45rem; border-radius: 99px; background: var(--badge-bg); font-size: .7rem; font-weight: 700; vertical-align: 1px; }
+    figure.pr-al .al-scr { margin: .5rem 0 .2rem; border-radius: 10px; border: 1.5px solid #fbbf24; background: rgba(15,23,42,.06); overflow: hidden; font-size: .78rem; }
+    figure.pr-al .al-scr.al-alm { border-color: #fb923c; } figure.pr-al .al-scr.al-emo { border-color: #ef4444; }
+    figure.pr-al .al-h { display: flex; align-items: center; gap: .45rem; padding: .35rem .65rem; background: rgba(251,191,36,.22); } figure.pr-al .al-alm .al-h { background: rgba(251,146,60,.24); } figure.pr-al .al-emo .al-h { background: rgba(239,68,68,.24); }
+    figure.pr-al .al-h i { width: .55rem; height: .55rem; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 6px #fbbf24; } figure.pr-al .al-alm .al-h i { background: #fb923c; box-shadow: 0 0 6px #fb923c; } figure.pr-al .al-emo .al-h i { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+    figure.pr-al .al-h span { margin-left: auto; opacity: .8; font-size: .72rem; }
+    figure.pr-al .al-r { display: flex; justify-content: space-between; gap: .8rem; padding: .28rem .65rem; border-top: 1px solid rgba(148,163,184,.25); } figure.pr-al .al-r span { opacity: .65; white-space: nowrap; } figure.pr-al .al-r b { text-align: right; font-weight: 600; }
+    figure.pr-al .al-q { text-align: left; margin: .6rem 0 .4rem; } figure.pr-al .al-q span { opacity: .6; font-size: .78rem; }
+    figure.pr-al .al-opts { display: flex; flex-direction: column; gap: .4rem; } figure.pr-al .al-o { width: 100%; text-align: left; white-space: normal; line-height: 1.5; padding: .55rem .75rem; border-radius: 10px; }
+    figure.pr-al .al-o.good { border-color: #34d399; background: rgba(52,211,153,.16); } figure.pr-al .al-o.bad { border-color: #ef4444; background: rgba(239,68,68,.13); } figure.pr-al .al-o[disabled] { opacity: 1; }
+    figure.pr-al .al-o[disabled]:not(.good):not(.bad) { opacity: .5; }
     .lang-en figure.dg .dg-desc { font-size: .82rem; line-height: 1.55; }
 
     @media (max-width: 520px) { .dg-t.dg-lb { font-size: 12.5px; } .dg-t.dg-lb.dg-xs { font-size: 11px; } }
