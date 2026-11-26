@@ -11402,117 +11402,254 @@
     // ===== 설계 직무 > 무료 글 "반도체 설계 직무 한눈에 보기" 그림 =====
     const dsC = { arch: '#f472b6', rtl: '#60a5fa', dv: '#34d399', pd: '#fbbf24', an: '#22d3ee', dft: '#f87171', fw: '#a3e635' }, dsAc = '#a78bfa';
     const dsRoleNm = { arch: '시스템 아키텍처', rtl: '디지털 설계(RTL)', dv: '설계 검증', pd: '물리설계', an: '아날로그 설계', dft: '테스트 설계(DFT)', fw: '펌웨어' };
-    const dsPerson = (x, y, c, k = 1, o = 1) => `<g transform="translate(${x} ${y}) scale(${k})" opacity="${o}"><path d="M-11 0 V-12 Q-11 -25 0 -25 Q11 -25 11 -12 V0 Z" style="fill:${c};fill-opacity:.85;stroke:${c};stroke-width:1"/><circle cx="0" cy="-34" r="7.5" style="fill:#f1f5f9;stroke:${c};stroke-width:1.6"/><path d="M-7 -36 Q-5 -43 1 -42.5 Q7 -42 7 -36 Q3 -39 -7 -36 Z" style="fill:${c};fill-opacity:.9"/></g>`;
+    // 레이아웃 층 색(실제 레이아웃 도구의 관례): 확산 · 폴리 · 금속
+    const dsL = { pd: '#fbbf24', nd: '#4ade80', po: '#f87171', m1: '#60a5fa', m2: '#c084fc' };
     (() => {
-      const C = dsC, AC = dsAc;
-      const bx = (x, y, w, h, c, t, o = {}) => fdRect(x, y, w, h, { rx: o.rx == null ? 5 : o.rx, fill: o.fill || 'rgba(148,163,184,.12)', c, so: o.so || .9, sw: o.sw || 1.4 }) + (t ? fdTxM(x + w / 2, y + h / 2 + 3, t, { s: o.s || 8.5, w: 800, c: o.tc }) : '');
-      const T = (x, y, t, c, s = 8, a) => fdTxM(x, y, t, { s, w: 800, c, a });
-      // 화면 하나: 300 x 170 좌표계. big 이 아니면 글자를 뺀다.
-      const screen = (k, big) => {
-        const c = C[k]; let o = '';
-        if (k === 'arch') {
-          o += bx(14, 14, 76, 48, c, big ? 'CPU' : '', { fill: 'rgba(244,114,182,.16)' }) + bx(112, 14, 76, 48, c, big ? 'NPU' : '', { fill: 'rgba(244,114,182,.16)' }) + bx(210, 14, 76, 48, c, big ? '메모리' : '', { fill: 'rgba(244,114,182,.16)' });
-          o += pvdL('M52 62 V90 M150 62 V90 M248 62 V90 M52 102 V118', { c, sw: 2, so: .9 }) + fdRect(14, 90, 272, 12, { rx: 3, fill: 'rgba(244,114,182,.38)', c, so: .9, sw: 1.2 }) + bx(14, 118, 76, 40, c, big ? 'I/O' : '', { fill: 'rgba(244,114,182,.1)' });
-          [['성능', 84], ['전력', 52], ['면적', 64]].forEach(([n, v], i) => { const y = 126 + i * 14; o += (big ? T(112, y + 6, n, c, 8, 'start') : '') + fdRect(142, y, 100, 8, { rx: 4, fill: 'rgba(148,163,184,.14)', c, so: .5, sw: .8 }) + fdRect(142, y, v, 8, { rx: 4, fill: c, c, so: .6, sw: .8 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.55'); });
-        } else if (k === 'rtl') {
-          o += fdRect(14, 12, 170, 146, { rx: 6, fill: 'rgba(15,23,42,.55)', c, so: .9, sw: 1.4 });
-          const pal = ['#93c5fd', '#fcd34d', '#f9a8d4', '#a7f3d0'], L = [[0, 70, 0], [0, 40, 1], [14, 90, 2], [14, 60, 3], [14, 100, 0], [28, 70, 1], [28, 48, 2], [14, 80, 3], [0, 30, 0], [0, 56, 1]];
-          L.forEach(([ind, w, p], i) => { o += `<rect x="${24 + ind}" y="${24 + i * 13}" width="${w}" height="5" rx="2.5" style="fill:${pal[p]};fill-opacity:.85"/>`; });
-          o += fdRect(196, 12, 90, 146, { rx: 6, fill: 'rgba(148,163,184,.1)', c, so: .8, sw: 1.2 });
-          o += pvdL('M204 52 h10 v-14 h10 v14 h10 v-14 h10 v14 h10 v-14 h10 v14 h10', { c: '#93c5fd', sw: 1.8, so: .95 }) + pvdL('M204 100 h12 v-14 h20 v14 h20 v-14 h14 v14 h8', { c: '#fcd34d', sw: 1.8, so: .95 }) + pvdL('M204 146 h22 v-14 h20 v14 h20 v-14 h14', { c: '#a7f3d0', sw: 1.8, so: .95 }) + pvdL('M224 22 V152', { c, sw: 1, so: .5, dash: '3 3' });
-          if (big) o += T(204, 26, 'clk', '#93c5fd', 8, 'start') + T(204, 76, 'd', '#fcd34d', 8, 'start') + T(204, 122, 'q', '#a7f3d0', 8, 'start');
-        } else if (k === 'dv') {
-          o += bx(14, 20, 70, 62, c, big ? '테스트벤치' : '', { fill: 'rgba(52,211,153,.14)' }) + bx(118, 20, 64, 62, c, big ? '설계(DUT)' : '', { fill: 'rgba(148,163,184,.14)' }) + bx(216, 20, 70, 62, c, big ? '정답과 비교' : '', { fill: 'rgba(52,211,153,.14)' });
-          o += pvdL('M84 40 H108', { c, sw: 2, so: .9 }) + fdArr(114, 40, 'r', c) + pvdL('M182 40 H206', { c, sw: 2, so: .9 }) + fdArr(212, 40, 'r', c) + pvdL('M84 66 H108', { c, sw: 2, so: .9, dash: '3 3' }) + fdArr(114, 66, 'r', c);
-          const bad = new Set([4, 12]);
-          for (let r = 0; r < 2; r++) for (let i = 0; i < 9; i++) { const n = r * 9 + i, x = 28 + i * 30, y = 108 + r * 20; o += `<circle cx="${x}" cy="${y}" r="7" style="fill:${bad.has(n) ? '#ef4444' : c};fill-opacity:${bad.has(n) ? .95 : .6}"/>`; }
-          if (big) o += T(14, 150, '● 통과', c, 8, 'start') + T(70, 150, '● 실패', '#ef4444', 8, 'start');
-          o += `<g transform="translate(${28 + 4 * 30} 108)"><path d="M-8 -10 l-4 -5 M8 -10 l4 -5 M-10 0 l-6 1 M10 0 l6 1" style="stroke:#ef4444;stroke-width:1.6;stroke-linecap:round"/></g>`;
-        } else if (k === 'pd') {
-          o += fdRect(14, 12, 272, 146, { rx: 4, fill: 'rgba(251,191,36,.05)', c, so: .9, sw: 1.6 });
-          o += fdRect(24, 22, 84, 54, { rx: 3, fill: 'rgba(251,191,36,.26)', c, so: .9, sw: 1.2 }) + fdRect(192, 22, 84, 54, { rx: 3, fill: 'rgba(251,191,36,.26)', c, so: .9, sw: 1.2 });
-          let sd = 7;
-          const rnd = () => (sd = (sd * 1103515245 + 12345) % 2147483648) / 2147483648;
-          for (let r = 0; r < 4; r++) { let x = 22; while (x < 270) { const w = 16 + Math.floor(rnd() * 16); if (x + w > 278) break; o += `<rect x="${x}" y="${94 + r * 15}" width="${w}" height="11" rx="2" style="fill:#fbbf24;fill-opacity:${.3 + rnd() * .25};stroke:${c};stroke-opacity:.5;stroke-width:.8"/>`; x += w + 3; } }
-          o += pvdL('M108 34 H192 M108 52 H192 M108 66 H150 V92', { c: '#60a5fa', sw: 1.5, so: .9 }) + pvdL('M70 76 V86 H230 V76', { c: '#a78bfa', sw: 1.5, so: .9 });
-          o += `<circle cx="205" cy="118" r="24" style="fill:#ef4444;fill-opacity:.2;stroke:#ef4444;stroke-opacity:.8;stroke-width:1.4;stroke-dasharray:4 3"/>`;
-          if (big) o += T(205, 122, '혼잡', '#ef4444', 9);
-        } else if (k === 'an') {
-          o += `<polygon points="30,34 30,124 118,79" style="fill:rgba(34,211,238,.18);stroke:${c};stroke-width:1.8;stroke-opacity:.95"/>` + pvdL('M8 52 H30 M8 106 H30 M118 79 H146', { c, sw: 1.8, so: .95 });
-          o += fdTxM(40, 56, '+', { s: 11, w: 800, c }) + fdTxM(40, 112, '−', { s: 11, w: 800, c });
-          o += pvdL('M132 79 V146 H18 V106', { c, sw: 1.3, so: .6, dash: '3 3' }) + pvdL('M58 146 l4 -6 l6 12 l6 -12 l6 12 l4 -6', { c, sw: 1.4, so: .9 });
-          o += fdRect(154, 14, 132, 144, { rx: 6, fill: 'rgba(148,163,184,.08)', c, so: .7, sw: 1.2 });
-          o += `<rect x="156" y="56" width="128" height="46" style="fill:rgba(34,211,238,.12)"/>` + pvdL('M156 56 H284 M156 102 H284', { c, sw: 1, so: .7, dash: '4 3' });
-          o += pvdL('M160 79 q10 -32 20 0 t20 0 t20 0 t20 0 t20 0 t20 0', { c, sw: 2, so: .95 }) + pvdL('M160 82 q4 -30 10 -4 t8 6 t10 -4 t10 4 t8 -3 t12 3 t10 -2 t10 2 t12 -2 t10 2', { c: '#94a3b8', sw: 1, so: .6 });
-          if (big) o += T(220, 40, '출력 신호', c, 8) + T(220, 126, '규격 범위 안인가', c, 8);
-        } else if (k === 'dft') {
-          const ff = (x, y, bad) => fdRect(x, y, 36, 28, { rx: 4, fill: bad ? 'rgba(239,68,68,.3)' : 'rgba(248,113,113,.14)', c: bad ? '#ef4444' : c, so: .95, sw: 1.4 }) + (big ? fdTxM(x + 18, y + 18, bad ? '불량' : 'FF', { s: 8.5, w: 800, c: bad ? '#ef4444' : c }) : '');
-          for (let i = 0; i < 5; i++) { o += ff(24 + i * 52, 22, false) + ff(24 + i * 52, 84, i === 2); }
-          for (let i = 0; i < 4; i++) o += pvdL(`M${60 + i * 52} 36 H${76 + i * 52}`, { c, sw: 2.2, so: .95 }) + pvdL(`M${60 + i * 52} 98 H${76 + i * 52}`, { c, sw: 2.2, so: .95 });
-          o += pvdL('M8 36 H24', { c, sw: 2.2, so: .95 }) + fdArr(24, 36, 'r', c) + pvdL('M268 36 H284 V70 H10 V98 H24', { c, sw: 2.2, so: .95 }) + fdArr(24, 98, 'r', c) + pvdL('M260 98 H288', { c, sw: 2.2, so: .95 }) + fdArr(292, 98, 'r', c);
-          if (big) o += T(10, 28, '입력', c, 7.5, 'start') + T(262, 124, '출력', c, 7.5, 'end') + T(14, 150, '고장 검출', c, 8, 'start');
-          o += fdRect(70, 140, 150, 10, { rx: 5, fill: 'rgba(148,163,184,.14)', c, so: .5, sw: .8 }) + fdRect(70, 140, 128, 10, { rx: 5, fill: c, c, so: .6, sw: .8 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.6');
-        } else {
-          o += bx(14, 14, 104, 34, c, big ? '부팅 ROM' : '', { fill: 'rgba(163,230,53,.16)' }) + bx(14, 66, 104, 34, c, big ? '레지스터 초기화' : '', { fill: 'rgba(163,230,53,.16)' }) + bx(14, 118, 104, 34, c, big ? '응용 프로그램' : '', { fill: 'rgba(163,230,53,.16)' });
-          o += pvdL('M66 48 V60', { c, sw: 2, so: .9 }) + fdArr(66, 64, 'd', c) + pvdL('M66 100 V112', { c, sw: 2, so: .9 }) + fdArr(66, 116, 'd', c);
-          o += fdRect(144, 12, 142, 146, { rx: 6, fill: 'rgba(15,23,42,.6)', c, so: .9, sw: 1.4 });
-          [90, 60, 104, 74, 96, 50, 82, 66, 100].forEach((w, i) => { o += `<rect x="154" y="${24 + i * 14}" width="${w}" height="5" rx="2.5" style="fill:#a3e635;fill-opacity:${i % 4 === 3 ? .95 : .6}"/>`; });
-          o += `<rect x="154" y="152" width="8" height="5" style="fill:#a3e635"/>`;
-        }
-        return o;
+      const C = dsC, AC = dsAc, LY = dsL;
+      const Tx = (x, y, t, c, s = 9, a, op) => fdTxM(x, y, t, { s, w: 800, c, a, op });
+      const rc = (x, y, w, h, fill, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx || 0}" style="fill:${fill};fill-opacity:${o.fo == null ? .55 : o.fo};stroke:${o.c || fill};stroke-width:${o.sw || .8};stroke-opacity:${o.so == null ? .9 : o.so}${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
+      let sd = 11; const rnd = () => (sd = (sd * 1103515245 + 12345) % 2147483648) / 2147483648;
+      // ---- MOS 기호 ----
+      const mos = (x, y, p, c) => pvdL(`M${x} ${y} V${y + 28} M${x - 6} ${y + 4} V${y + 24} M${x - 18} ${y + 14} H${x - 6} M${x} ${y + 5} H${x + 12} V${y - 8} M${x} ${y + 23} H${x + 12} V${y + 36}`, { c, sw: 2, so: 1 }) + (p ? `<circle cx="${x - 9}" cy="${y + 14}" r="2.6" style="fill:#0f172a;stroke:${c};stroke-width:1.4"/>` : '');
+
+      // ======== 크기 사다리: 웨이퍼 → 다이 → 블록 → 표준 셀 → 트랜지스터 (200 x 200 좌표) ========
+      const zoomDraw = {
+        wafer(big) {
+          let o = `<circle cx="100" cy="100" r="92" style="fill:rgba(148,163,184,.16);stroke:#94a3b8;stroke-width:2;stroke-opacity:.9"/><path d="M92 191 L100 184 L108 191" style="fill:none;stroke:#94a3b8;stroke-width:1.6;stroke-opacity:.8"/>`;
+          const dx = 18, dy = 14; let n = 0;
+          for (let j = -6; j <= 6; j++) for (let i = -5; i <= 5; i++) {
+            const x = 100 + i * dx - dx / 2, y = 100 + j * dy - dy / 2;
+            const ok = [[x, y], [x + dx, y], [x, y + dy], [x + dx, y + dy]].every(([a, b]) => Math.hypot(a - 100, b - 100) <= 86);
+            if (!ok) continue; n++;
+            const hi = i === 1 && j === -1;
+            o += `<rect x="${x + 1}" y="${y + 1}" width="${dx - 2}" height="${dy - 2}" style="fill:${hi ? AC : '#60a5fa'};fill-opacity:${hi ? .75 : .22};stroke:${hi ? AC : '#60a5fa'};stroke-width:${hi ? 1.8 : .6};stroke-opacity:.9"/>`;
+          }
+                    return o;
+        },
+        die(big) {
+          let o = rc(20, 20, 160, 160, 'rgba(148,163,184,.14)', { c: '#94a3b8', sw: 1.8, fo: 1, so: .95 });
+          for (let i = 0; i < 9; i++) { const p = 30 + i * 17; o += rc(p, 22, 9, 7, '#e2e8f0', { fo: .7, sw: .6 }) + rc(p, 171, 9, 7, '#e2e8f0', { fo: .7, sw: .6 }) + rc(22, p, 7, 9, '#e2e8f0', { fo: .7, sw: .6 }) + rc(171, p, 7, 9, '#e2e8f0', { fo: .7, sw: .6 }); }
+          o += rc(38, 38, 124, 124, 'none', { c: '#94a3b8', sw: .8, so: .6, dash: '3 3', fo: 0 });
+          o += rc(42, 42, 62, 48, '#60a5fa', { fo: .3, sw: 1.2 }) + rc(108, 42, 50, 48, '#f472b6', { fo: .3, sw: 1.2 }) + rc(42, 94, 28, 26, '#22d3ee', { fo: .3, sw: 1.2 }) + rc(74, 94, 30, 26, '#22d3ee', { fo: .3, sw: 1.2 }) + rc(108, 94, 50, 26, '#a3e635', { fo: .3, sw: 1.2 });
+          for (let r = 0; r < 4; r++) o += rc(42, 126 + r * 8, 116, 5, '#fbbf24', { fo: .35, sw: .6 });
+          if (big) o += Tx(73, 70, 'CPU', '#60a5fa', 10) + Tx(133, 70, 'SRAM', '#f472b6', 10) + Tx(56, 110, 'PLL', '#22d3ee', 8.5) + Tx(89, 110, 'ADC', '#22d3ee', 8.5) + Tx(133, 110, 'ROM', '#a3e635', 9) + Tx(100, 150, '표준 셀 영역', '#fbbf24', 8.5);
+          return o;
+        },
+        block(big) {
+          let o = rc(12, 24, 176, 152, 'rgba(148,163,184,.08)', { c: '#94a3b8', sw: 1.6, fo: 1 });
+          o += rc(20, 32, 54, 136, '#f472b6', { fo: .22, sw: 1.4 });
+          for (let r = 0; r < 14; r++) o += pvdL(`M22 ${38 + r * 9.4} H72`, { c: '#f472b6', sw: .8, so: .5 });
+          for (let r = 0; r < 12; r++) { let x = 84; while (x < 176) { const w = 8 + Math.floor(rnd() * 12); if (x + w > 180) break; o += rc(x, 36 + r * 11, w, 8, '#fbbf24', { fo: .2 + rnd() * .3, sw: .6 }); x += w + 2; } }
+          o += rc(98, 32, 3, 136, LY.m2, { fo: .8, sw: .4 }) + rc(138, 32, 3, 136, LY.m2, { fo: .8, sw: .4 }) + rc(174, 32, 3, 136, LY.m2, { fo: .8, sw: .4 });
+          o += pvdL('M100 100 H80 M140 100 H100 M140 100 V70 H122 M140 100 V130 H122 M80 100 V76 M80 100 V124', { c: '#f87171', sw: 1.8, so: .95 });
+          if (big) o += Tx(47, 100, 'SRAM', '#f472b6', 9.5) + Tx(130, 182, '표준 셀 영역', '#fbbf24', 9) + Tx(104, 20, '전원선(보라) · 클록(빨강)', 'currentColor', 8.5, 'start');
+          return o;
+        },
+        cell(big) {
+          let o = rc(10, 52, 180, 9, '#f87171', { fo: .6, sw: .6 }) + rc(10, 142, 180, 9, '#60a5fa', { fo: .6, sw: .6 });
+          const W = [26, 36, 26, 46, 26], names = ['INV', 'NAND', 'INV', 'DFF', 'INV']; let x = 14;
+          W.forEach((w, i) => {
+            o += rc(x, 62, w, 80, 'rgba(148,163,184,.1)', { c: '#94a3b8', sw: .9, fo: 1, so: .7 });
+            o += rc(x + 3, 68, w - 6, 26, LY.pd, { fo: .4, sw: .7 }) + rc(x + 3, 108, w - 6, 26, LY.nd, { fo: .4, sw: .7 });
+            for (let g = 0; g < Math.max(1, Math.round(w / 18)); g++) o += rc(x + 7 + g * 14, 62, 4, 80, LY.po, { fo: .75, sw: .5 });
+            o += rc(x + 4, 98, w - 8, 3, LY.m1, { fo: .8, sw: .4 });
+            if (big) o += Tx(x + w / 2, 162, names[i], 'currentColor', 8.5);
+            x += w + 2;
+          });
+          o += pvdL('M30 98 H60 M60 98 V76 M120 98 H150', { c: LY.m1, sw: 0, so: 0 });
+          if (big) o += Tx(100, 40, '높이가 같은 셀을 줄로 세운다', 'currentColor', 9) + Tx(16, 48, '전원', '#f87171', 7.5, 'start') + Tx(16, 168, '접지', '#60a5fa', 7.5, 'start');
+          return o;
+        },
+        tr(big) {
+          let o = rc(10, 120, 180, 56, '#94a3b8', { fo: .22, sw: 1.2 }) + rc(26, 100, 44, 24, LY.nd, { fo: .55, sw: 1.2 }) + rc(130, 100, 44, 24, LY.nd, { fo: .55, sw: 1.2 });
+          o += rc(72, 96, 56, 5, '#e2e8f0', { fo: .6, sw: .6 }) + rc(72, 70, 56, 26, LY.po, { fo: .65, sw: 1.4 });
+          o += rc(44, 78, 10, 24, '#cbd5e1', { fo: .7, sw: .6 }) + rc(146, 78, 10, 24, '#cbd5e1', { fo: .7, sw: .6 }) + rc(32, 64, 34, 14, LY.m1, { fo: .7, sw: .8 }) + rc(134, 64, 34, 14, LY.m1, { fo: .7, sw: .8 });
+          o += pvdL('M72 54 V90 M128 54 V90 M72 58 H128', { c: 'currentColor', sw: 1, so: .7, dash: '2 2' });
+          if (big) o += Tx(49, 114, 'S', '#0f172a', 10) + Tx(151, 114, 'D', '#0f172a', 10) + Tx(100, 84, 'G', '#0f172a', 10) + Tx(100, 50, '게이트 길이', 'currentColor', 9) + Tx(100, 150, '기판(실리콘)', 'currentColor', 9);
+          return o;
+        },
       };
+      const ZOOM = [['wafer', '웨이퍼', '지름 300 mm', '#94a3b8', []], ['die', '칩(다이)', '수 mm ~ 수십 mm', AC, ['arch', 'pd', 'dft']], ['block', '블록', '약 1 mm', C.rtl, ['rtl', 'dv', 'fw']], ['cell', '표준 셀', '1 µm 안팎', C.pd, ['pd', 'dft']], ['tr', '트랜지스터', '수십 nm', C.an, ['an']]];
+      const ZR = { arch: '아키텍트', rtl: 'RTL', dv: '검증', pd: '물리', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
+
+      // ======== 편집기 창: 직무별 도구 화면 (412 x 206 내용 좌표) ========
+      const win = (title, c, inner) => fdRect(14, 8, 412, 246, { rx: 9, fill: 'rgba(15,23,42,.92)', c, so: .95, sw: 1.8 }) + rc(14, 8, 412, 24, c, { fo: .22, sw: 0, so: 0, rx: 0 }).replace('rx="0"', 'rx="9"') + `<circle cx="28" cy="20" r="3.2" style="fill:#f87171"/><circle cx="40" cy="20" r="3.2" style="fill:#fbbf24"/><circle cx="52" cy="20" r="3.2" style="fill:#4ade80"/>` + fdTxM(66, 23.5, title, { a: 'start', s: 9.5, w: 800, c: '#e2e8f0' }) + `<g transform="translate(14 32)">${inner}</g>`;
+      const DK = '#e2e8f0';
+      const editors = {
+        arch() {
+          const c = C.arch; let o = '';
+          const b = (x, y, w, h, t) => rc(x, y, w, h, c, { fo: .22, sw: 1.4, rx: 5 }) + Tx(x + w / 2, y + h / 2 + 3.5, t, DK, 10.5);
+          o += b(22, 20, 90, 54, 'CPU') + b(150, 20, 90, 54, 'NPU') + b(278, 20, 100, 54, '메모리');
+          o += pvdL('M67 74 V110 M195 74 V110 M328 74 V110 M67 126 V150', { c, sw: 2.4, so: 1 }) + rc(22, 110, 356, 16, c, { fo: .45, sw: 1.2, rx: 3 }) + Tx(200, 122, '버스', DK, 9.5);
+          o += b(22, 150, 90, 44, '입출력') + Tx(150, 168, '목표', c, 10, 'start');
+          [['성능', 86], ['전력', 52], ['면적', 64]].forEach(([n, v], i) => { const y = 158 + i * 14; o += Tx(150, y + 7, n, DK, 9.5, 'start') + rc(188, y, 190, 9, '#94a3b8', { fo: .2, sw: .6, rx: 4 }) + rc(188, y, v * 1.9, 9, c, { fo: .7, sw: .6, rx: 4 }); });
+          return o;
+        },
+        rtl() {
+          const c = C.rtl; let o = '';
+          const KW = '#c084fc', ID = '#93c5fd', NM = '#fcd34d', CM = '#64748b';
+          const lines = [[0, [['module', KW], ['counter', ID], ['(', DK]]], [1, [['input', KW], ['clk', ID], [',', DK], ['rst', ID]]], [1, [['output', KW], ['reg', KW], ['[7:0]', NM], ['q', ID]]], [0, [[');', DK]]], [1, [['always', KW], ['@(posedge clk)', ID]]], [2, [['if', KW], ['(rst)', ID], ['q <= 0;', NM]]], [2, [['else', KW], ['q <= q + 1;', NM]]], [1, [['// 클록마다 1 증가', CM]]], [0, [['endmodule', KW]]]];
+          lines.forEach(([ind, toks], i) => { let x = 22 + ind * 12; const y = 22 + i * 18; o += Tx(14, y, String(i + 1), CM, 7.5, 'end'); toks.forEach(([t, col]) => { o += `<text class="dg-t" x="${x}" y="${y}" style="font-size:9.5px;font-weight:700;font-family:monospace;fill:${col}">${escH(T(t))}</text>`; x += t.length * 6 + 4; }); });
+          o += rc(204, 6, 198, 192, '#020617', { fo: .9, sw: 1, c: '#475569', rx: 4 });
+          const sig = (y, col, nm, d) => Tx(210, y - 4, nm, col, 8.5, 'start') + pvdL(d, { c: col, sw: 1.8, so: 1 });
+          o += sig(48, '#93c5fd', 'clk', 'M240 48 h12 v-14 h12 v14 h12 v-14 h12 v14 h12 v-14 h12 v14 h12 v-14 h12 v14 h12 v-14 h12 v14 h12');
+          o += sig(84, '#fca5a5', 'rst', 'M240 84 v-14 h40 v14 h120');
+          o += Tx(210, 120, 'q[7:0]', '#a7f3d0', 8.5, 'start');
+          [[240, 292, '00'], [292, 344, '01'], [344, 400, '02']].forEach(([a, b, t], i) => { o += pvdL(`M${a + 4} 140 L${a + 8} 128 H${b - 8} L${b - 4} 140 L${b - 8} 152 H${a + 8} Z`, { c: '#a7f3d0', sw: 1.4, so: 1 }) + Tx((a + b) / 2, 144, t, '#a7f3d0', 8.5); });
+          o += pvdL('M322 40 V168', { c: '#fbbf24', sw: 1.2, so: .9, dash: '3 3' }) + Tx(322, 184, '커서', '#fbbf24', 8.5);
+          return o;
+        },
+        dv() {
+          const c = C.dv; let o = '';
+          const tree = [[0, 'tb_top'], [1, 'driver'], [1, 'monitor'], [1, 'scoreboard'], [1, 'DUT'], [0, '테스트 목록']];
+          tree.forEach(([ind, t], i) => { const y = 24 + i * 22; o += (ind ? pvdL(`M${24} ${y - 14} V${y - 4} H${34}`, { c: '#64748b', sw: 1, so: .8 }) : '') + Tx(22 + ind * 16, y, t, i === 4 ? c : DK, 9.5, 'start'); });
+          o += rc(168, 8, 232, 188, '#020617', { fo: .9, sw: 1, c: '#475569', rx: 4 }) + Tx(176, 24, '실행 결과', DK, 9.5, 'start');
+          const bad = new Set([6, 17, 24]);
+          for (let r = 0; r < 4; r++) for (let i = 0; i < 9; i++) { const n = r * 9 + i; if (n > 31) break; const x = 182 + i * 24, y = 36 + r * 24; o += rc(x, y, 18, 16, bad.has(n) ? '#ef4444' : c, { fo: bad.has(n) ? .85 : .5, sw: .8, rx: 3 }); }
+          o += Tx(176, 150, '통과 29 / 실패 3', DK, 9.5, 'start');
+          o += rc(176, 160, 216, 10, '#94a3b8', { fo: .2, sw: .6, rx: 5 }) + rc(176, 160, 180, 10, c, { fo: .75, sw: .6, rx: 5 }) + Tx(176, 188, '커버리지', DK, 9, 'start');
+          return o;
+        },
+        pd() {
+          const c = C.pd; let o = rc(6, 6, 300, 192, '#020617', { fo: .95, sw: 1, c: '#475569' });
+          o += rc(14, 14, 90, 56, '#f472b6', { fo: .3, sw: 1.2 }) + rc(204, 14, 90, 56, '#f472b6', { fo: .3, sw: 1.2 });
+          for (let r = 0; r < 5; r++) o += pvdL(`M16 ${22 + r * 11} H102 M206 ${22 + r * 11} H292`, { c: '#f472b6', sw: .8, so: .5 });
+          for (let r = 0; r < 8; r++) { let x = 14; while (x < 290) { const w = 10 + Math.floor(rnd() * 16); if (x + w > 296) break; o += rc(x, 82 + r * 13, w, 10, r % 2 ? LY.pd : '#fcd34d', { fo: .25 + rnd() * .35, sw: .5 }); x += w + 2; } }
+          o += pvdL('M104 28 H204 M104 46 H204 M104 58 H150 V80', { c: LY.m1, sw: 1.6, so: 1 }) + pvdL('M60 70 V78 H240 V70', { c: LY.m2, sw: 1.6, so: 1 });
+          o += `<circle cx="214" cy="130" r="26" style="fill:#ef4444;fill-opacity:.2;stroke:#ef4444;stroke-opacity:.9;stroke-width:1.4;stroke-dasharray:4 3"/>` + Tx(214, 133, '혼잡', '#fca5a5', 9.5);
+          // 층 팔레트
+          o += rc(314, 6, 84, 192, '#020617', { fo: .9, sw: 1, c: '#475569' }) + Tx(356, 22, '층', DK, 9.5);
+          [['확산(N)', LY.nd], ['확산(P)', LY.pd], ['폴리', LY.po], ['금속1', LY.m1], ['금속2', LY.m2]].forEach(([n, col], i) => { const y = 34 + i * 26; o += rc(322, y, 14, 14, col, { fo: .7, sw: .8 }) + Tx(342, y + 11, n, DK, 9, 'start'); });
+          return o;
+        },
+        an() {
+          const c = C.an; let o = '';
+          o += Tx(122, 20, 'VDD', c, 9.5) + mos(110, 50, true, c) + mos(110, 100, false, c);
+          o += pvdL('M122 42 V28 M106 28 H138', { c, sw: 2.2, so: 1 }) + pvdL('M122 86 V92 M122 89 H178', { c, sw: 2.2, so: 1 }) + pvdL('M92 64 V114 M50 89 H92', { c, sw: 2.2, so: 1 }) + pvdL('M122 136 V150 M106 150 H138 M112 156 H132', { c, sw: 2.2, so: 1 });
+          o += Tx(44, 93, '입력', c, 9.5, 'end') + Tx(184, 93, '출력', c, 9.5, 'start') + Tx(122, 172, '접지', c, 9);
+          o += rc(236, 8, 164, 188, '#020617', { fo: .9, sw: 1, c: '#475569', rx: 4 });
+          o += `<rect x="238" y="62" width="160" height="62" style="fill:${c};fill-opacity:.12"/>` + pvdL('M238 62 H398 M238 124 H398', { c, sw: 1, so: .8, dash: '4 3' });
+          o += pvdL('M244 93 q10 -36 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0', { c, sw: 2.2, so: 1 }) + Tx(318, 52, '출력 파형', DK, 9.5) + Tx(318, 142, '규격 범위 안인가', c, 9.5);
+          return o;
+        },
+        dft() {
+          const c = C.dft; let o = '';
+          const ff = (x, y, bad) => rc(x, y, 44, 30, bad ? '#ef4444' : c, { fo: bad ? .5 : .22, sw: 1.4, rx: 4 }) + Tx(x + 22, y + 19, bad ? '불량' : 'FF', bad ? '#fca5a5' : DK, 9.5);
+          for (let i = 0; i < 5; i++) { o += ff(26 + i * 76, 22, false) + ff(26 + i * 76, 100, i === 2); }
+          for (let i = 0; i < 4; i++) o += pvdL(`M${70 + i * 76} 37 H${102 + i * 76} M${70 + i * 76} 115 H${102 + i * 76}`, { c, sw: 2.4, so: 1 });
+          o += pvdL('M8 37 H26', { c, sw: 2.4, so: 1 }) + fdArr(26, 37, 'r', c) + pvdL('M386 37 H400 V76 H12 V115 H26', { c, sw: 2.4, so: 1 }) + fdArr(26, 115, 'r', c) + pvdL('M346 115 H400', { c, sw: 2.4, so: 1 }) + Tx(10, 28, '입력', c, 8.5, 'start') + Tx(396, 134, '출력', c, 8.5, 'end');
+          o += Tx(14, 172, '고장 검출률', DK, 9.5, 'start') + rc(96, 163, 220, 11, '#94a3b8', { fo: .2, sw: .6, rx: 5 }) + rc(96, 163, 196, 11, c, { fo: .75, sw: .6, rx: 5 });
+          o += Tx(14, 192, '패턴 수', DK, 9.5, 'start') + [0, 1, 2, 3, 4, 5, 6, 7].map((i) => rc(96 + i * 26, 183, 20, 11, c, { fo: .35 + (i % 3) * .1, sw: .6, rx: 2 })).join('');
+          return o;
+        },
+        fw() {
+          const c = C.fw; let o = '';
+          const KW = '#c084fc', ID = '#93c5fd', NM = '#fcd34d', CM = '#64748b';
+          const lines = [[[['#define', KW], ['CTRL_REG', ID], ['0x4000', NM]]], [[['void', KW], ['boot', ID], ['(void) {', DK]]], [[['  CTRL_REG = 1;', NM]]], [[['  init_clock();', ID]]], [[['  while', KW], ['(!ready);', DK]]], [[['}', DK]]]];
+          lines.forEach(([toks], i) => { let x = 16; const y = 22 + i * 17; toks.forEach(([t, col]) => { o += `<text class="dg-t" x="${x}" y="${y}" style="font-size:9.5px;font-weight:700;font-family:monospace;fill:${col}">${escH(T(t))}</text>`; x += t.length * 6 + 4; }); });
+          o += rc(8, 120, 396, 78, '#020617', { fo: .95, sw: 1, c: '#475569', rx: 4 }) + Tx(16, 134, '시리얼 로그', DK, 9, 'start');
+          ['[boot] 클록 안정화 완료', '[boot] 레지스터 초기화 완료', '[app] 동작 시작', '>'].forEach((t, i) => { o += `<text class="dg-t" x="16" y="${150 + i * 14}" style="font-size:9.5px;font-weight:700;font-family:monospace;fill:#bef264">${escH(T(t))}</text>`; });
+          o += rc(262, 8, 134, 100, c, { fo: .12, sw: 1.2, rx: 4 }) + Tx(329, 24, '레지스터 지도', c, 9.5);
+          [['0x4000', 'CTRL'], ['0x4004', 'STATUS'], ['0x4008', 'DATA']].forEach(([a, n], i) => { o += Tx(272, 46 + i * 20, a, DK, 8.5, 'start') + Tx(332, 46 + i * 20, n, c, 8.5, 'start'); });
+          return o;
+        },
+      };
+      const EDT = { arch: '아키텍처 스케치', rtl: 'RTL 편집기 · 시뮬레이션 파형', dv: '검증 환경 · 테스트 결과', pd: '레이아웃 편집기', an: '회로도 · 시뮬레이션', dft: '스캔 체인 · 고장 검출', fw: '펌웨어 코드 · 시리얼 로그' };
+
       Object.assign(DIAGRAMS, {
-        // ---------- 일곱 직무가 하루 종일 보는 화면 ----------
-        'dsn-roles': {
-          title: '일곱 직무가 하루 종일 보는 화면',
+        // ---------- 칩 크기 사다리 ----------
+        'dsn-zoom': {
+          title: '웨이퍼에서 트랜지스터까지: 설계가 다루는 크기',
           wide: true,
           states: [
-            { id: 'all', label: '전체 보기', desc: '같은 칩을 만들어도 직무마다 모니터에 띄워 놓는 화면이 전혀 다르다. 블록 그림을 그리는 사람, 코드를 쓰는 사람, 파형을 보는 사람, 배치 도면을 보는 사람이 한 팀으로 일한다. 직무를 눌러 화면을 크게 본다.' },
-            { id: 'arch', label: '아키텍처', focus: ['arch'], desc: '시스템 아키텍트의 화면은 블록 그림과 목표 수치다. 어떤 블록을 두고 어떻게 이을지를 그리고, 성능과 전력, 면적이 목표에 맞는지 따져 본다. 설계의 출발점이라 이 그림이 틀리면 뒤의 모든 일이 틀어진다.' },
-            { id: 'rtl', label: 'RTL 설계', focus: ['rtl'], desc: '디지털 설계자의 화면은 코드와 파형이다. 블록의 동작을 RTL 코드로 쓰고, 시뮬레이션을 돌려 클록마다 신호가 의도대로 변하는지 파형으로 확인한다.' },
-            { id: 'dv', label: '설계 검증', focus: ['dv'], desc: '검증 엔지니어의 화면은 수많은 테스트의 통과·실패 현황이다. 테스트벤치가 설계에 입력을 넣고 결과를 정답과 비교한다. 실패한 한 칸이 곧 찾아야 할 버그다.' },
-            { id: 'pd', label: '물리설계', focus: ['pd'], desc: '물리설계 엔지니어의 화면은 칩 도면이다. 큰 블록과 수많은 게이트가 놓인 자리와 배선을 보고, 선이 한곳에 몰려 지나가기 어려운 곳(혼잡)이나 시간이 모자란 경로를 찾아 푼다.' },
-            { id: 'an', label: '아날로그', focus: ['an'], desc: '아날로그 설계자의 화면은 회로도와 연속 신호의 파형이다. 증폭기 같은 회로의 출력이 잡음과 온도, 제조 편차가 있어도 규격 범위 안에 드는지를 시뮬레이션으로 확인한다.' },
-            { id: 'dft', label: 'DFT', focus: ['dft'], desc: 'DFT 엔지니어의 화면은 스캔 체인과 고장 검출률이다. 내부 저장 소자를 한 줄로 이어 값을 밀어 넣고 꺼내 보면, 어느 소자가 불량인지 밖에서 알 수 있다. 얼마나 많은 고장을 잡아내는지가 성적이다.' },
-            { id: 'fw', label: '펌웨어', focus: ['fw'], desc: '펌웨어 엔지니어의 화면은 코드와 터미널 로그다. 칩이 켜질 때 도는 부팅 코드와 레지스터 초기화를 쓰고, 칩이 돌아오면 가장 먼저 로그로 동작을 확인한다.' },
+            { id: 'all', label: '전체 보기', desc: '칩은 지름 300 mm 웨이퍼에서 시작해 수십 nm 트랜지스터까지 일곱 자릿수쯤 차이 나는 크기를 오간다. 설계 직무는 칩 하나를 그리는 일이지만 그 안에서 이 모든 크기에 걸쳐 일한다. 크기를 눌러 확대해 본다.' },
+            { id: 'wafer', label: '웨이퍼', focus: ['wafer'], desc: '공장에서 만드는 가장 큰 단위는 지름 300 mm의 웨이퍼다. 한 장에 같은 칩(다이)이 수십 개에서 수천 개 들어간다. 설계가 그리는 것은 이 가운데 칩 하나다.' },
+            { id: 'die', label: '칩(다이)', focus: ['die'], desc: '칩 하나는 가장자리의 입출력 패드와 안쪽의 블록들로 이루어진다. 아키텍트가 어떤 블록을 둘지 정하고 물리설계가 어디에 놓을지 큰 틀을 짠다. DFT는 테스트용 길을 칩 전체에 깐다.' },
+            { id: 'block', label: '블록', focus: ['block'], desc: '블록 안에는 메모리 같은 큰 덩어리와 표준 셀 영역이 있고 전원선과 클록 배선이 그 위를 지난다. RTL 설계자가 쓴 동작이 여기서 게이트의 바다가 되고, 검증이 이 블록의 동작을 확인한다.' },
+            { id: 'cell', label: '표준 셀', focus: ['cell'], desc: '표준 셀은 인버터, NAND, 플립플롭 같은 기본 부품이다. 높이가 같은 셀을 줄로 세우고 위층 배선으로 이어서 회로를 만든다. 합성 도구가 셀을 고르고 물리설계가 줄을 세운다.' },
+            { id: 'tr', label: '트랜지스터', focus: ['tr'], desc: '가장 작은 단위는 트랜지스터다. 게이트 길이가 수십 nm 수준이고 소스, 게이트, 드레인으로 이루어진다. 아날로그 설계자는 이 트랜지스터의 크기를 직접 정한다. 그림은 단순화한 단면이다.' },
           ],
           svg(s) {
             const f = s.focus ? s.focus[0] : null;
             let o = fdDefs();
-            const keys = Object.keys(dsRoleNm);
             if (!f) {
-              const NM = { arch: '아키텍처', rtl: 'RTL', dv: '검증', pd: '물리', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
-              const ic = (k, cx, cy, c) => {
-                const g = { arch: pvdL(`M${cx - 9} ${cy - 7} h8 v6 h-8 z M${cx + 3} ${cy - 7} h8 v6 h-8 z M${cx - 9} ${cy + 3} h20 v6 h-20 z M${cx - 5} ${cy - 1} v4 M${cx + 7} ${cy - 1} v4`, { c, sw: 1.8, so: 1 }),
-                  rtl: fdTxM(cx, cy + 5, '</>', { s: 15, w: 800, c }),
-                  dv: pvdL(`M${cx - 9} ${cy + 1} l6 7 l12 -15`, { c, sw: 3.2, so: 1 }),
-                  pd: pvdL(`M${cx - 10} ${cy - 8} h20 v16 h-20 z M${cx - 10} ${cy} h20 M${cx} ${cy - 8} v16`, { c, sw: 1.8, so: 1 }),
-                  an: pvdL(`M${cx - 11} ${cy} q5.5 -13 11 0 t11 0`, { c, sw: 2.6, so: 1 }),
-                  dft: pvdL(`M${cx - 12} ${cy} h6 M${cx - 6} ${cy - 5} h8 v10 h-8 z M${cx + 2} ${cy} h10`, { c, sw: 2, so: 1 }),
-                  fw: fdTxM(cx, cy + 5, '>_', { s: 14, w: 800, c }) }[k];
-                return `<circle cx="${cx}" cy="${cy}" r="21" style="fill:${c};fill-opacity:.14;stroke:${c};stroke-width:1.8;stroke-opacity:.95"/>` + g;
-              };
-              keys.forEach((k, i) => {
-                const cx = 36 + i * 61.5;
-                o += ic(k, cx, 74, C[k]) + dsPerson(cx, 190, C[k], 1.7) + fdTxM(cx, 216, NM[k], { s: 9.5, w: 800, c: C[k] });
+              ZOOM.forEach(([id, nm, sz, col], i) => {
+                const x = 10 + i * 86;
+                o += `<g transform="translate(${x} 36) scale(.38)">${zoomDraw[id](false)}</g>` + fdRect(x - 1, 35, 78, 78, { rx: 5, fill: 'none', c: col, so: .8, sw: 1.4 }) + fdTxM(x + 38, 132, nm, { s: 11, w: 800, c: col }) + fdTxM(x + 38, 147, sz, { s: 9, op: .85 });
+                if (i < 4) o += fdArr(x + 83, 74, 'r', 'currentColor');
               });
-              o += fdTxM(220, 26, '한 칩, 일곱 직무', { s: 12, w: 800, c: AC }) + fdTxM(220, 250, '직무를 눌러 그 직무의 모니터 화면을 본다', { s: 10, op: .85 });
-              return dgSvg('직무별 화면: ' + s.label, o, '0 0 440 262');
+              o += pvdL('M12 176 H428', { c: AC, sw: 2, so: .9 }) + fdArr(428, 176, 'r', AC) + pvdL('M12 170 V182', { c: AC, sw: 2, so: .9 }) + fdTxM(220, 200, '설계는 이 모든 크기에 걸쳐 일한다', { s: 11.5, w: 800, c: AC }) + fdTxM(220, 18, '아래로 갈수록 확대', { s: 10, op: .85 });
+              return dgSvg('크기 사다리: ' + s.label, o, '0 0 440 214');
             }
-            o += fdRect(14, 10, 412, 250, { rx: 10, fill: 'rgba(148,163,184,.06)', c: C[f], so: .95, sw: 1.8 });
-            o += `<circle cx="28" cy="24" r="3.4" style="fill:${C[f]}"/>` + fdTxM(38, 27, dsRoleNm[f], { a: 'start', s: 10, w: 800, c: C[f] });
-            o += `<g transform="translate(26 40) scale(1.25)">${screen(f, true)}</g>`;
-            keys.forEach((k, i) => { o += dsPerson(36 + i * 61, 298, C[k], k === f ? .8 : .56, k === f ? 1 : .32); });
-            return dgSvg('직무별 화면: ' + s.label, o, '0 0 440 304');
+            const z = ZOOM.find((q) => q[0] === f);
+            o += fdRect(14, 10, 112, 200, { rx: 10, fill: 'rgba(148,163,184,.07)', c: z[3], so: .9, sw: 1.6 }) + fdTxM(70, 76, z[1], { s: 14, w: 800, c: z[3] }) + fdTxM(70, 100, z[2], { s: 11, w: 800 }) + fdTxM(70, 136, '이 크기에서', { s: 9.5, op: .8 }) + fdTxM(70, 150, '일하는 직무 →', { s: 9.5, op: .8 });
+            o += `<g transform="translate(130 12)">${zoomDraw[f](true)}</g>`;
+            const ro = z[4];
+            o += fdRect(338, 10, 88, 200, { rx: 10, fill: 'rgba(148,163,184,.07)', c: 'currentColor', so: .5, sw: 1.2 });
+            if (!ro.length) o += fdTxM(382, 104, '제조 현장', { s: 11, w: 800, c: '#94a3b8' }) + fdTxM(382, 120, '(설계 이전)', { s: 9, op: .8 });
+            ro.forEach((k, i) => { const y = 24 + i * 44; o += fdRect(346, y, 72, 34, { rx: 8, fill: 'rgba(148,163,184,.08)', c: C[k], so: .95, sw: 1.8 }) + `<circle cx="357" cy="${y + 17}" r="4" style="fill:${C[k]}"/>` + fdTxM(386, y + 21, ZR[k], { s: 10, w: 800, c: C[k] }); });
+            return dgSvg('크기 사다리: ' + s.label, o, '0 0 440 220');
           }
         },
 
-        // ---------- 한 프로젝트에서 누가 언제 앞장서나 ----------
+        // ---------- 직무별 도구 화면 ----------
+        'dsn-roles': {
+          title: '일곱 직무는 칩의 어디를 맡나',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '칩 하나를 일곱 직무가 서로 다른 곳에서 맡는다. 아키텍트는 칩 전체의 구조를, RTL 설계자와 검증 엔지니어는 CPU 같은 디지털 블록을, 물리설계는 표준 셀과 배선을, 아날로그는 PLL이나 ADC를, DFT는 테스트 길을, 펌웨어는 부팅 코드를 맡는다. 직무를 눌러 그 직무가 쓰는 도구 화면을 본다.' },
+            { id: 'arch', label: '아키텍처', focus: ['arch'], desc: '시스템 아키텍트의 화면은 블록 구조와 목표 수치다. 어떤 블록을 두고 어떻게 이을지를 그리고, 성능과 전력, 면적이 목표에 맞는지 따져 본다. 설계의 출발점이라 이 그림이 틀리면 뒤의 모든 일이 틀어진다.' },
+            { id: 'rtl', label: 'RTL 설계', focus: ['rtl'], desc: '디지털 설계자의 화면은 코드와 파형이다. 블록의 동작을 RTL 코드로 쓰고, 시뮬레이션을 돌려 클록마다 신호가 의도대로 변하는지 파형으로 확인한다.' },
+            { id: 'dv', label: '설계 검증', focus: ['dv'], desc: '검증 엔지니어의 화면은 검증 환경과 수많은 테스트의 통과·실패 현황이다. 테스트가 설계에 입력을 넣고 결과를 정답과 비교한다. 실패한 한 칸이 곧 찾아야 할 버그다.' },
+            { id: 'pd', label: '물리설계', focus: ['pd'], desc: '물리설계 엔지니어의 화면은 층별로 색이 칠해진 칩 도면이다. 큰 블록과 표준 셀, 배선이 놓인 자리를 보고, 선이 한곳에 몰려 지나가기 어려운 곳(혼잡)이나 시간이 모자란 경로를 찾아 푼다.' },
+            { id: 'an', label: '아날로그', focus: ['an'], desc: '아날로그 설계자의 화면은 트랜지스터로 그린 회로도와 연속 신호의 파형이다. 회로의 출력이 잡음과 온도, 제조 편차가 있어도 규격 범위 안에 드는지를 시뮬레이션으로 확인한다.' },
+            { id: 'dft', label: 'DFT', focus: ['dft'], desc: 'DFT 엔지니어의 화면은 스캔 체인과 고장 검출률이다. 내부 저장 소자를 한 줄로 이어 값을 밀어 넣고 꺼내 보면, 어느 소자가 불량인지 밖에서 알 수 있다. 얼마나 많은 고장을 잡아내는지가 성적이다.' },
+            { id: 'fw', label: '펌웨어', focus: ['fw'], desc: '펌웨어 엔지니어의 화면은 코드와 시리얼 로그다. 칩이 켜질 때 도는 부팅 코드와 레지스터 초기화를 쓰고, 칩이 돌아오면 가장 먼저 로그로 동작을 확인한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            if (f) {
+              o += win(EDT[f], C[f], editors[f]());
+              return dgSvg('직무별 도구 화면: ' + s.label, o, '0 0 440 262');
+            }
+            // 칩 도면 + 직무 표지
+            const X = 130, Y = 40, W = 180, H = 160;
+            o += rc(X, Y, W, H, 'rgba(148,163,184,.14)', { c: '#94a3b8', sw: 2, fo: 1, so: .95, rx: 3 });
+            for (let i = 0; i < 10; i++) { const p = X + 12 + i * 16.4; o += rc(p, Y + 2, 9, 7, '#e2e8f0', { fo: .7, sw: .5 }) + rc(p, Y + H - 9, 9, 7, '#e2e8f0', { fo: .7, sw: .5 }); }
+            for (let i = 0; i < 8; i++) { const p = Y + 14 + i * 17; o += rc(X + 2, p, 7, 9, '#e2e8f0', { fo: .7, sw: .5 }) + rc(X + W - 9, p, 7, 9, '#e2e8f0', { fo: .7, sw: .5 }); }
+            o += rc(X + 16, Y + 16, 96, 60, C.rtl, { fo: .26, sw: 1.4 }) + rc(X + 118, Y + 16, 46, 60, '#f472b6', { fo: .26, sw: 1.4 }) + rc(X + 16, Y + 82, 36, 28, C.an, { fo: .3, sw: 1.4 }) + rc(X + 56, Y + 82, 40, 28, C.an, { fo: .3, sw: 1.4 }) + rc(X + 100, Y + 82, 64, 28, C.fw, { fo: .3, sw: 1.4 });
+            for (let r = 0; r < 4; r++) o += rc(X + 16, Y + 116 + r * 8, 148, 5, LY.pd, { fo: .4, sw: .5 });
+            o += Tx(X + 64, Y + 50, 'CPU', DK, 10.5) + Tx(X + 141, Y + 50, 'SRAM', DK, 9.5) + Tx(X + 34, Y + 99, 'PLL', DK, 8.5) + Tx(X + 76, Y + 99, 'ADC', DK, 8.5) + Tx(X + 132, Y + 99, 'ROM', DK, 9);
+            // 스캔 체인 점선
+            o += pvdL(`M${X + 24} ${Y + 62} H${X + 100}`, { c: C.dft, sw: 1.8, so: 1, dash: '3 2' });
+            const pill = (k, x, y, tx, ty, side) => { const w = 92; return pvdL(`M${side === 'l' ? x + w : x} ${y + 12} L${tx} ${ty}`, { c: C[k], sw: 1.5, so: .9 }) + `<circle cx="${tx}" cy="${ty}" r="3" style="fill:${C[k]}"/>` + fdRect(x, y, w, 24, { rx: 12, fill: 'rgba(148,163,184,.1)', c: C[k], so: .95, sw: 1.8 }) + fdTxM(x + w / 2, y + 16, ZR[k], { s: 10.5, w: 800, c: C[k] }); };
+            o += pill('arch', 14, 22, X + 6, Y + 6, 'l') + pill('rtl', 14, 78, X + 50, Y + 36, 'l') + pill('dv', 14, 134, X + 78, Y + 66, 'l') + pill('pd', 14, 190, X + 80, Y + 128, 'l');
+            o += pill('an', 334, 62, X + 92, Y + 96, 'r') + pill('dft', 334, 118, X + 100, Y + 62, 'r') + pill('fw', 334, 174, X + 150, Y + 98, 'r');
+            return dgSvg('직무별 도구 화면: ' + s.label, o, '0 0 440 226');
+          }
+        },
+      });
+    })();
+
+    (() => {
+      const C = dsC, AC = dsAc, LY = dsL;
+      const Tx = (x, y, t, c, s = 9, a, op) => fdTxM(x, y, t, { s, w: 800, c, a, op });
+      const rc = (x, y, w, h, fill, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx || 0}" style="fill:${fill};fill-opacity:${o.fo == null ? .55 : o.fo};stroke:${o.c || fill};stroke-width:${o.sw || .8};stroke-opacity:${o.so == null ? .9 : o.so}${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
+      const mos = (x, y, p, c) => pvdL(`M${x} ${y} V${y + 28} M${x - 6} ${y + 4} V${y + 24} M${x - 18} ${y + 14} H${x - 6} M${x} ${y + 5} H${x + 12} V${y - 8} M${x} ${y + 23} H${x + 12} V${y + 36}`, { c, sw: 2.2, so: 1 }) + (p ? `<circle cx="${x - 9}" cy="${y + 14}" r="2.6" style="fill:#0f172a;stroke:${c};stroke-width:1.4"/>` : '');
+      const NM = { arch: '아키텍트', rtl: 'RTL', dv: '검증', pd: '물리', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
+      const DK = '#e2e8f0';
+      let sd = 5; const rnd = () => (sd = (sd * 1103515245 + 12345) % 2147483648) / 2147483648;
+      const waferMini = (cx, cy, r) => { let o = `<circle cx="${cx}" cy="${cy}" r="${r}" style="fill:rgba(148,163,184,.18);stroke:#94a3b8;stroke-width:1.6;stroke-opacity:.9"/>`; const d = r / 5; for (let j = -5; j <= 5; j++) for (let i = -5; i <= 5; i++) { const x = cx + i * d - d / 2, y = cy + j * d * .8 - d * .4; if ([[x, y], [x + d, y], [x, y + d * .8], [x + d, y + d * .8]].every(([a, b]) => Math.hypot(a - cx, b - cy) <= r - 1.5)) o += rc(x + .6, y + .6, d - 1.2, d * .8 - 1.2, '#60a5fa', { fo: .28, sw: .4 }); } return o; };
+      const layoutMini = (x, y, w, h) => { let o = rc(x, y, w, h, '#020617', { fo: .95, c: '#475569', sw: 1, rx: 3 }); for (let r = 0; r < 3; r++) { let xx = x + 4; while (xx < x + w - 10) { const ww = 8 + Math.floor(rnd() * 8); if (xx + ww > x + w - 4) break; o += rc(xx, y + h - 22 + r * 6, ww, 4.5, r % 2 ? LY.nd : LY.pd, { fo: .6, sw: .3 }); xx += ww + 1.5; } } o += rc(x + 5, y + 5, w * .4, h * .3, '#f472b6', { fo: .5, sw: .6 }) + pvdL(`M${x + w * .5} ${y + 12} H${x + w - 6} V${y + h - 24}`, { c: LY.m1, sw: 1.4, so: 1 }); return o; };
+
+      Object.assign(DIAGRAMS, {
+        // ---------- 시기별 앞장서는 직무 ----------
         'dsn-team': {
           title: '칩 한 개를 만드는 동안 시기별로 앞장서는 직무',
           wide: true,
           states: [
-            { id: 'all', label: '전체 보기', desc: '칩 프로젝트는 다섯 시기로 나뉘고, 시기마다 가장 바쁜 직무가 바뀐다. 왼쪽에서 오른쪽으로 흐르며 바통을 넘기듯 이어진다. 시기를 눌러 그때 앞장서는 직무를 본다. 회사와 칩마다 다르므로 흐름을 잡는 용도다.' },
+            { id: 'all', label: '전체 보기', desc: '칩 프로젝트는 다섯 시기로 나뉘고, 시기마다 가장 바쁜 직무가 바뀐다. 개념 스케치에서 시작해 코드, 도면, 웨이퍼, 완성된 칩으로 모양이 바뀌며 바통을 넘기듯 이어진다. 시기를 눌러 그때 앞장서는 직무를 본다. 회사와 칩마다 다르므로 흐름을 잡는 용도다.' },
             { id: 'p1', label: '정의', focus: ['p1'], desc: '목표를 정하는 시기다. 아키텍트가 가장 바쁘고, 다른 직무는 목표를 읽고 가능한지 의견을 낸다. 여기서 놓친 요구가 뒤에서 큰 비용으로 돌아온다.' },
             { id: 'p2', label: '설계·검증', focus: ['p2'], desc: 'RTL을 쓰고 검증하는 시기다. 디지털 설계와 검증이 가장 바쁘고, 아날로그 설계도 회로를 만든다. 가장 길고 사람이 많이 몰리는 시기다.' },
             { id: 'p3', label: '물리 구현', focus: ['p3'], desc: '게이트를 놓고 배선하는 시기다. 물리설계가 가장 바쁘고, DFT가 테스트 길을 넣는다. 타이밍이 안 맞으면 설계 쪽으로 되돌아가 협의한다.' },
@@ -11523,52 +11660,64 @@
             const f = s.focus ? s.focus[0] : null;
             let o = fdDefs();
             const PH = [['p1', '정의', '#f472b6', ['arch']], ['p2', '설계 · 검증', '#60a5fa', ['rtl', 'dv', 'an']], ['p3', '물리 구현', '#fbbf24', ['pd', 'dft']], ['p4', '제조', '#a78bfa', ['dft', 'fw']], ['p5', '칩 복귀', '#34d399', ['dft', 'fw']]];
-            const NM = { arch: '아키텍트', rtl: 'RTL', dv: '검증', pd: '물리', an: '아날로그', dft: 'DFT', fw: '펌웨어' };
-            o += pvdL('M26 50 H414', { c: 'currentColor', sw: 3, so: .25 });
+            const icon = {
+              p1: (cx, cy, c) => [[-26, -16, 20, 14], [6, -16, 20, 14], [-10, 8, 20, 14]].map(([x, y, w, h]) => rc(cx + x, cy + y, w, h, c, { fo: .25, sw: 1.4, rx: 3 })).join('') + pvdL(`M${cx - 16} ${cy - 2} V${cy + 15} H${cx - 10} M${cx + 16} ${cy - 2} V${cy + 15} H${cx + 10}`, { c, sw: 1.6, so: 1 }),
+              p2: (cx, cy, c) => rc(cx - 30, cy - 24, 60, 48, '#020617', { fo: .92, c, sw: 1.4, rx: 3 }) + [0, 1, 2].map((i) => rc(cx - 25, cy - 18 + i * 8, 14 + (i % 2) * 8, 3.5, ['#c084fc', '#93c5fd', '#fcd34d'][i], { fo: .9, sw: 0 })).join('') + pvdL(`M${cx - 4} ${cy + 10} h5 v-8 h6 v8 h6 v-8 h6 v8 h5`, { c: '#93c5fd', sw: 1.4, so: 1 }),
+              p3: (cx, cy, c) => layoutMini(cx - 30, cy - 24, 60, 48),
+              p4: (cx, cy) => waferMini(cx, cy, 25),
+              p5: (cx, cy, c) => rc(cx - 30, cy - 20, 60, 40, '#16a34a', { fo: .3, c: '#4ade80', sw: 1.4, rx: 3 }) + rc(cx - 14, cy - 14, 28, 28, '#0f172a', { fo: .9, c: '#94a3b8', sw: 1.4, rx: 2 }) + [0, 1, 2, 3, 4].map((i) => rc(cx - 12 + i * 5.5, cy - 18, 2.4, 4, '#e2e8f0', { fo: .8, sw: 0 }) + rc(cx - 12 + i * 5.5, cy + 14, 2.4, 4, '#e2e8f0', { fo: .8, sw: 0 })).join('') + Tx(cx, cy + 3, 'CHIP', '#e2e8f0', 7),
+            };
+            o += pvdL('M24 40 H416', { c: 'currentColor', sw: 3, so: .25 });
             PH.forEach(([id, nm, col, who], i) => {
-              const x = 48 + i * 86, on = !f || f === id;
-              o += pvdG(f, [id], `<circle cx="${x}" cy="50" r="15" style="fill:${col};fill-opacity:.95"/>` + fdTxM(x, 55.5, String(i + 1), { s: 15, w: 800, c: '#0f172a' }) + fdTxM(x, 86, nm, { s: 10, w: 800, c: col }) + pvdL(`M${x} 94 V108`, { c: col, sw: 1.6, so: .6, dash: '3 3' }));
-              who.forEach((k, j) => {
-                const y = 150 + j * 52;
-                o += pvdG(f, [id], dsPerson(x - 22, y + 14, dsC[k], .85) + fdTxM(x - 9, y + 7, NM[k], { a: 'start', s: 9.5, w: 800, c: dsC[k] }));
-              });
+              const x = 48 + i * 86;
+              o += pvdG(f, [id], `<circle cx="${x}" cy="40" r="14" style="fill:${col};fill-opacity:.95"/>` + fdTxM(x, 45.5, String(i + 1), { s: 15, w: 800, c: '#0f172a' }) + fdTxM(x, 74, nm, { s: 10, w: 800, c: col }) + icon[id](x, 112, col));
+              who.forEach((k, j) => { const y = 160 + j * 30; o += pvdG(f, [id], fdRect(x - 38, y, 76, 24, { rx: 12, fill: 'rgba(148,163,184,.08)', c: C[k], so: .95, sw: 1.7 }) + `<circle cx="${x - 26}" cy="${y + 12}" r="4" style="fill:${C[k]}"/>` + fdTxM(x + 6, y + 16, NM[k], { s: 9.5, w: 800, c: C[k] })); });
             });
-            o += fdTxM(220, 292, f ? '이 시기에 가장 바쁜 직무' : '시기마다 앞장서는 직무가 바뀐다', { s: 10.5, op: .85 });
-            return dgSvg('프로젝트 시기: ' + s.label, o, '0 0 440 302');
+            o += fdTxM(220, 266, f ? '이 시기에 가장 바쁜 직무' : '시기마다 앞장서는 직무가 바뀐다', { s: 10.5, op: .85 });
+            return dgSvg('프로젝트 시기: ' + s.label, o, '0 0 440 276');
           }
         },
 
         // ---------- 설계는 어느 회사에서 하나 ----------
         'dsn-where': {
-          title: '설계는 어느 회사에서 하나',
+          title: '설계 파일이 제조로 넘어가는 곳',
           wide: true,
           states: [
-            { id: 'all', label: '전체 보기', desc: '설계 직무는 세 종류의 회사에 있다. 위쪽은 설계만 하는 팹리스와 그 설계를 받아 만들어 주는 파운드리, 아래쪽은 설계와 제조를 한 울타리 안에서 하는 IDM이다. 설계 파일(GDS)이 어디로 가는지가 구분의 열쇠다.' },
-            { id: 'fabless', label: '팹리스', focus: ['fabless'], desc: '팹리스는 공장 없이 설계만 하는 회사다. 설계한 칩의 제조는 파운드리에 맡긴다. 설계 직무의 비중이 가장 크고 공정 규칙(PDK)은 파운드리가 주는 것을 받아 쓴다.' },
-            { id: 'foundry', label: '파운드리', focus: ['foundry'], desc: '파운드리는 여러 회사의 설계를 받아 제조만 하는 회사다. 설계 직무는 고객이 쓸 공정 규칙과 부품 라이브러리(PDK), 표준 셀을 만드는 쪽에 있다.' },
-            { id: 'idm', label: 'IDM', focus: ['idm'], desc: 'IDM은 설계와 제조를 한 회사 안에서 모두 하는 회사다. 설계와 공정이 가까워서 서로의 요구를 바로 맞출 수 있다. 설계자가 공정 팀과 가까이서 협의하기도 한다.' },
+            { id: 'all', label: '전체 보기', desc: '칩은 스펙에서 시작해 코드, 넷리스트, 레이아웃 파일(GDS)로 구체화되고, 이 파일로 마스크를 만들어 웨이퍼에 찍는다. GDS가 설계에서 제조로 넘어가는 문턱이다. 이 문턱을 한 회사가 모두 넘는지, 둘로 나눠 맡는지에 따라 회사 종류가 갈린다.' },
+            { id: 'fabless', label: '팹리스', focus: ['fabless'], desc: '팹리스는 공장 없이 설계만 하는 회사다. GDS까지 만들어 제조는 파운드리에 맡긴다. 설계 직무의 비중이 가장 크고 공정 규칙(PDK)은 파운드리가 주는 것을 받아 쓴다.' },
+            { id: 'foundry', label: '파운드리', focus: ['foundry'], desc: '파운드리는 여러 회사의 GDS를 받아 마스크를 만들고 웨이퍼를 제조만 하는 회사다. 설계 직무는 고객이 쓸 공정 규칙과 부품 라이브러리(PDK), 표준 셀을 만드는 쪽에 있다.' },
+            { id: 'idm', label: 'IDM', focus: ['idm'], desc: 'IDM은 설계부터 제조까지 한 회사 안에서 모두 하는 회사다. 설계와 공정이 가까워서 서로의 요구를 바로 맞출 수 있다. 설계자가 공정 팀과 가까이서 협의하기도 한다.' },
           ],
           svg(s) {
-            const f = s.focus || null;
+            const f = s.focus || null, fk = f ? f[0] : null;
             let o = fdDefs();
-            const office = (x, y, w, h, c) => { let r = fdRect(x, y, w, h, { rx: 4, fill: 'rgba(148,163,184,.1)', c, so: .95, sw: 1.8 }); for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) r += `<rect x="${x + 10 + i * ((w - 20) / 3)}" y="${y + 10 + j * 15}" width="${(w - 20) / 3 - 6}" height="9" rx="1.5" style="fill:${c};fill-opacity:.35"/>`; return r + `<rect x="${x + w / 2 - 6}" y="${y + h - 16}" width="12" height="16" style="fill:${c};fill-opacity:.55"/>`; };
-            const fab = (x, y, w, h, c) => { const n = 3, sw = w / n; let r = `<rect x="${x}" y="${y + 16}" width="${w}" height="${h - 16}" rx="2" style="fill:rgba(148,163,184,.1);stroke:${c};stroke-width:1.8;stroke-opacity:.95"/>`; let d = `M${x} ${y + 16}`; for (let i = 0; i < n; i++) d += ` L${x + i * sw} ${y} L${x + (i + 1) * sw} ${y + 16}`; r += pvdL(d, { c, sw: 1.8, so: .95 }) + `<rect x="${x + w - 20}" y="${y - 14}" width="9" height="28" style="fill:rgba(148,163,184,.25);stroke:${c};stroke-width:1.2;stroke-opacity:.9"/>`; for (let i = 0; i < n; i++) r += `<rect x="${x + 8 + i * sw}" y="${y + 28}" width="${sw - 16}" height="14" rx="2" style="fill:${c};fill-opacity:.32"/>`; return r; };
-            const gds = (cx, y, c) => fdRect(cx - 17, y, 34, 18, { rx: 3, fill: 'rgba(148,163,184,.18)', c, so: .95, sw: 1.4 }) + fdTxM(cx, y + 12.5, 'GDS', { s: 9.5, w: 800, c });
-            const RT = dsC;
-            o += pvdG(f, ['fabless'], office(30, 40, 84, 80, RT.rtl) + fdTxM(72, 144, '팹리스', { s: 12, w: 800, c: RT.rtl }) + fdTxM(72, 160, '설계만 한다', { s: 10, op: .9 }));
-            o += pvdG(f, ['foundry'], pvdL('M122 82 H292', { c: RT.pd, sw: 2.2, so: .95, dash: '5 4' }) + fdArr(300, 82, 'r', RT.pd) + gds(208, 62, RT.pd) + fab(306, 44, 108, 76, RT.pd) + fdTxM(360, 144, '파운드리', { s: 12, w: 800, c: RT.pd }) + fdTxM(360, 160, '제조만 한다', { s: 10, op: .9 }));
-            o += pvdL('M14 184 H426', { c: 'currentColor', sw: 1, so: .3, dash: '4 4' });
-            o += pvdG(f, ['idm'], fdRect(14, 196, 412, 100, { rx: 12, fill: 'rgba(167,139,250,.06)', c: dsAc, so: .8, sw: 1.6, dash: '6 4' }) + office(40, 214, 72, 62, dsAc) + fab(298, 220, 100, 56, dsAc) + pvdL('M118 250 H290', { c: dsAc, sw: 2.2, so: .95, dash: '5 4' }) + fdArr(296, 250, 'r', dsAc) + gds(204, 230, dsAc) + fdTxM(76, 290, '설계', { s: 10, w: 800 }) + fdTxM(348, 290, '제조', { s: 10, w: 800 }) + fdTxM(220, 208, 'IDM: 한 울타리 안', { s: 11, w: 800, c: dsAc }));
-            return dgSvg('회사의 종류: ' + s.label, o, '0 0 440 306');
+            const cx = (i) => 44 + i * 70.4, cy = 76;
+            const ic = [
+              (x, y) => rc(x - 18, y - 24, 36, 48, 'rgba(148,163,184,.14)', { c: '#94a3b8', sw: 1.4, fo: 1, rx: 3 }) + [0, 1, 2, 3].map((i) => pvdL(`M${x - 11} ${y - 14 + i * 9} H${x + 11 - (i % 2) * 6}`, { c: '#94a3b8', sw: 1.4, so: .8 })).join(''),
+              (x, y) => rc(x - 22, y - 22, 44, 44, '#020617', { fo: .92, c: C.rtl, sw: 1.4, rx: 4 }) + fdTxM(x, y + 6, '{ }', { s: 18, w: 800, c: '#93c5fd' }),
+              (x, y) => `<path d="M${x - 16} ${y - 16} H${x} A16 16 0 0 1 ${x} ${y + 16} H${x - 16} Z" style="fill:${C.pd};fill-opacity:.2;stroke:${C.pd};stroke-width:1.8"/>` + pvdL(`M${x - 26} ${y - 8} H${x - 16} M${x - 26} ${y + 8} H${x - 16} M${x + 16} ${y} H${x + 26}`, { c: C.pd, sw: 1.8, so: 1 }),
+              (x, y) => layoutMini(x - 24, y - 24, 48, 48),
+              (x, y) => rc(x - 22, y - 22, 44, 44, '#1e293b', { fo: .95, c: '#94a3b8', sw: 1.6, rx: 2 }) + rc(x - 14, y - 14, 28, 28, '#020617', { fo: .9, c: '#475569', sw: 1, rx: 1 }) + [[-8, -8], [2, -8], [-8, 0], [2, 4], [-3, 6]].map(([a, b]) => rc(x + a, y + b, 8, 4, '#e2e8f0', { fo: .85, sw: 0 })).join(''),
+              (x, y) => waferMini(x, y, 24),
+            ];
+            const NMS = ['스펙', 'RTL', '넷리스트', 'GDS', '마스크', '웨이퍼'];
+            for (let i = 0; i < 6; i++) {
+              const on = !fk || (fk === 'fabless' && i < 4) || (fk === 'foundry' && i >= 4) || fk === 'idm';
+              o += `<g opacity="${on ? 1 : .2}">${ic[i](cx(i), cy)}${fdTxM(cx(i), 124, NMS[i], { s: 10.5, w: 800 })}${i < 5 ? fdArr(cx(i) + 38, cy, 'r', 'currentColor') : ''}</g>`;
+            }
+            o += pvdL(`M${(cx(3) + cx(4)) / 2} 44 V132`, { c: dsAc, sw: 1.6, so: .9, dash: '4 3' }) + fdTxM((cx(3) + cx(4)) / 2, 36, 'GDS 전달', { s: 10, w: 800, c: dsAc });
+            const br = (id, x, w, y, t, col) => pvdG(f, [id], fdRect(x, y, w, 30, { rx: 8, fill: 'rgba(148,163,184,.08)', c: col, so: .95, sw: 2 }) + fdTxM(x + w / 2, y + 19, t, { s: 11, w: 800, c: col }));
+            o += br('fabless', 14, 270, 150, '팹리스: 설계만', C.rtl) + br('foundry', 296, 130, 150, '파운드리: 제조만', C.pd) + br('idm', 14, 412, 190, 'IDM: 설계와 제조 모두', dsAc);
+            return dgSvg('회사의 종류: ' + s.label, o, '0 0 440 232');
           }
         },
 
-        // ---------- 직무마다 쓰는 바탕 과목 ----------
+        // ---------- 하나의 인버터를 여섯 과목으로 본다 ----------
         'dsn-skills': {
-          title: '직무마다 쓰는 바탕 과목',
+          title: '인버터 하나를 여섯 과목으로 본다',
           wide: true,
           states: [
-            { id: 'all', label: '전체 보기', desc: '동그라미 하나가 학교에서 배우는 바탕 과목이고, 안의 숫자는 그 과목을 중요하게 쓰는 직무의 수다. 클수록 여러 직무의 공통 바탕이다. 디지털 논리와 코딩, 컴퓨터 구조가 가장 널리 쓰인다. 직무를 눌러 그 직무에 필요한 과목을 본다.' },
+            { id: 'all', label: '전체 보기', desc: '가장 단순한 회로인 인버터 하나도 과목마다 다르게 보인다. 논리 기호, 트랜지스터 회로, 소자의 단면, 레이아웃, 이것이 모여 만드는 연산기, 그리고 코드다. 칸 위의 숫자는 그 과목을 중요하게 쓰는 직무의 수다. 직무를 눌러 그 직무에 필요한 과목을 본다.' },
             { id: 'arch', label: '아키텍처', focus: ['arch'], desc: '컴퓨터 구조와 디지털 논리, 코딩이 바탕이다. 칩이 어떤 일을 어떻게 빠르게 하도록 구성할지 정하는 일이라 구조에 대한 이해가 중심이다.' },
             { id: 'rtl', label: 'RTL 설계', focus: ['rtl'], desc: '디지털 논리와 컴퓨터 구조, 코딩이 바탕이다. 하드웨어를 코드로 쓰기 때문에 논리회로를 이해하고 코드로 옮기는 두 가지가 모두 필요하다.' },
             { id: 'dv', label: '설계 검증', focus: ['dv'], desc: '디지털 논리, 컴퓨터 구조, 코딩이 바탕이다. 검증 환경을 만드는 일이 소프트웨어 개발과 닮아서 코딩 실력이 특히 중요하게 쓰인다.' },
@@ -11580,15 +11729,26 @@
           svg(s) {
             const f = s.focus ? s.focus[0] : null;
             let o = fdDefs();
-            const SK = [['디지털 논리', 5, 80, 82], ['컴퓨터 구조', 4, 220, 82], ['코딩 · 알고리즘', 5, 360, 82], ['회로 이론', 1, 80, 192], ['반도체 소자', 2, 220, 192], ['공정 이해', 2, 360, 192]];
-            const MAP = { arch: [0, 1, 2], rtl: [0, 1, 2], dv: [0, 1, 2], pd: [0, 4, 5], an: [3, 4], dft: [0, 2, 5], fw: [1, 2] };
-            const on = new Set(f ? MAP[f] : []);
-            SK.forEach(([n, cnt, cx, cy], i) => {
-              const r = 22 + cnt * 5, hi = !f || on.has(i), col = f ? dsC[f] : dsAc;
-              o += `<g opacity="${hi ? 1 : .2}"><circle cx="${cx}" cy="${cy}" r="${r}" style="fill:${col};fill-opacity:${f && on.has(i) ? .3 : .16};stroke:${col};stroke-width:${f && on.has(i) ? 2.6 : 1.8};stroke-opacity:.95"/>` + (f && on.has(i) ? pvdL(`M${cx - 9} ${cy + 1} l6 7 l12 -15`, { c: col, sw: 3.4, so: 1 }) : fdTxM(cx, cy + 8, String(cnt), { s: 24, w: 800, c: col }) + fdTxM(cx, cy + 22, '개 직무', { s: 8.5, op: .8 })) + fdTxM(cx, cy + r + 16, n, { s: 11.5, w: 800 }) + '</g>';
+            const MAP = { arch: [0, 4, 5], rtl: [0, 4, 5], dv: [0, 4, 5], pd: [0, 2, 3], an: [1, 2], dft: [0, 3, 5], fw: [4, 5] };
+            const CNT = [5, 1, 2, 2, 4, 5];
+            const SK = ['디지털 논리', '회로 이론', '반도체 소자', '공정 이해', '컴퓨터 구조', '코딩 · 알고리즘'];
+            const dr = [
+              (x, y, c) => `<path d="M${x + 14} ${y + 28} L${x + 14} ${y + 64} L${x + 46} ${y + 46} Z" style="fill:${c};fill-opacity:.2;stroke:${c};stroke-width:2"/><circle cx="${x + 50}" cy="${y + 46}" r="4" style="fill:#0f172a;stroke:${c};stroke-width:1.6"/>` + pvdL(`M${x + 4} ${y + 46} H${x + 14} M${x + 54} ${y + 46} H${x + 62}`, { c, sw: 1.8, so: 1 }) + pvdL(`M${x + 72} ${y + 36} h8 v-10 h14 v10 h12 M${x + 72} ${y + 74} h8 v10 h14 v-10 h12`, { c, sw: 1.8, so: 1 }) + Tx(x + 92, y + 60, '입력 ↔ 출력', c, 7.5),
+              (x, y, c) => `<g transform="translate(${x + 38} ${y + 36}) scale(.66)">${mos(30, 0, true, c)}${mos(30, 56, false, c)}${pvdL('M42 -8 V-16 M30 -16 H54 M42 36 V50 M42 43 H64 M12 14 V70 M-2 42 H12 M42 92 V104 M30 104 H54', { c, sw: 2.2, so: 1 })}</g>`,
+              (x, y, c) => rc(x + 10, y + 56, 114, 30, '#94a3b8', { fo: .24, sw: 1.2 }) + rc(x + 22, y + 46, 26, 14, LY.nd, { fo: .6, sw: 1 }) + rc(x + 86, y + 46, 26, 14, LY.nd, { fo: .6, sw: 1 }) + rc(x + 50, y + 28, 34, 18, LY.po, { fo: .7, sw: 1.2 }) + rc(x + 50, y + 44, 34, 3, '#e2e8f0', { fo: .6, sw: 0 }) + rc(x + 28, y + 30, 14, 14, LY.m1, { fo: .7, sw: .8 }) + rc(x + 92, y + 30, 14, 14, LY.m1, { fo: .7, sw: .8 }) + Tx(x + 67, y + 102, '게이트 단면', 'currentColor', 8.5),
+              (x, y, c) => rc(x + 14, y + 26, 106, 12, LY.m1, { fo: .55, sw: .6 }) + rc(x + 14, y + 80, 106, 12, LY.m1, { fo: .55, sw: .6 }) + rc(x + 24, y + 42, 76, 14, LY.pd, { fo: .5, sw: .8 }) + rc(x + 24, y + 62, 76, 14, LY.nd, { fo: .5, sw: .8 }) + rc(x + 52, y + 22, 8, 74, LY.po, { fo: .75, sw: .8 }) + rc(x + 96, y + 46, 18, 4, LY.m2, { fo: .8, sw: .4 }) + Tx(x + 67, y + 108, '마스크 층', 'currentColor', 8.5),
+              (x, y, c) => [[8, 'REG'], [48, 'ALU'], [88, 'REG']].map(([dx, t]) => rc(x + dx, y + 34, 34, 34, c, { fo: .2, sw: 1.6, rx: 4 }) + Tx(x + dx + 17, y + 55, t, 'currentColor', 9)).join('') + pvdL(`M${x + 42} ${y + 51} H${x + 48} M${x + 82} ${y + 51} H${x + 88}`, { c, sw: 1.8, so: 1 }) + fdArr(x + 48, y + 51, 'r', c) + fdArr(x + 88, y + 51, 'r', c) + Tx(x + 67, y + 90, '인버터가 모여 연산기', 'currentColor', 8),
+              (x, y, c) => rc(x + 6, y + 26, 122, 62, '#020617', { fo: .92, c, sw: 1.4, rx: 4 }) + [[0, [['assign', '#c084fc'], ['y = ~a;', '#fcd34d']]], [1, [['always', '#c084fc'], ['@(posedge clk)', '#93c5fd']]], [2, [['  q <= y;', '#fcd34d']]]].map(([i, toks]) => { let xx = x + 12; return toks.map(([t, col]) => { const r = `<text class="dg-t" x="${xx}" y="${y + 44 + i * 16}" style="font-size:8.5px;font-weight:700;font-family:monospace;fill:${col}">${escH(t)}</text>`; xx += t.length * 5.2 + 4; return r; }).join(''); }).join(''),
+            ];
+            SK.forEach((n, i) => {
+              const px = 10 + (i % 3) * 143.5, py = 8 + Math.floor(i / 3) * 124, hi = f ? MAP[f].includes(i) : true, col = f ? C[f] : AC;
+              o += `<g opacity="${hi ? 1 : .2}">` + fdRect(px, py, 134, 116, { rx: 9, fill: 'rgba(148,163,184,.07)', c: f && hi ? col : 'currentColor', so: f && hi ? .95 : .5, sw: f && hi ? 2.4 : 1.2 }) + fdTxM(px + 56, py + 17, n, { s: 9.2, w: 800, c: f && hi ? col : undefined }) + dr[i](px, py, f && hi ? col : '#a78bfa');
+              if (!f) o += `<circle cx="${px + 120}" cy="${py + 14}" r="9" style="fill:${AC};fill-opacity:.9"/>` + fdTxM(px + 120, py + 18, String(CNT[i]), { s: 11, w: 800, c: '#0f172a' });
+              else if (hi) o += pvdL(`M${px + 112} ${py + 14} l5 6 l9 -12`, { c: col, sw: 2.8, so: 1 });
+              o += '</g>';
             });
-            o += fdTxM(220, 20, f ? '필요한 과목: ' + dsRoleNm[f] : '숫자 = 그 과목을 쓰는 직무의 수', { s: 11, w: 800, c: f ? dsC[f] : 'currentColor', op: f ? 1 : .85 });
-            return dgSvg('바탕 과목: ' + s.label, o, '0 0 440 290');
+            o += fdTxM(220, 270, f ? '필요한 과목: ' + dsRoleNm[f] : '칸 위의 숫자 = 그 과목을 쓰는 직무의 수', { s: 10.5, w: 800, c: f ? C[f] : undefined, op: f ? 1 : .85 });
+            return dgSvg('바탕 과목: ' + s.label, o, '0 0 440 280');
           }
         },
       });
