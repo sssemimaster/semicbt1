@@ -1608,5 +1608,43 @@
     "premium": true,
     "mins": 20,
     "figs": 10
+  },
+  {
+    "id": "TH-843202a1",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "플로어플랜 · 배치 · CTS · 라우팅",
+    "tags": [
+      "설계 직무",
+      "물리설계",
+      "플로어플랜",
+      "CTS",
+      "라우팅"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 15,
+    "figs": 6
+  },
+  {
+    "id": "TH-270a97fe",
+    "category": "심화 이론",
+    "subject": "설계 직무",
+    "title": "타이밍 클로저와 STA 읽기",
+    "tags": [
+      "설계 직무",
+      "타이밍",
+      "STA",
+      "슬랙",
+      "ECO"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 20,
+    "figs": 10
   }
 ]

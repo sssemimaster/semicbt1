@@ -13238,6 +13238,456 @@
       });
     })();
 
+    // ===== 설계 직무 > 유료(10토큰) 글 "플로어플랜 · 배치 · CTS · 라우팅" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c';
+      const lab = (x, y, t, col, a = 'middle', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const lcg = (seed) => { let s = seed; return () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648; };
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const dot = (x, y, r, col) => `<circle cx="${x}" cy="${y}" r="${r}" style="fill:${col};fill-opacity:.95;stroke:#0f172a;stroke-width:.8"/>`;
+      Object.assign(DIAGRAMS, {
+        // ---------- 물리설계의 다섯 걸음 ----------
+        'dsn-pdflow': {
+          title: '물리설계의 다섯 걸음',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '물리설계는 합성이 만든 넷리스트의 게이트를 칩 면적 위에 놓고 선으로 잇는 일이다. 자리를 나누고, 셀을 놓고, 클록을 나누고, 선을 잇고, 마지막으로 점검한다. 앞 걸음의 결과가 뒤 걸음의 조건이 된다.' },
+            { id: 'fp', label: '플로어플랜', focus: ['fp'], desc: '칩 전체의 땅을 나눈다. 큰 메모리 블록(매크로)의 자리, 입출력 핀의 위치, 전원이 지나갈 길을 정한다. 이 걸음의 결정은 뒤에서 되돌리기가 가장 어렵다.' },
+            { id: 'pl', label: '배치', focus: ['pl'], desc: '수십만에서 수억 개의 표준 셀을 코어의 행 위에 놓는다. 이어진 셀은 가깝게, 선이 몰리는 곳은 피해서 놓는다.' },
+            { id: 'cts', label: 'CTS', focus: ['cts'], desc: '클록 신호를 모든 플립플롭에 비슷한 시각에 도착시키는 나무 구조를 만든다. 합성 때까지는 이상적이던 클록이 여기서 실제 선과 버퍼를 갖는다.' },
+            { id: 'rt', label: '라우팅', focus: ['rt'], desc: '배치된 셀의 핀들을 여러 금속 층의 선과 via로 잇는다. 선 간격과 폭 같은 공정 규칙을 지키면서 모든 연결을 완성해야 한다.' },
+            { id: 'sg', label: '점검', focus: ['sg'], desc: '타이밍, 전력, 설계 규칙을 도구로 다시 확인한다. 하나라도 통과하지 못하면 앞 걸음으로 되돌아가 고친 뒤 다시 돈다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const ST = [['fp', '플로어플랜', '자리 나누기', C.arch], ['pl', '배치', '셀 놓기', C.rtl], ['cts', 'CTS', '클록 나누기', C.dv], ['rt', '라우팅', '선 잇기', C.pd], ['sg', '점검', '마지막 확인', C.dft]];
+            const pic = {
+              fp: (x, y, c) => R(x, y, 64, 56, GR, { fo: .08, c: GR, sw: 1.2, dash: '3 2', rx: 2 }) + R(x + 6, y + 6, 52, 44, c, { fo: .1, c, sw: 1.2, rx: 2 }) + R(x + 10, y + 10, 20, 14, c, { fo: .5, c, sw: 1, rx: 1 }) + R(x + 34, y + 10, 20, 14, c, { fo: .5, c, sw: 1, rx: 1 }) + [0, 1, 2, 3].map((i) => R(x - 2, y + 8 + i * 12, 4, 4, AMB, { fo: .9, sw: 0 })).join('') + [0, 1, 2].map((i) => R(x + 12 + i * 18, y - 2, 4, 4, AMB, { fo: .9, sw: 0 })).join(''),
+              pl: (x, y, c) => { const r = lcg(3); let q = ''; for (let k = 0; k < 4; k++) { let xx = x + 2; while (xx < x + 58) { const w = 6 + Math.floor(r() * 8); q += R(xx, y + 4 + k * 13, w, 9, c, { fo: .5, c, sw: .6, rx: 1 }); xx += w + 1.6; } } return q; },
+              cts: (x, y, c) => A.ln(`M${x + 32} ${y} V${y + 12} M${x + 14} ${y + 12} H${x + 50} M${x + 14} ${y + 12} V${y + 24} M${x + 50} ${y + 12} V${y + 24} M${x + 6} ${y + 24} H${x + 22} M${x + 42} ${y + 24} H${x + 58} M${x + 6} ${y + 24} V${y + 36} M${x + 22} ${y + 24} V${y + 36} M${x + 42} ${y + 24} V${y + 36} M${x + 58} ${y + 24} V${y + 36}`, c, 1.6) + [6, 22, 42, 58].map((dx) => R(x + dx - 4, y + 36, 8, 8, c, { fo: .6, c, sw: 1, rx: 1 })).join('') + dot(x + 32, y + 2, 3.2, c),
+              rt: (x, y, c) => A.ln(`M${x + 2} ${y + 10} H${x + 46} M${x + 18} ${y + 28} H${x + 62} M${x + 2} ${y + 46} H${x + 40}`, AMB, 1.7) + A.ln(`M${x + 46} ${y + 10} V${y + 46} M${x + 18} ${y + 28} V${y + 4}`, PUR, 1.7) + [[46, 10], [18, 28], [46, 46 - 0]].map(([a, b]) => R(x + a - 2, y + b - 2, 4, 4, '#0f172a', { fo: 1, c: '#e2e8f0', sw: 1 })).join(''),
+              sg: (x, y, c) => A.checks(x, y + 2, 64, 52, c),
+            };
+            ST.forEach(([id, nm, sub, col], i) => {
+              const x = 12 + i * 86;
+              o += pvdG(f ? [f] : null, [id], R(x, 34, 78, 80, col, { fo: .1, c: col, sw: 1.7, rx: 7 }) + pic[id](x + 7, 44, col) + lab(x + 39, 134, nm, col, 'middle', 11) + lab(x + 39, 148, sub, GR, 'middle', 9));
+              if (i < 4) o += pvdG(f ? [f] : null, [id], fdArr(x + 86, 74, 'r', col));
+            });
+            o += lab(12, 20, 'IN  넷리스트 · 셀 라이브러리 · 제약', GR, 'start', 9.5) + lab(428, 20, 'OUT  GDS', GR, 'end', 9.5);
+            o += lab(220, 172, '점검에서 막히면 앞 걸음으로 되돌아가 고치고 다시 돈다', GR, 'middle', 9.5);
+            return dgSvg('물리설계: ' + s.label, o, '0 0 440 184');
+          }
+        },
+        // ---------- 플로어플랜의 구성 ----------
+        'dsn-fp': {
+          title: '플로어플랜: 칩의 땅을 나누는 일',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '플로어플랜은 칩의 땅을 나누는 도면이다. 칩의 바깥 경계, 셀이 놓일 코어, 큰 매크로의 자리, 신호가 드나드는 핀, 전원이 흐를 길이 여기서 정해진다.' },
+            { id: 'die', label: '다이', focus: ['die'], desc: '다이는 칩 하나의 전체 크기다. 가장자리에는 입출력 핀이 놓이고, 안쪽의 코어가 실제 회로의 땅이다. 크기를 줄이면 한 웨이퍼에서 얻는 칩이 늘지만, 너무 줄이면 배선이 막힌다.' },
+            { id: 'core', label: '코어', focus: ['core'], desc: '코어는 표준 셀이 가로 행으로 놓일 영역이다. 매크로가 차지하고 남은 자리에 행이 깔리고, 셀이 얼마나 빽빽한지(사용률)가 이후 배선 난이도를 좌우한다.' },
+            { id: 'macro', label: '매크로', focus: ['macro'], desc: 'SRAM 같은 큰 블록은 먼저 자리를 잡는다. 매크로 둘레에는 셀이 붙지 않도록 여유(halo)를 두고, 서로 이어지는 매크로는 가깝게 놓는다. 한 번 놓으면 바꾸기가 어렵다.' },
+            { id: 'pin', label: '핀', focus: ['pin'], desc: '칩 밖과 신호를 주고받는 핀의 위치를 정한다. 안쪽에서 이어질 블록 가까이에 두면 선이 짧아지고, 패키지의 핀 배치와도 맞아야 한다.' },
+            { id: 'power', label: '전원망', focus: ['power'], desc: '전원(VDD)과 접지(VSS)가 칩 구석구석에 닿도록 코어를 두르는 링과 안을 가로지르는 스트랩을 깐다. 전원망이 부실하면 셀이 받는 전압이 떨어져 속도가 느려진다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const OUT = '#cbd5e1';
+            o += pvdG(f ? [f] : null, ['die'], R(14, 12, 272, 232, GR, { fo: .06, c: GR, sw: 2, rx: 4 }) + A.ln('M300 26 H322', GR, 1.2) + lab(326, 30, '다이 (칩 전체)', GR, 'start', 10.5));
+            o += pvdG(f ? [f] : null, ['core'], R(40, 38, 220, 180, C.rtl, { fo: .06, c: C.rtl, sw: 1.4, rx: 2, dash: '5 3' }) + (() => { let q = ''; for (let k = 0; k < 9; k++) q += A.ln(`M64 ${146 + k * 6.6} H238`, C.rtl, .7, .45); return q; })() + A.ln('M262 70 H322', C.rtl, 1.2) + lab(326, 74, '코어 (셀이 놓일 땅)', C.rtl, 'start', 10.5) + lab(150, 196, '표준 셀 행', C.rtl, 'middle', 9));
+            o += pvdG(f ? [f] : null, ['macro'], R(54, 56, 92, 66, C.arch, { fo: .08, c: C.arch, sw: 1, rx: 3, dash: '3 2' }) + R(154, 56, 92, 66, C.arch, { fo: .08, c: C.arch, sw: 1, rx: 3, dash: '3 2' }) + R(62, 64, 76, 50, C.arch, { fo: .45, c: C.arch, sw: 1.5, rx: 2 }) + R(162, 64, 76, 50, C.arch, { fo: .45, c: C.arch, sw: 1.5, rx: 2 }) + lab(100, 93, 'SRAM', '#fdf2f8', 'middle', 10) + lab(200, 93, 'SRAM', '#fdf2f8', 'middle', 10) + A.ln('M246 100 H322', C.arch, 1.2) + lab(326, 104, '매크로 + 여유(halo)', C.arch, 'start', 10.5));
+            o += pvdG(f ? [f] : null, ['pin'], [0, 1, 2, 3, 4, 5].map((i) => R(11, 50 + i * 30, 6, 6, AMB, { fo: .95, c: '#0f172a', sw: .6 })).join('') + [0, 1, 2, 3, 4, 5, 6].map((i) => R(44 + i * 34, 9, 6, 6, AMB, { fo: .95, c: '#0f172a', sw: .6 })).join('') + A.ln('M296 134 H322', AMB, 1.2) + lab(326, 138, '입출력 핀', AMB, 'start', 10.5));
+            o += pvdG(f ? [f] : null, ['power'], R(46, 44, 208, 168, RED, { fo: 0, c: RED, sw: 2.2, rx: 2 }) + R(52, 50, 196, 156, CLK, { fo: 0, c: CLK, sw: 2.2, rx: 2 }) + [96, 138, 180, 222].map((x) => A.ln(`M${x} 128 V204`, PUR, 1.6, .9)).join('') + A.ln('M256 168 H322', '#e879f9', 1.2) + lab(326, 172, '전원 링 · 스트랩', '#e879f9', 'start', 10.5) + lab(326, 188, '붉은색 VDD · 푸른색 VSS', GR, 'start', 8.5));
+            return dgSvg('플로어플랜: ' + s.label, o, '0 0 440 256');
+          }
+        },
+        // ---------- 배치의 세 단계 ----------
+        'dsn-place': {
+          title: '배치: 셀을 놓고, 맞추고, 혼잡을 본다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '배치는 한 번에 끝나지 않는다. 먼저 연결이 많은 셀을 가깝게 모아 대략 놓고, 행에 맞게 정리하고, 선이 몰리는 곳이 없는지 확인한다. 혼잡이 높으면 다시 놓는다.' },
+            { id: 'gl', label: '전역 배치', focus: ['gl'], desc: '셀이 겹치는 것을 잠시 허용하고 선 길이의 합이 짧아지도록 전체를 움직인다. 이어진 셀이 같은 덩어리로 모이지만 아직 실제로 놓을 수 있는 모양은 아니다.' },
+            { id: 'lg', label: '합법화', focus: ['lg'], desc: '모든 셀이 행의 격자에 정확히 놓이고 서로 겹치지 않도록 조금씩 옮긴다. 이 과정에서 선이 조금 길어지기도 하므로 옮기는 거리를 최소로 줄인다.' },
+            { id: 'cg', label: '혼잡 확인', focus: ['cg'], desc: '칸마다 배선이 얼마나 지나갈지 예상해 몰리는 곳(빨간 칸)을 찾는다. 이런 곳은 나중에 선이 모자라 배선이 실패하기 쉽다. 셀 사이를 띄우거나 매크로를 옮겨서 풀어 준다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const PX = [8, 152, 296], PY = 16, PW = 136, PH = 112;
+            const g = {
+              gl: (x, y) => { const r = lcg(11); let q = A.panel(x, y, PW, PH, C.rtl); const cl = [[40, 40], [92, 68], [48, 84]]; const pts = []; cl.forEach(([cx, cy]) => { for (let i = 0; i < 9; i++) { const px = x + cx + (r() - .5) * 46, py = y + cy + (r() - .5) * 34; pts.push([px, py]); q += R(px - 6, py - 4, 12, 8, C.rtl, { fo: .35, c: C.rtl, sw: .7, rx: 1 }); } }); for (let i = 0; i < 14; i++) { const a = pts[Math.floor(r() * pts.length)], b = pts[Math.floor(r() * pts.length)]; q += A.ln(`M${a[0]} ${a[1]} L${b[0]} ${b[1]}`, GR, .6, .5); } return q; },
+              lg: (x, y) => { const r = lcg(4); let q = A.panel(x, y, PW, PH, C.rtl); for (let k = 0; k < 6; k++) { let xx = x + 6; while (xx < x + PW - 20) { const w = 8 + Math.floor(r() * 10); if (r() > .12) q += R(xx, y + 8 + k * 16, w, 11, C.rtl, { fo: .5, c: C.rtl, sw: .7, rx: 1 }); xx += w + 1.5; } } return q; },
+              cg: (x, y) => { const r = lcg(8); let q = A.panel(x, y, PW, PH, C.pd); for (let j = 0; j < 6; j++) for (let i = 0; i < 8; i++) { const hot = (i >= 3 && i <= 5 && j >= 2 && j <= 3), v = hot ? .9 : r() * .5, col = v > .7 ? RED : v > .38 ? AMB : OKC; q += R(x + 6 + i * 15.5, y + 6 + j * 16.5, 14, 15, col, { fo: .22 + v * .5, c: col, sw: .5, rx: 1 }); } return q + A.ln(`M${x + 52} ${y + 40} h${46}`, '#0f172a', 0) + lab(x + 76, y + 104, '빨간 칸 = 선이 몰림', RED, 'middle', 8.5); },
+            };
+            const ID = ['gl', 'lg', 'cg'], NM = ['1 전역 배치', '2 합법화', '3 혼잡 확인'], SB = ['겹침을 허용하고 가깝게 모음', '행에 맞춰 겹침을 없앰', '선이 몰리는 곳을 찾음'], COL = [C.rtl, C.rtl, C.pd];
+            ID.forEach((id, i) => { o += pvdG(f ? [f] : null, [id], g[id](PX[i], PY) + lab(PX[i] + PW / 2, PY + PH + 20, NM[i], COL[i], 'middle', 11) + lab(PX[i] + PW / 2, PY + PH + 34, SB[i], GR, 'middle', 9)); if (i < 2) o += pvdG(f ? [f] : null, [id], fdArr(PX[i] + PW + 4, PY + PH / 2, 'r', COL[i])); });
+            o += A.ln(`M${PX[2] + PW / 2} ${PY + PH + 44} V${PY + PH + 54} H${PX[0] + PW / 2} V${PY + PH + 44}`, AMB, 1.6, .9, '4 3') + fdArr(PX[0] + PW / 2, PY + PH + 43, 'u', AMB) + lab(220, PY + PH + 68, '혼잡이 높으면 배치로 되돌아간다', AMB, 'middle', 9.5);
+            return dgSvg('배치: ' + s.label, o, '0 0 440 214');
+          }
+        },
+        // ---------- 클록 트리 ----------
+        'dsn-cts': {
+          title: '클록 트리: 모든 플립플롭에 비슷한 시각에',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '클록 신호는 한 곳에서 시작해 수만 개의 플립플롭에 닿아야 한다. 하나의 긴 선으로 이으면 먼 곳이 늦게 받는다. 나무 모양으로 버퍼를 놓아 거리를 고르게 만든다.' },
+            { id: 'before', label: '직접 연결', focus: ['before'], desc: '클록 출발점에서 긴 선 하나로 모든 플립플롭을 이은 모양이다. 멀수록 선의 저항과 용량 때문에 늦게 도착한다. 도착 시각이 제각각이라 타이밍이 어긋난다.' },
+            { id: 'tree', label: '클록 트리', focus: ['tree'], desc: '출발점에서 가지를 둘로 나누며 버퍼를 놓아 모든 플립플롭까지의 경로를 같게 만든다. 이런 균형 잡힌 나무를 H-트리라고 한다. 실제 칩에서는 수만 개의 끝점을 이런 식으로 나눈다.' },
+            { id: 'skew', label: 'skew', focus: ['skew'], desc: '도착 시각의 차이가 skew다. 직접 연결에서는 크고 트리에서는 아주 작다. CTS의 목표는 skew를 줄이고 도착 시각(삽입 지연)을 일정 범위로 맞추는 것이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const FY = 88, BY = 112, cL = (i) => 28 + i * 24, cR = (i) => 246 + i * 24;
+            const ff = (cx, col) => R(cx - 6, FY, 12, 12, col, { fo: .6, c: col, sw: 1.1, rx: 1.5 });
+            o += lab(112, 14, '직접 연결', RED, 'middle', 10.5) + lab(330, 14, '클록 트리', OKC, 'middle', 10.5);
+            let bf = A.ln(`M28 30 V74 H${cL(7)}`, RED, 1.8) + dot(28, 28, 4, RED) + lab(40, 30, 'CLK', RED, 'start', 8.5);
+            for (let i = 0; i < 8; i++) bf += A.ln(`M${cL(i)} 74 V${FY}`, RED, 1.2) + ff(cL(i), RED);
+            o += pvdG(f ? [f] : null, ['before'], bf);
+            let tr = A.ln(`M330 30 V42 H${(cR(0) + cR(1)) / 2 * 0 + (cR(0) + cR(3)) / 4 * 2 / 2 + 0}`, OKC, 0);
+            const q = [(cR(0) + cR(3)) / 2, (cR(4) + cR(7)) / 2], p = [0, 1, 2, 3].map((j) => (cR(2 * j) + cR(2 * j + 1)) / 2);
+            tr = dot(330, 28, 4, OKC) + lab(342, 30, 'CLK', OKC, 'start', 8.5) + A.ln(`M330 30 V42 H${q[0]} H${q[1]}`, OKC, 1.8) + q.map((x) => A.ln(`M${x} 42 V56`, OKC, 1.8) + dot(x, 42, 3, OKC)).join('');
+            tr += [[q[0], p[0], p[1]], [q[1], p[2], p[3]]].map(([x, a, b]) => A.ln(`M${x} 56 H${a} H${b}`, OKC, 1.6) + dot(x, 56, 3, OKC)).join('');
+            tr += p.map((x) => A.ln(`M${x} 56 V68`, OKC, 1.5) + dot(x, 68, 3, OKC)).join('');
+            tr += [0, 1, 2, 3].map((j) => A.ln(`M${p[j]} 74 H${cR(2 * j)} H${cR(2 * j + 1)}`, OKC, 1.4) + A.ln(`M${p[j]} 68 V74`, OKC, 1.4)).join('');
+            for (let i = 0; i < 8; i++) tr += A.ln(`M${cR(i)} 74 V${FY}`, OKC, 1.2) + ff(cR(i), OKC);
+            o += pvdG(f ? [f] : null, ['tree'], tr);
+            const hL = [8, 12, 17, 22, 27, 31, 35, 40], hR = [22, 22, 23, 22, 22, 23, 22, 22];
+            let sk = A.ln(`M16 ${BY} H${cL(7) + 14}`, GR, .8, .6) + A.ln(`M234 ${BY} H${cR(7) + 14}`, GR, .8, .6);
+            for (let i = 0; i < 8; i++) sk += R(cL(i) - 5, BY, 10, hL[i], RED, { fo: .5, c: RED, sw: .8, rx: 1 }) + R(cR(i) - 5, BY, 10, hR[i], OKC, { fo: .5, c: OKC, sw: .8, rx: 1 });
+            sk += lab(112, BY + 56, 'skew 큼', RED, 'middle', 10) + lab(330, BY + 56, 'skew 작음', OKC, 'middle', 10) + lab(14, BY + 12, '도착', GR, 'start', 8.5) + lab(14, BY + 24, '시각', GR, 'start', 8.5);
+            o += pvdG(f ? [f] : null, ['skew'], sk);
+            return dgSvg('클록 트리: ' + s.label, o, '0 0 440 190');
+          }
+        },
+        // ---------- 라우팅 ----------
+        'dsn-route': {
+          title: '라우팅: 큰 길을 정하고 실제 선을 긋는다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '라우팅은 두 단계로 나뉜다. 먼저 큰 칸 단위로 대략의 길을 정하고(글로벌), 그 길을 따라 실제 선과 via를 그린다(디테일). 선은 금속 층마다 정해진 방향으로만 그린다.' },
+            { id: 'gr', label: '글로벌', focus: ['gr'], desc: '칩을 큰 칸으로 나누고 각 net이 어느 칸들을 지나갈지 정한다. 칸마다 지나갈 수 있는 선의 수가 정해져 있으므로 혼잡한 칸을 피해서 길을 고른다.' },
+            { id: 'dr', label: '디테일', focus: ['dr'], desc: '정해진 길 안에서 실제 선의 위치(트랙)를 고르고, 층을 바꿔야 하는 곳에 via를 놓는다. 이웃한 선과 간격, 폭, 길이 같은 설계 규칙을 지켜야 한다.' },
+            { id: 'ly', label: '금속 층', focus: ['ly'], desc: '금속 층은 위아래로 쌓여 있고 층마다 선을 긋는 방향이 번갈아 정해진다(예: 가로, 세로, 가로). 방향을 바꾸려면 via로 위아래 층을 오가야 하며, 위쪽 층일수록 굵고 빨라서 긴 선에 쓴다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const PX = [8, 152, 296], PY = 16, PW = 136, PH = 112;
+            const M1 = CLK, M2 = PUR, M3 = AMB;
+            const gr = (x, y) => { let q = A.panel(x, y, PW, PH, GR); const cw = 24, ch = 24, x0 = x + 8, y0 = y + 8; const path = [[0, 3], [1, 3], [2, 3], [2, 2], [2, 1], [3, 1], [4, 1], [4, 0]]; for (let j = 0; j < 4; j++) for (let i = 0; i < 5; i++) q += R(x0 + i * cw, y0 + j * ch, cw, ch, GR, { fo: 0, c: GR, sw: .5, so: .45 }); path.forEach(([i, j]) => { q += R(x0 + i * cw + 1, y0 + j * ch + 1, cw - 2, ch - 2, AMB, { fo: .3, c: AMB, sw: .8, so: .8 }); }); q += A.ln(path.map(([i, j], k) => `${k ? 'L' : 'M'}${x0 + i * cw + cw / 2} ${y0 + j * ch + ch / 2}`).join(' '), AMB, 1.6); return q + dot(x0 + cw / 2, y0 + 3 * ch + ch / 2, 3.6, OKC) + dot(x0 + 4 * cw + cw / 2, y0 + ch / 2, 3.6, OKC); };
+            const dr = (x, y) => { let q = A.panel(x, y, PW, PH, GR); for (let k = 0; k < 11; k++) q += A.ln(`M${x + 6} ${y + 8 + k * 9} H${x + PW - 6}`, GR, .4, .25) + A.ln(`M${x + 8 + k * 12} ${y + 6} V${y + PH - 6}`, GR, .4, .25); const ax = x + 20, ay = y + 90, bx = x + 118, by = y + 26; q += A.ln(`M${ax} ${ay} H${x + 68} M${x + 68} ${ay} V${by + 0} M${x + 68} ${by} H${bx}`, M3, 1.8) + A.ln(`M${x + 68} ${ay} V${by}`, M2, 1.8) + A.ln(`M${ax} ${ay} H${x + 68}`, M3, 1.8) + A.ln(`M${x + 68} ${by} H${bx}`, M3, 1.8); q += A.ln(`M${x + 20} ${y + 60} H${x + 54} V${y + 100}`, M3, 1.6, .7) + A.ln(`M${x + 54} ${y + 60} V${y + 100}`, M2, 1.6, .7); q += [[x + 68, ay], [x + 68, by]].map(([a, b]) => R(a - 3, b - 3, 6, 6, '#0f172a', { fo: 1, c: '#e2e8f0', sw: 1 })).join('') + dot(ax, ay, 3.6, OKC) + dot(bx, by, 3.6, OKC); return q; };
+            const ly = (x, y) => { let q = A.panel(x, y, PW, PH, GR); const L = [['M3', '가로', M3, 18], ['M2', '세로', M2, 48], ['M1', '가로', M1, 78]]; L.forEach(([n, d, c, yy]) => { q += R(x + 34, y + yy, 92, 14, c, { fo: .4, c, sw: 1.2, rx: 2 }) + lab(x + 6, y + yy + 11, n, c, 'start', 9.5) + lab(x + 80, y + yy + 11, d, '#e2e8f0', 'middle', 9); }); q += R(x + 54, y + 32, 7, 16, '#e2e8f0', { fo: .85, sw: 0 }) + R(x + 54, y + 62, 7, 16, '#e2e8f0', { fo: .85, sw: 0 }) + R(x + 100, y + 32, 7, 16, '#e2e8f0', { fo: .85, sw: 0 }) + lab(x + 68, y + 106, 'via', '#e2e8f0', 'middle', 8.5); return q; };
+            const ID = ['gr', 'dr', 'ly'], F = [gr, dr, ly], NM = ['1 글로벌 라우팅', '2 디테일 라우팅', '3 금속 층'], SB = ['큰 칸 단위로 길을 정함', '실제 선과 via를 그림', '층마다 선 방향이 다름'];
+            ID.forEach((id, i) => { o += pvdG(f ? [f] : null, [id], F[i](PX[i], PY) + lab(PX[i] + PW / 2, PY + PH + 20, NM[i], AMB, 'middle', 11) + lab(PX[i] + PW / 2, PY + PH + 34, SB[i], GR, 'middle', 9)); if (i < 2) o += pvdG(f ? [f] : null, [id], fdArr(PX[i] + PW + 4, PY + PH / 2, 'r', AMB)); });
+            o += lab(220, PY + PH + 62, '모든 연결이 설계 규칙을 지킨 채 완성되어야 끝난다', GR, 'middle', 9.5);
+            return dgSvg('라우팅: ' + s.label, o, '0 0 440 206');
+          }
+        },
+        // ---------- 단계마다 정확해지는 타이밍 ----------
+        'dsn-pdacc': {
+          title: '단계가 지날수록 타이밍 예측이 정확해진다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '물리설계의 앞 단계에서 본 타이밍 숫자는 예상치다. 클록도 이상적으로 가정하고 배선의 저항과 용량도 추정한다. 단계가 지날수록 가정이 실제 값으로 바뀌어 오차가 줄어든다.' },
+            { id: 'err', label: '오차 범위', focus: ['err'], desc: '세로선의 길이는 그 단계에서 본 slack이 최종 값과 얼마나 다를 수 있는지를 나타낸다. 배치 직후에 여유가 있어 보여도 라우팅 뒤에는 위반이 될 수 있다. 그래서 앞 단계에서는 여유를 더 두고 본다.' },
+            { id: 'clk', label: '클록', focus: ['clk'], desc: '합성과 배치까지는 모든 플립플롭에 클록이 같은 시각에 닿는다고 가정한다. CTS가 끝나면 실제 클록 트리의 도착 시각을 쓰게 되고, skew가 타이밍에 그대로 반영된다.' },
+            { id: 'wire', label: '배선 RC', focus: ['wire'], desc: '선이 아직 그려지지 않았을 때는 선 길이를 예상해 지연을 추정한다. 라우팅이 끝나야 실제 선의 저항과 용량을 추출해 정확한 값을 얻는다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const XS = [90, 162, 234, 306, 378], HS = [46, 34, 24, 13, 4], COLS = [RED, ORG, AMB, '#a3e635', OKC], NM = ['합성 직후', '플로어플랜', '배치 후', 'CTS 후', '라우팅 후'], CL = ['이상적', '이상적', '이상적', '실제', '실제'], WR = ['추정', '추정', '추정', '추정', '실제'];
+            let er = lab(8, 16, '예측한 slack과 최종 값의 차이', GR, 'start', 9.5) + A.ln('M50 76 H430', GR, 1, .8, '3 3') + lab(430, 70, '최종 값', GR, 'end', 8.5);
+            XS.forEach((x, i) => { er += A.ln(`M${x} ${76 - HS[i]} V${76 + HS[i]}`, COLS[i], 3, .9) + A.ln(`M${x - 8} ${76 - HS[i]} H${x + 8} M${x - 8} ${76 + HS[i]} H${x + 8}`, COLS[i], 2.2) + dot(x, 76, 4, COLS[i]) + lab(x, 146, NM[i], COLS[i], 'middle', 10); });
+            o += pvdG(f ? [f] : null, ['err'], er);
+            const row = (id, y, name, vals) => pvdG(f ? [f] : null, [id], lab(6, y + 14, name, GR, 'start', 9) + XS.map((x, i) => { const real = vals[i] === '실제'; const c = real ? OKC : AMB; return R(x - 32, y, 64, 20, c, { fo: .14, c, sw: 1.3, rx: 5 }) + lab(x, y + 14, vals[i], c, 'middle', 10); }).join(''));
+            o += row('clk', 160, '클록', CL) + row('wire', 188, '배선 RC', WR);
+            o += lab(220, 226, '초록은 실제 값, 노랑은 가정한 값', GR, 'middle', 9);
+            return dgSvg('타이밍 정확도: ' + s.label, o, '0 0 440 236');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 유료(15토큰) 글 "타이밍 클로저와 STA 읽기" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c', CY = '#22d3ee';
+      const lab = (x, y, t, col, a = 'middle', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const tri = (x, y, w, h, col) => `<path d="M${x} ${y} V${y + h} L${x + w} ${y + h / 2} Z" style="fill:${col};fill-opacity:.35;stroke:${col};stroke-width:1.3"/>`;
+      const ff = (x, y, col, t) => R(x, y, 26, 22, col, { fo: .18, c: col, sw: 1.4, rx: 3 }) + `<path d="M${x} ${y + 15} l4 -4 l-4 -4" style="fill:none;stroke:${col};stroke-width:1.1" transform="translate(0 0)"/>` + lab(x + 15, y + 15, t || 'FF', col, 'middle', 8.5);
+      const cell = (x, y, w, h, col) => R(x, y, w, h, col, { fo: .22, c: col, sw: 1.4, rx: 3 });
+      Object.assign(DIAGRAMS, {
+        // ---------- 타이밍 클로저의 순환 ----------
+        'dsn-tcloop': {
+          title: '타이밍 클로저의 순환',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '타이밍 클로저는 분석, 분류, 수정, 재분석을 돌고 도는 순환이다. 한 바퀴마다 위반이 줄어드는 것이 정상이고, 줄지 않고 제자리를 맴돈다면 분류가 잘못된 신호다.' },
+            { id: 'an', label: '분석', focus: ['an'], desc: '배선 정보를 반영한 타이밍을 계산해 모든 경로의 slack을 얻는다. 여러 코너에서 셋업과 홀드를 함께 본다.' },
+            { id: 'cl', label: '분류', focus: ['cl'], desc: '위반 경로를 원인별로 묶는다. 사람이 리포트를 읽고 판단하는 가장 중요한 단계다. 같은 원인이면 한 번에 고칠 수 있다.' },
+            { id: 'fx', label: '수정', focus: ['fx'], desc: '원인에 맞는 방법으로 고친다. 한 번에 한 종류만 고쳐야 결과가 무엇 덕분인지 알 수 있다.' },
+            { id: 're', label: '재분석', focus: ['re'], desc: '고친 결과가 다른 곳을 해치지 않았는지 다시 계산한다. 위반 개수와 WNS가 함께 줄었는지 확인한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const ST = [['an', '분석', 'slack 계산', CLK], ['cl', '분류', '원인별로 묶기', PUR], ['fx', '수정', '원인에 맞게', AMB], ['re', '재분석', '다시 확인', OKC]];
+            const pic = {
+              an: (x, y, c) => [0, 1, 2, 3].map((i) => R(x, y + i * 9, 30 + (i % 2) * 14, 5, c, { fo: .6, sw: 0, rx: 1 })).join('') + R(x + 54, y, 4, 33, RED, { fo: .8, sw: 0 }),
+              cl: (x, y, c) => [0, 1, 2].map((i) => R(x + i * 20, y + 18, 16, 15, [RED, AMB, CY][i], { fo: .25, c: [RED, AMB, CY][i], sw: 1.2, rx: 2 })).join('') + [0, 1, 2].map((i) => `<circle cx="${x + 8 + i * 20}" cy="${y + 4 + (i % 2) * 5}" r="3.2" style="fill:${[RED, AMB, CY][i]};fill-opacity:.9"/>` + A.ln(`M${x + 8 + i * 20} ${y + 10} V${y + 17}`, GR, 1)).join(''),
+              fx: (x, y, c) => cell(x + 2, y + 6, 14, 14, c) + fdArr(x + 30, y + 13, 'r', GR) + cell(x + 34, y + 2, 22, 22, c),
+              re: (x, y, c) => A.ln(`M${x + 6} ${y + 18} L${x + 14} ${y + 28} L${x + 34} ${y + 4}`, c, 3.2) + R(x + 40, y + 20, 14, 5, c, { fo: .6, sw: 0 }),
+            };
+            ST.forEach(([id, nm, sub, col], i) => {
+              const x = 10 + i * 108;
+              o += pvdG(f ? [f] : null, [id], R(x, 26, 92, 72, col, { fo: .1, c: col, sw: 1.7, rx: 7 }) + pic[id](x + 16, 31, col) + lab(x + 46, 80, nm, col, 'middle', 11) + lab(x + 46, 93, sub, GR, 'middle', 8.5));
+              if (i < 3) o += pvdG(f ? [f] : null, [id], fdArr(x + 106, 62, 'r', col));
+            });
+            o += A.ln('M410 100 V112 H56 V102', GR, 1.5, .8, '4 3') + fdArr(56, 100, 'u', GR);
+            o += lab(220, 125, '돌고 돈다', GR, 'middle', 9.5);
+            const HB = [38, 18, 8, 2], NB = ['12,000', '800', '60', '0'];
+            o += lab(12, 146, '한 바퀴마다 위반이 줄어든다', GR, 'start', 9);
+            HB.forEach((h, i) => { const x = 150 + i * 70; o += R(x, 196 - h, 36, h, [RED, ORG, AMB, OKC][i], { fo: .5, c: [RED, ORG, AMB, OKC][i], sw: 1.2, rx: 2 }) + lab(x + 18, 208, NB[i], GR, 'middle', 9); });
+            o += A.ln('M140 196 H430', GR, 1, .6);
+            return dgSvg('타이밍 클로저: ' + s.label, o, '0 0 440 216');
+          }
+        },
+        // ---------- 코너 ----------
+        'dsn-corner': {
+          title: '코너에 따라 달라지는 지연',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 경로라도 공정, 전압, 온도의 조합(코너)에 따라 지연이 달라진다. 느린 코너에서는 셋업이, 빠른 코너에서는 홀드가 위험하다. 모든 코너에서 맞아야 한다.' },
+            { id: 'slow', label: '느린 코너', focus: ['slow'], desc: '게이트가 느려지는 조합이다. 데이터가 늦게 도착해 클록 주기 선을 넘으면 셋업 위반이 된다. 속도를 목표로 하는 칩에서 가장 먼저 보는 코너다.' },
+            { id: 'fast', label: '빠른 코너', focus: ['fast'], desc: '게이트가 빨라지는 조합이다. 짧은 경로의 데이터가 너무 일찍 도착해 홀드가 요구하는 최소 시각보다 앞서면 홀드 위반이 된다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const x0 = 96, k = 100, HOLD = 1.5, SETUP = 2.0;
+            const rows = [['slow', '느린 코너', 2.3, RED, '셋업 위반'], ['typ', '표준 코너', 1.8, OKC, '통과'], ['fast', '빠른 코너', 1.2, RED, '홀드 위반']];
+            rows.forEach(([id, nm, d, col, res], i) => {
+              const y = 48 + i * 44;
+              o += pvdG(f ? [f] : null, [id], lab(x0 - 8, y + 14, nm, GR, 'end', 10) + R(x0, y + 4, d * k, 18, col, { fo: .22, c: col, sw: 1.5, rx: 3 }) + lab(x0 + d * k / 2, y + 17, res + ' · ' + d.toFixed(1) + ' ns', col, 'middle', 9.5));
+            });
+            o += A.ln(`M${x0 + HOLD * k} 34 V186`, OKC, 1.6, .9, '4 3') + A.ln(`M${x0 + SETUP * k} 34 V186`, CLK, 1.6, .9, '4 3');
+            o += lab(x0 + HOLD * k, 28, '홀드 최소 시각', OKC, 'middle', 9) + lab(x0 + SETUP * k + 6, 28, '클록 주기', CLK, 'start', 9);
+            o += lab(x0, 186, '0', GR, 'middle', 9) + lab(220, 204, '같은 경로의 데이터 도착 시각', GR, 'middle', 9.5);
+            return dgSvg('코너: ' + s.label, o, '0 0 440 212');
+          }
+        },
+        // ---------- WNS와 TNS ----------
+        'dsn-wns': {
+          title: 'WNS와 TNS',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '경로마다 slack을 모아 분포로 그리면 0보다 왼쪽이 위반이다. 요약 숫자 셋은 그 분포의 서로 다른 면을 말한다.' },
+            { id: 'wns', label: 'WNS', focus: ['wns'], desc: '가장 나쁜 slack 하나다. 가장 심한 곳이 얼마나 나쁜지를 말한다. 깊고 좁은 위반이면 이 경로부터 열어 본다.' },
+            { id: 'tns', label: 'TNS', focus: ['tns'], desc: '위반 경로의 음수 slack을 모두 더한 값이다. 문제가 얼마나 넓게 퍼져 있는지를 말한다. WNS가 얕은데 TNS가 크면 공통 원인을 찾는다.' },
+            { id: 'cnt', label: '위반 개수', focus: ['cnt'], desc: '음수 slack을 가진 경로의 수다. 같은 TNS라도 개수가 적으면 심한 경로 몇 개가, 많으면 얕은 경로 다수가 만든 것이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const H = [1, 3, 6, 9, 12, 15, 20, 22, 18, 13, 9, 6, 3, 2], NEG = 6, x0 = 40, bw = 26, yb = 150, ku = 5.2;
+            let neg = '', pos = '', wn = '', ct = '';
+            H.forEach((h, i) => {
+              const x = x0 + i * (bw + 2);
+              if (i < NEG) { const bar = R(x, yb - h * ku, bw, h * ku, RED, { fo: .55, c: RED, sw: 1.2, rx: 2 }); if (i === 0) wn += bar; else neg += bar; }
+              else pos += R(x, yb - h * ku, bw, h * ku, OKC, { fo: .3, c: OKC, sw: 1, rx: 2 });
+            });
+            const zx = x0 + NEG * (bw + 2) - 1;
+            o += pvdG(f ? [f] : null, ['tns'], neg);
+            o += pvdG(f ? [f] : null, ['wns'], wn + A.ln(`M${x0 + 13} ${yb - 10} V${yb - 34}`, RED, 1.4) + fdArr(x0 + 13, yb - 8, 'd', RED) + lab(x0 + 13, yb - 40, 'WNS', RED, 'middle', 10.5));
+            o += pvdG(f ? [f] : null, ['cnt'], A.ln(`M${x0} ${yb + 16} H${zx - 2}`, AMB, 1.6) + A.ln(`M${x0} ${yb + 12} V${yb + 20} M${zx - 2} ${yb + 12} V${yb + 20}`, AMB, 1.6) + lab((x0 + zx) / 2, yb + 32, '위반 경로의 수', AMB, 'middle', 10));
+            o += `<g style="opacity:${f && f !== 'tns' && f !== 'wns' && f !== 'cnt' ? .3 : 1}">${pos}</g>`;
+            o += A.ln(`M${zx} 22 V${yb}`, GR, 1.4, .9, '3 3') + lab(zx, 16, 'slack = 0', GR, 'middle', 9.5);
+            o += pvdG(f ? [f] : null, ['tns'], lab(x0 + 70, 62, 'TNS = 이 막대들의 합', RED, 'start', 10) + A.ln(`M${x0 + 70} 68 V84`, RED, 1.2, .8, '2 2'));
+            o += A.ln(`M${x0 - 4} ${yb} H${x0 + H.length * (bw + 2)}`, GR, 1, .7) + lab(x0 + 200, 196, '경로의 slack 분포', GR, 'middle', 9);
+            return dgSvg('요약 숫자: ' + s.label, o, '0 0 440 204');
+          }
+        },
+        // ---------- 원인 가르기 ----------
+        'dsn-tcause': {
+          title: '원인을 가르는 질문',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '위반 경로 하나를 열고 위에서부터 질문을 따라간다. 분류가 틀리면 처방도 틀리므로, 가장 눈에 띄는 숫자보다 클록 쪽 숫자를 먼저 확인한다.' },
+            { id: 'clk', label: '클록', focus: ['clk'], desc: '출발과 도착 클록의 도착 시각 차이가 크면 데이터 경로가 멀쩡해도 위반이 난다. 이때는 데이터 경로를 손봐도 풀리지 않고 클록 균형을 고쳐야 한다.' },
+            { id: 'dep', label: '논리 단수', focus: ['dep'], desc: '어느 한 줄도 눈에 띄지 않는데 셀이 열 개 넘게 늘어서 있다면 논리가 깊은 것이다. 버퍼를 넣어도 풀리지 않고 구조를 바꿔야 한다.' },
+            { id: 'cw', label: '셀 또는 선', focus: ['cw'], desc: '단수가 적은데 한 줄이 유난히 크다면 그 줄이 셀인지 선인지 본다. 셀이면 셀을 키우고, 선이면 버퍼를 넣거나 배치를 고친다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const Q = (id, y, t, col) => pvdG(f ? [f] : null, [id], R(8, y, 168, 34, col, { fo: .12, c: col, sw: 1.5, rx: 6 }) + lab(92, y + 21, t, col, 'middle', 10));
+            const RS = (id, x, y, w, t, sub, col) => pvdG(f ? [f] : null, [id], R(x, y, w, 34, col, { fo: .22, c: col, sw: 1.6, rx: 6 }) + lab(x + w / 2, y + 15, t, col, 'middle', 10.5) + lab(x + w / 2, y + 28, sub, GR, 'middle', 8.5));
+            o += Q('clk', 14, '클록 도착 시각 차이가 큰가', CLK) + RS('clk', 236, 14, 196, '클록이 어긋남', '균형을 다시 맞춘다', CLK);
+            o += pvdG(f ? [f] : null, ['clk'], A.ln('M176 31 H228', CLK, 1.5) + fdArr(236, 31, 'r', CLK) + lab(206, 25, '예', CLK, 'middle', 9));
+            o += Q('dep', 82, '셀이 열 개 넘게 늘어섰나', PUR) + RS('dep', 236, 82, 196, '논리 단수가 많음', '구조를 바꾼다', PUR);
+            o += pvdG(f ? [f] : null, ['dep'], A.ln('M176 99 H228', PUR, 1.5) + fdArr(236, 99, 'r', PUR) + lab(206, 93, '예', PUR, 'middle', 9));
+            o += Q('cw', 150, '큰 지연은 셀에 있나 선에 있나', AMB) + RS('cw', 236, 136, 196, '셀이 약함', '셀을 키운다', AMB) + RS('cw', 236, 176, 196, '선이 김', '버퍼를 넣거나 배치를 고친다', ORG);
+            o += pvdG(f ? [f] : null, ['cw'], A.ln('M176 167 H202 V153 H228', AMB, 1.5) + fdArr(236, 153, 'r', AMB) + A.ln('M202 167 V193 H228', ORG, 1.5) + fdArr(236, 193, 'r', ORG) + lab(190, 150, '셀이면', AMB, 'middle', 9) + lab(190, 207, '선이면', ORG, 'middle', 9));
+            o += A.ln('M92 48 V82', GR, 1.4) + fdArr(92, 82, 'd', GR) + lab(104, 66, '아니오', GR, 'start', 9);
+            o += A.ln('M92 116 V150', GR, 1.4) + fdArr(92, 150, 'd', GR) + lab(104, 134, '아니오', GR, 'start', 9);
+            return dgSvg('원인 가르기: ' + s.label, o, '0 0 440 216');
+          }
+        },
+        // ---------- 셋업 고치기 ----------
+        'dsn-fixs': {
+          title: '셋업 위반을 고치는 네 가지 방법',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '셋업 위반은 데이터가 늦게 도착한 것이므로 경로를 빠르게 만들어야 한다. 원인이 셀인지, 선인지, 배치인지, 구조인지에 따라 방법을 고른다.' },
+            { id: 'sz', label: '셀 키우기', focus: ['sz'], desc: '약한 셀을 힘센 셀로 바꿔 같은 부하를 더 빨리 민다. 가장 쉽지만 면적과 전력이 늘고, 앞 셀의 부하가 커져 앞단이 느려질 수 있다.' },
+            { id: 'bf', label: '버퍼 넣기', focus: ['bf'], desc: '긴 선 중간에 버퍼를 넣어 신호를 다시 밀어 준다. 선이 길수록 지연이 줄어드는 폭이 크다.' },
+            { id: 'mv', label: '배치 옮기기', focus: ['mv'], desc: '멀리 떨어진 셀을 가깝게 놓아 선 자체를 짧게 만든다. 근본적이지만 배선이 끝난 뒤에는 비싸다.' },
+            { id: 'ar', label: '구조 바꾸기', focus: ['ar'], desc: '논리 단수가 많은 경로는 사이에 레지스터를 넣어 둘로 나누거나 병렬로 계산해 단수를 줄인다. RTL로 돌아가야 하므로 일정이 든다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const P = (i, id, nm, sub, col, before, after) => {
+              const x = 8 + i * 108;
+              return pvdG(f ? [f] : null, [id], R(x, 12, 100, 112, col, { fo: .07, c: col, sw: 1.4, rx: 6 }) + before(x + 8, 24, col) + fdArr(x + 50, 70, 'd', col) + after(x + 8, 78, col) + lab(x + 50, 142, nm, col, 'middle', 10.5) + lab(x + 50, 156, sub, GR, 'middle', 8.5));
+            };
+            const wire = (x1, x2, y, col) => A.ln(`M${x1} ${y} H${x2}`, col, 1.8);
+            o += P(0, 'sz', '셀 키우기', '셀 지연이 줄어든다', AMB,
+              (x, y, c) => wire(x, x + 18, y + 20, GR) + cell(x + 18, y + 12, 18, 16, c) + wire(x + 36, x + 84, y + 20, GR),
+              (x, y, c) => wire(x, x + 14, y + 20, GR) + cell(x + 14, y + 4, 30, 32, c) + wire(x + 44, x + 84, y + 20, GR));
+            o += P(1, 'bf', '버퍼 넣기', '긴 선을 끊어 민다', CLK,
+              (x, y, c) => wire(x, x + 84, y + 20, GR) + R(x - 2, y + 14, 6, 12, c, { fo: .5, sw: 0 }) + R(x + 80, y + 14, 6, 12, c, { fo: .5, sw: 0 }),
+              (x, y, c) => wire(x, x + 34, y + 20, GR) + tri(x + 34, y + 10, 16, 20, c) + wire(x + 50, x + 84, y + 20, GR) + R(x - 2, y + 14, 6, 12, c, { fo: .5, sw: 0 }) + R(x + 80, y + 14, 6, 12, c, { fo: .5, sw: 0 }));
+            o += P(2, 'mv', '배치 옮기기', '선 자체가 짧아진다', CY,
+              (x, y, c) => cell(x, y + 8, 22, 24, c) + cell(x + 62, y + 8, 22, 24, c) + A.ln(`M${x + 22} ${y + 20} H${x + 62}`, GR, 1.8),
+              (x, y, c) => cell(x + 14, y + 8, 22, 24, c) + cell(x + 48, y + 8, 22, 24, c) + A.ln(`M${x + 36} ${y + 20} H${x + 48}`, GR, 1.8));
+            o += P(3, 'ar', '구조 바꾸기', '논리를 둘로 나눈다', PUR,
+              (x, y, c) => [0, 1, 2, 3].map((i) => cell(x + i * 21, y + 10, 16, 20, c)).join('') + A.ln(`M${x + 16} ${y + 20} H${x + 21} M${x + 37} ${y + 20} H${x + 42} M${x + 58} ${y + 20} H${x + 63}`, GR, 1.4),
+              (x, y, c) => [0, 1].map((i) => cell(x + i * 21, y + 10, 16, 20, c)).join('') + R(x + 42, y + 8, 14, 24, OKC, { fo: .35, c: OKC, sw: 1.4, rx: 2 }) + [2, 3].map((i) => cell(x + 14 + i * 21, y + 10, 16, 20, c)).join(''));
+            o += lab(220, 184, '원인이 셀이면 셀, 선이면 버퍼와 배치, 단수면 구조', GR, 'middle', 9.5);
+            return dgSvg('셋업 고치기: ' + s.label, o, '0 0 440 196');
+          }
+        },
+        // ---------- 홀드 고치기 ----------
+        'dsn-fixh': {
+          title: '홀드 위반을 고치는 방법',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '홀드 위반은 데이터가 너무 일찍 도착한 것이다. 주기와 상관이 없어 주파수를 낮춰도 풀리지 않는다. 짧은 경로에 지연을 일부러 더해 데이터를 늦춘다.' },
+            { id: 'bf', label: '고치기 전', focus: ['bf'], desc: '새 데이터가 도착 플립플롭이 이전 값을 붙잡아야 하는 구간 안에 도착한다. 이전 값이 덮어씌워져 잘못된 값이 잡힌다.' },
+            { id: 'af', label: '지연 더하기', focus: ['af'], desc: '짧은 경로 중간에 지연 셀이나 작은 버퍼를 넣어 데이터를 늦춘다. 새 데이터가 붙잡는 구간을 벗어나 도착한다.' },
+            { id: 'tr', label: '대가', focus: ['tr'], desc: '지연을 더하면 같은 경로의 셋업 여유가 그만큼 줄어든다. 셋업 여유가 충분한 경로에만 넣고, 두 숫자를 함께 본다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const ex = 90;
+            o += A.ln(`M${ex} 22 V128`, CLK, 1.6) + lab(ex, 16, '클록 에지', CLK, 'middle', 9.5);
+            o += R(ex, 26, 70, 98, OKC, { fo: .1, c: OKC, sw: 1, dash: '3 2', rx: 2 }) + lab(ex + 35, 140, '붙잡는 구간', OKC, 'middle', 9);
+            o += pvdG(f ? [f] : null, ['bf'], A.ln(`M${ex + 28} 34 V62`, RED, 2.6) + `<circle cx="${ex + 28}" cy="48" r="5" style="fill:${RED};fill-opacity:.9"/>` + lab(ex + 28, 78, '일찍 도착', RED, 'middle', 9.5));
+            o += pvdG(f ? [f] : null, ['af'], A.ln(`M${ex + 112} 34 V62`, OKC, 2.6) + `<circle cx="${ex + 112}" cy="48" r="5" style="fill:${OKC};fill-opacity:.9"/>` + A.ln(`M${ex + 33} 48 H${ex + 104}`, AMB, 1.4, .9, '3 2') + fdArr(ex + 107, 48, 'r', AMB) + lab(ex + 112, 78, '늦춰서 도착', OKC, 'middle', 9.5));
+            o += pvdG(f ? [f] : null, ['af'], ff(250, 28, CLK, 'FF') + A.ln('M276 39 H300', GR, 1.8) + cell(300, 29, 22, 20, AMB) + lab(311, 63, '지연 셀', AMB, 'middle', 9) + A.ln('M322 39 H346', GR, 1.8) + ff(346, 28, CLK, 'FF'));
+            o += pvdG(f ? [f] : null, ['bf'], ff(250, 92, CLK, 'FF') + A.ln('M276 103 H346', GR, 1.8) + ff(346, 92, CLK, 'FF') + lab(311, 126, '짧은 경로', GR, 'middle', 9));
+            o += pvdG(f ? [f] : null, ['tr'], lab(12, 164, '셋업 여유', GR, 'start', 10) + R(86, 156, 150, 10, OKC, { fo: .45, c: OKC, sw: 1, rx: 2 }) + R(86, 176, 90, 10, AMB, { fo: .45, c: AMB, sw: 1, rx: 2 }) + lab(244, 165, '고치기 전', GR, 'start', 9) + lab(184, 185, '후: 지연만큼 줄어든다', AMB, 'start', 9));
+            return dgSvg('홀드 고치기: ' + s.label, o, '0 0 440 198');
+          }
+        },
+        // ---------- 크로스토크 ----------
+        'dsn-xtalk': {
+          title: '크로스토크가 바꾸는 지연',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '나란히 달리는 이웃 선과 결합 용량으로 이어져 있어서, 이웃의 움직임에 따라 내 선의 신호가 빨라지거나 느려진다.' },
+            { id: 'opp', label: '반대 방향', focus: ['opp'], desc: '이웃이 내 신호와 반대로 움직이면 결합 용량이 크게 보여 내 신호가 느려진다. 셋업에서 가정하는 최악의 경우다.' },
+            { id: 'same', label: '같은 방향', focus: ['same'], desc: '이웃이 같은 방향으로 움직이면 내 신호가 빨라진다. 홀드에서 가정하는 최악의 경우다.' },
+            { id: 'fix', label: '처방', focus: ['fix'], desc: '이웃 선과의 간격을 넓히고, 중요한 선 옆에 전원 같은 고정된 선으로 가림막을 세우고, 긴 평행 구간을 버퍼로 끊는다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const row = (id, y, nm, ag, dx, col, tag) => {
+              const xe = 220 + dx;
+              return pvdG(f ? [f] : null, [id], lab(10, y + 6, nm, GR, 'start', 10) +
+                A.ln(`M150 ${y + 14} H${xe - 14} L${xe + 14} ${y - 10} H340`, col, 2.4) +
+                A.ln(`M150 ${y + 14} H206 L234 ${y - 10} H340`, GR, 1.2, .55, '3 3') +
+                (dx ? A.ln(`M220 ${y + 24} H${xe}`, col, 1.4) + lab(Math.min(220, xe) + Math.abs(dx) / 2, y + 36, tag, col, 'middle', 9.5) : lab(220, y + 36, tag, col, 'middle', 9.5)) +
+                lab(350, y + 4, ag, col, 'start', 9.5));
+            };
+            o += row('opp', 34, '이웃이 반대로', '이웃 ↓', 26, RED, '더 늦게');
+            o += row('same', 92, '이웃이 같은 방향', '이웃 ↑', -22, OKC, '더 일찍');
+            const y = 148, cs = (x, w, col, t) => R(x, y + 16, w, 14, col, { fo: .5, c: col, sw: 1.2, rx: 1.5 }) + lab(x + w / 2, y + 27, t, '#0f172a', 'middle', 7.5);
+            o += pvdG(f ? [f] : null, ['fix'], lab(10, y + 26, '단면', GR, 'start', 10) + cs(82, 40, AMB, '이웃 선') + cs(124, 40, CLK, '내 선') + lab(184, y + 26, '→', GR, 'middle', 11) + cs(230, 40, AMB, '이웃 선') + cs(272, 32, PUR, '가림막') + cs(306, 40, CLK, '내 선') + cs(348, 32, PUR, '가림막') + cs(382, 40, AMB, '이웃 선') + lab(220, y + 50, '간격을 넓히고 가림막을 세운다', GR, 'middle', 9.5));
+            return dgSvg('크로스토크: ' + s.label, o, '0 0 440 214');
+          }
+        },
+        // ---------- ECO ----------
+        'dsn-eco': {
+          title: 'ECO의 흐름',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '배선이 끝난 뒤에는 전체를 다시 돌리지 않고 필요한 곳만 바꾼다. 영향 범위가 작아 이미 맞춘 곳이 거의 흐트러지지 않는다.' },
+            { id: 'pk', label: '경로 고르기', focus: ['pk'], desc: '분류한 위반 경로 가운데 같은 원인으로 묶인 것을 고른다. 고칠 셀과 선을 정확히 짚는다.' },
+            { id: 'ed', label: '작게 바꾸기', focus: ['ed'], desc: '셀 하나를 키우거나 버퍼를 하나 넣는 정도로 바꾼다. 문턱 전압이 다른 셀로 교체하는 것도 같은 종류다.' },
+            { id: 'rt', label: '그 부분만 배선', focus: ['rt'], desc: '변경된 부분만 다시 배선한다. 나머지 배선은 건드리지 않는다.' },
+            { id: 'rc', label: '다시 확인', focus: ['rc'], desc: '바꾼 셀과 선을 지나는 모든 경로와 이웃의 크로스토크까지 본다. 위반 개수와 WNS를 함께 확인한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const ST = [['pk', '경로 고르기', RED], ['ed', '작게 바꾸기', AMB], ['rt', '그 부분만 배선', CLK], ['rc', '다시 확인', OKC]];
+            const pic = {
+              pk: (x, y, c) => A.ln(`M${x} ${y + 24} H${x + 10} L${x + 16} ${y + 8} H${x + 36} L${x + 42} ${y + 24} H${x + 54}`, c, 2.4) + [0, 1, 2].map((i) => `<circle cx="${x + 10 + i * 16}" cy="${y + 24 - (i === 1 ? 16 : 0)}" r="2.6" style="fill:${c}"/>`).join(''),
+              ed: (x, y, c) => cell(x + 4, y + 8, 14, 16, c) + fdArr(x + 30, y + 16, 'r', GR) + cell(x + 32, y + 4, 22, 24, c),
+              rt: (x, y, c) => A.ln(`M${x} ${y + 6} H${x + 54} M${x} ${y + 26} H${x + 54}`, GR, 1.4, .6) + A.ln(`M${x + 12} ${y + 16} H${x + 44}`, c, 2.4) + `<circle cx="${x + 12}" cy="${y + 16}" r="2.6" style="fill:${c}"/><circle cx="${x + 44}" cy="${y + 16}" r="2.6" style="fill:${c}"/>`,
+              rc: (x, y, c) => A.ln(`M${x + 8} ${y + 18} L${x + 18} ${y + 28} L${x + 44} ${y + 4}`, c, 3.2),
+            };
+            ST.forEach(([id, nm, col], i) => {
+              const x = 8 + i * 108;
+              o += pvdG(f ? [f] : null, [id], R(x, 14, 94, 72, col, { fo: .1, c: col, sw: 1.6, rx: 7 }) + pic[id](x + 20, 24, col) + lab(x + 47, 78, nm, col, 'middle', 10));
+              if (i < 3) o += pvdG(f ? [f] : null, [id], fdArr(x + 106, 50, 'r', col));
+            });
+            o += A.ln('M402 92 V104 H55 V94', GR, 1.4, .8, '4 3') + fdArr(55, 92, 'u', GR);
+            o += lab(220, 118, '위반이 줄지 않으면 한 번 더', GR, 'middle', 9.5);
+            o += lab(12, 144, '걸리는 시간', GR, 'start', 9.5);
+            o += R(100, 134, 250, 12, RED, { fo: .35, c: RED, sw: 1, rx: 2 }) + lab(358, 144, '전체 재실행', RED, 'start', 9);
+            o += R(100, 154, 50, 12, OKC, { fo: .45, c: OKC, sw: 1, rx: 2 }) + lab(158, 164, 'ECO', OKC, 'start', 9);
+            return dgSvg('ECO: ' + s.label, o, '0 0 440 176');
+          }
+        },
+        // ---------- 서명 ----------
+        'dsn-tcsign': {
+          title: '서명의 확인 항목',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '서명은 칩을 내보내기 전의 마지막 타이밍 확인이다. 독립된 도구로 모든 코너에서 셋업과 홀드가 통과하는지, 실제 값을 반영해도 통과하는지 본다.' },
+            { id: 'cn', label: '모든 코너', focus: ['cn'], desc: '느린 코너에서는 셋업, 빠른 코너에서는 홀드가 위험하다. 정한 코너 목록 전부에서 통과해야 한다.' },
+            { id: 'hd', label: '홀드 0건', focus: ['hd'], desc: '홀드는 칩이 나온 뒤에는 고칠 방법이 없다. 셋업은 속도를 낮춰 살릴 수 있지만 홀드 위반은 하나도 남기지 않는다.' },
+            { id: 'rl', label: '실제 값 반영', focus: ['rl'], desc: '전압 강하, 크로스토크, 위치에 따른 공정 편차 같은 앞에서는 가정으로 두던 것들이 실제 값으로 들어온다.' },
+            { id: 'mg', label: '마진', focus: ['mg'], desc: '기준은 0 이상이 아니라 여유를 남긴 0 이상이다. 모델 오차와 칩의 실제 변동을 덮을 만큼의 여유가 있어야 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const CD = (i, id, nm, col, pic) => { const x = 8 + i * 108; return pvdG(f ? [f] : null, [id], R(x, 16, 94, 100, col, { fo: .09, c: col, sw: 1.6, rx: 7 }) + pic(x + 12, 26, col) + lab(x + 47, 106, nm, col, 'middle', 10.5)); };
+            o += CD(0, 'cn', '모든 코너', CLK, (x, y, c) => [0, 1, 2].map((i) => `<circle cx="${x + 12 + i * 24}" cy="${y + 22}" r="9" style="fill:${OKC};fill-opacity:.25;stroke:${OKC};stroke-width:1.4"/>` + A.ln(`M${x + 7 + i * 24} ${y + 22} l4 4 l7 -8`, OKC, 1.8) + lab(x + 12 + i * 24, y + 48, ['SS', 'TT', 'FF'][i], GR, 'middle', 8.5)).join(''));
+            o += CD(1, 'hd', '홀드 0건', OKC, (x, y, c) => lab(x + 35, y + 38, '0', c, 'middle', 28) + A.ln(`M${x + 14} ${y + 54} H${x + 56}`, c, 1.4, .6));
+            o += CD(2, 'rl', '실제 값 반영', AMB, (x, y, c) => R(x + 2, y + 4, 22, 14, c, { fo: .3, c, sw: 1.2, rx: 2 }) + R(x + 30, y + 4, 22, 14, c, { fo: .3, c, sw: 1.2, rx: 2 }) + lab(x + 13, y + 14, 'IR', c, 'middle', 8.5) + lab(x + 41, y + 14, 'XT', c, 'middle', 8.5) + R(x + 2, y + 26, 22, 14, c, { fo: .3, c, sw: 1.2, rx: 2 }) + R(x + 30, y + 26, 22, 14, c, { fo: .3, c, sw: 1.2, rx: 2 }) + lab(x + 13, y + 36, 'OCV', c, 'middle', 8) + lab(x + 41, y + 36, 'RC', c, 'middle', 8.5));
+            o += CD(3, 'mg', '마진', PUR, (x, y, c) => A.ln(`M${x} ${y + 40} H${x + 58}`, GR, 1.2) + R(x + 6, y + 14, 12, 26, OKC, { fo: .5, sw: 0, rx: 1 }) + R(x + 24, y + 6, 12, 34, OKC, { fo: .5, sw: 0, rx: 1 }) + R(x + 42, y + 22, 12, 18, OKC, { fo: .5, sw: 0, rx: 1 }) + A.ln(`M${x} ${y + 24} H${x + 58}`, PUR, 1.4, .9, '3 2') + lab(x + 29, y + 56, '여유 구간', PUR, 'middle', 8.5));
+            o += A.ln('M220 120 V142', GR, 1.5) + fdArr(220, 144, 'd', GR);
+            o += R(150, 152, 140, 26, OKC, { fo: .16, c: OKC, sw: 1.6, rx: 6 }) + lab(220, 169, '테이프아웃', OKC, 'middle', 11);
+            return dgSvg('서명: ' + s.label, o, '0 0 440 190');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
@@ -13445,6 +13895,90 @@
       });
       draw();
     }
+    // ===== 집중 연습: 타이밍 리포트 보고 원인과 처방 고르기 (sta-drill) =====
+    const ST_C = { q: '#64748b', cell: '#d97706', wire: '#2563eb', bad: '#ef4444', ok: '#059669', pur: '#7c3aed' };
+    const ST_SC = [
+      { k: '선 지연', t: '마지막 선이 길다', log: [['종류', '셋업 · 느린 코너'], ['slack', '−0.25 ns'], ['출발·도착 클록 차이', '0.02 ns']],
+        p: { req: 1.85, segs: [['clk→Q', 0.35, ST_C.q], ['셀', 0.20, ST_C.cell], ['셀', 0.15, ST_C.cell], ['선', 1.40, ST_C.wire]] },
+        sit: '주기 2.0 ns의 경로 하나가 느린 코너에서 실패했어요. 막대는 데이터가 도착하는 시각을 조각으로 나눈 것이고, 점선은 요구 시각이에요.',
+        ds: [
+          { q: '위반의 대부분을 만든 조각은 어디일까요?', a: 2, o: [['클록 차이', '출발과 도착 클록은 0.02 ns밖에 어긋나지 않았어요. 클록은 멀쩡해요.'], ['셀 두 개', '셀은 합쳐서 0.35 ns예요. 전체의 일부일 뿐이에요.'], ['마지막 선 하나', ''], ['clk→Q', '모든 경로에 있는 기본 지연이고 크지 않아요.']], why: '마지막 선 하나가 1.40 ns로 전체의 절반이 넘어요. 합계가 아니라 구성을 보면 어디서 시간을 썼는지 보여요.' },
+          { q: '알맞은 처방은 무엇일까요?', a: 0, o: [['선 중간에 버퍼를 넣거나 두 셀을 가깝게 옮긴다', ''], ['두 셀을 힘센 셀로 키운다', '셀 지연은 전체의 일부예요. 키워도 줄어드는 폭이 작아요.'], ['클록 주기를 늘린다', '제품의 목표 주파수를 바꾸는 일이에요. 설계의 문제를 푼 것이 아니에요.'], ['지연 셀을 넣는다', '지연 셀은 홀드용이에요. 경로를 더 느리게 만들어요.']], why: '긴 선은 버퍼로 끊어 다시 밀거나 배치를 가깝게 고치는 것이 맞는 처방이에요.' }] },
+      { k: '논리 단수', t: '한 줄이 아니라 셀이 열 개', log: [['종류', '셋업 · 느린 코너'], ['slack', '−0.15 ns'], ['경로의 셀 수', '9']],
+        p: { req: 1.85, segs: [['clk→Q', 0.35, ST_C.q], ['셀 아홉 단', 1.35, ST_C.cell, 9], ['선', 0.30, ST_C.wire]] },
+        sit: '눈에 띄게 큰 조각이 없어요. 셀이 아홉 개나 늘어서 있고, 선은 평범해요.',
+        ds: [
+          { q: '이 경로를 어떻게 읽어야 할까요?', a: 1, o: [['선이 길어서 느리다', '선은 합쳐서 0.30 ns로 평범해요.'], ['논리 단수가 많아 느리다', ''], ['클록이 어긋났다', '클록 숫자는 정상이에요. 데이터 쪽 구성에서 답이 나와요.'], ['셀 하나가 유난히 약하다', '셀마다 지연이 비슷해요. 눈에 띄는 약한 셀이 없어요.']], why: '한 곳이 크지 않고 단수가 많다면 논리가 깊은 것이에요. 이런 경로는 버퍼나 셀 크기로는 크게 줄지 않아요.' },
+          { q: '가장 알맞은 처방은 무엇일까요?', a: 3, o: [['선마다 버퍼를 넣는다', '선은 평범해요. 버퍼는 단수를 더 늘려요.'], ['아홉 개 셀을 모두 키운다', '면적과 전력이 크게 늘고, 앞단의 부하가 커져 효과가 줄어요.'], ['클록을 도착 쪽에서 늦춘다', '이 경로 하나는 살지만 다음 경로가 시간을 잃어요. 구조 문제의 근본이 아니에요.'], ['논리를 둘로 나누고 사이에 레지스터를 넣는다', '']], why: '단수가 많은 경로는 구조를 바꿔야 해요. RTL로 돌아가는 일이라 일정이 드니 첫날 설계 쪽에 알려요.' }] },
+      { k: '클록', t: '데이터는 평범한데 실패', log: [['종류', '셋업 · 느린 코너'], ['slack', '−0.10 ns'], ['출발 클록 도착', '0.80 ns'], ['도착 클록 도착', '0.40 ns'], ['같은 영역의 위반', '340건']],
+        p: { req: 1.50, segs: [['clk→Q', 0.35, ST_C.q], ['셀', 0.25, ST_C.cell], ['셀', 0.25, ST_C.cell], ['선', 0.30, ST_C.wire], ['선', 0.45, ST_C.wire]] },
+        sit: '데이터 경로의 조각은 모두 평범해요. 그런데 요구 시각의 점선이 예상보다 앞에 있어요. 같은 영역에서만 위반이 몰려 있어요.',
+        ds: [
+          { q: '가장 의심되는 원인은 무엇일까요?', a: 0, o: [['도착 플립플롭의 클록이 일찍 닿는다', ''], ['논리 단수가 많다', '셀이 네 개뿐이에요. 단수는 문제가 아니에요.'], ['이웃 선의 크로스토크', '리포트에 크로스토크 추가분이 없어요. 클록의 숫자가 단서예요.'], ['셀이 약하다', '셀 지연은 평범해요. 요구 시각이 앞당겨진 것이 문제예요.']], why: '출발은 0.80 ns, 도착은 0.40 ns에 닿아서 요구 시각이 0.40 ns 앞당겨졌어요. 같은 영역에서 위반이 몰리는 것도 클록의 신호예요.' },
+          { q: '무엇을 고쳐야 할까요?', a: 2, o: [['데이터 경로의 셀을 모두 키운다', '데이터 경로는 평범해요. 키워도 340건 전체가 줄지 않아요.'], ['선에 버퍼를 넣는다', '선은 평범해요. 클록을 그대로 두면 다른 경로에서 같은 위반이 계속 나와요.'], ['그 영역의 클록 균형을 다시 맞춘다', ''], ['홀드용 지연 셀을 넣는다', '지연을 더하면 셋업이 더 나빠져요.']], why: '공통 원인인 클록을 고치면 340건이 한꺼번에 줄어요. 클록을 바꾼 뒤에는 홀드가 달라지므로 전체를 다시 분석해요.' }] },
+      { k: '홀드', t: '너무 일찍 도착한다', log: [['종류', '홀드 · 빠른 코너'], ['slack', '−0.06 ns'], ['경로의 셀 수', '1']],
+        p: { hold: 1, req: 0.20, segs: [['clk→Q', 0.08, ST_C.q], ['셀', 0.04, ST_C.cell], ['선', 0.02, ST_C.wire]] },
+        sit: '짧은 경로예요. 이번에는 막대가 점선을 넘어야 통과예요. 점선은 도착 플립플롭이 이전 값을 붙잡는 최소 시각이에요.',
+        ds: [
+          { q: '클록 주기를 늘리면 이 위반이 풀릴까요?', a: 1, o: [['풀린다. 시간이 늘어나니까', '주기를 늘리면 셋업이 쉬워질 뿐이에요.'], ['풀리지 않는다. 같은 클록 에지에서의 경쟁이라 주기와 상관이 없다', ''], ['반만 풀린다', '홀드는 주기에 따라 조금도 달라지지 않아요.']], why: '홀드는 같은 클록 에지에서 새 데이터가 이전 값을 덮는 경쟁이라 주기와 무관해요. 그래서 칩이 나온 뒤에는 고칠 수 없어요.' },
+          { q: '알맞은 처방은 무엇일까요?', a: 0, o: [['셋업 여유가 큰지 확인하고 경로에 지연 셀을 넣는다', ''], ['셀을 키워 더 빠르게 만든다', '더 빠르게 만들면 일찍 도착하는 정도가 더 심해져요.'], ['클록을 도착 쪽에서 앞당긴다', '도착 클록을 앞당기면 홀드가 더 나빠져요.']], why: '짧은 경로에 지연을 더하되, 지연만큼 셋업 여유가 줄므로 셋업 여유가 큰 경로에만 넣어요.' }] },
+      { k: '크로스토크', t: '이웃 선이 있는 곳에서만', log: [['종류', '셋업 · 느린 코너'], ['slack · 크로스토크 켬', '−0.15 ns'], ['slack · 크로스토크 끔', '+0.15 ns']],
+        p: { req: 1.35, segs: [['clk→Q', 0.35, ST_C.q], ['셀', 0.20, ST_C.cell], ['셀', 0.20, ST_C.cell], ['선', 0.45, ST_C.wire], ['크로스토크', 0.30, ST_C.bad]] },
+        sit: '크로스토크를 끄면 통과하고 켜면 실패해요. 막대 끝의 붉은 조각이 이웃 선이 더한 지연이에요.',
+        ds: [
+          { q: '이 위반의 원인은 무엇일까요?', a: 3, o: [['셀이 약하다', '셀 조각은 평범해요. 크기를 바꿔도 붉은 조각은 그대로예요.'], ['클록이 어긋났다', '클록 차이는 리포트에 이상이 없어요.'], ['논리 단수가 많다', '셀은 두 개뿐이에요.'], ['나란히 달리는 이웃 선이 지연을 더한다', '']], why: '크로스토크를 껐을 때 통과한다는 사실이 가장 강한 단서예요. 이웃의 움직임이 내 선을 느리게 만들고 있어요.' },
+          { q: '알맞은 처방은 무엇일까요?', a: 1, o: [['크로스토크 계산을 끄고 넘어간다', '실제 칩에서는 이웃이 움직여요. 위반을 가리는 것은 해결이 아니에요.'], ['이웃 선과의 간격을 넓히거나 가림막을 세우거나 긴 평행 구간을 버퍼로 끊는다', ''], ['모든 선의 간격을 넓힌다', '면적과 일정이 크게 늘어요. 값이 큰 위반에만 쓰는 방법이에요.']], why: '결합을 줄이는 것이 처방이에요. 작은 위반은 셀이나 버퍼로 푸는 편이 싸고, 큰 것만 배선을 손봐요.' }] },
+    ];
+    const ST_TOTAL = ST_SC.reduce((a, c) => a + c.ds.length, 0);
+    function stBar(p) {
+      const x0 = 12, W = 380, tot = p.segs.reduce((a, s) => a + s[1], 0), mx = Math.max(p.req, tot) * 1.12, sc = W / mx, y = 30, h = 26, tr = (s) => (typeof T === 'function' ? T(s) : s);
+      let o = '', x = x0;
+      p.segs.forEach((s) => {
+        const w = s[1] * sc, c = s[2];
+        o += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" style="fill:${c};fill-opacity:.2;stroke:${c};stroke-width:1.3"/>`;
+        if (s[3]) for (let k = 1; k < s[3]; k++) o += `<path d="M${x + w * k / s[3]} ${y} V${y + h}" style="stroke:${c};stroke-width:.8;stroke-opacity:.7"/>`;
+        if (w > 30) o += `<text x="${x + w / 2}" y="${y + h / 2 + 3.4}" text-anchor="middle" style="font-size:9px;font-weight:800;fill:${c}">${escH(tr(s[0]))}</text>`;
+        x += w;
+      });
+      const rx = x0 + p.req * sc, ex = x0 + tot * sc;
+      o += `<path d="M${rx} ${y - 12} V${y + h + 10}" style="stroke:#3b82f6;stroke-width:1.8;stroke-dasharray:4 3"/><text x="${rx}" y="${y - 15}" text-anchor="middle" style="font-size:9px;font-weight:800;fill:#3b82f6">${escH(tr(p.hold ? '최소 도착' : '요구 시각'))} ${p.req.toFixed(2)}</text>`;
+      const a = Math.min(rx, ex), b = Math.max(rx, ex);
+      o += `<path d="M${a} ${y + h + 8} H${b}" style="stroke:#ef4444;stroke-width:2.4"/><text x="${(a + b) / 2}" y="${y + h + 22}" text-anchor="middle" style="font-size:9px;font-weight:800;fill:#ef4444">${(p.hold ? tot - p.req : p.req - tot).toFixed(2)} ns</text>`;
+      return `<svg viewBox="0 0 ${x0 + W + 18} ${y + h + 28}" role="img" aria-label="${escH(tr('경로 지연 막대'))}">${o}</svg>`;
+    }
+    function stHydrate(fig) {
+      if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc', 'pr-al', 'pr-bh');
+      const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
+      const st = { i: 0, j: 0, pick: null, ok: 0 };
+      const draw = () => {
+        const done = st.i >= ST_SC.length;
+        let h = `<div class="dg-head"><span class="dg-tag">${escH(tt('직접 해 보기'))}</span><span class="dg-title">${escH(tt('타이밍 리포트 읽기 연습'))}</span></div>`;
+        if (done) {
+          const r = st.ok, msg = r >= ST_TOTAL - 1 ? '숫자에서 원인을 가르고 처방을 고르는 길이 몸에 익었어요. 실제 리포트 앞에서도 클록, 단수, 셀과 선의 순서로 따라가 보세요.' : r >= Math.ceil(ST_TOTAL / 2) ? '좋아요. 놓친 건은 해당 그림을 다시 보고 도전해 보세요.' : '원인을 가르는 질문 그림과 셋업·홀드 고치기 그림을 다시 보고 도전해 보세요. 합계가 아니라 구성을 보는 것부터 익히면 쉬워져요.';
+          h += `<p class="pr-score">${escH(tt('결과'))} <b>${r} / ${ST_TOTAL}</b></p><p class="dg-desc">${escH(tt(msg))}</p><div class="pr-row"><button type="button" class="dg-btn on" data-a="again">${escH(tt('다시 해 보기'))}</button></div>`;
+        } else {
+          const sc = ST_SC[st.i], d = sc.ds[st.j], n = st.i + 1, ans = st.pick != null;
+          h += `<p class="pr-q"><b>${escH(tt('리포트'))} ${n} / ${ST_SC.length}</b> · ${escH(tt(sc.t))} <span class="al-k">${escH(tt(sc.k))}</span></p>`;
+          h += `<div class="al-scr al-alm"><div class="al-h"><i></i><b>${escH(tt('타이밍 리포트'))}</b><span>${escH(tt(sc.t))}</span></div>${sc.log.map((r) => `<div class="al-r"><span>${escH(tt(r[0]))}</span><b>${escH(tt(r[1]))}</b></div>`).join('')}<div class="bh-w">${stBar(sc.p)}</div></div>`;
+          h += `<p class="dg-desc">${escH(tt(sc.sit))}</p><p class="pr-hint al-q"><b>${escH(tt(d.q))}</b>${sc.ds.length > 1 ? ` <span>(${st.j + 1}/${sc.ds.length})</span>` : ''}</p>`;
+          h += `<div class="al-opts">${d.o.map((o, k) => `<button type="button" class="dg-btn al-o${ans ? (k === d.a ? ' good' : k === st.pick ? ' bad' : '') : ''}" data-a="opt" data-k="${k}" ${ans ? 'disabled' : ''}>${escH(tt(o[0]))}</button>`).join('')}</div>`;
+          if (ans) {
+            const okk = st.pick === d.a;
+            h += `<div class="pr-fb"><b>${escH(tt(okk ? '✔ 맞아요' : '✘ 아쉬워요'))}</b>${okk ? '' : `<p>${escH(tt(d.o[st.pick][1]))}</p>`}<p>${escH(tt(d.why))}</p></div><div class="pr-row"><button type="button" class="dg-btn on" data-a="next">${escH(tt(st.i + 1 >= ST_SC.length && st.j + 1 >= sc.ds.length ? '결과 보기' : '다음'))}</button></div>`;
+          }
+        }
+        fig.innerHTML = h + (cap ? `<figcaption>${escH(cap)}</figcaption>` : '');
+      };
+      fig.addEventListener('click', (e) => {
+        const act = e.target.closest && e.target.closest('[data-a]'); if (!act) return;
+        const a = act.dataset.a, sc = ST_SC[st.i];
+        if (a === 'opt' && st.pick == null && sc) { st.pick = +act.dataset.k; if (st.pick === sc.ds[st.j].a) st.ok++; }
+        else if (a === 'next') { st.pick = null; if (st.j + 1 < sc.ds.length) st.j++; else { st.i++; st.j = 0; } }
+        else if (a === 'again') { st.i = 0; st.j = 0; st.pick = null; st.ok = 0; }
+        draw();
+      });
+      draw();
+    }
     // ===== 실습: 수율 실험실 (yield-lab) =====
     const YL_Q = [
       { k: 'random', seed: 3, o: [['중앙으로 쏠린 가스·온도', '중앙에 몰리지 않고 전체에 고르게 퍼졌어요. 중앙 쏠림은 중앙이 유독 붉은 맵이에요.'], ['입자 같은 무작위 결함', ''], ['마스크(레티클) 결함', '마스크 결함이면 같은 자리가 일정한 간격으로 반복돼요. 여기는 위치에 규칙이 없어요.'], ['이송·연마 접촉 긁힘', '긁힘은 불량이 줄을 이뤄요. 여기는 줄이 없어요.']], a: 1, why: '위치에 규칙 없이 흩어진 불량은 입자 같은 무작위 결함의 모습이에요. 장비 하나보다 클린룸과 장비 청결 전반을 살펴요.' },
@@ -13525,6 +14059,7 @@
       if (fig.dataset.pr === 'yield-lab') return ylHydrate(fig);
       if (fig.dataset.pr === 'alarm-drill') return alHydrate(fig);
       if (fig.dataset.pr === 'bug-hunt') return bhHydrate(fig);
+      if (fig.dataset.pr === 'sta-drill') return stHydrate(fig);
       if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc');
       const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
       const st = { i: 0, sel: null, ph: 'pick', g1: null, g2: null, full: 0 };
