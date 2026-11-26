@@ -81,6 +81,9 @@
       var idx = P[j][2];
       return d[P[j][1]].replace(/\{(\d+)\}/g, function (_, i) { var g = mm[idx.indexOf(+i) + 1]; return g == null ? '' : tr(g); });
     }
+    // '그림 이름: 상태' 형태(그림 접근성 문구 등): 사전에 '그림 이름: ' 키가 있으면 앞뒤를 따로 번역
+    var mc = k.match(/^(.+?: )(.+)$/);
+    if (mc && d[mc[1]] != null) { var rest = look(mc[2]); if (rest != null) return d[mc[1]] + rest; }
     // 'A · B', 'A — B' 처럼 이어 붙인 글은 조각마다 번역
     var SEP = [' · ', ' — ', ' / ', ' | ', ', '];
     for (var si = 0; si < SEP.length; si++) {
