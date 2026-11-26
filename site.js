@@ -14135,6 +14135,240 @@
       });
     })();
 
+    // ===== 설계 직무 > 아날로그: 무료 글 "아날로그 블록 지도"와 유료(10토큰) 글 "증폭기와 바이어스 기초" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c', CY = '#22d3ee';
+      const lab = (x, y, t, col, a = 'middle', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const box = (x, y, w, h, col) => R(x, y, w, h, col, { fo: .16, c: col, sw: 1.5, rx: 5 });
+      const dot = (x, y, r, col) => `<circle cx="${x}" cy="${y}" r="${r}" style="fill:${col};fill-opacity:.95"/>`;
+      const tri = (x, y, w, h, col) => `<path d="M${x} ${y} V${y + h} L${x + w} ${y + h / 2} Z" style="fill:${col};fill-opacity:.3;stroke:${col};stroke-width:1.4"/>`;
+      const sine = (x0, y0, w, amp, cyc, col, sw = 2, ph = 0) => { let d = ''; for (let k = 0; k <= 48; k++) { const t = k / 48; d += (k ? ' L' : 'M') + (x0 + t * w).toFixed(1) + ' ' + (y0 - amp * Math.sin(2 * Math.PI * cyc * t + ph)).toFixed(1); } return A.ln(d, col, sw); };
+      const nmos = (x, y, col, nm) => A.ln(`M${x} ${y} V${y + 40} M${x - 14} ${y + 12} V${y + 28} M${x - 14} ${y + 20} H${x - 26}`, col, 1.8) + A.ln(`M${x - 8} ${y + 8} V${y + 32}`, col, 1.8) + A.ln(`M${x - 8} ${y + 10} H${x} M${x - 8} ${y + 30} H${x}`, col, 1.6) + (nm ? lab(x + 8, y + 24, nm, col, 'start', 8.5) : '');
+      Object.assign(DIAGRAMS, {
+        // ---------- 아날로그 블록 지도 ----------
+        'dsn-anamap': {
+          title: '칩 속 아날로그 블록 지도',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '아날로그 블록은 디지털 코어의 가장자리에서 바깥 세상과 이어 준다. 전원을 다듬고, 클록을 만들고, 신호를 숫자로 바꾼다.' },
+            { id: 'pwr', label: '전원 (LDO)', focus: ['pwr'], desc: '바깥에서 들어온 흔들리는 전압을 칩이 쓰기 좋은 일정한 전압으로 고정한다. 깨끗함이 필요한 곳에 놓는다.' },
+            { id: 'clk', label: '클록 (PLL)', focus: ['clk'], desc: '느리고 정확한 기준 신호를 받아 칩이 쓰는 빠른 클록으로 키운다. 모든 디지털 회로의 박자가 여기서 나온다.' },
+            { id: 'sig', label: '신호 (ADC · DAC)', focus: ['sig'], desc: '센서의 연속 신호를 숫자로 바꾸고(ADC), 숫자를 다시 연속 신호로 바꾼다(DAC).' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += R(150, 40, 140, 110, GR, { fo: .08, c: GR, sw: 1.8, rx: 8 }) + lab(220, 88, '디지털 코어', GR, 'middle', 12) + lab(220, 104, '0과 1의 세계', GR, 'middle', 9);
+            const blk = (id, x, y, nm, sub, col) => pvdG(f ? [f] : null, [id], box(x, y, 100, 40, col) + lab(x + 50, y + 18, nm, col, 'middle', 11) + lab(x + 50, y + 32, sub, col, 'middle', 8.5));
+            o += blk('pwr', 8, 14, 'LDO', '전원 고정', AMB) + A.ln('M58 54 V66 H150', AMB, 1.8) + pvdG(f ? [f] : null, ['pwr'], lab(24, 8, '입력 전압', GR, 'start', 8.5));
+            o += blk('clk', 8, 78, 'PLL', '빠른 클록 생성', CLK) + A.ln('M108 98 H150', CLK, 1.8);
+            o += blk('sig', 332, 40, 'ADC', '숫자로 바꾸기', OKC) + A.ln('M332 60 H290', OKC, 1.8) + blk('sig', 332, 96, 'DAC', '연속 신호로', OKC) + A.ln('M290 116 H332', OKC, 1.8);
+            o += pvdG(f ? [f] : null, ['sig'], A.ln('M432 60 H384 M384 116 H432', GR, 1.4) + lab(402, 16, '센서', GR, 'middle', 9) + sine(396, 30, 34, 6, 1.5, OKC, 1.6));
+            o += pvdG(f ? [f] : null, ['clk'], lab(58, 134, '기준 신호 (느림)', GR, 'middle', 8.5) + A.ln('M58 138 V148', GR, 1.2));
+            o += lab(220, 176, '칩 가장자리에서 바깥과 안을 이어 준다', GR, 'middle', 9.5);
+            return dgSvg('아날로그 지도: ' + s.label, o, '0 0 440 188');
+          }
+        },
+        // ---------- PLL ----------
+        'dsn-pll': {
+          title: 'PLL의 고리',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '출력을 나누어 기준과 위상을 비교하고, 어긋난 만큼 발진기의 속도를 고치는 일을 쉬지 않고 반복한다. 출력은 기준의 정수배로 안정된다.' },
+            { id: 'cmp', label: '위상 비교', focus: ['cmp'], desc: '기준과 되먹임된 신호의 박자가 얼마나 어긋났는지를 잰다.' },
+            { id: 'flt', label: '필터', focus: ['flt'], desc: '어긋남을 전압으로 바꾸고 급한 변동을 걸러 매끄럽게 만든다.' },
+            { id: 'vco', label: '발진기', focus: ['vco'], desc: '전압에 따라 속도가 변하는 발진기다. 전압이 오르면 빨라지고 내리면 느려진다.' },
+            { id: 'div', label: '분주기', focus: ['div'], desc: '출력을 일정한 수로 나눠 기준과 같은 속도로 낮춘다. 나눈 수가 곧 출력의 배수다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const B = (id, x, nm, col) => pvdG(f ? [f] : null, [id], box(x, 30, 84, 46, col) + lab(x + 42, 58, nm, col, 'middle', 10.5));
+            o += lab(4, 40, '기준 클록', CLK, 'start', 9) + sine(6, 56, 34, 6, 3, CLK, 1.4).replace(/M6 56/, 'M6 56');
+            o += A.ln('M40 53 H62', GR, 1.5);
+            o += B('cmp', 62, '위상 비교', AMB) + A.ln('M146 53 H160', GR, 1.5) + B('flt', 160, '필터', PUR) + A.ln('M244 53 H258', GR, 1.5) + B('vco', 258, '발진기', OKC) + A.ln('M342 53 H400', OKC, 1.8) + lab(404, 50, '출력', OKC, 'start', 9.5) + sine(396, 68, 38, 5, 6, OKC, 1.4);
+            o += pvdG(f ? [f] : null, ['div'], box(160, 108, 100, 40, ORG) + lab(210, 132, '분주기 ÷N', ORG, 'middle', 10.5) + A.ln('M370 53 V128 H260 M160 128 H104 V76', GR, 1.5) + fdArr(104, 78, 'u', GR));
+            o += lab(220, 176, '어긋난 만큼 고치며, 출력이 기준의 N배로 안정된다', GR, 'middle', 9.5);
+            return dgSvg('PLL: ' + s.label, o, '0 0 440 188');
+          }
+        },
+        // ---------- ADC ----------
+        'dsn-adc': {
+          title: 'ADC의 두 단계',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '일정한 시간마다 전압을 읽고(표본), 읽은 값을 가장 가까운 계단 숫자로 고른다(양자화). 읽는 속도와 계단의 촘촘함이 성능을 정한다.' },
+            { id: 'smp', label: '표본', focus: ['smp'], desc: '일정한 간격으로 전압을 읽는다. 신호가 변하는 속도보다 충분히 자주 읽어야 원래 모양을 되살릴 수 있다.' },
+            { id: 'qnt', label: '양자화', focus: ['qnt'], desc: '읽은 값을 가장 가까운 계단으로 옮긴다. 비트가 하나 늘면 계단이 두 배로 촘촘해진다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const x0 = 30, w = 270, y0 = 100, amp = 56, N = 10;
+            let g = A.ln(`M${x0} ${y0 + amp + 8} V${y0 - amp - 8}`, GR, 1.2, .7) + A.ln(`M${x0} ${y0} H${x0 + w}`, GR, 1, .5, '3 3');
+            for (let k = 0; k <= 8; k++) g += A.ln(`M${x0} ${y0 - amp + k * amp / 4} H${x0 + w}`, GR, .6, .25);
+            g += sine(x0, y0, w, amp * .9, 1.3, CLK, 2.2, .3) + lab(x0 + 4, y0 - amp - 12, '연속 신호', CLK, 'start', 9);
+            o += pvdG(f ? [f] : null, ['smp'], g);
+            let sm = '', qn = '';
+            for (let k = 0; k < N; k++) {
+              const t = (k + .5) / N, px = x0 + t * w, v = Math.sin(2 * Math.PI * 1.3 * t + .3) * amp * .9, py = y0 - v, qy = y0 - Math.round(v / (amp / 4)) * (amp / 4);
+              sm += A.ln(`M${px} ${y0 + amp + 8} V${py}`, AMB, 1, .5, '2 2') + dot(px, py, 3.2, AMB);
+              qn += R(px - 12, qy - 2.5, 24, 5, OKC, { fo: .55, c: OKC, sw: 1, rx: 1 }) + A.ln(`M${px} ${py} V${qy}`, OKC, 1, .6);
+            }
+            o += pvdG(f ? [f] : null, ['smp'], sm + lab(x0 + w / 2, y0 + amp + 22, '일정한 간격으로 읽기', AMB, 'middle', 9));
+            o += pvdG(f ? [f] : null, ['qnt'], qn);
+            let bits = lab(366, 20, '출력 숫자', OKC, 'middle', 10);
+            ['011', '101', '110', '100', '010'].forEach((b, i) => { bits += R(334, 32 + i * 28, 64, 22, OKC, { fo: .16, c: OKC, sw: 1.2, rx: 3 }) + lab(366, 47 + i * 28, b, OKC, 'middle', 10.5); });
+            o += pvdG(f ? [f] : null, ['qnt'], bits + A.ln('M300 100 H330', OKC, 1.6) + fdArr(330, 100, 'r', OKC));
+            return dgSvg('ADC: ' + s.label, o, '0 0 440 194');
+          }
+        },
+        // ---------- 증폭기의 일 ----------
+        'dsn-ampsig': {
+          title: '증폭기의 일',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '입력이 조금 움직이면 출력이 그보다 훨씬 크게 같은 모양으로 움직인다. 출력 변화를 입력 변화로 나눈 값이 이득이다.' },
+            { id: 'in', label: '작은 입력', focus: ['in'], desc: '센서나 안테나가 보낸 아주 작은 신호다. 그대로는 디지털 회로가 읽을 수 없다.' },
+            { id: 'amp', label: '증폭기', focus: ['amp'], desc: '기준이 되는 직류 위에서 신호의 변화만 키운다. 이득, 속도, 잡음, 전력이 한 상자 안에서 맞바꿔진다.' },
+            { id: 'out', label: '큰 출력', focus: ['out'], desc: '같은 모양으로 키워진 신호다. 출력이 전원 범위에 닿으면 위아래가 잘린다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += pvdG(f ? [f] : null, ['in'], A.ln('M10 100 H130', GR, 1, .5, '3 3') + sine(10, 100, 120, 10, 2, CLK, 2.2) + lab(70, 150, '작은 입력', CLK, 'middle', 10) + A.ln('M10 40 V160', GR, 1.2, .6));
+            o += pvdG(f ? [f] : null, ['amp'], tri(168, 60, 90, 80, PUR) + lab(206, 104, '×10', PUR, 'middle', 12) + A.ln('M138 100 H168 M258 100 H288', GR, 1.6) + lab(213, 150, '증폭기', PUR, 'middle', 10) + A.ln('M213 40 V60', AMB, 1.6) + lab(213, 34, '기준 전압 · 전류', AMB, 'middle', 8.5));
+            o += pvdG(f ? [f] : null, ['out'], A.ln('M296 100 H430', GR, 1, .5, '3 3') + sine(296, 100, 130, 54, 2, OKC, 2.4) + lab(361, 168, '큰 출력', OKC, 'middle', 10) + A.ln('M296 28 H430 M296 172 H430', RED, 1, .6, '2 3') + lab(432, 26, '전원', RED, 'end', 8));
+            return dgSvg('증폭기: ' + s.label, o, '0 0 440 180');
+          }
+        },
+        // ---------- 동작점 ----------
+        'dsn-biaspt': {
+          title: '동작점',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '게이트 전압에 따른 전류 곡선에서, 신호가 흔들릴 폭의 가운데에 동작점을 잡는다. 너무 아래면 꺼지는 쪽이, 너무 위면 포화되는 쪽이 잘린다.' },
+            { id: 'lo', label: '너무 낮음', focus: ['lo'], desc: '동작점이 낮으면 신호의 아래쪽이 꺼짐 구간으로 들어가 잘려 나간다.' },
+            { id: 'ok', label: '알맞음', focus: ['ok'], desc: '기울기가 가파른 가운데에 두면 신호가 위아래로 흔들려도 전류가 부드럽게 따라온다.' },
+            { id: 'hi', label: '너무 높음', focus: ['hi'], desc: '동작점이 높으면 신호의 위쪽이 포화되어 곡선이 평평한 곳에서 잘린다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const px = 36, py = 14, pw = 190, ph = 140, X = (t) => px + t * pw, Y = (v) => py + ph - v * ph;
+            const cur = (t) => t < .22 ? 0.02 * t / .22 : t < .8 ? .02 + (t - .22) / .58 * .8 : .82 + .16 * (1 - Math.exp(-(t - .8) * 10)) / (1 - Math.exp(-2));
+            let d = ''; for (let k = 0; k <= 40; k++) { const t = k / 40; d += (k ? ' L' : 'M') + X(t).toFixed(1) + ' ' + Y(cur(t)).toFixed(1); }
+            o += A.ln(`M${px} ${py} V${py + ph} H${px + pw}`, GR, 1.2, .8) + A.ln(d, CLK, 2.4) + lab(px + pw, py + ph + 14, '게이트 전압', GR, 'end', 8.5) + lab(px - 4, py + 6, '전류', GR, 'end', 8.5);
+            o += R(px, py, pw * .22, ph, RED, { fo: .06, sw: 0 }) + lab(X(.11), py + 14, '꺼짐', RED, 'middle', 8.5) + R(X(.8), py, pw * .2, ph, RED, { fo: .06, sw: 0 }) + lab(X(.9), py + 14, '포화', RED, 'middle', 8.5);
+            const P = (id, t, col, nm) => { const cx = X(t), cy = Y(cur(t)); return pvdG(f ? [f] : null, [id], A.ln(`M${cx} ${py + ph} V${cy}`, col, 1.2, .8, '3 2') + A.ln(`M${px} ${cy} H${cx}`, col, 1.2, .8, '3 2') + dot(cx, cy, 4.5, col) + lab(cx, py + ph + 26, nm, col, 'middle', 9)); };
+            o += P('lo', .24, RED, '낮음') + P('ok', .5, OKC, '알맞음') + P('hi', .78, AMB, '높음');
+            const wv = (id, t, col, clipLo, clipHi) => { const ax = 262 + (id === 'lo' ? 0 : id === 'ok' ? 58 : 116); return ''; };
+            // 오른쪽: 신호 파형 비교
+            const cases = [['lo', '낮음', RED, 0], ['ok', '알맞음', OKC, 1], ['hi', '높음', AMB, 2]];
+            cases.forEach(([id, nm, col, i]) => {
+              const y0 = 36 + i * 52; let dd = ''; for (let k = 0; k <= 40; k++) { const t = k / 40; let v = Math.sin(2 * Math.PI * 2 * t) * 16; if (id === 'lo') v = Math.max(v, -4); if (id === 'hi') v = Math.min(v, 5); dd += (k ? ' L' : 'M') + (262 + t * 160).toFixed(1) + ' ' + (y0 - v).toFixed(1); }
+              o += pvdG(f ? [f] : null, [id], A.ln(`M262 ${y0} H422`, GR, 1, .4, '3 3') + A.ln(dd, col, 2.2) + lab(262, y0 - 22, '출력: ' + nm, col, 'start', 9));
+            });
+            return dgSvg('동작점: ' + s.label, o, '0 0 440 188');
+          }
+        },
+        // ---------- 전류 거울 ----------
+        'dsn-mirror': {
+          title: '전류 거울',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '기준 쪽의 전류가 만든 게이트 전압을 옆 트랜지스터에 그대로 주면, 같은 모양의 트랜지스터는 같은 전류를 흘린다.' },
+            { id: 'ref', label: '기준 쪽', focus: ['ref'], desc: '게이트와 드레인이 이어져 있어, 흘리는 전류에 맞는 게이트 전압을 스스로 만든다.' },
+            { id: 'cp', label: '복사 쪽', focus: ['cp'], desc: '같은 게이트 전압을 받아 같은 전류를 흘린다. 크기를 두 배로 하면 전류도 두 배가 된다.' },
+            { id: 'sz', label: '크기 비율', focus: ['sz'], desc: '두 트랜지스터의 크기 비가 전류의 비가 된다. 두 개가 정확히 닮아야 복사가 정확하다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const T = (x, y, col, w) => R(x, y, 60, 56, col, { fo: .16, c: col, sw: 1.5, rx: 5 }) + lab(x + 30, y + 33, 'NMOS', col, 'middle', 9.5) + lab(x + 30, y + 46, w, col, 'middle', 8.5);
+            o += A.ln('M10 24 H420', GR, 1.2, .6) + lab(420, 18, 'VDD', GR, 'end', 8.5) + A.ln('M10 168 H420', GR, 1.2, .6) + lab(420, 180, 'GND', GR, 'end', 8.5);
+            o += pvdG(f ? [f] : null, ['ref'], A.ln('M110 24 V70 M110 126 V168', GR, 1.5) + T(80, 70, CLK, '1배') + lab(110, 14, '기준 전류', AMB, 'middle', 9.5) + fdArr(110, 40, 'd', AMB) + A.ln('M140 98 H190', CLK, 1.5) + A.ln('M190 98 V50 M190 50 H80 V70', CLK, 0) );
+            o += pvdG(f ? [f] : null, ['cp'], A.ln('M330 24 V70 M330 126 V168', GR, 1.5) + T(300, 70, OKC, f === 'sz' ? '' : '1배') + lab(330, 14, '복사된 전류', OKC, 'middle', 9.5) + fdArr(330, 40, 'd', OKC) + A.ln('M270 98 H300', OKC, 1.5));
+            o += pvdG(f ? [f] : null, ['ref', 'cp'], A.ln('M140 98 H300', CLK, 1.8) + dot(140, 98, 3, CLK) + lab(220, 90, '같은 게이트 전압', CLK, 'middle', 9));
+            o += pvdG(f ? [f] : null, ['sz'], R(180, 110, 80, 34, PUR, { fo: .16, c: PUR, sw: 1.3, rx: 4 }) + lab(220, 124, '크기 1 : 2', PUR, 'middle', 9.5) + lab(220, 138, '전류 1 : 2', PUR, 'middle', 9.5));
+            return dgSvg('전류 거울: ' + s.label, o, '0 0 440 190');
+          }
+        },
+        // ---------- 차동 쌍 ----------
+        'dsn-diffamp': {
+          title: '차동 쌍',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '두 입력의 차이는 키우고, 두 입력에 함께 실린 잡음은 지운다. 그래서 큰 잡음 옆에서도 작은 신호를 읽을 수 있다.' },
+            { id: 'df', label: '차이를 키움', focus: ['df'], desc: '두 입력이 서로 반대로 움직이면 한쪽 전류가 늘고 다른 쪽이 줄어 출력이 크게 변한다.' },
+            { id: 'cm', label: '공통 잡음 상쇄', focus: ['cm'], desc: '두 입력이 똑같이 흔들리면 꼬리 전류원이 전체 전류를 붙들고 있어 출력이 거의 움직이지 않는다.' },
+            { id: 'tl', label: '꼬리 전류원', focus: ['tl'], desc: '두 쪽이 함께 쓰는 일정한 전류원이다. 공통 흔들림을 지우는 열쇠다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += A.ln('M60 24 H260', GR, 1.2, .6) + lab(262, 20, 'VDD', GR, 'start', 8.5);
+            const T = (x, col, nm) => A.ln(`M${x} 24 V60`, GR, 1.5) + R(x - 28, 60, 56, 50, col, { fo: .16, c: col, sw: 1.5, rx: 5 }) + lab(x, 90, 'NMOS', col, 'middle', 9.5) + A.ln(`M${x} 110 V128`, GR, 1.5);
+            o += pvdG(f ? [f] : null, ['df', 'cm'], T(100, CLK, 'L') + T(220, CLK, 'R') + A.ln('M100 128 H220', GR, 1.6) + A.ln('M72 85 H40', CLK, 1.6) + A.ln('M248 85 H280', CLK, 1.6) + lab(36, 80, '입력 +', CLK, 'end', 9) + lab(284, 80, '입력 −', CLK, 'start', 9));
+            o += pvdG(f ? [f] : null, ['tl'], A.ln('M160 128 V150', GR, 1.5) + dot(160, 128, 3, GR) + `<circle cx="160" cy="162" r="12" style="fill:${AMB};fill-opacity:.2;stroke:${AMB};stroke-width:1.5"/>` + A.ln('M160 154 V170', AMB, 1.6) + fdArr(160, 170, 'd', AMB) + lab(184, 166, '꼬리 전류원', AMB, 'start', 9));
+            o += pvdG(f ? [f] : null, ['df'], lab(332, 14, '차이가 들어오면: 크게 키움', OKC, 'start', 9) + sine(332, 36, 86, 6, 1.5, OKC, 2) + sine(332, 54, 86, 6, 1.5, CLK, 2, Math.PI) + A.ln('M332 88 H418', GR, 1, .5, '3 3') + sine(332, 88, 86, 14, 1.5, OKC, 2.6));
+            o += pvdG(f ? [f] : null, ['cm'], lab(332, 118, '같은 잡음이 들어오면: 지움', RED, 'start', 9) + sine(332, 138, 86, 6, 1.5, RED, 2) + sine(332, 154, 86, 6, 1.5, RED, 2) + A.ln('M332 176 H418', RED, 2.6));
+            return dgSvg('차동 쌍: ' + s.label, o, '0 0 440 190');
+          }
+        },
+        // ---------- 이득과 대역폭 ----------
+        'dsn-bode': {
+          title: '이득과 주파수',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '이득을 높이면 대역폭이 줄고, 이득을 낮추면 대역폭이 넓어진다. 둘을 곱한 값이 거의 일정하다.' },
+            { id: 'hi', label: '높은 이득', focus: ['hi'], desc: '이득이 크면 평평한 구간은 높지만 대역폭이 일찍 끝난다.' },
+            { id: 'lo', label: '낮은 이득', focus: ['lo'], desc: '이득이 작으면 평평한 구간은 낮지만 더 빠른 신호까지 받는다.' },
+            { id: 'gbw', label: '이득 대역폭 곱', focus: ['gbw'], desc: '두 곡선은 같은 하나의 내리막 선 위에서 꺾인다. 그 선이 이득 대역폭 곱이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const px = 44, py = 18, pw = 340, ph = 134, X = (lf) => px + lf / 5 * pw, Y = (g) => py + ph - g / 4 * ph;
+            const curve = (g0, fc, col) => { let d = ''; for (let k = 0; k <= 50; k++) { const lf = k / 50 * 5; const g = Math.max(0, Math.log10(g0) - .5 * Math.log10(1 + Math.pow(10, 2 * (lf - fc)))); d += (k ? ' L' : 'M') + X(lf).toFixed(1) + ' ' + Y(g).toFixed(1); } return A.ln(d, col, 2.6); };
+            o += A.ln(`M${px} ${py} V${py + ph} H${px + pw}`, GR, 1.2, .8) + lab(px + pw, py + ph + 18, '주파수 (로그)', GR, 'end', 8.5) + lab(px - 4, py + 6, '이득 (dB)', GR, 'end', 8.5);
+            o += pvdG(f ? [f] : null, ['gbw'], A.ln(`M${X(1.2)} ${Y(3)} L${X(4.2)} ${Y(0)}`, AMB, 1.6, .9, '4 3') + lab(X(3.5), Y(1.9), '이득 × 대역폭 = 일정', AMB, 'middle', 9));
+            o += pvdG(f ? [f] : null, ['hi'], curve(1000, 1.2, RED) + lab(X(.1), Y(3) - 8, '높은 이득', RED, 'start', 9.5) + dot(X(1.2), Y(2.7), 4, RED) + lab(X(1.2), py + ph + 30, '좁은 대역', RED, 'middle', 8.5));
+            o += pvdG(f ? [f] : null, ['lo'], curve(10, 3.2, OKC) + lab(X(.1), Y(1) - 8, '낮은 이득', OKC, 'start', 9.5) + dot(X(3.2), Y(.7), 4, OKC) + lab(X(3.2), py + ph + 30, '넓은 대역', OKC, 'middle', 8.5));
+            return dgSvg('이득과 대역폭: ' + s.label, o, '0 0 440 190');
+          }
+        },
+        // ---------- 맞바꿈 ----------
+        'dsn-anatri': {
+          title: '증폭기의 맞바꿈',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '이득, 속도, 잡음, 전력은 서로 끌어당긴다. 한 곳을 올리면 다른 곳이 내려가므로 가장 어려운 항목부터 정한다.' },
+            { id: 'cur', label: '전류를 늘리면', focus: ['cur'], desc: 'gm이 커져 이득, 속도, 잡음이 모두 좋아진다. 대신 전력이 늘어난다.' },
+            { id: 'siz', label: '트랜지스터를 키우면', focus: ['siz'], desc: '잡음과 매칭이 좋아진다. 대신 축전기가 늘어 속도가 느려지고 면적이 든다.' },
+            { id: 'gn', label: '이득을 높이면', focus: ['gn'], desc: '출력 저항이 커져 이득이 오르지만 대역폭이 줄고 출력이 잘리기 쉽다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const N = [['이득', 220, 28, CLK], ['속도', 380, 98, OKC], ['전력', 220, 168, ORG], ['잡음', 60, 98, PUR]];
+            const node = (nm, x, y, col) => R(x - 40, y - 16, 80, 32, col, { fo: .2, c: col, sw: 1.6, rx: 6 }) + lab(x, y + 4, nm, col, 'middle', 11);
+            let g = A.ln('M220 44 L364 98 M364 98 L220 152 M220 152 L76 98 M76 98 L220 44', GR, 1, .45, '3 3');
+            N.forEach(([nm, x, y, c]) => g += node(nm, x, y, c));
+            o += g;
+            const arrow = (x1, y1, x2, y2, col) => A.ln(`M${x1} ${y1} L${x2} ${y2}`, col, 2.4);
+            o += pvdG(f ? [f] : null, ['cur'], R(100, 76, 64, 20, OKC, { fo: .0, sw: 0 }) + lab(220, 98, '전류 ↑', OKC, 'middle', 11) + lab(220, 116, '이득 · 속도 · 잡음 좋아짐', OKC, 'middle', 8.5) + lab(220, 130, '전력 나빠짐', RED, 'middle', 8.5));
+            o += pvdG(f ? [f] : null, ['siz'], lab(132, 60, '크기 ↑', PUR, 'middle', 11) + lab(132, 74, '잡음 · 매칭 좋아짐', PUR, 'middle', 8.5) + lab(308, 140, '크기 ↑ → 속도 나빠짐', RED, 'middle', 8.5));
+            o += pvdG(f ? [f] : null, ['gn'], lab(308, 60, '이득 ↑', CLK, 'middle', 11) + lab(308, 74, '속도 나빠짐', RED, 'middle', 8.5));
+            o += lab(220, 188, '가장 어려운 하나를 먼저 정한다', GR, 'middle', 9.5);
+            return dgSvg('맞바꿈: ' + s.label, o, '0 0 440 196');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
