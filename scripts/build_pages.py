@@ -150,7 +150,7 @@ def make_shell(tpl, *, title, desc, canonical, ld, root, depth, boot_js, contain
     h = must_replace(h, '<div id="learningContainer" class="grid grid-cols-1 gap-4"></div>', f'<div id="learningContainer" class="flex flex-col space-y-4">{container_html}</div>', "이론 영역(learningContainer)")
     # i18n.js 는 사이트 맨 위에 있어서, theory/<id>/ 처럼 아래 주소에서는 root 를 붙여야 불러와진다.
     # (못 불러오면 앱이 데이터를 읽는 도중 멈춰 미리 넣어 둔 글만 남는다 → 심화 이론이 새로고침하면 기초 이론 모양으로 보임)
-    h = must_replace(h, '<script src="i18n.js?v=3"></script>', f'<script src="{root}i18n.js?v=3"></script>', "i18n.js 스크립트")
+    h = must_replace(h, '<script src="i18n.js?v=4"></script>', f'<script src="{root}i18n.js?v=4"></script>', "i18n.js 스크립트")
     # 본 스크립트(site.js)도 같은 이유로 root 를 붙인다. (index.html 이 1MB 를 넘지 않게 따로 뺀 파일)
     h = must_replace(h, '<script src="site.js?v=1"></script>', f'<script src="{root}site.js?v=1"></script>', "site.js 스크립트")
     h = must_replace(h, 'id="theoryHubLink" href="theory/"', f'id="theoryHubLink" href="{root}theory/"', "푸터의 이론 목록 링크")
