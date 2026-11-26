@@ -10775,6 +10775,302 @@
 
     // ===== 현장 직무 체험: 관리도 판정 연습 ({{practice:spc-judge|캡션}}) =====
     // 규칙(1~6)은 'fld-spc-rules' 그림과 같다. 정답은 아래 규칙 판정 함수가 데이터에서 직접 계산한다.
+    // ===== 현장 직무 > 집중 연습: 알람 대응 시나리오 =====
+    (() => {
+      const C = fdC, RED = '#ef4444', AC = fdAc, GR = '#94a3b8';
+      const IC = {
+        bell: '<path d="M-9 7 Q-9 -8 0 -9 Q9 -8 9 7 Z" style="fill:#fbbf24;stroke:#92400e;stroke-width:1.3"/><circle cx="0" cy="11" r="2.6" style="fill:#92400e"/>',
+        bellg: '<path d="M-9 7 Q-9 -8 0 -9 Q9 -8 9 7 Z" style="fill:#cbd5e1;stroke:#64748b;stroke-width:1.2"/><circle cx="0" cy="11" r="2.4" style="fill:#64748b"/>',
+        bellr: '<path d="M-9 7 Q-9 -8 0 -9 Q9 -8 9 7 Z" style="fill:#ef4444;stroke:#7f1d1d;stroke-width:1.3"/><circle cx="0" cy="11" r="2.6" style="fill:#7f1d1d"/>',
+        warn: '<path d="M0 -12 L12 10 H-12 Z" style="fill:#fbbf24;stroke:#92400e;stroke-width:1.4;stroke-linejoin:round"/><path d="M0 -4 V3" style="stroke:#7c2d12;stroke-width:2.4;stroke-linecap:round"/><circle cx="0" cy="6.4" r="1.4" style="fill:#7c2d12"/>',
+        stop: '<polygon points="-6,-11 6,-11 11,-6 11,6 6,11 -6,11 -11,6 -11,-6" style="fill:#ef4444;fill-opacity:.88;stroke:#7f1d1d;stroke-width:1.2"/><path d="M-6 0 H6" style="stroke:#fff;stroke-width:3;stroke-linecap:round"/>',
+        eye: `<path d="M-12 0 Q0 -10 12 0 Q0 10 -12 0 Z" style="fill:#f1f5f9;stroke:${C.eq};stroke-width:1.4"/><circle cx="0" cy="0" r="3.6" style="fill:${C.eq}"/>`,
+        note: '<rect x="-10" y="-11" width="20" height="24" rx="2.5" style="fill:#f1f5f9;stroke:#475569;stroke-width:1.3"/><path d="M-6 -4 H6 M-6 1 H6 M-6 6 H2" style="stroke:#64748b;stroke-width:1.4"/>',
+        gear: '<circle cx="0" cy="0" r="6.5" style="fill:none;stroke:#94a3b8;stroke-width:4"/><path d="M0 -12 V-8 M0 8 V12 M-12 0 H-8 M8 0 H12 M-8.5 -8.5 L-5.7 -5.7 M5.7 5.7 L8.5 8.5 M8.5 -8.5 L5.7 -5.7 M-5.7 5.7 L-8.5 8.5" style="stroke:#94a3b8;stroke-width:3;stroke-linecap:round"/>',
+        wafer: '<circle cx="0" cy="0" r="9.5" style="fill:#cbd5e1;stroke:#64748b;stroke-width:1.4"/><path d="M-9.5 0 H-6.6" style="stroke:#64748b;stroke-width:1.6"/><circle cx="2" cy="-1" r="3" style="fill:#94a3b8;fill-opacity:.55"/>',
+        phone: '<rect x="-6.5" y="-11" width="13" height="22" rx="3" style="fill:#f1f5f9;stroke:#475569;stroke-width:1.4"/><path d="M-3 -7 H3" style="stroke:#94a3b8;stroke-width:1.2"/><circle cx="0" cy="7" r="1.5" style="fill:#64748b"/>',
+        flow: '<rect x="-11" y="-6" width="14" height="12" rx="2" style="fill:#bbf7d0;stroke:#15803d;stroke-width:1.3"/><path d="M5 0 H12" style="stroke:#15803d;stroke-width:2;stroke-linecap:round"/><polygon points="14,0 9,-3.4 9,3.4" style="fill:#15803d"/>',
+        ok: `<circle cx="0" cy="0" r="11" style="fill:rgba(52,211,153,.2);stroke:${C.op};stroke-width:1.6"/><path d="M-5 0 L-1 5 L6 -5" style="fill:none;stroke:${C.op};stroke-width:3;stroke-linecap:round;stroke-linejoin:round"/>`,
+        clock: '<circle cx="0" cy="0" r="11" style="fill:#f1f5f9;stroke:#475569;stroke-width:1.5"/><path d="M0 -6 V0 L5 3" style="fill:none;stroke:#475569;stroke-width:1.8;stroke-linecap:round"/>',
+        x: '<path d="M-5 -5 L5 5 M5 -5 L-5 5" style="stroke:#ef4444;stroke-width:3;stroke-linecap:round"/>'
+      };
+      const ic = (x, y, k, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">${IC[k]}</g>`;
+      const card = (x, y, w, h, col, o = {}) => fdRect(x, y, w, h, { rx: o.rx || 10, fill: o.fill || 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 });
+
+      Object.assign(DIAGRAMS, {
+        // ---------- 알람은 네 갈래에서 온다 ----------
+        'fld-alm-kinds': {
+          title: '알람은 네 갈래에서 온다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 알람 소리라도 어디서 온 신호인지에 따라 첫 행동이 달라진다. 알람 이름을 읽고 먼저 네 갈래 중 어디에 속하는지부터 가른다.' },
+            { id: 'safe', label: '안전', focus: ['safe'], desc: '가스 누출, 화재, 도어 열림, 비상정지처럼 사람이 위험해질 수 있는 신호다. 원인 조사보다 사람의 안전이 먼저라서 비상 절차를 따르고 대피와 보고를 한다.' },
+            { id: 'eq', label: '장비', focus: ['eq'], desc: '진공 저하, 냉각수 부족, 전원 이상, 과열처럼 장비가 상할 수 있는 신호다. 장비는 대개 스스로 멈추므로 멈춘 상태를 확인하고 설비 엔지니어를 부른다.' },
+            { id: 'proc', label: '공정', focus: ['proc'], desc: 'FDC나 SPC가 값이 평소와 다르다고 알리는 신호다. 장비는 멀쩡해 보여도 웨이퍼가 영향을 받았을 수 있어서 로트를 보류하고 기록해 넘긴다.' },
+            { id: 'flow', label: '물류', focus: ['flow'], desc: 'MES에서 로트 상태나 레시피가 맞지 않거나 자재가 모자라 흐름이 막힌 신호다. 장비 고장이 아닐 때가 많아서 상태와 작업 지시를 먼저 확인하고 정해진 곳에 문의한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const cd = (id, x, y, col, ic1, t1, t2, t3, t4) => pvdG(f, [id], card(x, y, 200, 108, col) + ic(x + 34, y + 38, ic1, 1.7) + fdTxM(x + 64, y + 28, t1, { a: 'start', s: 13, w: 800, c: col }) + fdTxM(x + 64, y + 46, t2, { a: 'start', s: 10, w: 700 }) + fdTxM(x + 64, y + 62, t3, { a: 'start', s: 9.5, op: .85 }) + fdRect(x + 12, y + 78, 176, 20, { rx: 6, fill: 'rgba(148,163,184,.12)', c: col, so: .55, sw: 1 }) + fdTxM(x + 100, y + 92, t4, { s: 10, w: 800, c: col }));
+            o += cd('safe', 14, 16, RED, 'warn', '안전 알람', '사람이 위험할 수 있다', '가스 · 화재 · 도어 · EMO', '비상 절차 → 대피 · 보고');
+            o += cd('eq', 226, 16, C.eq, 'gear', '장비 알람', '장비가 상할 수 있다', '진공 · 냉각수 · 전원 · 과열', '멈춤 확인 → 엔지니어 호출');
+            o += cd('proc', 14, 136, AC, 'wafer', '공정 알람', '웨이퍼가 영향받을 수 있다', 'FDC · SPC · 값이 평소와 다름', '로트 홀드 → 기록 · 보고');
+            o += cd('flow', 226, 136, C.op, 'flow', '물류 알람', '흐름이 막혔다', 'MES · 로트 · 레시피 · 자재', '상태 확인 → 정해진 곳에 문의');
+            o += fdTxM(220, 266, '소리는 같아도 갈래마다 첫 행동이 다르다', { s: 10.5, w: 800, c: AC });
+            return dgSvg('알람의 갈래: ' + s.label, o, '0 0 440 278');
+          }
+        },
+
+        // ---------- 첫 30초 ----------
+        'fld-alm-first': {
+          title: '알람 앞의 첫 30초',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '알람이 뜬 첫 30초는 원인을 맞히는 시간이 아니라 사실을 모으고 알리는 시간이다. 사람, 읽기, 상태, 호출, 기록의 순서로 간다.' },
+            { id: 'p', label: '안전 먼저', focus: ['s1'], desc: '가장 먼저 사람이 안전한지 본다. 연기, 냄새, 누출, 이상한 소리가 있으면 알람 내용을 읽기 전에 비상 대응으로 넘어간다.' },
+            { id: 'r', label: '읽고 파악', focus: ['s2', 's3'], desc: '화면의 알람 번호와 메시지를 그대로 읽어 적고, 장비가 멈췄는지와 장비 안에 로트가 있는지를 확인한다. 기억에 의존하지 않고 눈으로 본 것만 적는다.' },
+            { id: 'c', label: '부르고 남기기', focus: ['s4', 's5'], desc: '확인한 사실을 들고 정해진 사람을 부른다. 한 일과 남은 일은 곧바로 일지에 남겨서 다음 사람이 이어받을 수 있게 한다.' },
+            { id: 'n', label: '하지 않는 것', focus: ['no'], desc: '임의로 재시작하거나, 이유를 모른 채 알람만 해제하거나, 인터락을 우회하는 일은 하지 않는다. 급해 보여도 보호 장치를 푸는 순간 사고와 불량의 가능성이 커진다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const st = [['s1', 'warn', '사람이 안전한가', '연기 · 냄새 · 누출', RED], ['s2', 'note', '번호와 메시지', '그대로 읽어 적는다', C.eq], ['s3', 'gear', '장비와 로트', '멈췄나 · 로트는 어디에', C.eq], ['s4', 'phone', '정해진 사람 호출', '재시작 대신 보고', AC], ['s5', 'note', '일지에 남기기', '시각 · 한 일 · 남은 일', C.op]];
+            st.forEach((a, i) => {
+              const x = 46 + i * 87;
+              o += pvdG(f, [a[0]], `<circle cx="${x}" cy="82" r="29" style="fill:rgba(148,163,184,.1);stroke:${a[4]};stroke-width:1.8"/>` + ic(x, 82, a[1], 1.35) + pvdNum(x - 24, 56, i + 1, a[4]) + fdTxM(x, 134, a[2], { s: 10, w: 800, c: a[4] }) + fdTxM(x, 148, a[3], { s: 8.5, op: .9 }));
+              if (i < 4) o += pvdG(f, [a[0], st[i + 1][0]], pvdL(`M${x + 32} 82 H${x + 49}`, { so: .7 }) + fdArr(x + 55, 82, 'r', 'currentColor'));
+            });
+            o += pvdG(f, ['no'], fdRect(14, 176, 412, 88, { rx: 12, fill: 'rgba(239,68,68,.07)', c: RED, so: .8, sw: 1.5 }) + fdTxM(220, 198, '이것만은 하지 않는다', { s: 11, w: 800, c: RED }) + [['임의 재시작', 80], ['알람만 해제', 220], ['인터락 우회', 360]].map((a) => ic(a[1], 228, 'x', 1.6) + `<circle cx="${a[1]}" cy="228" r="14" style="fill:none;stroke:${RED};stroke-width:1.4;stroke-opacity:.7"/>` + fdTxM(a[1], 256, a[0], { s: 9.5, w: 800 })).join(''));
+            return dgSvg('첫 30초: ' + s.label, o, '0 0 440 276');
+          }
+        },
+
+        // ---------- 연쇄 알람 ----------
+        'fld-alm-chain': {
+          title: '알람이 한꺼번에 울릴 때는 시각 순으로 읽는다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '장비 하나가 어긋나면 알람이 연달아 울린다. 화면에는 한꺼번에 쌓이지만 알람 이력을 시각 순으로 늘어놓으면 어디서 시작됐는지가 보인다. 아래는 이해를 위한 예시다.' },
+            { id: 'first', label: '가장 이른 알람', focus: ['b1', 'first'], desc: '가장 먼저 울린 알람이 원인 후보 1순위다. 이 예에서는 냉각수 유량이 12시 1분 3초에 가장 먼저 낮아졌다. 뒤따르는 알람을 하나씩 해제하러 다니기 전에 첫 알람부터 본다.' },
+            { id: 'chain', label: '이어지는 연쇄', focus: ['b1', 'b2', 'chain'], desc: '앞선 이상이 뒤의 값을 흔든다. 냉각수가 줄면 온도가 오르고, 온도가 오르면 RF 정합이 어긋나 반사 전력이 늘고, 압력이 흔들려 결국 공정이 중단된다. 뒤의 알람은 결과일 때가 많다.' },
+            { id: 'cav', label: '단정은 금물', focus: ['b1', 'b2', 'cav'], desc: '센서마다 감지 속도와 한계가 달라서 가장 이른 알람이 꼭 원인인 것은 아니다. 순서와 시각을 그대로 적어 엔지니어에게 넘기고, 원인 판단은 데이터를 보고 하게 둔다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const al = [['냉각수', '유량 낮음', '12:01:03'], ['챔버 온도', '높음', '12:01:20'], ['RF 반사', '전력 높음', '12:01:41'], ['압력', '편차', '12:01:55'], ['공정', '중단', '12:02:10']];
+            o += fdRect(110, 14, 220, 24, { rx: 8, fill: 'rgba(148,163,184,.1)', c: GR, so: .6, sw: 1.2 }) + fdTxM(220, 30, '알람 이력 (시각 순)', { s: 10, w: 800 });
+            o += pvdL('M26 150 H416', { sw: 1.6, so: .6 }) + fdArr(420, 150, 'r', 'currentColor');
+            al.forEach((a, i) => {
+              const x = 56 + i * 82, first = i === 0;
+              o += pvdG(f, i === 0 ? ['b1'] : ['b2'], (first ? `<circle cx="${x}" cy="112" r="21" style="fill:rgba(239,68,68,.12);stroke:${RED};stroke-width:1.8"/>` : '') + ic(x, 112, first ? 'bellr' : 'bell', first ? 1.5 : 1.2) + fdTxM(x, 66, a[0], { s: 9.5, w: 800, c: first ? RED : undefined }) + fdTxM(x, 79, a[1], { s: 9, op: .9 }) + pvdL(`M${x} 143 V157`, { sw: 1.4, so: .7 }) + fdTxM(x, 172, a[2], { s: 9, w: 700 }));
+              if (i < 4) o += pvdG(f, ['chain'], pvdL(`M${x + 24} 106 Q${x + 41} 94 ${x + 54} 106`, { c: AC, sw: 1.5, so: .9 }) + fdArr(x + 56, 108, 'd', AC));
+            });
+            o += pvdG(f, ['first'], !(f && f.includes('first')) ? '' : fdRect(26, 196, 160, 46, { rx: 10, fill: 'rgba(239,68,68,.08)', c: RED, so: .8, sw: 1.5 }) + fdTxM(106, 216, '가장 이른 알람', { s: 10.5, w: 800, c: RED }) + fdTxM(106, 232, '원인 후보 1순위', { s: 9.5, w: 700 }));
+            o += pvdG(f, ['chain'], !(f && f.includes('chain')) ? '' : fdRect(210, 196, 200, 46, { rx: 10, fill: 'rgba(251,146,60,.08)', c: AC, so: .8, sw: 1.5 }) + fdTxM(310, 216, '원인에서 결과로', { s: 10.5, w: 800, c: AC }) + fdTxM(310, 232, '뒤의 알람은 결과일 때가 많다', { s: 9, w: 700 }));
+            o += pvdG(f, ['cav'], !(f && f.includes('cav')) ? '' : fdRect(40, 196, 360, 62, { rx: 10, fill: 'rgba(96,165,250,.08)', c: C.eq, so: .8, sw: 1.5 }) + fdTxM(220, 218, '센서마다 감지 속도가 달라 순서가 어긋날 수 있다', { s: 9.5, w: 800, c: C.eq }) + fdTxM(220, 236, '시각과 순서를 그대로 적어 엔지니어에게 넘긴다', { s: 9.5, w: 700 }) + `<circle cx="136" cy="112" r="9" style="fill:none;stroke:${C.eq};stroke-width:1.4;stroke-dasharray:3 2"/>`);
+            if (!f) o += fdTxM(220, 232, '이력은 시각 순으로 읽는다', { s: 11, w: 800, c: AC });
+            return dgSvg('연쇄 알람: ' + s.label, o, '0 0 440 268');
+          }
+        },
+
+        // ---------- 판단 갈림길 ----------
+        'fld-alm-tree': {
+          title: '알람을 보고 바로 묻는 세 가지',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '알람이 뜨면 원인이 무엇인지 알아내기 전에 세 가지를 순서대로 묻는다. 대답에 따라 첫 행동이 정해진다.' },
+            { id: 'q1', label: '사람이 위험한가', focus: ['q1'], desc: '연기, 화재, 가스 누출, 감전이 의심되면 다른 질문은 필요 없다. 비상정지, 대피, 보고로 바로 간다. 이 질문은 항상 맨 앞에 둔다.' },
+            { id: 'q2', label: '멈췄나·로트는', focus: ['q2'], desc: '장비가 멈췄다면 멈춘 것을 확인하고, 장비 안에 로트가 있는지 본다. 로트가 안에 있으면 보류하고 위치를 기록한 채 엔지니어를 부른다. 웨이퍼에는 손대지 않는다.' },
+            { id: 'q3', label: '처음인가 반복인가', focus: ['q3'], desc: '장비가 계속 돌고 있는 경고라면 처음인지 반복인지를 본다. 처음이면 기록해 두고 지켜보며 보고한다. 반복이면 횟수와 시각을 묶어 패턴으로 보고한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const row = (id, y, col, n, q, a1, a2, last) => pvdG(f, [id], card(14, y, 412, 68, col) + pvdNum(36, y + 34, n, col) + `<g transform="translate(66 ${y + 34})"><rect x="-9" y="-16" width="18" height="32" rx="5" style="fill:#1e293b;stroke:#475569;stroke-width:1.2"/><circle cx="0" cy="-8" r="3.6" style="fill:${col}"/><circle cx="0" cy="0" r="3.6" style="fill:#334155"/><circle cx="0" cy="8" r="3.6" style="fill:#334155"/></g>` + fdTxM(90, y + 28, q, { a: 'start', s: 11, w: 800 }) + fdTxM(90, y + 46, a1[0], { a: 'start', s: 9.5, w: 800, c: col }) + fdTxM(90, y + 59, a1[1], { a: 'start', s: 8.5, op: .85 }) + (a2 ? fdTxM(260, y + 46, a2[0], { a: 'start', s: 9.5, w: 800, c: AC }) + fdTxM(260, y + 59, a2[1], { a: 'start', s: 8.5, op: .85 }) : ''));
+            o += row('q1', 12, RED, 1, '사람이 위험한가?', ['예 → 비상 절차', 'EMO · 대피 · 보고'], null);
+            o += row('q2', 96, C.eq, 2, '장비가 멈췄나? 로트가 안에 있나?', ['예 → 정지 확인 · 로트 홀드', '위치 기록 · 엔지니어 호출'], null);
+            o += row('q3', 180, C.pr, 3, '처음 보는 알람인가? 반복인가?', ['처음 → 기록하고 지켜보며 보고', '값 · 추세 · 시각'], ['반복 → 패턴으로 묶어 보고', '횟수 · 챔버 · 단계']);
+            o += pvdG(f, ['q1', 'q2'], pvdL('M220 80 V92', { so: .7 }) + fdArr(220, 96, 'd', 'currentColor') + fdTxM(238, 90, '아니오', { a: 'start', s: 8.5, w: 800 }));
+            o += pvdG(f, ['q2', 'q3'], pvdL('M220 164 V176', { so: .7 }) + fdArr(220, 180, 'd', 'currentColor') + fdTxM(238, 174, '아니오', { a: 'start', s: 8.5, w: 800 }));
+            o += fdTxM(220, 266, '원인을 맞히기 전에 이 순서로 묻는다', { s: 10.5, w: 800, c: AC });
+            return dgSvg('알람 판단: ' + s.label, o, '0 0 440 278');
+          }
+        },
+
+        // ---------- 웨이퍼는 어디에 ----------
+        'fld-alm-wafer': {
+          title: '장비가 멈췄을 때 웨이퍼는 어디에 있나',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '장비가 멈춘 순간 웨이퍼는 포트의 카세트, 이송 경로, 챔버 안 중 어딘가에 있다. 어디 있든 직접 꺼내거나 옮기지 않고 위치를 기록해 엔지니어에게 넘긴다.' },
+            { id: 'port', label: '포트에 대기', focus: ['port'], desc: '카세트에서 아직 꺼내지 않은 웨이퍼는 이 장비에서 처리를 시작하지 않은 상태다. 영향이 없을 가능성이 크지만 이동이나 재투입은 MES 절차와 엔지니어 지시를 따른다.' },
+            { id: 'move', label: '이송 중', focus: ['move'], desc: '로봇이나 로드락 위에서 멈췄다면 장비가 움직이는 도중이라는 뜻이다. 가까이서 손대면 충돌과 파손의 위험이 있으므로 건드리지 않고 슬롯 번호와 위치를 적는다.' },
+            { id: 'ch', label: '챔버 안', focus: ['ch'], desc: '공정 도중에 멈췄다면 그 웨이퍼는 공정이 덜 끝난 상태일 수 있다. 챔버를 열거나 꺼내지 않고 로트를 홀드해 두면, 엔지니어가 복구한 뒤 재작업이나 폐기를 판단한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const box = (x, y, w, h, t, col) => fdRect(x, y, w, h, { rx: 5, fill: 'rgba(148,163,184,.1)', c: col || GR, so: .75, sw: 1.3 }) + (t ? fdTxM(x + w / 2, y + h + 12, t, { s: 8.5, w: 700, op: .9 }) : '');
+            const wf = (x, y, id) => pvdG(f, [id], `<circle cx="${x}" cy="${y}" r="9" style="fill:none;stroke:${AC};stroke-width:1.6;stroke-dasharray:3 2"/><circle cx="${x}" cy="${y}" r="5.2" style="fill:${AC};stroke:#fff;stroke-width:1"/>`);
+            // 포트
+            o += box(14, 62, 46, 44, '', GR) + box(14, 144, 46, 44, '', GR) + fdTxM(37, 84, '포트', { s: 8.5, w: 800 }) + fdTxM(37, 96, '카세트', { s: 8, op: .85 }) + fdTxM(37, 166, '포트', { s: 8.5, w: 800 }) + fdTxM(37, 178, '카세트', { s: 8, op: .85 });
+            // 이송 로봇
+            o += fdRect(72, 52, 74, 146, { rx: 8, fill: 'rgba(96,165,250,.07)', c: C.eq, so: .6, sw: 1.2 }) + `<circle cx="109" cy="125" r="15" style="fill:rgba(96,165,250,.18);stroke:${C.eq};stroke-width:1.6"/>` + pvdL('M109 125 L128 112', { c: C.eq, sw: 3, so: .9 }) + fdTxM(109, 210, '이송 로봇', { s: 8.5, w: 700, op: .9 });
+            o += box(156, 96, 30, 58, '', GR) + fdTxM(171, 166, '로드락', { s: 8.5, w: 700, op: .9 });
+            // 이송 챔버
+            const hx = 262, hy = 125, hr = 46, hp = [0, 1, 2, 3, 4, 5].map((i) => (hx + hr * Math.cos(i * Math.PI / 3 + Math.PI / 6)).toFixed(1) + ',' + (hy + hr * Math.sin(i * Math.PI / 3 + Math.PI / 6)).toFixed(1)).join(' ');
+            o += `<polygon points="${hp}" style="fill:rgba(148,163,184,.08);stroke:${GR};stroke-width:1.4"/>` + fdTxM(hx, hy + 3, '이송', { s: 9, w: 700, op: .8 });
+            o += pvdL('M186 125 H214', { sw: 1.4, so: .5 });
+            o += fdRect(227, 10, 70, 38, { rx: 6, fill: 'rgba(148,163,184,.1)', c: GR, so: .7, sw: 1.3 }) + fdTxM(262, 33, '챔버 A', { s: 9, w: 700 });
+            o += fdRect(227, 202, 70, 38, { rx: 6, fill: 'rgba(148,163,184,.1)', c: GR, so: .7, sw: 1.3 }) + fdTxM(262, 225, '챔버 C', { s: 9, w: 700 });
+            o += fdRect(318, 104, 82, 42, { rx: 7, fill: 'rgba(239,68,68,.1)', c: RED, so: .95, sw: 1.8 }) + fdTxM(359, 123, '챔버 B', { s: 9.5, w: 800, c: RED }) + `<circle cx="388" cy="112" r="3.4" style="fill:${RED}"/>`;
+            o += pvdL('M308 125 H318', { sw: 1.4, so: .5 });
+            // 웨이퍼와 설명
+            o += wf(37, 120, 'port') + wf(128, 111, 'move') + wf(359, 136, 'ch');
+            o += pvdG(f, ['port'], fdTxM(37, 214, '투입 전', { s: 9.5, w: 800, c: AC }) + fdTxM(37, 227, '처리 안 함', { s: 8.5 }) + pvdL('M37 130 V204', { c: AC, sw: 1, so: .55, dash: '3 3' }));
+            o += pvdG(f, ['move'], fdTxM(128, 232, '로봇 · 로드락 위', { s: 9.5, w: 800, c: AC }) + fdTxM(128, 245, '건드리지 않는다', { s: 8.5 }) + pvdL('M128 122 V220', { c: AC, sw: 1, so: .55, dash: '3 3' }));
+            o += pvdG(f, ['ch'], fdTxM(359, 166, '공정 도중', { s: 9.5, w: 800, c: AC }) + fdTxM(359, 179, '덜 끝났을 수 있다', { s: 8.5 }));
+            o += fdTxM(220, 266, '어디에 있든 손대지 않고 위치만 기록한다', { s: 10.5, w: 800, c: AC });
+            return dgSvg('웨이퍼 위치: ' + s.label, o, '0 0 440 278');
+          }
+        },
+
+        // ---------- 호출 사다리 ----------
+        'fld-alm-call': {
+          title: '누구를 언제 부르나',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '알람이 뜨면 정해진 순서로 위로 알린다. 사다리의 첫 칸은 담당 설비 엔지니어이고, 정해진 시간 안에 응답이 없으면 한 칸 위로 올린다. 시간 기준과 연락처는 사내 절차를 따른다.' },
+            { id: 'first', label: '첫 호출', focus: ['r1', 'r2'], desc: '오퍼레이터가 사실을 모아 담당 설비 엔지니어를 먼저 부른다. 장비와 원인을 진단하는 일은 1차로 이 사람 몫이다. 알람 이름, 위치, 시각, 한 일을 한 번에 전한다.' },
+            { id: 'up', label: '응답이 없을 때', focus: ['r2', 'r3', 'clk'], desc: '정해진 시간 안에 응답이 없거나 판단이 필요하면 한 칸 위로 올린다. 혼자서 해제하거나 임의로 돌려 보지 않는다. 위로 알린 사실도 일지에 남긴다.' },
+            { id: 'safe', label: '사람이 위험하면', focus: ['sf', 'r4'], desc: '사람이 위험한 상황은 사다리를 한 칸씩 오르지 않는다. 비상 절차에 따라 바로 안전 담당과 상급자에게 직접 보고한다. 이 길은 처음부터 따로 열려 있다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const ry = [222, 166, 110, 54], rg = [['r1', '나 (오퍼레이터)', '사실을 모으고 첫 조치', C.op], ['r2', '담당 설비 엔지니어', '1차 호출 · 원인 진단', C.eq], ['r3', '파트장 · 팀장', '응답이 없을 때 · 판단이 필요할 때', AC], ['r4', '공정 · 품질 · 안전 담당', '영향 판단 · 큰 사고', RED]];
+            o += pvdL('M44 30 V248 M92 30 V248', { sw: 3, so: .55 });
+            ry.forEach((y, i) => {
+              const a = rg[i];
+              o += pvdG(f, [a[0]], pvdL(`M44 ${y + 8} H92`, { sw: 3, so: .55 }) + fdMan(68, y + 7, a[3], .62) + fdTxM(112, y - 2, a[1], { a: 'start', s: 11, w: 800, c: a[3] }) + fdTxM(112, y + 14, a[2], { a: 'start', s: 9, op: .9 }));
+              if (i < 3) o += pvdG(f, [a[0], rg[i + 1][0]], pvdL(`M68 ${y - 24} V${ry[i + 1] + 24}`, { c: GR, sw: 1.2, so: .0 }));
+            });
+            o += pvdG(f, ['r2', 'r3'], pvdL('M300 215 V178', { c: AC, sw: 2, so: .9 }) + fdArr(300, 172, 'u', AC) + pvdL('M300 138 V100', { c: AC, sw: 2, so: .9 }) + fdArr(300, 94, 'u', AC));
+            o += pvdG(f, ['clk'], ic(352, 156, 'clock', 2.1) + fdRect(300, 188, 100, 40, { rx: 8, fill: 'rgba(251,146,60,.09)', c: AC, so: .8, sw: 1.4 }) + fdTxM(350, 205, '정해진 시간 안에', { s: 9, w: 800 }) + fdTxM(350, 219, '응답이 없으면 한 칸 위로', { s: 8.5, w: 700, c: AC }));
+            o += pvdG(f, ['sf'], pvdL('M424 228 V52 H410', { c: RED, sw: 2.2, so: .95, dash: '5 4' }) + fdArr(406, 52, 'l', RED) + fdTxM(398, 142, '직통', { s: 9, w: 800, c: RED }));
+            o += fdTxM(220, 270, '안전이 걸린 일은 사다리를 기다리지 않는다', { s: 10, w: 800, c: AC });
+            return dgSvg('호출 사다리: ' + s.label, o, '0 0 440 282');
+          }
+        },
+
+        // ---------- 한 줄 보고 ----------
+        'fld-alm-report': {
+          title: '보고는 다섯 칸을 채워서 한 번에',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '호출할 때는 받는 사람이 되묻지 않아도 되게 말한다. 어디서, 무엇이, 언제, 지금 어떤 상태인지, 무엇을 부탁하는지의 다섯 칸을 채우면 한 번에 끝난다.' },
+            { id: 'bad', label: '모호한 보고', focus: ['bad'], desc: '"장비가 이상해요, 와 주세요"는 어느 장비인지도, 얼마나 급한지도 알 수 없다. 받는 사람은 되묻는 데 시간을 쓰고, 그동안 상황은 그대로 방치된다.' },
+            { id: 'good', label: '쓸 수 있는 보고', focus: ['good'], desc: '장비와 챔버, 알람 이름, 시각, 이미 한 조치, 부탁하는 일이 한 번에 들어 있다. 받는 사람은 바로 무엇을 가져가야 할지 정하고 움직일 수 있다.' },
+            { id: 'five', label: '다섯 칸', focus: ['five'], desc: '어디, 무엇, 언제, 지금, 요청. 이 다섯 칸에는 해석이 아니라 사실만 넣는다. 원인을 추측한 말은 따로 "의심되는 점"으로 덧붙이고 사실과 섞지 않는다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const bub = (id, x, col, t, lines) => pvdG(f, [id], fdRect(x, 14, 196, 108, { rx: 14, fill: 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 }) + ic(x + 20, 36, 'phone', .9) + fdTxM(x + 38, 40, t, { a: 'start', s: 10, w: 800, c: col }) + lines.map((l, i) => fdTxM(x + 98, 62 + i * 15, l, { s: 9.3, w: 600 })).join('') + `<path d="M${x + 30} 122 l-8 12 l20 -12 Z" style="fill:rgba(148,163,184,.07);stroke:${col};stroke-width:1.6;stroke-linejoin:round"/>`);
+            o += bub('bad', 14, RED, '이렇게 말하면', ['장비가 이상해요.', '와 주세요.']);
+            o += pvdG(f, ['bad'], ic(112, 100, 'x', 1.8));
+            o += bub('good', 230, C.op, '이렇게 말한다', ['ETCH-03 챔버 B,', '14:32 압력 편차로 정지.', '로트 홀드했습니다.', '확인 부탁드립니다.']);
+            const ch = [['어디', 'ETCH-03', '챔버 B', C.eq], ['무엇', '압력 편차', '알람 정지', RED], ['언제', '14:32', '식각 2단계', C.pr], ['지금', '정지 · 로트', '홀드함', AC], ['요청', '와서 확인', '부탁드림', C.op]];
+            ch.forEach((a, i) => { const x = 14 + i * 84; o += pvdG(f, ['five'], fdRect(x, 160, 76, 74, { rx: 9, fill: 'rgba(148,163,184,.07)', c: a[3], so: .9, sw: 1.5 }) + pvdNum(x + 14, 175, i + 1, a[3]) + fdTxM(x + 44, 179, a[0], { s: 10.5, w: 800, c: a[3] }) + fdTxM(x + 38, 205, a[1], { s: 9, w: 700 }) + fdTxM(x + 38, 220, a[2], { s: 9, w: 700 })); });
+            o += fdTxM(220, 262, '추측은 사실과 섞지 않는다', { s: 10.5, w: 800, c: AC });
+            return dgSvg('보고: ' + s.label, o, '0 0 440 274');
+          }
+        },
+
+        // ---------- 반복 알람 ----------
+        'fld-alm-repeat': {
+          title: '같은 알람이 자꾸 울릴 때',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '알람이 너무 많거나 같은 알람이 반복되면 사람은 점점 알람에 둔해진다. 이를 알람 피로라고 한다. 그러면 정말 중요한 하나가 소음에 묻힌다.' },
+            { id: 'flood', label: '알람 홍수', focus: ['fl'], desc: '한꺼번에 알람이 쏟아지면 무엇이 중요한지 가려내기 어렵다. 이때는 가장 이른 알람과 안전 알람부터 읽고, 나머지는 기록하며 뒤로 미룬다.' },
+            { id: 'trend', label: '조용히 늘어남', focus: ['tr'], desc: '경고가 일주일에 한 번에서 하루에 몇 번으로 서서히 늘어나는 흐름이다. 한 번 한 번은 그냥 지나갈 만해도 늘어나는 흐름은 부품 마모나 센서 노화의 신호일 수 있다.' },
+            { id: 'act', label: '묶어서 보고', focus: ['ac'], desc: '알람이 날 때마다 같은 항목을 적어 두면 쌓인 기록이 곧 근거가 된다. 횟수, 챔버, 단계, 시작 시기를 묶어 엔지니어에게 보고하면 원인을 훨씬 빨리 좁힌다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            // 알람 홍수
+            const pos = [[26, 52], [52, 46], [80, 58], [108, 48], [136, 56], [164, 50], [38, 82], [66, 88], [94, 80], [124, 90], [152, 82], [26, 112], [52, 118], [80, 110], [136, 114], [164, 108], [40, 140], [68, 146], [96, 140], [124, 146], [152, 140]];
+            let fl = fdRect(10, 24, 186, 150, { rx: 12, fill: 'rgba(148,163,184,.06)', c: GR, so: .6, sw: 1.2 }) + fdTxM(103, 40, '한꺼번에 울린 알람', { s: 9.5, w: 800 });
+            pos.forEach((p) => { fl += ic(p[0], p[1], 'bellg', .85); });
+            fl += `<circle cx="108" cy="114" r="17" style="fill:rgba(239,68,68,.12);stroke:${RED};stroke-width:1.8"/>` + ic(108, 114, 'bellr', 1.15) + fdTxM(103, 190, '정말 중요한 하나가 묻힌다', { s: 9.5, w: 800, c: RED });
+            o += pvdG(f, ['fl'], fl);
+            // 늘어나는 막대
+            const hs = [8, 8, 0, 8, 14, 8, 14, 22, 30, 42, 50, 62], bx0 = 232;
+            let tr = pvdL(`M${bx0 - 6} 170 H428`, { sw: 1.2, so: .6 }) + fdTxM(330, 40, '하루 경고 횟수', { s: 9.5, w: 800 });
+            hs.forEach((h, i) => { const x = bx0 + i * 16.5; if (h) tr += `<rect x="${x}" y="${170 - h * 1.7}" width="11" height="${h * 1.7}" rx="2" style="fill:${i < 7 ? C.eq : AC};fill-opacity:${i < 7 ? .55 : .9}"/>`; });
+            tr += pvdL(`M${bx0 + 4} 134 L${bx0 + 150} 42`, { c: AC, sw: 1.6, so: .85, dash: '4 3' }) + fdArr(bx0 + 154, 40, 'r', AC) + fdTxM(bx0 + 40, 188, '일주일에 한 번', { s: 9, w: 700 }) + fdTxM(bx0 + 150, 188, '하루 몇 번', { s: 9, w: 700, c: AC });
+            o += pvdG(f, ['tr'], tr);
+            // 묶어서 보고
+            o += pvdG(f, ['ac'], fdRect(40, 206, 360, 58, { rx: 12, fill: 'rgba(52,211,153,.08)', c: C.op, so: .85, sw: 1.6 }) + ic(76, 234, 'note', 1.3) + fdTxM(106, 228, '같은 항목을 날마다 적어 둔다', { a: 'start', s: 10, w: 800 }) + fdTxM(106, 244, '횟수 · 챔버 · 단계 · 시작 시기를 묶어 보고', { a: 'start', s: 9, w: 700, c: C.op }));
+            return dgSvg('반복 알람: ' + s.label, o, '0 0 440 276');
+          }
+        },
+
+        // ---------- 재가동 관문 ----------
+        'fld-alm-restart': {
+          title: '알람 해제와 재가동은 다르다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '알람 표시를 지우는 것은 원인이 없어졌다는 뜻이 아니다. 재가동까지는 원인 확인, 시험 확인, 승인의 세 관문을 차례로 지나야 한다.' },
+            { id: 'g1', label: '원인 확인', focus: ['g1'], desc: '무엇이 원인이었고 무엇을 고쳤는지 근거가 있어야 한다. 원인을 모른 채 해제하고 돌리면 같은 알람이 다시 울릴 뿐 아니라 이번엔 불량까지 낼 수 있다.' },
+            { id: 'g2', label: '시험 확인', focus: ['g2'], desc: '고친 뒤에는 시험 웨이퍼나 첫 로트의 측정으로 정상으로 돌아왔는지 확인한다. 알람이 조용해진 것만으로는 웨이퍼가 정상이라는 증거가 되지 않는다.' },
+            { id: 'g3', label: '승인', focus: ['g3'], desc: '홀드를 풀고 재가동하는 권한은 정해진 사람에게 있다. 승인과 해제 기록이 남아야 한다. 오퍼레이터는 해제 조건을 확인하고 정해진 사람에게 요청한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const order = ['g1', 'g2', 'g3'], cur = f ? order.indexOf(f[0]) : -1;
+            o += pvdL('M20 150 H420', { sw: 14, so: .13 }) + pvdL('M20 150 H420', { sw: 1.2, so: .4, dash: '8 6' });
+            o += ic(42, 116, 'bell', 1.7) + fdRect(16, 168, 56, 22, { rx: 7, fill: 'rgba(148,163,184,.1)', c: GR, so: .7, sw: 1.2 }) + fdTxM(44, 183, '해제', { s: 9.5, w: 800 });
+            o += pvdL('M70 98 Q160 40 230 62', { c: RED, sw: 1.6, so: .7, dash: '4 3' }) + ic(150, 54, 'x', 1.6);
+            const gt = [['g1', 130, '원인 확인', '고친 근거가 있나', C.eq], ['g2', 232, '시험 확인', '시험 웨이퍼 · 첫 로트', C.pr], ['g3', 334, '승인', '정해진 사람이 해제', C.op]];
+            gt.forEach((a, i) => {
+              const x = a[1], open = f ? i <= cur : false;
+              o += fdRect(x - 4, 110, 8, 56, { rx: 3, fill: '#64748b', c: '#334155', so: .8, sw: 1 }) + (open ? `<g transform="rotate(-62 ${x} 114)"><rect x="${x}" y="110" width="52" height="8" rx="3" style="fill:${C.op};fill-opacity:.9"/></g>` : `<rect x="${x}" y="110" width="52" height="8" rx="3" style="fill:${RED};fill-opacity:.9"/><path d="M${x + 12} 110 V118 M${x + 26} 110 V118 M${x + 40} 110 V118" style="stroke:#fff;stroke-width:3"/>`);
+              o += pvdG(f, [a[0]], pvdNum(x - 2, 96, i + 1, a[4]) + fdTxM(x + 22, 196, a[2], { s: 10.5, w: 800, c: a[4] }) + fdTxM(x + 22, 211, a[3], { s: 8.5, op: .9 }));
+            });
+            o += pvdG(f, ['g3'], `<rect x="394" y="120" width="26" height="30" rx="4" style="fill:rgba(52,211,153,.2);stroke:${C.op};stroke-width:1.6"/>` + fdTxM(407, 168, '재가동', { s: 9, w: 800, c: C.op }));
+            o += fdTxM(220, 250, '해제 버튼만으로는 관문을 지나지 못한다', { s: 10.5, w: 800, c: AC });
+            return dgSvg('재가동 관문: ' + s.label, o, '0 0 440 262');
+          }
+        },
+
+        // ---------- 일지 ----------
+        'fld-alm-log': {
+          title: '일지에는 사실을 한 줄씩',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '일지는 다음 사람이 처음부터 되묻지 않고 이어받게 하는 기록이다. 같은 알람이라도 어떻게 적느냐에 따라 쓸모가 완전히 달라진다.' },
+            { id: 'bad', label: '쓸 수 없는 일지', focus: ['bad'], desc: '"압력 알람, 재시작함, 괜찮은 듯"에는 시각도 장비도 값도 없다. 재시작이 원인을 가렸는지도 알 수 없고, 괜찮은 듯하다는 추측은 증거가 아니다.' },
+            { id: 'good', label: '쓸 수 있는 일지', focus: ['good'], desc: '시각, 장비와 챔버, 알람 이름과 값, 로트 위치, 한 일, 남은 일이 사실로 적혀 있다. 누가 읽어도 같은 장면을 떠올릴 수 있고 엔지니어는 바로 데이터를 맞춰 본다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const pg = (id, x, col, title, lines, mark) => pvdG(f, [id], fdRect(x, 14, 196, 238, { rx: 10, fill: '#f8fafc', c: col, so: .9, sw: 1.7 }) + `<rect x="${x}" y="14" width="196" height="26" rx="10" style="fill:${col};fill-opacity:.16"/>` + fdTxM(x + 98, 32, title, { s: 10.5, w: 800, c: col }) + lines.map((l, i) => pvdL(`M${x + 12} ${70 + i * 28} H${x + 184}`, { sw: .8, so: .35 }) + fdTxM(x + 14, 65 + i * 28, l, { a: 'start', s: 8.8, w: 600, c: '#1e293b' })).join('') + mark);
+            o += pg('bad', 14, RED, '이렇게 적으면', ['압력 알람', '재시작함', '괜찮은 듯'], `<g transform="translate(112 168) rotate(-8)">${ic(0, 0, 'x', 3.4)}</g>` + fdTxM(112, 224, '언제 · 어디 · 값이 없다', { s: 9.5, w: 800, c: RED }));
+            o += pg('good', 230, C.op, '이렇게 적는다', ['14:32 ETCH-03 챔버 B', '알람 P-212 압력 편차', '식각 2단계 PV 82 > SP 75', '로트 L-2207 슬롯 12 챔버 안', '홀드 · 14:35 엔지니어 호출', '남은 일: 응답 대기'], ic(404, 190, 'ok', 1.5) + fdTxM(328, 236, '시각 · 장소 · 값 · 한 일 · 남은 일', { s: 9, w: 800, c: C.op }));
+            return dgSvg('일지: ' + s.label, o, '0 0 440 264');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
@@ -10809,7 +11105,84 @@
       { m: '식각률', u: 'Å/min', cl: 1200, sg: 8, d: 0, sit: '새 레시피로 바꾼 뒤 식각률의 평균입니다.', why: '11번째 점에서 5점 중 4점이 같은 쪽 1σ 밖이에요. 점 하나하나는 평범해 보여도 위쪽에 몰려 있어서 평균이 올라가고 있다는 신호예요.',
         z: [0.4, -0.6, 0.3, 0.6, 0.7, -0.5, 1.3, 1.1, 0.5, 1.4, 1.2, 0.4, -0.3, 0.6, -0.5, 0.3, -0.2, 0.5, -0.4, 0.2, 0.1, -0.3, 0.4, 0] },
     ];
+    // ===== 집중 연습: 알람 대응 시나리오 체험 (다음에 무엇을 할지 고르는 연습) =====
+    const AL_SC = [
+      { k: '안전', t: '가스 경보', lv: 'emo', scr: [['장비', 'CVD-02 가스 캐비닛'], ['시각', '09:14'], ['알람', '가스 누출 감지']],
+        sit: '가스 감지기 경보음이 울리고 화면에 누출 감지 알람이 떴어요. 냄새가 나는 것도 같아요.',
+        ds: [
+          { q: '가장 먼저 할 일은 무엇일까요?', a: 2, o: [['알람 번호를 정확히 적고 로그를 확인한다', '기록은 중요하지만 사람이 위험할 수 있는 상황에서는 두 번째예요.'], ['누출 지점에 가까이 가서 어디서 새는지 확인한다', '다가갈수록 노출 위험이 커져요. 누출 확인은 담당자의 몫이에요.'], ['비상 절차에 따라 비상정지와 대피를 하고 보고한다', ''], ['설비 엔지니어가 올 때까지 일단 지켜본다', '지켜보는 동안에도 노출이 이어져요. 사람의 안전은 기다리지 않아요.']], why: '안전 알람은 원인 조사보다 사람이 먼저예요. 비상 절차(비상정지, 대피, 보고)를 따르고 알람 내용은 안전한 곳에서 전달해요.' },
+          { q: '대피한 뒤에는 무엇을 할까요?', a: 0, o: [['집결지에서 인원을 확인하고 안전 담당에게 보고한다', ''], ['잠깐 들어가 알람 화면을 다시 확인하고 나온다', '허가 없이 되돌아가면 노출과 2차 사고의 위험이 있어요.'], ['일지부터 정리하러 사무실로 돌아간다', '집결지의 인원 확인과 보고가 먼저예요. 일지는 안전이 확인된 뒤에 써요.']], why: '대피 뒤에는 집결지에서 사람 수를 확인하고 장소와 알람, 인원 상태를 안전 담당에게 보고해요. 복귀는 해제 허가를 받은 뒤에만 해요.' }] },
+      { k: '공정', t: '식각 중 정지', lv: 'alm', scr: [['장비', 'ETCH-03 챔버 B'], ['시각', '14:32'], ['알람', '압력 편차 · 공정 중단'], ['로트', 'L-2207 슬롯 12 챔버 안']],
+        sit: '식각 도중에 장비가 멈추고 알람이 떴어요. 웨이퍼 한 장이 챔버 안에 있어요.',
+        ds: [
+          { q: '첫 행동은 무엇일까요?', a: 1, o: [['알람을 해제하고 레시피를 이어서 돌린다', '원인을 모른 채 이어 돌리면 같은 일이 재발하고 웨이퍼도 더 상해요.'], ['알람 번호, 챔버, 단계, 시각을 그대로 적는다', ''], ['압력 설정을 직접 바꿔 본다', '설정을 바꾸는 일은 오퍼레이터의 권한 밖이고, 원인의 단서도 가려져요.'], ['장비를 껐다가 다시 켠다', '재시작은 상태와 원인을 지워 버려요. 사실을 먼저 남겨요.']], why: '원인을 맞히는 것보다 사실을 모으는 것이 먼저예요. 알람 번호, 챔버, 단계, 시각을 화면에서 그대로 적어요.' },
+          { q: '챔버 안의 웨이퍼는 어떻게 할까요?', a: 2, o: [['챔버를 열어 꺼내서 다음 공정으로 보낸다', '공정이 덜 끝난 웨이퍼일 수 있고, 챔버를 열면 오염과 안전 위험이 있어요.'], ['멈춘 장비에 다른 로트를 먼저 올려 시간을 번다', '멈춘 장비에 새 로트를 올리면 영향 범위만 넓어져요.'], ['손대지 않고 슬롯 위치를 적은 뒤 로트를 홀드한다', '']], why: '웨이퍼가 어디 있든 직접 꺼내거나 옮기지 않아요. 위치를 기록하고 로트를 홀드해 두면 엔지니어가 복구한 뒤 재작업이나 폐기를 판단해요.' },
+          { q: '엔지니어를 부를 때 가장 먼저 전할 것은 무엇일까요?', a: 3, o: [['원인은 아마 압력 센서 같아요', '추측부터 말하면 사실이 가려져요. 사실이 먼저예요.'], ['빨리 와 주세요', '어디서 무슨 일인지가 없으면 되묻는 시간이 걸려요.'], ['일단 해제했는데 괜찮은 것 같아요', '해제한 사실은 원인의 기록을 지웠을 수 있어요.'], ['장비와 챔버, 알람 이름, 시각, 로트 위치와 이미 한 조치', '']], why: '어디, 무엇, 언제, 지금, 요청의 다섯 칸을 사실로 채워 한 번에 전해요. 받는 사람이 되묻지 않아도 바로 움직일 수 있어요.' }] },
+      { k: '공정', t: '반복되는 경고', lv: 'warn', scr: [['장비', 'ETCH-03 챔버 B'], ['시각', '10:05'], ['알람', '압력 편차 경고'], ['상태', '오늘 3번째 · 운전 중']],
+        sit: '경고가 또 떴어요. 장비는 계속 돌고 웨이퍼도 처리되고 있어요. 오늘만 세 번째예요.',
+        ds: [
+          { q: '이 경고를 어떻게 다룰까요?', a: 1, o: [['중단이 아니니 넘기고 지나간다', '경고도 중단으로 가는 길목일 수 있어요. 반복이라면 더 그래요.'], ['횟수, 시각, 챔버, 단계를 적고 엔지니어에게 보고한다', ''], ['경고 표시를 해제해 화면을 깨끗이 한다', '표시를 지워도 원인은 그대로 남고 기록만 사라져요.']], why: '반복되는 경고는 패턴이 단서예요. 횟수와 시각, 챔버, 단계를 적어 묶어서 보고하면 원인을 훨씬 빨리 좁혀요.' },
+          { q: '근무가 끝날 때 이 경고는 어떻게 할까요?', a: 0, o: [['교대 일지에 지켜보는 경고와 추세를 적어 넘긴다', ''], ['이미 보고했으니 적지 않아도 된다', '다음 근무자는 맥락 없이 처음부터 시작하게 돼요.'], ['해결되지 않았으니 말하지 않는 게 낫다', '열려 있는 문제일수록 더 분명히 넘겨야 해요.']], why: '열려 있는 경고와 홀드는 일지에 적어 다음 근무자가 이어받게 해요. 같은 경고가 늘고 있다는 사실도 함께 적어요.' }] },
+      { k: '공정', t: '연쇄 알람', lv: 'alm', scr: [['03:21:03', '냉각수 유량 낮음'], ['03:21:20', '챔버 온도 높음'], ['03:21:41', 'RF 반사 전력 높음'], ['03:21:55', '압력 편차'], ['03:22:10', '공정 중단']],
+        sit: '알람이 연달아 쌓이고 장비가 멈췄어요. 화면에는 다섯 개가 한꺼번에 떠 있어요.',
+        ds: [
+          { q: '어떤 알람부터 읽을까요?', a: 1, o: [['가장 위에 보이는 공정 중단부터 해제한다', '마지막에 뜬 알람은 결과일 때가 많아요. 해제해도 원인은 남아요.'], ['시각이 가장 이른 알람부터 읽는다', ''], ['개수가 가장 많은 종류부터 본다', '개수가 아니라 시작된 순서가 단서예요.']], why: '연쇄 알람은 시각 순으로 늘어놓고 가장 이른 것부터 읽어요. 앞선 이상이 뒤의 값을 흔드는 경우가 많아요.' },
+          { q: '엔지니어에게는 어떻게 넘길까요?', a: 2, o: [['공정 중단만 전하고 나머지는 생략한다', '앞선 알람들이 원인의 단서예요. 빼면 진단이 늦어져요.'], ['첫 알람이 원인이라고 확정해서 말한다', '센서마다 감지 속도가 달라 순서가 실제 원인과 다를 수 있어요.'], ['시각과 순서를 그대로 전하고 첫 알람을 원인 후보로 짚는다', '']], why: '시각과 순서를 그대로 넘기고, 가장 이른 알람은 후보로만 짚어요. 원인 판단은 데이터를 보는 엔지니어의 몫이에요.' }] },
+      { k: '안전', t: '인터락과 납기', lv: 'alm', scr: [['장비', 'PVD-01'], ['시각', '16:40'], ['알람', '도어 인터락 · 장비 정지'], ['상황', '로트 납기 임박']],
+        sit: '도어 인터락 알람으로 장비가 멈췄어요. 옆 선배가 "납기가 급해, 인터락 잠깐 우회하고 돌려"라고 해요.',
+        ds: [
+          { q: '어떻게 하나요?', a: 3, o: [['선배 말대로 우회하고 돌린다', '인터락 우회는 허가와 절차, 기록을 갖춘 담당자만 할 수 있어요. 큰 사고의 흔한 원인이에요.'], ['우회하되 나중에 일지에 적어 둔다', '나중에 적어도 절차 밖의 우회는 허용되지 않아요.'], ['알람이 거짓이라고 보고 해제한다', '거짓인지는 엔지니어가 판단해요. 해제하면 보호 장치 없이 돌아요.'], ['우회하지 않고 설비 엔지니어를 호출하며 납기 걱정도 함께 보고한다', '']], why: '인터락은 급하다고 풀지 않아요. 호출해서 원인을 확인하고, 납기에 미치는 영향은 상급자에게 함께 보고해요.' },
+          { q: '선배가 계속 재촉하면 어떻게 할까요?', a: 0, o: [['절차를 설명하고 상급자에게 상황과 납기 영향을 보고한다', ''], ['선배가 책임진다고 하니 따른다', '책임을 대신 지겠다는 말로 절차가 대체되지 않아요.'], ['말없이 자리를 떠난다', '장비가 멈춘 채 방치되고 정보도 끊겨요. 보고가 필요해요.']], why: '압박이 있어도 절차는 그대로예요. 상황을 정확히 보고하면 납기 판단은 권한 있는 사람이 하게 돼요.' }] },
+      { k: '호출', t: '응답 없는 호출', lv: 'alm', scr: [['장비', 'ETCH-03'], ['시각', '22:50'], ['알람', '공정 중단 · 로트 홀드'], ['상태', '엔지니어 호출 20분째 응답 없음']],
+        sit: '야간이에요. 담당 엔지니어를 불렀지만 정해진 시간이 지나도록 응답이 없어요.',
+        ds: [
+          { q: '이제 무엇을 할까요?', a: 2, o: [['조금 더 기다려 본다', '정해진 시간이 지나면 기다리지 않고 규칙에 따라 올려요.'], ['직접 원인을 찾아 알람을 해제한다', '권한 밖의 일이에요. 원인을 모른 채 해제하면 위험해요.'], ['에스컬레이션 규칙에 따라 다음 연락선인 상급자에게 보고한다', '']], why: '응답이 없으면 정해 둔 시간에 따라 한 칸 위로 올려요. 혼자 해결하려 들지 않고 올린 사실도 일지에 남겨요.' }] },
+      { k: '재가동', t: '재가동 요청', lv: 'warn', scr: [['장비', 'ETCH-03 챔버 B'], ['시각', '08:20'], ['상태', '알람 해제됨 · 재가동 대기'], ['조치', '밤사이 부품 교체']],
+        sit: '엔지니어가 "밤에 부품을 바꿨고 알람은 해제했어요, 돌리세요"라고 해요.',
+        ds: [
+          { q: '무엇을 확인하나요?', a: 1, o: [['알람 표시가 꺼졌으니 바로 돌린다', '표시가 꺼진 것은 정상 확인이 아니에요.'], ['무엇을 고쳤는지, 시험 결과, 홀드 해제 승인이 있는지 확인한다', ''], ['일단 로트 전체를 올리고 결과를 본다', '확인 없이 로트 전체를 올리면 문제가 있을 때 피해가 커져요.']], why: '재가동은 원인 확인, 시험 확인, 승인의 세 관문을 지나서 해요. 해제 버튼만으로는 정상이라는 증거가 되지 않아요.' },
+          { q: '재가동한 뒤에는 어떻게 할까요?', a: 2, o: [['재가동했으니 알람 기록은 닫는다', '원인과 조치 기록이 남아야 다음에 도움이 돼요.'], ['다른 일을 하고 결과는 나중에 본다', '재발은 처음 몇 장에서 드러나요. 첫 로트를 지켜봐요.'], ['첫 로트의 결과와 같은 알람이 다시 오는지 지켜본다', '']], why: '재가동 직후가 가장 중요해요. 첫 로트의 측정 결과를 확인하고 같은 알람이 재발하는지 지켜봐요.' }] },
+      { k: '공정', t: '센서를 의심하는 선배', lv: 'warn', scr: [['장비', 'ETCH-03 챔버 A'], ['시각', '11:10'], ['알람', 'RF 반사 전력 높음 경고'], ['상황', '직전 측정 결과는 정상']],
+        sit: 'FDC 경고가 떴지만 직전 웨이퍼의 측정은 정상이었어요. 선배가 "센서 문제겠지, 그냥 해제해"라고 해요.',
+        ds: [
+          { q: '어떻게 하나요?', a: 0, o: [['알람 정보와 측정 결과를 그대로 적어 엔지니어에게 넘기고 판단을 맡긴다', ''], ['결과가 정상이었으니 해제하고 넘어간다', '결과가 정상이어도 이상이 없었다는 뜻은 아니에요. 센서 문제인지는 엔지니어가 가려요.'], ['센서가 틀렸다고 일지에 적어 둔다', '확인되지 않은 추측을 사실처럼 적으면 안 돼요.']], why: '센서 문제인지 실제 이상인지는 데이터를 보고 엔지니어가 판단해요. 오퍼레이터는 사실을 그대로 넘기고 알람을 임의로 해제하지 않아요.' }] },
+    ];
+    const AL_TOTAL = AL_SC.reduce((a, c) => a + c.ds.length, 0), AL_LV = { emo: '비상', alm: '알람', warn: '경고' };
+    function alHydrate(fig) {
+      if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc', 'pr-al');
+      const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
+      const st = { i: 0, j: 0, pick: null, ok: 0 };
+      const draw = () => {
+        const done = st.i >= AL_SC.length;
+        let h = `<div class="dg-head"><span class="dg-tag">${escH(tt('직접 해 보기'))}</span><span class="dg-title">${escH(tt('알람 대응 연습'))}</span></div>`;
+        if (done) {
+          const r = st.ok, msg = r >= AL_TOTAL - 1 ? '확인 순서가 몸에 익었어요. 실제 현장에서는 사내 절차서가 가장 먼저예요.' : r >= Math.ceil(AL_TOTAL / 2) ? '좋아요. 놓친 장면은 해당 그림을 다시 보고 도전해 보세요.' : '첫 30초와 판단 갈림길 그림을 다시 보고 도전해 보세요. 사람, 읽기, 상태, 호출, 기록의 순서부터 익히면 쉬워져요.';
+          h += `<p class="pr-score">${escH(tt('결과'))} <b>${r} / ${AL_TOTAL}</b></p><p class="dg-desc">${escH(tt(msg))}</p><div class="pr-row"><button type="button" class="dg-btn on" data-a="again">${escH(tt('다시 해 보기'))}</button></div>`;
+        } else {
+          const sc = AL_SC[st.i], d = sc.ds[st.j], n = st.i + 1, ans = st.pick != null;
+          h += `<p class="pr-q"><b>${escH(tt('상황'))} ${n} / ${AL_SC.length}</b> · ${escH(tt(sc.t))} <span class="al-k">${escH(tt(sc.k))}</span></p>`;
+          h += `<div class="al-scr al-${sc.lv}"><div class="al-h"><i></i><b>${escH(tt(AL_LV[sc.lv]))}</b><span>${escH(tt(sc.t))}</span></div>${sc.scr.map((r) => `<div class="al-r"><span>${escH(tt(r[0]))}</span><b>${escH(tt(r[1]))}</b></div>`).join('')}</div>`;
+          h += `<p class="dg-desc">${escH(tt(sc.sit))}</p><p class="pr-hint al-q"><b>${escH(tt(d.q))}</b>${sc.ds.length > 1 ? ` <span>(${st.j + 1}/${sc.ds.length})</span>` : ''}</p>`;
+          h += `<div class="al-opts">${d.o.map((o, k) => `<button type="button" class="dg-btn al-o${ans ? (k === d.a ? ' good' : k === st.pick ? ' bad' : '') : ''}" data-a="opt" data-k="${k}" ${ans ? 'disabled' : ''}>${escH(tt(o[0]))}</button>`).join('')}</div>`;
+          if (ans) {
+            const okk = st.pick === d.a;
+            h += `<div class="pr-fb"><b>${escH(tt(okk ? '✔ 맞아요' : '✘ 아쉬워요'))}</b>${okk ? '' : `<p>${escH(tt(d.o[st.pick][1]))}</p>`}<p>${escH(tt(d.why))}</p></div><div class="pr-row"><button type="button" class="dg-btn on" data-a="next">${escH(tt(st.i + 1 >= AL_SC.length && st.j + 1 >= sc.ds.length ? '결과 보기' : '다음'))}</button></div>`;
+          }
+        }
+        fig.innerHTML = h + (cap ? `<figcaption>${escH(cap)}</figcaption>` : '');
+      };
+      fig.addEventListener('click', (e) => {
+        const act = e.target.closest && e.target.closest('[data-a]'); if (!act) return;
+        const a = act.dataset.a, sc = AL_SC[st.i];
+        if (a === 'opt' && st.pick == null && sc) { st.pick = +act.dataset.k; if (st.pick === sc.ds[st.j].a) st.ok++; }
+        else if (a === 'next') { st.pick = null; if (st.j + 1 < sc.ds.length) st.j++; else { st.i++; st.j = 0; } }
+        else if (a === 'again') { st.i = 0; st.j = 0; st.pick = null; st.ok = 0; }
+        draw();
+      });
+      draw();
+    }
     function prHydrate(fig) {
+      if (fig.dataset.pr === 'alarm-drill') return alHydrate(fig);
       if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc');
       const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
       const st = { i: 0, sel: null, ph: 'pick', g1: null, g2: null, full: 0 };

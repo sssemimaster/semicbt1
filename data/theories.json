@@ -1411,5 +1411,24 @@
     "premium": true,
     "mins": 20,
     "figs": 9
+  },
+  {
+    "id": "TH-56e74739",
+    "category": "심화 이론",
+    "subject": "현장 직무",
+    "title": "알람 대응 시나리오",
+    "tags": [
+      "현장 직무",
+      "알람 대응",
+      "OCAP",
+      "호출과 보고",
+      "재가동"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 20,
+    "figs": 10
   }
 ]
