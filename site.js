@@ -59,7 +59,7 @@
       "반도체 소자": ["트랜지스터 소자", "메모리 반도체"],
       "반도체 8대 공정": ["1. 웨이퍼 제조 공정", "2. 산화 공정 (Oxidation)", "3. 포토 공정 (Photo)", "4. 식각 공정 (Etching)", "5. 박막 증착 공정 (Deposition)", "6. 금속 배선 공정 (Metallization)", "7. EDS 공정 (Testing)", "8. 패키징 공정 (Packaging)"],
       "차세대 첨단 기술": ["차세대 소자 기술", "어드밴스드 패키징"],
-      [ADV_CAT]: ["장비 사용", "현장 직무"]
+      [ADV_CAT]: ["장비 사용", "현장 직무", "설계 직무"]
     };
     const FIXED_SUBJECTS = Object.values(CATEGORY_TREE).flat().concat(["일반"]);
     
@@ -843,7 +843,7 @@
       if (CATEGORY_TREE[ADV_CAT] || nAdv) {   // 심화 이론: 어두운 기술 문서 테마의 넓은 카드
         const btn = document.createElement('button');
         btn.className = 'adv-folder'; btn.onclick = () => navTo('view-learning', { level: 'category', category: ADV_CAT });
-        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(ADV_CAT)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅 · 현장 직무. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${nAdv}편 →</span>`;
+        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(ADV_CAT)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅 · 현장 직무 · 설계 직무. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${nAdv}편 →</span>`;
         container.appendChild(btn);
       }
       container.insertAdjacentHTML('beforeend', `<button onclick="fjOpen()" class="col-span-full group bg-white dark:bg-[#0f1729] border border-dashed border-slate-300 dark:border-white/15 hover:border-indigo-400 dark:hover:border-[#67e8f9] px-5 py-4 rounded-2xl text-left transition flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400"><span class="text-xl">🧭</span><span class="min-w-0"><b class="text-slate-800 dark:text-slate-100">처음이세요?</b> 모래에서 칩이 되기까지 8단계 여정을 따라가 봐요</span><span class="ml-auto font-bold text-indigo-600 dark:text-cyan-300 shrink-0">여정 보기 →</span></button>`);
@@ -881,9 +881,9 @@
       activeSubs.forEach(sub => {
         const btn = document.createElement('button');
         if (category === ADV_CAT) {
-          const n = allTheories.filter(t => t.category === category && t.subject === sub).length, fld = sub === FLD_SUB, fN = fldTotal();
+          const n = allTheories.filter(t => t.category === category && t.subject === sub).length, fld = !!JOB_CFG[sub], fN = fld ? jobTotal(sub) : 0;
           btn.className = 'adv-sub'; btn.onclick = () => navTo('view-learning', { level: 'subject', category: category, subject: sub });
-          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">▣</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>FOLDER<span class="pm-lk">${fld ? '무료 · 토큰' : ico('lock') + ' 토큰 해금'}</span></span><h3>${escH(sub)}</h3><p>${fld ? '안전 · 생산 용어 · 설비 · 품질까지, 현장의 하루 흐름 순서로 담았어요.' : '장비마다 개요 · 구조 · 레시피 · 트러블슈팅을 한 편에 담았어요.'}</p></div><span class="adv-folder-n">${fld ? (n ? `${n}/${fN}편 →` : '준비 중 →') : `${n}편 →`}</span>`;
+          btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">▣</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>FOLDER<span class="pm-lk">${fld ? '무료 · 토큰' : ico('lock') + ' 토큰 해금'}</span></span><h3>${escH(sub)}</h3><p>${fld ? JOB_CFG[sub].folder : '장비마다 개요 · 구조 · 레시피 · 트러블슈팅을 한 편에 담았어요.'}</p></div><span class="adv-folder-n">${fld ? (n ? `${n}/${fN}편 →` : '준비 중 →') : `${n}편 →`}</span>`;
           container.appendChild(btn); return;
         }
         btn.className = "group bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-[#67e8f9] hover:shadow-md p-5 rounded-2xl text-left transition flex items-center gap-4 shadow-sm";
@@ -948,15 +948,59 @@
         ['d', '알람 대응 시나리오', '알람이 뜬 상황에서 확인 순서를 고르는 연습'],
         ['m', '5-Why와 불량 보고서', '원인을 파고드는 질문법과 보고서 구성'],
         ['d', '수율과 결함 밀도', '수율 모델과 결함이 수율을 깎는 방식']] }];
-    const fldTotal = () => FLD_MAP.reduce((a, g) => a + g.items.length, 0);
     const FLD_PARTS = [{ t: '현장 기본기', from: 0, to: 3 }, { t: '설비와 품질', from: 3, to: 5 }];
-    // 장비 사용 가이드(renderAdvRoadmap)와 같은 도면 디자인에 주황 테마(.fd-o)만 입혔다
-    function renderFieldRoadmap(list, container) {
-      const byT = new Map(list.map(t => [t.title, t])), pad = (n) => String(n).padStart(2, '0');
-      const hero = `<div class="adv-hero fd-o"><span class="adv-tick"><i></i>ON SITE · FIELD GUIDE</span><h3>${FLD_SUB}</h3><p>생산 · 설비 현장에서 바로 쓰는 지식을 출근부터 퇴근까지의 하루 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 현장 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.</p></div>`;
+    // 심화 이론 > 설계 직무: 현장 직무와 같은 구조·같은 디자인에 보라색 테마(.fd-v)만 입혔다. 칩이 스펙에서 웨이퍼로 가는 순서대로 묶는다
+    const DSN_SUB = '설계 직무';
+    const DSN_MAP = [
+      { t: '설계 들어서기', d: '칩이 아이디어에서 웨이퍼가 되기까지의 큰 그림', items: [
+        ['l', '반도체 설계 직무 한눈에 보기', '아키텍처 · RTL · 검증 · 물리설계 · DFT가 각각 하는 일'],
+        ['l', '칩 설계 흐름', '스펙에서 테이프아웃까지 단계와 산출물'],
+        ['l', '설계 용어 (RTL · Netlist · GDS · PPA)', '설계 대화에 나오는 말을 한 번에 정리']] },
+      { t: '디지털 바탕', d: '회로가 클록에 맞춰 움직이는 방식', items: [
+        ['l', '논리회로 복습', '조합회로 · 순차회로 · 플립플롭'],
+        ['m', '클록과 타이밍 기초', 'setup · hold와 클록 도메인']] },
+      { t: 'RTL 만들기', d: '동작을 코드로 적고 게이트로 바꾸는 과정', items: [
+        ['m', 'RTL 설계 기초', '모듈 · FSM · 파이프라인'],
+        ['m', '합성과 제약(SDC)', 'RTL이 게이트가 되는 길과 타이밍 제약']] },
+      { t: '설계 검증', d: '만든 설계가 맞는지 확인하는 방법', items: [
+        ['m', '설계 검증 기초', '테스트벤치 · 커버리지 · 어서션'],
+        ['d', '버그 사냥 시나리오', '파형과 커버리지에서 원인을 찾는 연습']] },
+      { t: '물리설계', d: '게이트를 실리콘 위의 자리에 놓고 잇는 과정', items: [
+        ['m', '플로어플랜 · 배치 · CTS · 라우팅', '물리설계의 흐름과 단계별 목표'],
+        ['d', '타이밍 클로저와 STA 읽기', 'slack을 보고 고칠 곳을 고르는 연습']] },
+      { t: '전력과 신호', d: '전력 공급과 신호 품질을 지키는 방법', items: [
+        ['m', '전력 설계 (IR drop · 전력 게이팅)', '전력이 새고 떨어지는 길과 줄이는 방법']] },
+      { t: '공정과 만나는 곳', d: '설계가 제조 현실과 이어지는 접점', items: [
+        ['m', '설계 규칙(DRC/LVS)과 DFM', '공정이 설계에 요구하는 규칙과 검사'],
+        ['l', '설계가 수율에 미치는 영향', '면적 · 마진 · 반복 패턴이 수율을 바꾸는 방식']] },
+      { t: '아날로그 회로', d: '연속 신호를 다루는 회로의 기본', items: [
+        ['l', '아날로그 블록 지도 (PLL · ADC · LDO)', '칩 안의 아날로그 블록이 하는 일'],
+        ['m', '증폭기와 바이어스 기초', '이득 · 대역폭 · 잡음의 맞바꿈'],
+        ['d', '매칭과 레이아웃 기생 성분', '레이아웃이 회로 성능을 바꾸는 방식']] },
+      { t: '메모리 설계', d: '셀 하나에서 어레이까지', items: [
+        ['m', 'SRAM · DRAM 셀과 주변회로', '셀 구조와 읽기 · 쓰기를 돕는 회로']] },
+      { t: '테스트 설계(DFT)', d: '출하 전에 불량을 걸러 내는 구조', items: [
+        ['m', '스캔 체인과 ATPG', '칩 안에 테스트 길을 만드는 방법'],
+        ['d', '고장 찾기 연습', '고장 모델을 넣고 잡히는 패턴을 고르는 연습']] },
+      { t: '양산으로 넘기기', d: '테이프아웃 뒤에 일어나는 일', items: [
+        ['m', '테이프아웃에서 포스트 실리콘 디버그까지', '칩이 돌아온 뒤 확인하고 고치는 순서']] }];
+    const DSN_PARTS = [{ t: '설계 기본기', from: 0, to: 2 }, { t: '디지털 설계와 검증', from: 2, to: 4 }, { t: '물리설계와 공정 접점', from: 4, to: 7 }, { t: '아날로그와 메모리', from: 7, to: 9 }, { t: '테스트와 출하', from: 9, to: 11 }];
+    // 직무 폴더마다 다른 것만 모아 둔다 (지도 · 부 구분 · 테마 · 문구). 그리는 코드는 모두 같다
+    const JOB_CFG = {
+      [FLD_SUB]: { map: FLD_MAP, parts: FLD_PARTS, cls: 'fd-o', tick: 'ON SITE · FIELD GUIDE', flow: '현장의 하루 흐름 순서대로 읽어 보세요', intro: '생산 · 설비 현장에서 바로 쓰는 지식을 출근부터 퇴근까지의 하루 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 현장 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.', folder: '안전 · 생산 용어 · 설비 · 품질까지, 현장의 하루 흐름 순서로 담았어요.' },
+      [DSN_SUB]: { map: DSN_MAP, parts: DSN_PARTS, cls: 'fd-v', tick: 'DESIGN · CHIP GUIDE', flow: '칩이 만들어지는 설계 흐름 순서대로 읽어 보세요', intro: '칩 설계에서 쓰는 지식을 스펙에서 테이프아웃까지의 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 설계 직무 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.', folder: '설계 흐름 · 디지털 · 검증 · 물리설계 · 아날로그 · 테스트까지, 설계 순서대로 담았어요.' }
+    };
+    const jobTotal = (sub) => JOB_CFG[sub].map.reduce((a, g) => a + g.items.length, 0);
+    const fldTotal = () => jobTotal(FLD_SUB);
+    // 글 제목으로 그 글의 로드맵 등급 칸(l/m/d)을 찾는다. 직무 폴더 글이 아니면 ''
+    const jobKey = (t) => { const c = t && JOB_CFG[t.subject]; return c ? ((c.map.flatMap(g => g.items).find(it => it[1] === t.title) || [])[0] || '') : ''; };
+    // 장비 사용 가이드(renderAdvRoadmap)와 같은 도면 디자인에 직무별 테마색(.fd-o 주황 · .fd-v 보라)만 입혔다
+    function renderJobRoadmap(sub, list, container) {
+      const cfg = JOB_CFG[sub], byT = new Map(list.map(t => [t.title, t])), pad = (n) => String(n).padStart(2, '0');
+      const hero = `<div class="adv-hero ${cfg.cls}"><span class="adv-tick"><i></i>${cfg.tick}</span><h3>${sub}</h3><p>${cfg.intro}</p></div>`;
       let no = 0;
-      const parts = FLD_PARTS.map((pt, pi) => {
-        const stages = FLD_MAP.slice(pt.from, pt.to), nArt = stages.reduce((a, g) => a + g.items.length, 0);
+      const parts = cfg.parts.map((pt, pi) => {
+        const stages = cfg.map.slice(pt.from, pt.to), nArt = stages.reduce((a, g) => a + g.items.length, 0);
         const steps = stages.map((g) => {
           no++;
           const rows = g.items.map(([k, title, desc]) => {
@@ -968,13 +1012,13 @@
         }).join('');
         return `<section class="adv-pt"><div class="adv-pt-h"><span class="adv-pt-n">${pad(pi + 1)}</span><div><b>${pt.t}</b><em>단계 ${stages.length}개 · 글 ${nArt}편</em></div></div><ol class="adv-pt-l">${steps}</ol></section>`;
       }).join('');
-      container.insertAdjacentHTML('beforeend', `${hero}<div class="adv-rm fd-o"><p class="adv-rm-flow">현장의 하루 흐름 순서대로 읽어 보세요</p>${tkKey()}${parts}</div>`);
+      container.insertAdjacentHTML('beforeend', `${hero}<div class="adv-rm ${cfg.cls}"><p class="adv-rm-flow">${cfg.flow}</p>${tkKey()}${parts}</div>`);
     }
 
     function renderTitlesDOM(category, subject) {
       renderBreadcrumb(); const container = document.getElementById('learningContainer'); container.className = "flex flex-col space-y-3"; container.innerHTML = '';
       const list = allTheories.filter(t => t.category === category && t.subject === subject);
-      if (category === ADV_CAT && subject === FLD_SUB) { renderFieldRoadmap(list, container); container.insertAdjacentHTML('beforeend', folderBar(category, subject)); return; }   // 현장 직무: 하루 흐름 로드맵
+      if (category === ADV_CAT && JOB_CFG[subject]) { renderJobRoadmap(subject, list, container); container.insertAdjacentHTML('beforeend', folderBar(category, subject)); return; }   // 현장 직무: 하루 흐름 로드맵
       if (category === ADV_CAT) container.insertAdjacentHTML('beforeend', advHero(subject, '읽은 뒤 장비 체험에서 같은 조건으로 바로 따라 해 볼 수 있어요.'));
       if (list.length === 0) container.innerHTML = `<div class="bg-white dark:bg-[#0f1729] border border-dashed border-slate-300 dark:border-white/15 p-8 text-center text-slate-400 rounded-xl text-sm">아직 등록된 이론이 없습니다.<br>곧 업데이트될 예정이에요.</div>`;
       if (category === ADV_CAT && list.some(t => t.lab)) renderAdvRoadmap(list, container);   // 장비 사용 가이드는 장비 체험처럼 공정 순서 로드맵으로 보여준다
@@ -11654,7 +11698,7 @@
       renderBreadcrumb();
       const container = document.getElementById('learningContainer'); container.className = "flex flex-col space-y-4"; container.innerHTML = '';
       const adv = t.category === ADV_CAT;
-      const card = document.createElement('div'); card.className = adv ? (t.subject === FLD_SUB ? 'adv-doc fd-o' : 'adv-doc') : "bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden";
+      const card = document.createElement('div'); card.className = adv ? (JOB_CFG[t.subject] ? 'adv-doc ' + JOB_CFG[t.subject].cls : 'adv-doc') : "bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden";
       const kwAttr = String(t.title).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
       const qN = Math.min(3, matchItems(allQuizData, t.title).length); const iN = Math.min(2, matchItems(allInterviewData, t.title).length);
       if (!mdTildeOff && typeof marked !== 'undefined') { marked.use({ tokenizer: { del() { return undefined; } } }); mdTildeOff = true; }   // '800~1100 ... 600~800' 처럼 ~ 가 두 번 나오면 가운데가 취소선이 되므로, 이 사이트는 취소선 문법을 쓰지 않는다
@@ -11677,7 +11721,7 @@
       });
       rawMarkdown = rawMarkdown.replace(/###\s*\[(.*?)\]\s*(.*)/g, (match, badgeText, titleText) => `<div class="custom-badge-heading"><span class="custom-badge">${adv ? escH(badgeText) : badgeEmoji(badgeText) + ' ' + badgeText}</span>${titleText}</div>`);
       const labK = t.lab && LABS[t.lab] ? t.lab : '';
-      const fldK = adv && t.subject === FLD_SUB ? ((FLD_MAP.flatMap(g => g.items).find(it => it[1] === t.title) || [])[0] || '') : '';
+      const fldK = adv ? jobKey(t) : '';
       if (adv) {
         card.innerHTML = `
           <header class="adv-head">
@@ -11691,7 +11735,7 @@
             </dl>
           </header>
           ${locked ? '' : `<div class="adv-bodywrap"><div class="custom-table-container theory-body adv-body prose prose-slate dark:prose-invert max-w-none">${math.restore(safeHtml(marked.parse(rawMarkdown)))}</div></div>`}
-          ${fldK ? `<div class="adv-cta"><div><b>다음 글로 이어 가기</b><p>현장 직무 로드맵에서 다음 글을 골라 이어서 읽어 보세요.</p></div><button type="button" onclick="navTo('view-learning',{level:'subject',category:'${ADV_CAT}',subject:'${FLD_SUB}'})">현장 직무 로드맵 보기 →</button></div>` : ''}
+          ${fldK ? `<div class="adv-cta"><div><b>다음 글로 이어 가기</b><p>${t.subject} 로드맵에서 다음 글을 골라 이어서 읽어 보세요.</p></div><button type="button" onclick="navTo('view-learning',{level:'subject',category:'${ADV_CAT}',subject:'${t.subject}'})">${t.subject} 로드맵 보기 →</button></div>` : ''}
           ${labK ? `<div class="adv-cta"><div><b>직접 다뤄 보고 싶다면</b><p>${escH(LABS[labK].title)}에서 이 글의 내용을 직접 조작해 볼 수 있어요.</p></div><button type="button" onclick="labOpen('${labK}')">${escH(LABS[labK].title)} 열기 →</button></div>` : ''}`;
         container.appendChild(card); hydrateDiagrams(card); advIndex(card); applyMathRendering(); if (locked) container.appendChild(premiumLock(t0.id, 'theory')); return;
       }
@@ -12575,7 +12619,7 @@
     const PRICE_HINT = { theory: 15, lab: 10, bundle: 22 };
     // 글마다 값이 다를 수 있다: 현장 직무 글은 로드맵 등급(FLD_TIER)의 값을 쓴다. 실제 결제액은 서버 카탈로그가 정한다
     function pmPrice(id, kind) {
-      if (kind === 'theory') { const t = allTheories.find((x) => x.id === id); if (t && t.subject === FLD_SUB) { const k = (FLD_MAP.flatMap((g) => g.items).find((it) => it[1] === t.title) || [])[0]; if (k && FLD_TIER[k].p) return FLD_TIER[k].p; } }
+      if (kind === 'theory') { const t = allTheories.find((x) => x.id === id); if (t && JOB_CFG[t.subject]) { const k = jobKey(t); if (k && FLD_TIER[k].p) return FLD_TIER[k].p; } }
       return PRICE_HINT[kind];
     }
     // 무료 맛보기: 토큰 없이 로그인만 하면 열리는 심화 이론 1편·장비 체험 1개(같은 장비). 서버 FREE_PREVIEW 와 같은 목록으로 맞춘다
