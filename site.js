@@ -11399,6 +11399,309 @@
       });
     })();
 
+    // ===== 설계 직무 > 무료 글 "반도체 설계 직무 한눈에 보기" 그림 =====
+    const dsC = { arch: '#f472b6', rtl: '#60a5fa', dv: '#34d399', pd: '#fbbf24', an: '#22d3ee', dft: '#f87171', fw: '#a3e635' }, dsAc = '#a78bfa';
+    const dsRoleNm = { arch: '시스템 아키텍처', rtl: '디지털 설계(RTL)', dv: '설계 검증', pd: '물리설계', an: '아날로그 설계', dft: '테스트 설계(DFT)', fw: '펌웨어' };
+    (() => {
+      const C = dsC, GR = '#94a3b8', AC = dsAc;
+      const blk = (x, y, w, h, t, o = {}) => fdRect(x, y, w, h, { rx: 5, fill: o.fill || 'rgba(148,163,184,.1)', c: o.c || 'currentColor', so: o.so || .6, sw: o.sw || 1.2 }) + (t ? fdTxM(x + w / 2, y + h / 2 + 3, t, { s: o.s || 9.5, w: 700, op: o.op }) : '');
+      Object.assign(DIAGRAMS, {
+        // ---------- 한 칩 위의 일곱 직무 ----------
+        'dsn-roles': {
+          title: '칩 한 개를 일곱 직무가 나눠 맡는다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '칩 한 개의 위쪽 모습이다. 한 칩을 일곱 직무가 서로 다른 면에서 맡는다. 직무를 눌러 그 직무가 만지는 곳을 확인한다.' },
+            { id: 'arch', label: '아키텍처', focus: ['arch'], desc: '시스템 아키텍트는 칩에 어떤 블록이 필요하고 서로 어떻게 연결할지를 정한다. 성능, 전력, 면적, 비용의 목표를 세우고 블록 사이의 통신 구조를 그린다. 설계의 출발점이다.' },
+            { id: 'rtl', label: 'RTL 설계', focus: ['rtl'], desc: '디지털 설계자는 블록의 동작을 RTL이라는 코드로 적는다. 설계자가 쓴 코드가 합성을 거쳐 게이트가 된다. CPU, 메모리 제어기, 인터페이스 같은 디지털 블록이 이 직무의 일터다.' },
+            { id: 'dv', label: '설계 검증', focus: ['dv'], desc: '검증 엔지니어는 RTL이 스펙대로 동작하는지 가상의 환경(테스트벤치)에서 확인한다. 칩을 만든 뒤에는 고칠 수 없으므로 만들기 전에 버그를 찾는 일이다. 설계 인력 중 검증이 가장 많은 비중을 차지하는 경우가 흔하다.' },
+            { id: 'pd', label: '물리설계', focus: ['pd'], desc: '물리설계 엔지니어는 게이트를 실리콘 위의 자리에 놓고 선으로 잇는다. 배치, 클록 배선, 전원망, 라우팅을 거쳐 속도와 전력, 면적이 목표에 맞는지 맞춘다. 결과물이 제조에 넘기는 레이아웃이다.' },
+            { id: 'an', label: '아날로그', focus: ['an'], desc: '아날로그 설계자는 연속된 전압과 전류를 다루는 블록을 만든다. 칩 안에서 클록을 만드는 PLL, 신호를 숫자로 바꾸는 ADC, 전원을 다듬는 LDO가 대표적이다. 시뮬레이션과 레이아웃의 영향이 큰 일이다.' },
+            { id: 'dft', label: 'DFT', focus: ['dft'], desc: 'DFT 엔지니어는 만든 칩의 불량을 출하 전에 찾을 수 있도록 칩 안에 테스트용 길(스캔 체인 등)을 넣는다. 불량 칩이 고객에게 가지 않게 하는 마지막 관문을 설계한다.' },
+            { id: 'fw', label: '펌웨어', focus: ['fw'], desc: '펌웨어 엔지니어는 칩 안의 프로세서에서 돌며 칩을 깨우고 제어하는 소프트웨어를 만든다. 레지스터 지도에 맞춰 칩을 초기화하고, 칩이 돌아오면 가장 먼저 동작을 확인하는 사람이기도 하다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            // 칩 외곽 + 패드 링
+            o += fdRect(14, 14, 292, 262, { rx: 10, fill: 'rgba(148,163,184,.07)', c: GR, so: .8, sw: 1.6 });
+            for (let i = 0; i < 12; i++) o += `<rect x="${28 + i * 22}" y="8" width="10" height="9" rx="1.5" style="fill:#64748b;fill-opacity:.55"/><rect x="${28 + i * 22}" y="273" width="10" height="9" rx="1.5" style="fill:#64748b;fill-opacity:.55"/>`;
+            // 블록(기본, 회색)
+            o += blk(30, 34, 118, 92, '') + blk(160, 34, 64, 92, '') + blk(236, 34, 56, 50, '') + blk(236, 94, 56, 32, '') + blk(30, 140, 98, 70, '') + blk(140, 140, 84, 70, '') + blk(236, 140, 56, 70, '') + blk(30, 222, 262, 36, '');
+            o += fdTxM(89, 52, 'CPU', { s: 10, w: 800 }) + fdTxM(192, 52, 'SRAM', { s: 10, w: 800 }) + fdTxM(264, 50, 'PLL', { s: 10, w: 800 }) + fdTxM(264, 110, 'ROM', { s: 10, w: 800 }) + fdTxM(79, 156, '인터페이스', { s: 9.5, w: 800 }) + fdTxM(182, 156, 'ADC', { s: 10, w: 800 }) + fdTxM(264, 156, 'LDO', { s: 10, w: 800 }) + fdTxM(161, 236, '버스 · 전원망', { s: 9.5, w: 800 });
+            // 직무별 덧그림
+            if (f) {
+            o += pvdG(f, ['arch'], fdRect(18, 18, 284, 254, { rx: 9, fill: 'none', c: C.arch, so: .95, sw: 1.8, dash: '5 4' }) + pvdL('M89 126 V134 H182 V126 M192 126 V134 M264 84 V94 M264 126 V134 M128 175 H140 M224 175 H236', { c: C.arch, sw: 1.8, so: .95 }) + fdTxM(160, 29, '무엇을 어떻게 이을까', { s: 9, w: 800, c: C.arch }));
+            o += pvdG(f, ['rtl'], blk(30, 34, 118, 92, '', { fill: 'rgba(96,165,250,.18)', c: C.rtl, so: .95, sw: 1.7 }) + blk(160, 34, 64, 92, '', { fill: 'rgba(96,165,250,.18)', c: C.rtl, so: .95, sw: 1.7 }) + blk(30, 140, 98, 70, '', { fill: 'rgba(96,165,250,.18)', c: C.rtl, so: .95, sw: 1.7 }) + fdTxM(89, 84, 'always @(posedge clk)', { s: 7.8, c: C.rtl, w: 700 }) + fdTxM(89, 110, 'RTL 코드', { s: 8.5, c: C.rtl, w: 800 }));
+            o += pvdG(f, ['dv'], blk(30, 34, 118, 92, '', { fill: 'rgba(52,211,153,.13)', c: C.dv, so: .95, sw: 1.7 }) + `<path d="M112 108 l6 6 l12 -14" style="fill:none;stroke:${C.dv};stroke-width:3;stroke-linecap:round;stroke-linejoin:round"/>` + fdRect(34, 70, 62, 28, { rx: 5, fill: 'rgba(15,23,42,.35)', c: C.dv, so: .9, sw: 1.4 }) + fdTxM(65, 82, '테스트벤치', { s: 8.5, w: 800, c: C.dv }) + fdTxM(65, 93, '입력 → 비교', { s: 7.8, c: C.dv }));
+            o += pvdG(f, ['pd'], [0, 1, 2, 3, 4].map((i) => `<path d="M36 ${40 + i * 18} H142" style="stroke:${C.pd};stroke-width:5;stroke-opacity:.35;stroke-linecap:round"/>`).join('') + [0, 1, 2, 3].map((i) => `<path d="M${52 + i * 26} 34 V126" style="stroke:${C.pd};stroke-width:1.2;stroke-opacity:.9"/>`).join('') + pvdL('M30 266 H292 M30 268 V222 M292 268 V222', { c: C.pd, sw: 2, so: .9 }) + fdTxM(161, 270, '전원망 · 배치 · 배선', { s: 8.5, w: 800, c: C.pd }));
+            o += pvdG(f, ['an'], blk(236, 34, 56, 50, '', { fill: 'rgba(34,211,238,.18)', c: C.an, so: .95, sw: 1.7 }) + blk(140, 140, 84, 70, '', { fill: 'rgba(34,211,238,.18)', c: C.an, so: .95, sw: 1.7 }) + blk(236, 140, 56, 70, '', { fill: 'rgba(34,211,238,.18)', c: C.an, so: .95, sw: 1.7 }) + pvdL('M146 190 q8 -20 14 0 t14 0 t14 0 t14 0', { c: C.an, sw: 1.6, so: .95 }) + fdTxM(182, 205, '연속 신호', { s: 8, c: C.an, w: 800 }));
+            o += pvdG(f, ['dft'], pvdL('M40 56 H138 V70 H40 V84 H138 V98 H40 V112 H138', { c: C.dft, sw: 2, so: .95 }) + [56, 70, 84, 98, 112].map((y) => `<circle cx="${y % 28 === 0 ? 138 : 40}" cy="${y}" r="2.8" style="fill:${C.dft}"/>`).join('') + fdTxM(89, 122, '스캔 체인', { s: 8.5, w: 800, c: C.dft }));
+            o += pvdG(f, ['fw'], blk(236, 94, 56, 32, '', { fill: 'rgba(163,230,53,.18)', c: C.fw, so: .95, sw: 1.7 }) + pvdL('M236 110 H150 V90 H148', { c: C.fw, sw: 1.8, so: .95, dash: '4 3' }) + fdTxM(193, 106, '부팅 코드', { s: 8, c: C.fw, w: 800 }));
+            } else {
+              const dots = (x, y, ks) => ks.map((k, i) => `<circle cx="${x + i * 11}" cy="${y}" r="3.6" style="fill:${C[k]}"/>`).join('');
+              o += dots(40, 118, ['arch', 'rtl', 'dv', 'pd']) + dots(170, 118, ['arch', 'rtl', 'dv', 'pd']) + dots(244, 76, ['arch', 'an', 'pd']) + dots(244, 118, ['arch', 'fw']) + dots(40, 202, ['arch', 'rtl', 'dv', 'dft']) + dots(150, 202, ['arch', 'an', 'pd']) + dots(244, 202, ['arch', 'an', 'pd']) + fdTxM(161, 252, '점 하나 = 그 블록을 만지는 직무', { s: 8.5, op: .8 });
+            }
+            // 오른쪽 직무 카드
+            Object.keys(dsRoleNm).forEach((k, i) => { const y = 14 + i * 38, col = C[k]; o += pvdG(f, [k], fdRect(318, y, 114, 32, { rx: 7, fill: 'rgba(148,163,184,.08)', c: col, so: .9, sw: 1.5 }) + `<circle cx="333" cy="${y + 16}" r="5.5" style="fill:${col}"/>` + fdTxM(342, y + 20, dsRoleNm[k], { a: 'start', s: 9.2, w: 800 })); });
+            return dgSvg('칩 위의 설계 직무: ' + s.label, o, '0 0 440 290');
+          }
+        },
+
+        // ---------- 같은 블록, 다른 질문 ----------
+        'dsn-ask': {
+          title: '같은 블록을 보는 일곱 가지 질문',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '칩 안의 블록 하나를 일곱 직무가 각자 다른 질문으로 본다. 질문이 다르기 때문에 같은 블록에서 서로 다른 문제를 찾아낸다.' },
+            { id: 'arch', label: '아키텍처', focus: ['arch'], desc: '이 블록이 정말 필요한지, 있다면 성능과 전력을 얼마나 써도 되는지를 묻는다. 필요 없는 블록을 넣지 않는 것도 아키텍처의 결정이다.' },
+            { id: 'rtl', label: 'RTL 설계', focus: ['rtl'], desc: '이 동작을 코드로 어떻게 적을지, 한 클록에 얼마를 처리하게 나눌지를 묻는다. 같은 기능도 적는 방식에 따라 빠르기와 면적이 달라진다.' },
+            { id: 'dv', label: '설계 검증', focus: ['dv'], desc: '정상일 때뿐 아니라 이상한 입력과 드문 순서에서도 맞게 동작하는지를 묻는다. 만든 사람이 생각하지 못한 경우를 찾는 일이다.' },
+            { id: 'pd', label: '물리설계', focus: ['pd'], desc: '이 블록이 정해진 면적에 정해진 속도로 놓이는지를 묻는다. 게이트가 많고 선이 길면 느려지고 전력이 늘어서 배치와 배선이 중요해진다.' },
+            { id: 'an', label: '아날로그', focus: ['an'], desc: '잡음과 온도, 전원 변동, 제조 편차가 있어도 블록이 규격 안에서 버티는지를 묻는다. 디지털과 달리 0과 1로 딱 나뉘지 않아서 여유를 따진다.' },
+            { id: 'dft', label: 'DFT', focus: ['dft'], desc: '이 블록에 불량이 있으면 출하 전에 찾아낼 수 있는지를 묻는다. 안을 들여다볼 길이 없으면 불량을 잡을 수 없어서 설계 단계에서 길을 넣는다.' },
+            { id: 'fw', label: '펌웨어', focus: ['fw'], desc: '소프트웨어가 이 블록을 어떻게 쓰는지를 묻는다. 레지스터 이름과 순서가 쓰기 어려우면 설계 단계에서 바꾸자고 요청하기도 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const Q = { arch: ['이 블록이 정말', '필요한가?'], rtl: ['동작을 코드로', '어떻게 적나?'], dv: ['모든 경우에', '맞게 동작하나?'], pd: ['이 면적에 이 속도로', '놓이나?'], an: ['잡음과 변동에도', '버티나?'], dft: ['불량이면', '찾아낼 수 있나?'], fw: ['소프트웨어가', '어떻게 쓰나?'] };
+            const POS = { arch: [14, 16], rtl: [158, 16], dv: [302, 16], pd: [14, 132], an: [302, 132], dft: [14, 248], fw: [302, 248] };
+            const mid = [220, 176];
+            o += blk(168, 146, 104, 60, '', { fill: 'rgba(167,139,250,.14)', c: AC, so: .95, sw: 1.8 }) + fdTxM(220, 172, '칩 안의 블록 하나', { s: 10.5, w: 800, c: AC }) + fdTxM(220, 188, '(예: 데이터 처리부)', { s: 8.5, op: .85 });
+            Object.keys(Q).forEach((k) => {
+              const [x, y] = POS[k], col = C[k], cx = x + 62, cy = y + 28;
+              o += pvdG(f, [k], pvdL(`M${cx} ${cy < 176 ? cy + 28 : cy - 28} L${mid[0] + (cx - 220) * .35} ${cy < 176 ? 146 : cy > 176 ? 206 : 176}`, { c: col, sw: 1.5, so: .8, dash: '3 3' }) + fdRect(x, y, 124, 56, { rx: 10, fill: 'rgba(148,163,184,.08)', c: col, so: .95, sw: 1.7 }) + fdTxM(x + 62, y + 15, dsRoleNm[k], { s: 8.8, w: 800, c: col }) + fdTxM(x + 62, y + 33, Q[k][0], { s: 9.2, w: 700 }) + fdTxM(x + 62, y + 46, Q[k][1], { s: 9.2, w: 700 }));
+            });
+            return dgSvg('직무별 질문: ' + s.label, o, '0 0 440 316');
+          }
+        },
+
+        // ---------- 설계 회사의 세 모습 ----------
+        'dsn-where': {
+          title: '설계는 어느 회사에서 하나',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '설계 직무는 칩을 만드는 방식에 따라 세 종류의 회사에 있다. 설계만 하는 회사, 제조만 하는 회사, 둘 다 하는 회사다. 설계도 파일(GDS)이 설계에서 제조로 넘어가는 지점이 이 구분의 열쇠다.' },
+            { id: 'fabless', label: '팹리스', focus: ['fabless'], desc: '팹리스는 공장 없이 설계만 하는 회사다. 설계한 칩의 제조는 파운드리에 맡긴다. 설계 직무의 비중이 가장 크고 공정 규칙(PDK)은 파운드리가 주는 것을 받아 쓴다.' },
+            { id: 'foundry', label: '파운드리', focus: ['foundry'], desc: '파운드리는 다른 회사의 설계를 받아 제조만 하는 회사다. 설계 직무는 고객이 쓸 공정 규칙과 부품 라이브러리(PDK), 표준 셀을 만드는 쪽에 있다.' },
+            { id: 'idm', label: 'IDM', focus: ['idm'], desc: 'IDM은 설계와 제조를 한 회사 안에서 모두 하는 회사다. 설계와 공정이 가까워서 서로의 요구를 바로 맞출 수 있다. 설계자가 공정 팀과 같은 건물에서 협의하기도 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const lane = (id, y, title, sub, col) => pvdG(f, [id], fdRect(14, y, 412, 84, { rx: 10, fill: 'rgba(148,163,184,.06)', c: col, so: .85, sw: 1.5 }) + fdTxM(70, y + 20, title, { s: 11.5, w: 800, c: col }) + fdTxM(70, y + 36, sub, { s: 8.5 }));
+            const desk = (x, y, c) => fdRect(x, y, 78, 48, { rx: 6, fill: 'rgba(167,139,250,.14)', c, so: .9, sw: 1.5 }) + pvdL(`M${x + 12} ${y + 14} H${x + 66} M${x + 12} ${y + 24} H${x + 52} M${x + 12} ${y + 34} H${x + 60}`, { c, sw: 1.2, so: .7 }) + fdTxM(x + 39, y + 61, '설계', { s: 9, w: 800, c });
+            const fab = (x, y, c) => fdRect(x, y, 78, 48, { rx: 6, fill: 'rgba(251,146,60,.14)', c, so: .9, sw: 1.5 }) + pvdL(`M${x + 8} ${y + 48} V${y + 26} L${x + 24} ${y + 34} V${y + 26} L${x + 40} ${y + 34} V${y + 26} L${x + 56} ${y + 34} V${y + 14} H${x + 70} V${y + 48}`, { c, sw: 1.4, so: .85 }) + fdTxM(x + 39, y + 61, '제조(팹)', { s: 9, w: 800, c });
+            const gds = (x, y, c) => fdRect(x, y, 56, 22, { rx: 4, fill: 'rgba(148,163,184,.16)', c, so: .9, sw: 1.3 }) + fdTxM(x + 28, y + 15, 'GDS', { s: 9.5, w: 800, c });
+            // 줄별로 설계/제조 상자와 파일 화살표
+            const rows = [['fabless', 14, '팹리스', '설계만 한다', C.rtl], ['idm', 114, 'IDM', '설계 + 제조', AC], ['foundry', 214, '파운드리', '제조만 한다', C.pd]];
+            rows.forEach(([id, y, t1, t2, col]) => { o += lane(id, y, t1, t2, col); });
+            o += pvdG(f, ['fabless'], desk(124, 26, C.rtl) + `<path d="M200 50 H262" style="fill:none;stroke:${C.rtl};stroke-width:1.8;stroke-dasharray:4 3"/>` + fdArr(266, 50, 'r', C.rtl) + gds(206, 26, C.rtl).replace('x="206"', 'x="206"') + fab(272, 26, C.pd) + fdTxM(344, 44, '다른 회사의', { a: 'start', s: 8.5, op: .9 }) + fdTxM(344, 56, '공장에 맡김', { a: 'start', s: 8.5, op: .9 }));
+            o += pvdG(f, ['idm'], desk(124, 126, AC) + `<path d="M200 150 H262" style="fill:none;stroke:${AC};stroke-width:1.8;stroke-dasharray:4 3"/>` + fdArr(266, 150, 'r', AC) + gds(206, 126, AC) + fab(272, 126, AC) + fdTxM(344, 144, '같은 회사', { a: 'start', s: 8.5, op: .9 }) + fdTxM(344, 156, '안에서 이어짐', { a: 'start', s: 8.5, op: .9 }));
+            o += pvdG(f, ['foundry'], desk(124, 226, C.pd).replace(/rgba\(167,139,250,.14\)/, 'rgba(148,163,184,.1)') + `<path d="M200 250 H262" style="fill:none;stroke:${C.pd};stroke-width:1.8;stroke-dasharray:4 3"/>` + fdArr(266, 250, 'r', C.pd) + gds(206, 226, C.pd) + fab(272, 226, C.pd) + fdTxM(344, 244, '고객의 GDS를', { a: 'start', s: 8.5, op: .9 }) + fdTxM(344, 256, '받아 제조', { a: 'start', s: 8.5, op: .9 }));
+            return dgSvg('회사의 종류: ' + s.label, o, '0 0 440 312');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 무료 글 "칩 설계 흐름" 그림 =====
+    (() => {
+      const C = dsC, AC = dsAc;
+      const WARN = '#f87171';
+      const doc = (x, y, w, h, col, on) => fdRect(x, y, w, h, { rx: 4, fill: 'rgba(148,163,184,.1)', c: col, so: on ? .95 : .7, sw: on ? 1.8 : 1.3 }) + pvdL(`M${x + w - 12} ${y} V${y + 12} H${x + w}`, { c: col, sw: 1.2, so: .8 }) + [0, 1, 2].map((i) => pvdL(`M${x + 8} ${y + 22 + i * 9} H${x + w - 10 - (i % 2) * 8}`, { c: col, sw: 1.2, so: .55 })).join('');
+      Object.assign(DIAGRAMS, {
+        // ---------- 아홉 걸음의 흐름 ----------
+        'dsn-flow': {
+          title: '아이디어가 칩이 되기까지 아홉 걸음',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '칩 설계는 말로 된 요구를 점점 구체적인 모양으로 바꾸는 과정이다. 스펙에서 시작해 코드, 게이트, 배치, 그리고 제조용 파일로 한 걸음씩 구체화된다.' },
+            { id: 'def', label: '정의', focus: ['s1', 's2'], desc: '스펙은 칩이 무엇을 해야 하는지를 글로 적은 약속이다. 아키텍처는 그 약속을 블록 단위의 구조로 나눈다. 이 단계에서 정한 목표가 뒤의 모든 걸음을 이끈다.' },
+            { id: 'rtl', label: 'RTL·검증', focus: ['s3', 's4'], desc: '블록의 동작을 RTL 코드로 적고, 검증 환경에서 스펙대로 움직이는지 확인한다. 둘은 번갈아 계속 돈다. 코드가 바뀌면 검증도 다시 돌린다.' },
+            { id: 'syn', label: '합성', focus: ['s5'], desc: '합성 도구가 RTL 코드를 실제 게이트의 연결 목록(넷리스트)으로 바꾼다. 이때 속도 목표를 적은 제약 파일(SDC)을 함께 읽는다.' },
+            { id: 'pd', label: '물리설계', focus: ['s6'], desc: '넷리스트의 게이트를 칩 면적 위에 놓고(배치) 선으로 잇는다(배선). 클록 신호를 고르게 나누는 일도 이 단계에서 한다.' },
+            { id: 'sign', label: '사인오프', focus: ['s7'], desc: '사인오프는 제조에 넘기기 전의 마지막 점검이다. 타이밍, 전력, 설계 규칙을 도구로 다시 확인하고 모든 조건을 통과해야 한다.' },
+            { id: 'mfg', label: '제조로', focus: ['s8', 's9'], desc: '테이프아웃은 최종 레이아웃 파일(GDS)을 제조처에 넘기는 일이다. 칩이 만들어지면 테스트 장비로 하나씩 불량을 가려내고, 설계팀은 실제 칩으로 처음 동작을 확인한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const ST = [
+              ['s1', '스펙', '요구 문서', C.arch], ['s2', '아키텍처', '블록 구조', C.arch], ['s3', 'RTL 설계', 'RTL 코드', C.rtl],
+              ['s4', '검증', '테스트 결과', C.dv], ['s5', '합성', '넷리스트', C.rtl], ['s6', '물리설계', '배치 · 배선', C.pd],
+              ['s7', '사인오프', '최종 점검', C.pd], ['s8', '테이프아웃', 'GDS 파일', AC], ['s9', '제조 · 테스트', '실제 칩', C.dft],
+            ];
+            ST.forEach(([id, nm, out, col], i) => {
+              const r = Math.floor(i / 3), c = i % 3, x = 14 + c * 142, y = 14 + r * 108;
+              o += pvdG(f, [id], fdRect(x, y, 124, 64, { rx: 10, fill: 'rgba(148,163,184,.08)', c: col, so: .95, sw: 1.7 }) + `<circle cx="${x + 16}" cy="${y + 18}" r="9" style="fill:${col};fill-opacity:.9"/>` + fdTxM(x + 16, y + 21.5, String(i + 1), { s: 9.5, w: 800, c: '#0f172a' }) + fdTxM(x + 30, y + 22, nm, { a: 'start', s: 10.5, w: 800 }) + fdTxM(x + 62, y + 48, '→ ' + out, { s: 9, c: col, w: 700 }));
+              if (c < 2) o += pvdG(f, [id], pvdL(`M${x + 126} ${y + 32} H${x + 138}`, { c: col, sw: 1.8, so: .85 }) + fdArr(x + 140, y + 32, 'r', col));
+              else if (r < 2) o += pvdG(f, [id], pvdL(`M${x + 62} ${y + 66} V${y + 86} H76 V${y + 106}`, { c: col, sw: 1.8, so: .85, dash: '4 3' }) + fdArr(76, y + 108, 'd', col));
+            });
+            o += fdTxM(220, 314, '앞 걸음의 결과물이 다음 걸음의 입력이 된다', { s: 9, op: .85 });
+            return dgSvg('칩 설계 흐름: ' + s.label, o, '0 0 440 324');
+          }
+        },
+
+        // ---------- 늦게 찾은 버그의 값 ----------
+        'dsn-loop': {
+          title: '버그는 늦게 찾을수록 비싸다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 버그라도 흐름의 뒤에서 찾을수록 되돌아갈 길이 길어지고 다시 해야 할 일이 늘어난다. 막대는 대략의 감각을 나타낸 것이고 실제 배수는 회사와 칩마다 다르다.' },
+            { id: 'v', label: '검증 단계', focus: ['v'], desc: 'RTL을 검증하면서 찾으면 코드 한 줄을 고치고 테스트를 다시 돌리면 된다. 가장 싸게 고칠 수 있는 때이므로 검증에 사람과 시간을 많이 쓰는 이유다.' },
+            { id: 's', label: '합성 이후', focus: ['s'], desc: '합성한 뒤에 찾으면 RTL을 고친 다음 합성부터 다시 돌려야 한다. 고쳐야 하는 것이 코드뿐 아니라 합성 결과와 그 뒤의 점검까지 늘어난다.' },
+            { id: 'p', label: '물리설계 이후', focus: ['p'], desc: '배치·배선까지 끝낸 뒤에 찾으면 물리설계를 거의 처음부터 다시 해야 한다. 며칠에서 몇 주가 더 걸리기도 한다.' },
+            { id: 'c', label: '칩이 나온 뒤', focus: ['c'], desc: '칩이 만들어진 뒤에 찾으면 마스크와 제조를 다시 해야 한다. 비용과 일정이 가장 크게 늘어서 출시가 몇 달 밀리는 일도 있다. 그래서 만들기 전에 최대한 찾는다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const B = [['v', '검증 단계', '×1', 26, C.dv], ['s', '합성 이후', '×10', 62, C.rtl], ['p', '물리설계 이후', '×100', 106, C.pd], ['c', '칩이 나온 뒤', '×1000', 156, C.dft]];
+            o += pvdL('M30 228 H420', { c: 'currentColor', sw: 1.4, so: .5 });
+            B.forEach(([id, nm, mul, h, col], i) => {
+              const x = 44 + i * 98;
+              o += pvdG(f, [id], fdRect(x, 228 - h, 66, h, { rx: 6, fill: col, c: col, so: .95, sw: 1.2 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.35') + fdTxM(x + 33, 228 - h - 8, mul, { s: 13, w: 800, c: col }) + fdTxM(x + 33, 244, nm, { s: 9.2, w: 800 }));
+            });
+            if (f) {
+              const i = B.findIndex((b) => b[0] === f[0]), x = 44 + i * 98 + 33, col = B[i][4], h = B[i][3];
+              o += `<g transform="translate(${x},${228 - h - 34})"><ellipse cx="0" cy="0" rx="9" ry="7" style="fill:${WARN};fill-opacity:.9"/><path d="M-7 -3 l-6 -4 M7 -3 l6 -4 M-8 2 l-7 2 M8 2 l7 2 M-5 6 l-4 5 M5 6 l4 5" style="stroke:${WARN};stroke-width:1.6;stroke-linecap:round"/><circle cx="-3" cy="-1" r="1.3" style="fill:#fff"/><circle cx="3" cy="-1" r="1.3" style="fill:#fff"/></g>`;
+              if (i > 0) o += pvdL(`M${x - 8} ${228 - h - 44} Q${(x + 77) / 2} ${150 - i * 12} 77 ${228 - 26 - 8}`, { c: WARN, sw: 1.7, so: .85, dash: '4 3' }) + fdTxM(x - 40, 24, '되돌아가서 다시', { s: 9, w: 800, c: WARN });
+            } else {
+              o += fdTxM(220, 22, '막대가 높을수록 다시 해야 할 일이 많다', { s: 9.5, w: 700, op: .9 });
+            }
+            o += fdTxM(220, 266, '※ 배수는 감각을 위한 예시입니다', { s: 8.5, op: .75 });
+            return dgSvg('버그 발견 시점: ' + s.label, o, '0 0 440 276');
+          }
+        },
+
+        // ---------- 서류를 넘기는 릴레이 ----------
+        'dsn-handoff': {
+          title: '단계마다 넘겨주는 파일이 있다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '설계는 릴레이처럼 파일을 다음 사람에게 넘기며 이어진다. 파일의 이름만 알아도 지금 어느 단계에 있는지가 보인다.' },
+            { id: 'spec', label: '스펙', focus: ['f1'], desc: '스펙 문서는 칩이 해야 할 일을 글과 표로 적은 것이다. 이 문서와 어긋나면 버그로 본다. 아키텍트가 쓰고 설계자와 검증자가 함께 읽는다.' },
+            { id: 'rtl', label: 'RTL 코드', focus: ['f2'], desc: 'RTL 코드는 블록의 동작을 Verilog나 SystemVerilog 같은 언어로 적은 파일이다. 디지털 설계자가 쓰고 검증 환경에서 돌려 본다.' },
+            { id: 'net', label: '넷리스트', focus: ['f3'], desc: '넷리스트는 어떤 게이트가 어떻게 이어지는지를 적은 파일이다. 합성 도구가 RTL에서 자동으로 만든다. 사람이 읽기보다 다음 도구가 읽는 파일이다.' },
+            { id: 'gds', label: 'GDS', focus: ['f4'], desc: 'GDS는 칩 위에 그릴 모든 도형을 층별로 담은 파일이다. 제조처는 이 파일로 마스크를 만든다. 테이프아웃은 이 파일을 넘기는 일이다.' },
+            { id: 'pat', label: '테스트 패턴', focus: ['f5'], desc: '테스트 패턴은 칩에 넣어 볼 입력과 기대 출력의 목록이다. DFT 팀이 만들고 테스트 장비가 칩마다 돌려서 불량을 가려낸다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const F = [['f1', '스펙 문서', '아키텍트', C.arch, '글 · 표'], ['f2', 'RTL 코드', '디지털 설계', C.rtl, '.v / .sv'], ['f3', '넷리스트', '합성 도구', C.rtl, '게이트 연결'], ['f4', 'GDS', '물리설계', C.pd, '층별 도형'], ['f5', '테스트 패턴', 'DFT', C.dft, '입력 · 기대값']];
+            F.forEach(([id, nm, who, col, sub], i) => {
+              const x = 10 + i * 86;
+              o += pvdG(f, [id], fdTxM(x + 38, 24, who, { s: 8.8, w: 800, c: col }) + doc(x, 36, 76, 84, col, !!f) + fdTxM(x + 38, 70, nm === 'GDS' ? 'GDS' : '', { s: 12, w: 800, c: col }) + fdTxM(x + 38, 142, nm, { s: 9.5, w: 800 }) + fdTxM(x + 38, 156, sub, { s: 8.2, op: .85 }));
+              if (i < 4) o += pvdG(f, [id], fdArr(x + 84, 78, 'r', col));
+            });
+            o += fdTxM(220, 190, '왼쪽에서 오른쪽으로, 앞 단계의 결과가 다음 단계의 재료', { s: 9, op: .85 });
+            return dgSvg('단계별 파일: ' + s.label, o, '0 0 440 206');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 무료 글 "설계 용어" 그림 =====
+    (() => {
+      const C = dsC, AC = dsAc;
+      const box = (x, y, w, h, col, on) => fdRect(x, y, w, h, { rx: 6, fill: 'rgba(148,163,184,.09)', c: col, so: on ? .95 : .85, sw: 1.6 });
+      Object.assign(DIAGRAMS, {
+        // ---------- 같은 덧셈기, 네 가지 모습 ----------
+        'dsn-abs': {
+          title: '같은 덧셈기를 네 가지 수준으로 본다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 덧셈기를 위에서 아래로 갈수록 자세하게 본다. 위는 무엇을 하는지, 아래는 어디에 어떤 모양으로 놓이는지를 말한다. 아래로 갈수록 정해진 것이 많아진다.' },
+            { id: 'beh', label: '동작', focus: ['beh'], desc: '동작 수준은 입력 둘을 더해 결과를 낸다는 말뿐이다. 어떤 회로로 만들지는 아직 정하지 않았다. 스펙과 아키텍처가 이 수준이다.' },
+            { id: 'rtl', label: 'RTL', focus: ['rtl'], desc: 'RTL은 클록마다 어떤 값이 어디에 저장되고 어떤 계산을 거치는지를 적는다. 레지스터와 그 사이의 계산으로 회로를 표현한다. 아직 게이트 종류는 정하지 않았다.' },
+            { id: 'net', label: '넷리스트', focus: ['net'], desc: '넷리스트는 합성 도구가 고른 실제 게이트와 그 연결이다. XOR, AND 같은 게이트가 선으로 이어진다. 회로의 속도와 면적이 이때부터 숫자로 나온다.' },
+            { id: 'gds', label: 'GDS', focus: ['gds'], desc: 'GDS는 게이트를 이루는 트랜지스터와 배선을 실리콘 위의 도형으로 그린 것이다. 각 도형이 어느 층에 어느 좌표에 놓이는지까지 정해진다. 제조는 이것을 보고 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const rows = [['beh', '동작', '무엇을 하나', C.arch, 14], ['rtl', 'RTL', '클록마다 어떻게', C.rtl, 82], ['net', '넷리스트', '어떤 게이트로', C.pd, 150], ['gds', 'GDS', '어디에 어떤 모양', C.dft, 218]];
+            rows.forEach(([id, nm, q, col, y]) => {
+              o += pvdG(f, [id], box(14, y, 412, 60, col) + fdTxM(24, y + 24, nm, { a: 'start', s: 12, w: 800, c: col }) + fdTxM(24, y + 42, q, { a: 'start', s: 8.8, op: .9 }));
+            });
+            // 동작
+            o += pvdG(f, ['beh'], fdTxM(270, 50, 'sum = a + b', { s: 15, w: 800 }));
+            // RTL
+            o += pvdG(f, ['rtl'], fdRect(150, 98, 52, 28, { rx: 4, fill: 'rgba(96,165,250,.16)', c: C.rtl, so: .9, sw: 1.4 }) + fdTxM(176, 116, 'a + b', { s: 10, w: 800 }) + fdArr(206, 112, 'r', C.rtl) + fdRect(214, 98, 52, 28, { rx: 4, fill: 'rgba(96,165,250,.28)', c: C.rtl, so: .9, sw: 1.4 }) + fdTxM(240, 116, '저장(q)', { s: 9, w: 800 }) + fdArr(270, 112, 'r', C.rtl) + fdTxM(318, 116, '클록마다 갱신', { s: 8.5, op: .9 }));
+            // 넷리스트
+            const g = (x, y, t) => fdRect(x, y, 40, 22, { rx: 11, fill: 'rgba(251,191,36,.18)', c: C.pd, so: .9, sw: 1.4 }) + fdTxM(x + 20, y + 15, t, { s: 8.8, w: 800 });
+            o += pvdG(f, ['net'], g(146, 160, 'XOR') + g(146, 190, 'AND') + g(230, 190, 'OR') + pvdL('M186 171 H214 M186 201 H230 M270 201 H290', { c: C.pd, sw: 1.4, so: .85 }) + fdTxM(224, 168, 'sum', { s: 8.5, c: C.pd, w: 800 }) + fdTxM(318, 205, 'carry', { s: 8.5, c: C.pd, w: 800 }));
+            // GDS
+            const rr = (x, y, w, h, col) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" style="fill:${col};fill-opacity:.55;stroke:${col};stroke-opacity:.9;stroke-width:1"/>`;
+            o += pvdG(f, ['gds'], rr(150, 232, 70, 12, '#f87171') + rr(150, 254, 70, 12, '#f87171') + rr(162, 228, 8, 42, '#60a5fa') + rr(186, 228, 8, 42, '#60a5fa') + rr(206, 228, 8, 42, '#60a5fa') + rr(240, 232, 62, 6, '#34d399') + rr(240, 246, 62, 6, '#34d399') + rr(240, 260, 62, 6, '#34d399') + rr(316, 228, 8, 40, '#fbbf24') + fdTxM(366, 252, '층별 도형', { s: 8.8, op: .9 }));
+            return dgSvg('수준별 표현: ' + s.label, o, '0 0 440 290');
+          }
+        },
+
+        // ---------- PPA 삼각형 ----------
+        'dsn-ppa': {
+          title: 'PPA: 속도 · 전력 · 면적은 함께 오르내린다',
+          wide: true,
+          states: [
+            { id: 'all', label: '균형', focus: null, desc: '세 가지를 골고루 맞춘 설계다. 속도(Performance), 전력(Power), 면적(Area)의 머리글자가 PPA다. 한 가지를 좋게 하면 다른 둘 중 하나 이상이 나빠지는 경우가 많다.' },
+            { id: 'perf', label: '속도 우선', focus: ['perf'], desc: '속도를 높이려면 큰 트랜지스터와 높은 전압, 병렬 회로를 쓴다. 속도는 빨라지지만 전력과 면적이 함께 늘어난다. 서버용 칩이 이쪽이다.' },
+            { id: 'pwr', label: '전력 우선', focus: ['pwr'], desc: '전력을 줄이려면 전압을 낮추고 클록을 낮추며 쉬는 블록을 끈다. 전력은 줄지만 속도가 느려진다. 배터리로 쓰는 기기의 칩이 이쪽이다.' },
+            { id: 'area', label: '면적 우선', focus: ['area'], desc: '면적을 줄이면 같은 웨이퍼에서 칩이 더 많이 나와 원가가 낮아진다. 작은 게이트와 짧은 선을 쓰기 때문에 속도 여유가 줄어든다. 가격이 중요한 칩이 이쪽이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : 'mid';
+            let o = fdDefs();
+            const V = { perf: [130, 34], pwr: [36, 196], area: [224, 196] }, ctr = [130, 142];
+            const P = { mid: ctr, perf: [130, 80], pwr: [70, 172], area: [190, 172] }[f];
+            o += pvdL(`M${V.perf[0]} ${V.perf[1]} L${V.pwr[0]} ${V.pwr[1]} L${V.area[0]} ${V.area[1]} Z`, { c: AC, sw: 1.8, so: .85 });
+            o += fdTxM(130, 22, '속도 (빠르게)', { s: 10, w: 800, c: C.rtl }) + fdTxM(40, 216, '전력 (적게)', { s: 10, w: 800, c: C.dv }) + fdTxM(224, 216, '면적 (작게)', { s: 10, w: 800, c: C.pd });
+            o += `<circle cx="${P[0]}" cy="${P[1]}" r="9" style="fill:${AC};fill-opacity:.9"/><circle cx="${P[0]}" cy="${P[1]}" r="15" style="fill:none;stroke:${AC};stroke-opacity:.45;stroke-width:1.4"/>` + fdTxM(130, 240, f === 'mid' ? '설계점 = 가운데' : '설계점이 한 꼭짓점으로 쏠림', { s: 9, op: .85 });
+            const R = { mid: [60, 50, 50], perf: [92, 88, 74], pwr: [36, 24, 54], area: [52, 46, 22] }[f];
+            const bars = [['속도', R[0], C.rtl, '빠를수록 길게'], ['전력', R[1], C.dv, '쓸수록 길게'], ['면적', R[2], C.pd, '클수록 길게']];
+            bars.forEach(([nm, v, col, note], i) => {
+              const y = 60 + i * 52;
+              o += fdTxM(274, y - 8, nm, { a: 'start', s: 10, w: 800, c: col }) + fdTxM(424, y - 8, note, { a: 'end', s: 8, op: .8 }) + fdRect(274, y, 150, 14, { rx: 7, fill: 'rgba(148,163,184,.1)', c: col, so: .5, sw: 1 }) + fdRect(274, y, Math.max(8, v * 1.5), 14, { rx: 7, fill: col, c: col, so: .9, sw: 1 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.55');
+            });
+            return dgSvg('PPA 균형: ' + s.label, o, '0 0 440 256');
+          }
+        },
+
+        // ---------- 용어 지도 ----------
+        'dsn-terms': {
+          title: '자주 만나는 설계 용어 지도',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '위쪽 세 개가 설계가 거치는 주요 파일(RTL, 넷리스트, GDS)이고 아래쪽은 그 변환에 곁들이는 용어다. 용어가 나오면 이 지도에서 자리를 찾아본다.' },
+            { id: 'rtl', label: 'RTL', focus: ['rtl'], desc: 'RTL은 Register Transfer Level의 줄임말이다. 레지스터 사이로 데이터가 어떻게 오가는지를 코드로 적은 것이다. 디지털 설계의 출발점이다.' },
+            { id: 'net', label: 'Netlist', focus: ['net'], desc: 'Netlist는 게이트와 그 연결을 적은 목록이다. RTL이 합성을 거치면 나온다. 이 파일부터 속도와 면적을 숫자로 잴 수 있다.' },
+            { id: 'gds', label: 'GDS', focus: ['gds'], desc: 'GDS는 칩 레이아웃을 담은 파일 형식이다. 마스크를 만드는 입력이 된다. 이 파일을 제조에 넘기는 것이 테이프아웃이다.' },
+            { id: 'sdc', label: 'SDC', focus: ['sdc'], desc: 'SDC는 합성과 타이밍 점검에 쓰는 제약 파일이다. 클록 주기와 입출력 시간처럼 지켜야 할 속도 목표를 적는다. 도구는 이 목표에 맞춰 일한다.' },
+            { id: 'pdk', label: 'PDK', focus: ['pdk'], desc: 'PDK는 파운드리가 설계자에게 주는 공정 설명서 묶음이다. 트랜지스터 모델, 설계 규칙, 표준 셀이 들어 있다. 설계는 이것에 맞춰서만 제조할 수 있다.' },
+            { id: 'sta', label: 'STA·DRC', focus: ['sta'], desc: 'STA는 모든 경로가 시간 안에 도착하는지를 계산으로 확인하는 점검이다. DRC는 도형이 공정의 규칙을 지키는지 확인한다. 사인오프에서 둘 다 통과해야 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const M = [['rtl', 'RTL', '동작을 코드로 적은 것', C.rtl, 14], ['net', 'Netlist', '게이트 연결 목록', C.pd, 158], ['gds', 'GDS', '칩 레이아웃 파일', C.dft, 302]];
+            M.forEach(([id, nm, sub, col, x], i) => {
+              o += pvdG(f, [id], fdRect(x, 16, 124, 70, { rx: 12, fill: 'rgba(148,163,184,.09)', c: col, so: .95, sw: 1.9 }) + fdTxM(x + 62, 46, nm, { s: 15, w: 800, c: col }) + fdTxM(x + 62, 68, sub, { s: 9, op: .9 }));
+            });
+            o += pvdG(f, ['net'], pvdL('M140 52 H152', { c: C.rtl, sw: 1.8, so: .85 }) + fdArr(154, 52, 'r', C.rtl) + fdTxM(147, 100, '합성', { s: 8.8, w: 800, c: C.rtl }));
+            o += pvdG(f, ['gds'], pvdL('M284 52 H296', { c: C.pd, sw: 1.8, so: .85 }) + fdArr(298, 52, 'r', C.pd) + fdTxM(291, 100, '배치·배선', { s: 8.8, w: 800, c: C.pd }));
+            const H = [['sdc', 'SDC', '속도 목표 파일', 14, 120, C.rtl, 'M76 120 V86'], ['pdk', 'PDK', '공정 설명서 묶음', 158, 120, C.dv, 'M220 120 V86'], ['sta', 'STA · DRC', '타이밍 · 규칙 점검', 302, 120, C.dft, 'M364 120 V86']];
+            H.forEach(([id, nm, sub, x, y, col, ln]) => {
+              o += pvdG(f, [id], pvdL(ln, { c: col, sw: 1.5, so: .8, dash: '3 3' }) + fdRect(x, y + 14, 124, 56, { rx: 10, fill: 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 }) + fdTxM(x + 62, y + 38, nm, { s: 12, w: 800, c: col }) + fdTxM(x + 62, y + 56, sub, { s: 8.8, op: .9 }));
+            });
+            o += fdTxM(220, 224, '위: 설계가 바뀌는 모습 · 아래: 변환을 돕는 약속과 점검', { s: 9, op: .85 });
+            return dgSvg('설계 용어 지도: ' + s.label, o, '0 0 440 236');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
