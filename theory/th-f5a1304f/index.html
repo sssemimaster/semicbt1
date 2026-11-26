@@ -2122,12 +2122,13 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
       <div class="mb-6"><div class="mb-5"><p class="eyebrow mb-1.5">ENCYCLOPEDIA</p><h2 class="page-title text-slate-900 dark:text-white">이론 백과사전</h2><p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5">소자부터 공정, 첨단 기술까지 폴더별로 정리했어요.</p></div></div>
       <input type="text" id="theorySearchInput" class="hidden" onkeyup="handleTheorySearch()">
       <div id="breadcrumbContainer" class="bg-indigo-50/70 dark:bg-[#0f2233] rounded-xl border border-indigo-100 dark:border-white/10 px-4 py-3 mb-6 flex flex-wrap items-center gap-y-2 text-sm hidden"></div>
-      <div id="learningContainer" class="flex flex-col space-y-4"><div class="bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden"><div class="p-6 md:p-8"><p class="eyebrow mb-2">심화 이론 <span class="opacity-50">/</span> 설계 직무 <span class="opacity-50">·</span> 약 4분 읽기</p><h1 class="page-title text-slate-900 dark:text-white mb-3">설계 용어 (RTL · Netlist · GDS · PPA)</h1><div class="flex flex-wrap gap-1.5 mb-6 pb-6 border-b border-slate-100 dark:border-white/10"><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#설계 직무</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#RTL</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#넷리스트</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#GDS</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#PPA</span></div><div class="custom-table-container theory-body prose prose-slate dark:prose-invert max-w-none"><div class="custom-badge-heading"><span class="custom-badge">✏️ 개요</span>설계 용어는 변환의 이름이다</div>
+      <div id="learningContainer" class="flex flex-col space-y-4"><div class="bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden"><div class="p-6 md:p-8"><p class="eyebrow mb-2">심화 이론 <span class="opacity-50">/</span> 설계 직무 <span class="opacity-50">·</span> 약 6분 읽기</p><h1 class="page-title text-slate-900 dark:text-white mb-3">설계 용어 (RTL · Netlist · GDS · PPA)</h1><div class="flex flex-wrap gap-1.5 mb-6 pb-6 border-b border-slate-100 dark:border-white/10"><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#설계 직무</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#RTL</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#넷리스트</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#GDS</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#PPA</span></div><div class="custom-table-container theory-body prose prose-slate dark:prose-invert max-w-none"><div class="custom-badge-heading"><span class="custom-badge">✏️ 개요</span>설계 용어, 변환의 이름</div>
 
-<p>설계 이야기에는 RTL, 넷리스트, GDS, PPA 같은 말이 계속 나온다. 이 말들은 따로 외우기보다 <strong>칩이 점점 구체적인 모양으로 바뀌는 순서의 이름</strong>으로 보면 쉽다. 같은 덧셈기도 처음에는 "두 수를 더한다"는 말이고, 그다음 코드가 되고, 게이트가 되고, 마지막에 도형이 된다.</p>
+<p>설계 이야기에는 RTL, 넷리스트, GDS, PPA 같은 말이 계속 나온다. 이 말들은 따로 외우기보다 <strong>칩이 점점 구체적인 모양으로 바뀌는 순서의 이름</strong>으로 보면 쉽다. 같은 덧셈기도 처음에는 "두 수를 더한다"는 말이고, 그다음 코드가 되고, 게이트가 되고, 마지막에 도형이 된다. 낯선 용어를 만날 때마다 "이 말은 그 흐름의 어디를 가리키는가"를 물어보면 대부분 정리된다.</p>
 <figure class="dg" data-dg="dsn-abs" data-cap="같은 덧셈기를 네 가지 수준으로 본다: 동작, RTL, 넷리스트, GDS"></figure>
 
 <p>위에서 아래로 갈수록 <strong>정해진 것이 많아진다.</strong> 동작 수준에서는 어떤 회로로 만들지 정해지지 않았고, RTL에서는 레지스터와 계산이 정해지고, 넷리스트에서는 실제 게이트가 정해지고, GDS에서는 도형의 위치까지 정해진다. 이렇게 수준을 나누는 것을 <button type="button" class="th-term" data-def="같은 회로를 얼마나 자세히 보는지의 단계. 높을수록 간단하고 낮을수록 자세하다.">추상화 수준(Abstraction level)</button>이라고 한다.</p>
+<p>수준이 높을수록 사람이 다루기 쉽고, 낮을수록 도구와 제조가 다루기 쉽다. 설계자는 사람이 이해할 수 있는 가장 높은 수준(RTL)에서 일하고, 낮은 수준으로 내려가는 번역은 도구에 맡긴다. 이 분업이 수십억 개의 트랜지스터를 가진 칩을 설계할 수 있게 해 주는 힘이다.</p>
 <div class="custom-badge-heading"><span class="custom-badge">✏️ 파일</span>RTL, 넷리스트, GDS</div>
 
 <p>설계가 거치는 세 가지 주요 파일은 다음과 같다.</p>
@@ -2157,27 +2158,50 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
 </tr>
 </tbody>
 </table></div>
-<p><strong>RTL</strong>은 Register Transfer Level의 줄임말로, 레지스터 사이로 데이터가 어떻게 오가는지를 코드로 적은 수준이다. 설계자가 직접 쓰는 가장 높은 수준의 파일이다. <strong>넷리스트</strong>는 합성 도구가 RTL에서 만들어 내는 게이트의 연결 목록이다. 이 단계부터 속도와 면적을 숫자로 잴 수 있다. <strong>GDS</strong>는 칩 레이아웃을 담은 파일 형식이고, 이 파일이 마스크 제작의 입력이 된다. 이 파일을 제조에 넘기는 일이 테이프아웃이다.</p>
+<p><strong>RTL</strong>은 Register Transfer Level의 줄임말로, 레지스터 사이로 데이터가 어떻게 오가는지를 코드로 적은 수준이다. 설계자가 직접 쓰는 가장 높은 수준의 파일이다. 사람이 읽을 수 있고 시뮬레이션으로 동작을 확인할 수 있어서, 검증도 이 수준에서 이루어진다.</p>
+<p><strong>넷리스트</strong>는 합성 도구가 RTL에서 만들어 내는 게이트의 연결 목록이다. 이 단계부터 속도와 면적을 숫자로 잴 수 있다. 코드에서는 "더한다"였던 것이 "어떤 게이트 몇 개가 이렇게 이어진다"로 바뀌기 때문이다. 사람이 읽을 수는 있지만 양이 방대해서 보통은 도구가 읽는다.</p>
+<p><strong>GDS</strong>는 칩 레이아웃을 담은 파일 형식이고, 이 파일이 마스크 제작의 입력이 된다. 게이트의 위치와 배선이 모두 도형의 좌표로 적혀 있다. 이 파일을 제조에 넘기는 일이 테이프아웃이다.</p>
 <div class="custom-highlight-box">[읽는 법] "RTL 나왔다", "넷리스트 받았다", "GDS 넘겼다"는 말은 곧 <strong>지금 흐름의 어디에 있다</strong>는 뜻이다. 회의에서 이 세 단어만 알아들어도 진행 상황이 보인다.</div>
 
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 변환</span>변환을 돕는 말들</div>
+<div class="custom-badge-heading"><span class="custom-badge">✏️ 대화</span>실제 대화에서 만나는 문장</div>
+
+<p>용어가 실제로 어떻게 쓰이는지 몇 문장으로 익혀 두면 이후 글이 훨씬 편하다.</p>
+<ul>
+<li>"RTL을 고쳤더니 검증이 다시 돈다" — 코드를 바꾸면 검증을 처음부터 다시 해야 한다는 뜻이다.</li>
+<li>"넷리스트 기준으로 타이밍이 안 맞는다" — 합성 결과에서 시간이 모자란다는 뜻이다. 코드 문제인지 제약 문제인지 가려야 한다.</li>
+<li>"GDS 전에 DRC를 돌린다" — 제조에 넘기기 전에 도형이 공정 규칙을 지키는지 확인한다는 뜻이다.</li>
+<li>"이번 칩은 전력이 우선이다" — PPA 중 전력에 무게를 둔다는 뜻이고, 속도 목표가 조금 낮아질 수 있다.</li>
+</ul>
+<div class="custom-badge-heading"><span class="custom-badge">✏️ 변환</span>변환을 돕는 약속과 점검</div>
 
 <p>세 파일 사이를 오가는 데는 몇 가지 약속과 점검이 곁든다.</p>
 <figure class="dg" data-dg="dsn-terms" data-cap="자주 만나는 설계 용어 지도: RTL, 넷리스트, GDS와 SDC, PDK, STA·DRC"></figure>
 
-<p><button type="button" class="th-term" data-def="Synopsys Design Constraints. 클록 주기와 입출력 시간처럼 지켜야 할 속도 목표를 적은 제약 파일. 합성과 타이밍 점검이 모두 이 파일을 읽는다.">SDC</button>는 속도 목표를 적은 제약 파일이다. 도구는 이 목표에 맞춰 게이트를 고르고 배치한다. <button type="button" class="th-term" data-def="Process Design Kit. 파운드리가 설계자에게 주는 공정 설명서 묶음. 트랜지스터 모델, 설계 규칙, 표준 셀 라이브러리가 들어 있다.">PDK</button>는 파운드리가 주는 공정 설명서 묶음이다. 설계는 이 묶음에 있는 부품과 규칙으로만 만들 수 있다. STA와 DRC는 점검의 이름이다. STA는 모든 경로가 시간 안에 도착하는지를, DRC는 도형이 공정 규칙을 지키는지를 확인한다.</p>
+<p><button type="button" class="th-term" data-def="Synopsys Design Constraints. 클록 주기와 입출력 시간처럼 지켜야 할 속도 목표를 적은 제약 파일. 합성과 타이밍 점검이 모두 이 파일을 읽는다.">SDC</button>는 속도 목표를 적은 제약 파일이다. 도구는 이 목표에 맞춰 게이트를 고르고 배치한다. <button type="button" class="th-term" data-def="Process Design Kit. 파운드리가 설계자에게 주는 공정 설명서 묶음. 트랜지스터 모델, 설계 규칙, 표준 셀 라이브러리가 들어 있다.">PDK</button>는 파운드리가 주는 공정 설명서 묶음이다. 설계는 이 묶음에 있는 부품과 규칙으로만 만들 수 있다.</p>
+<p>STA와 DRC는 점검의 이름이다. STA는 모든 경로가 시간 안에 도착하는지를, DRC는 도형이 공정 규칙을 지키는지를 확인한다. 하나는 시간의 점검이고 하나는 모양의 점검이라고 기억해 두면 헷갈리지 않는다.</p>
 <details class="th-toggle"><summary>표준 셀이란</summary><div class="th-tg-body">합성 도구가 게이트를 고를 때 쓰는 미리 만들어 둔 부품 모음이다. AND, OR, 플립플롭 같은 기본 게이트가 크기와 속도별로 갖춰져 있고, 파운드리나 라이브러리 회사가 PDK의 일부로 준다. 설계자가 게이트를 처음부터 그리지 않고 이 셀을 가져다 쓰기 때문에 '표준'이라고 부른다.</div></details>
 
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 목표</span>PPA라는 세 가지 목표</div>
+<div class="custom-badge-heading"><span class="custom-badge">✏️ 목표</span>PPA, 세 가지 목표</div>
 
 <p>설계는 늘 세 가지를 동시에 저울질한다.</p>
 <figure class="dg" data-dg="dsn-ppa" data-cap="PPA: 속도(Performance), 전력(Power), 면적(Area)의 균형"></figure>
 
 <p><strong>속도</strong>는 칩이 얼마나 빨리 일하는지, <strong>전력</strong>은 얼마나 쓰는지, <strong>면적</strong>은 칩이 얼마나 큰지다. 영어 머리글자를 모아 PPA라고 부른다. 속도를 높이면 전력과 면적이 함께 늘기 쉽고, 전력을 줄이면 속도가 느려지기 쉽다. 면적을 줄이면 같은 웨이퍼에서 칩이 더 많이 나와 원가가 낮아지지만 속도 여유가 줄어든다. 그래서 설계 목표는 "PPA 중 무엇을 우선하는가"로 정해진다. 서버 칩은 속도, 배터리 기기는 전력, 가격이 중요한 칩은 면적에 무게를 둔다.</p>
+<p>예를 들어 스마트워치용 칩은 배터리가 곧 수명이라서 전력을 먼저 줄이고, 속도는 필요한 만큼만 맞춘다. 데이터센터용 칩은 전기 요금을 감수하고서라도 속도를 끌어올린다. 같은 덧셈기라도 어디에 쓰이느냐에 따라 다른 모양으로 설계된다. 이 선택이 곧 아키텍처 단계의 큰 결정이다.</p>
+<details class="th-toggle"><summary>PPA는 어느 단계에서 정해지나</summary><div class="th-tg-body">큰 방향은 스펙과 아키텍처 단계에서 정해지고, 합성과 물리설계에서 도구가 그 목표에 맞추어 세부를 다듬는다. 뒷단에서 목표를 바꾸면 앞 단계로 되돌아가야 하는 일이 많아서, 목표는 가능한 한 앞에서 분명히 정한다.</div></details>
+
 <blockquote>
 <p>⚠️ [주의] PPA의 셋은 서로 독립이 아니다. 어느 한 가지만 좋다고 말하면 나머지가 어떤지 되묻는다. 면접에서 "이 설계가 좋은가"를 물으면 <strong>무엇을 기준으로</strong> 좋은지를 먼저 밝히는 것이 안전하다.</p>
 </blockquote>
-<p>이 네 가지 말(RTL, 넷리스트, GDS, PPA)을 알면 설계 이야기의 절반은 따라갈 수 있다. 다음 글부터는 각 단계를 하나씩 깊이 살펴본다.</p></div></div></div><nav aria-label="같이 보면 좋은 이론" class="mt-2"><p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-3">같이 보면 좋은 이론</p><ul class="grid gap-2 sm:grid-cols-2"><li><a href="../th-728d20cb/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">반도체 설계 직무 한눈에 보기</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li><li><a href="../th-12a1f01a/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">칩 설계 흐름</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li><li><a href="../th-71944c8d/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">논리회로 복습</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li><li><a href="../th-0d974c8b/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">클록과 타이밍 기초</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li></ul></nav></div>
+<div class="custom-badge-heading"><span class="custom-badge">🧠 정리</span>핵심 정리</div>
+
+<ul>
+<li>설계 용어는 칩이 점점 구체화되는 순서의 이름이다. 동작에서 RTL, 넷리스트, GDS로 갈수록 정해진 것이 많아진다.</li>
+<li>RTL은 설계자가 쓴 코드, 넷리스트는 합성 도구가 만든 게이트 연결, GDS는 제조에 넘기는 도형 파일이다.</li>
+<li>SDC는 속도 목표, PDK는 공정 설명서, STA는 시간 점검, DRC는 모양 점검이다.</li>
+<li>PPA(속도·전력·면적)는 서로 맞바꾸는 관계라서, 좋은 설계인지는 무엇을 기준으로 보는지부터 정해야 한다.</li>
+<li>이 네 가지 말(RTL, 넷리스트, GDS, PPA)을 알면 설계 이야기의 절반은 따라갈 수 있다. 다음 글부터는 각 단계를 하나씩 깊이 살펴본다.</li>
+</ul></div></div></div><nav aria-label="같이 보면 좋은 이론" class="mt-2"><p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-3">같이 보면 좋은 이론</p><ul class="grid gap-2 sm:grid-cols-2"><li><a href="../th-728d20cb/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">반도체 설계 직무 한눈에 보기</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li><li><a href="../th-12a1f01a/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">칩 설계 흐름</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li><li><a href="../th-71944c8d/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">논리회로 복습</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li><li><a href="../th-0d974c8b/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">클록과 타이밍 기초</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 설계 직무</span></a></li></ul></nav></div>
     </div>
     <!-- 🚨 오류 제보 모달 -->
     <div id="reportModal" class="hidden fixed inset-0 z-[60] items-center justify-center bg-black/60 p-4" onclick="if(event.target===this) closeReportModal()">
