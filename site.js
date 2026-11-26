@@ -11754,11 +11754,100 @@
       });
     })();
 
+    // ===== 설계 직무 글 공통: 실제 설계 산출물 모양의 작은 그림 부품 =====
+    const dsArt = (() => {
+      const L = dsL;
+      const rc = (x, y, w, h, fill, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx || 0}" style="fill:${fill};fill-opacity:${o.fo == null ? .55 : o.fo};stroke:${o.c || fill};stroke-width:${o.sw == null ? .8 : o.sw};stroke-opacity:${o.so == null ? .9 : o.so}${o.dash ? ';stroke-dasharray:' + o.dash : ''}"/>`;
+      const ln = (d, c, sw = 1.4, so = 1, dash) => pvdL(d, { c, sw, so, dash });
+      const panel = (x, y, w, h, c) => rc(x, y, w, h, '#020617', { fo: .94, c, sw: 1.3, rx: 4 });
+      const lcg = (seed) => { let s = seed; return () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648; };
+      const A = {
+        rc, ln, panel,
+        // 글로 된 요구 문서
+        spec(x, y, w, h, c) {
+          let o = rc(x, y, w, h, '#f8fafc', { fo: .96, c, sw: 1.3, rx: 3 }) + rc(x + 6, y + 6, w * .5, 4, c, { fo: .9, sw: 0 });
+          for (let i = 0; i < 5; i++) o += rc(x + 6, y + 15 + i * 7, w - 12 - (i % 3) * 8, 2.6, '#94a3b8', { fo: .8, sw: 0 });
+          return o + rc(x + 6, y + h - 14, w * .42, 8, c, { fo: .25, c, sw: .7, rx: 1 });
+        },
+        // 블록 구조 스케치
+        blocks(x, y, w, h, c) {
+          const bw = w * .26, bh = h * .3;
+          return panel(x, y, w, h, c) + [0, 1, 2].map((i) => rc(x + 6 + i * (bw + 5), y + 6, bw, bh, c, { fo: .3, c, sw: 1, rx: 2 })).join('') + ln(`M${x + 6 + bw / 2} ${y + 6 + bh} V${y + h * .56} M${x + 6 + bw * 1.5 + 5} ${y + 6 + bh} V${y + h * .56} M${x + 6 + bw * 2.5 + 10} ${y + 6 + bh} V${y + h * .56}`, c, 1.2) + rc(x + 6, y + h * .56, w - 12, 5, c, { fo: .55, c, sw: .8, rx: 1 }) + rc(x + 6, y + h * .74, bw * 1.4, h * .2, c, { fo: .3, c, sw: 1, rx: 2 }) + ln(`M${x + 6 + bw * .7} ${y + h * .61} V${y + h * .74}`, c, 1.2);
+        },
+        // RTL 코드 창
+        code(x, y, w, h, c) {
+          const cols = ['#c084fc', '#93c5fd', '#fcd34d', '#e2e8f0'];
+          let o = panel(x, y, w, h, c), r = lcg(7);
+          const rows = Math.max(3, Math.floor((h - 10) / 8));
+          for (let i = 0; i < rows; i++) {
+            let xx = x + 6 + (i % 3 === 2 ? 8 : 0);
+            for (let k = 0; k < 2 + (i % 2); k++) { const ww = 6 + Math.floor(r() * 14); if (xx + ww > x + w - 6) break; o += rc(xx, y + 6 + i * 8, ww, 3.6, cols[(i + k) % 4], { fo: .85, sw: 0 }); xx += ww + 3; }
+          }
+          return o;
+        },
+        // 클록과 신호 파형
+        wave(x, y, w, h, c, bug) {
+          const W = w - 12, n = Math.max(2, Math.floor(W / 14)), hw = W / n / 2, am = h * .17, y1 = y + h * .3;
+          let o = panel(x, y, w, h, c);
+          o += ln(`M${x + 6} ${y1} ` + Array.from({ length: n }, () => `v${-am} h${hw} v${am} h${hw}`).join(' '), '#93c5fd', 1.2);
+          const q = W / 3, hy = y + h * .62, hh = h * .22;
+          [0, 1, 2].forEach((i) => { const col = bug && i === 2 ? '#f87171' : '#fcd34d', xx = x + 6 + i * q; o += `<path d="M${xx} ${hy + hh / 2} l3 ${-hh / 2} h${q - 8} l3 ${hh / 2} l-3 ${hh / 2} h${-(q - 8)} z" style="fill:${col};fill-opacity:.3;stroke:${col};stroke-width:1.1"/>`; });
+          return o;
+        },
+        // 논리 게이트 기호
+        gate(kind, x, y, w, h, c) {
+          const st = `style="fill:${c};fill-opacity:.18;stroke:${c};stroke-width:1.8"`;
+          const my = y + h / 2;
+          if (kind === 'and') return `<path d="M${x} ${y} H${x + w * .5} A${w * .5} ${h / 2} 0 0 1 ${x + w * .5} ${y + h} H${x} Z" ${st}/>` + ln(`M${x - 8} ${y + h * .28} H${x} M${x - 8} ${y + h * .72} H${x} M${x + w} ${my} H${x + w + 8}`, c, 1.8);
+          if (kind === 'or' || kind === 'xor') return `<path d="M${x} ${y} Q${x + w * .6} ${y} ${x + w} ${my} Q${x + w * .6} ${y + h} ${x} ${y + h} Q${x + w * .3} ${my} ${x} ${y} Z" ${st}/>` + (kind === 'xor' ? ln(`M${x - 5} ${y} Q${x + w * .25} ${my} ${x - 5} ${y + h}`, c, 1.8) : '') + ln(`M${x - 8} ${y + h * .28} H${x + 3} M${x - 8} ${y + h * .72} H${x + 3} M${x + w} ${my} H${x + w + 8}`, c, 1.8);
+          if (kind === 'not') return `<path d="M${x} ${y} L${x + w - 5} ${my} L${x} ${y + h} Z" ${st}/><circle cx="${x + w - 2}" cy="${my}" r="3" style="fill:#0f172a;stroke:${c};stroke-width:1.6"/>` + ln(`M${x - 8} ${my} H${x} M${x + w + 1} ${my} H${x + w + 9}`, c, 1.8);
+          if (kind === 'nand') return A.gate('and', x, y, w - 5, h, c) + `<circle cx="${x + w - 2}" cy="${my}" r="3" style="fill:#0f172a;stroke:${c};stroke-width:1.6"/>`;
+          return '';
+        },
+        // 게이트 몇 개가 이어진 넷리스트 그림
+        netlist(x, y, w, h, c) {
+          const gw = w * .22, gh = h * .3;
+          return panel(x, y, w, h, c) + A.gate('and', x + w * .2, y + h * .12, gw, gh, c) + A.gate('or', x + w * .2, y + h * .58, gw, gh, c) + A.gate('xor', x + w * .62, y + h * .35, gw, gh, c) + ln(`M${x + w * .2 + gw + 8} ${y + h * .27} H${x + w * .5} V${y + h * .45} H${x + w * .62 - 8} M${x + w * .2 + gw + 8} ${y + h * .73} H${x + w * .5} V${y + h * .65} H${x + w * .62 - 8}`, c, 1.2, .9);
+        },
+        // 칩 도면(레이아웃)
+        layout(x, y, w, h, seed = 5) {
+          const r = lcg(seed); let o = panel(x, y, w, h, '#475569');
+          o += rc(x + 4, y + 4, w * .42, h * .32, '#f472b6', { fo: .5, sw: .6 }) + rc(x + w * .52, y + 4, w * .22, h * .32, '#60a5fa', { fo: .5, sw: .6 });
+          const rows = Math.max(2, Math.floor((h * .5) / 6));
+          for (let k = 0; k < rows; k++) { let xx = x + 4; while (xx < x + w - 14) { const ww = 6 + Math.floor(r() * 9); if (xx + ww > x + w - 4) break; o += rc(xx, y + h - 6 - (k + 1) * 6, ww, 4.4, k % 2 ? L.nd : L.pd, { fo: .6, sw: .3 }); xx += ww + 1.4; } }
+          return o + ln(`M${x + w * .45} ${y + h * .42} H${x + w - 6} V${y + h * .62}`, L.m1, 1.3) + ln(`M${x + 8} ${y + h * .42} V${y + h * .55} H${x + w * .4}`, L.m2, 1.3);
+        },
+        wafer(cx, cy, r) {
+          let o = `<circle cx="${cx}" cy="${cy}" r="${r}" style="fill:rgba(148,163,184,.18);stroke:#94a3b8;stroke-width:1.6;stroke-opacity:.9"/>`; const d = r / 5;
+          for (let j = -5; j <= 5; j++) for (let i = -5; i <= 5; i++) { const x = cx + i * d - d / 2, y = cy + j * d * .8 - d * .4; if ([[x, y], [x + d, y], [x, y + d * .8], [x + d, y + d * .8]].every(([a, b]) => Math.hypot(a - cx, b - cy) <= r - 1.5)) o += rc(x + .6, y + .6, d - 1.2, d * .8 - 1.2, '#60a5fa', { fo: .28, sw: .4 }); }
+          return o;
+        },
+        // 패키지된 칩
+        pkg(cx, cy, s, c = '#94a3b8') {
+          let o = rc(cx - s / 2, cy - s / 2, s, s, '#1e293b', { fo: .95, c, sw: 1.6, rx: 3 }) + rc(cx - s * .3, cy - s * .3, s * .6, s * .6, '#020617', { fo: .9, c: '#475569', sw: 1, rx: 1.5 });
+          for (let i = 0; i < 5; i++) { const t = -s / 2 + s * (.15 + i * .175); o += rc(cx + t, cy - s / 2 - 4, 2.6, 4, '#e2e8f0', { fo: .8, sw: 0 }) + rc(cx + t, cy + s / 2, 2.6, 4, '#e2e8f0', { fo: .8, sw: 0 }) + rc(cx - s / 2 - 4, cy + t, 4, 2.6, '#e2e8f0', { fo: .8, sw: 0 }) + rc(cx + s / 2, cy + t, 4, 2.6, '#e2e8f0', { fo: .8, sw: 0 }); }
+          return o;
+        },
+        // 사인오프 점검표
+        checks(x, y, w, h, c) {
+          let o = panel(x, y, w, h, c); const rh = (h - 8) / 3;
+          ['Setup', 'Power', 'DRC'].forEach((t, i) => { const yy = y + 5 + i * rh; o += fdTxM(x + 8, yy + rh * .66, t, { a: 'start', s: Math.min(8.5, rh * .55), w: 700, c: '#e2e8f0' }) + ln(`M${x + w - 20} ${yy + rh * .5} l4 4.5 l8 -9`, '#4ade80', 2.2); });
+          return o;
+        },
+        // 테스트 패턴(입력과 기대 출력의 비트)
+        pattern(x, y, w, h, c) {
+          let o = panel(x, y, w, h, c), r = lcg(3); const n = Math.floor((w - 12) / 8), rows = Math.max(2, Math.floor((h - 8) / 9));
+          for (let j = 0; j < rows; j++) for (let i = 0; i < n; i++) o += rc(x + 6 + i * 8, y + 5 + j * 9, 5.4, 5.4, r() > .5 ? c : '#0f172a', { fo: .85, c, sw: .6 });
+          return o;
+        },
+      };
+      return A;
+    })();
+
     // ===== 설계 직무 > 무료 글 "칩 설계 흐름" 그림 =====
     (() => {
-      const C = dsC, AC = dsAc;
-      const WARN = '#f87171';
-      const doc = (x, y, w, h, col, on) => fdRect(x, y, w, h, { rx: 4, fill: 'rgba(148,163,184,.1)', c: col, so: on ? .95 : .7, sw: on ? 1.8 : 1.3 }) + pvdL(`M${x + w - 12} ${y} V${y + 12} H${x + w}`, { c: col, sw: 1.2, so: .8 }) + [0, 1, 2].map((i) => pvdL(`M${x + 8} ${y + 22 + i * 9} H${x + w - 10 - (i % 2) * 8}`, { c: col, sw: 1.2, so: .55 })).join('');
+      const C = dsC, AC = dsAc, W = '#f87171', A = dsArt;
+      const bug = (x, y) => `<g transform="translate(${x},${y})"><ellipse cx="0" cy="0" rx="9" ry="7" style="fill:${W};fill-opacity:.9"/><path d="M-7 -3 l-6 -4 M7 -3 l6 -4 M-8 2 l-7 2 M8 2 l7 2 M-5 6 l-4 5 M5 6 l4 5" style="stroke:${W};stroke-width:1.6;stroke-linecap:round"/><circle cx="-3" cy="-1" r="1.3" style="fill:#fff"/><circle cx="3" cy="-1" r="1.3" style="fill:#fff"/></g>`;
       Object.assign(DIAGRAMS, {
         // ---------- 아홉 걸음의 흐름 ----------
         'dsn-flow': {
@@ -11782,13 +11871,24 @@
               ['s7', '사인오프', '최종 점검', C.pd], ['s8', '테이프아웃', 'GDS 파일', AC], ['s9', '제조 · 테스트', '실제 칩', C.dft],
             ];
             ST.forEach(([id, nm, out, col], i) => {
-              const r = Math.floor(i / 3), c = i % 3, x = 14 + c * 142, y = 14 + r * 108;
-              o += pvdG(f, [id], fdRect(x, y, 124, 64, { rx: 10, fill: 'rgba(148,163,184,.08)', c: col, so: .95, sw: 1.7 }) + `<circle cx="${x + 16}" cy="${y + 18}" r="9" style="fill:${col};fill-opacity:.9"/>` + fdTxM(x + 16, y + 21.5, String(i + 1), { s: 9.5, w: 800, c: '#0f172a' }) + fdTxM(x + 30, y + 22, nm, { a: 'start', s: 10.5, w: 800 }) + fdTxM(x + 62, y + 48, '→ ' + out, { s: 9, c: col, w: 700 }));
-              if (c < 2) o += pvdG(f, [id], pvdL(`M${x + 126} ${y + 32} H${x + 138}`, { c: col, sw: 1.8, so: .85 }) + fdArr(x + 140, y + 32, 'r', col));
-              else if (r < 2) o += pvdG(f, [id], pvdL(`M${x + 62} ${y + 66} V${y + 86} H76 V${y + 106}`, { c: col, sw: 1.8, so: .85, dash: '4 3' }) + fdArr(76, y + 108, 'd', col));
+              const r = Math.floor(i / 3), c = i % 3, x = 10 + c * 144, y = 6 + r * 108;
+              const th = [
+                () => A.spec(x + 40, y + 28, 56, 50, col),
+                () => A.blocks(x + 14, y + 30, 108, 46, col),
+                () => A.code(x + 14, y + 30, 108, 46, col),
+                () => A.wave(x + 14, y + 30, 108, 46, col, true),
+                () => A.netlist(x + 14, y + 30, 108, 46, col),
+                () => A.layout(x + 14, y + 30, 108, 46, 5),
+                () => A.checks(x + 14, y + 30, 108, 46, col),
+                () => A.layout(x + 14, y + 30, 108, 46, 9),
+                () => A.wafer(x + 40, y + 53, 20) + A.pkg(x + 96, y + 53, 28, col),
+              ][i]();
+              o += pvdG(f, [id], fdRect(x, y, 136, 96, { rx: 10, fill: 'rgba(148,163,184,.07)', c: col, so: .95, sw: 1.7 }) + `<circle cx="${x + 14}" cy="${y + 15}" r="8" style="fill:${col};fill-opacity:.9"/>` + fdTxM(x + 14, y + 18.5, String(i + 1), { s: 9.5, w: 800, c: '#0f172a' }) + fdTxM(x + 28, y + 19, nm, { a: 'start', s: 11, w: 800 }) + th + fdTxM(x + 68, y + 90, out, { s: 9, w: 700, c: col }));
+              if (c < 2) o += pvdG(f, [id], fdArr(x + 140, y + 48, 'r', col));
+              else if (r < 2) o += pvdG(f, [id], pvdL(`M${x + 68} ${y + 96} V${y + 102} H78 V${y + 106}`, { c: col, sw: 1.6, so: .85, dash: '4 3' }) + fdArr(78, y + 107, 'd', col));
             });
-            o += fdTxM(220, 314, '앞 걸음의 결과물이 다음 걸음의 입력이 된다', { s: 9, op: .85 });
-            return dgSvg('칩 설계 흐름: ' + s.label, o, '0 0 440 324');
+            o += fdTxM(220, 336, '앞 걸음의 결과물이 다음 걸음의 입력이 된다', { s: 9.5, op: .85 });
+            return dgSvg('칩 설계 흐름: ' + s.label, o, '0 0 440 346');
           }
         },
 
@@ -11806,21 +11906,23 @@
           svg(s) {
             const f = s.focus || null;
             let o = fdDefs();
-            const B = [['v', '검증 단계', '×1', 26, C.dv], ['s', '합성 이후', '×10', 62, C.rtl], ['p', '물리설계 이후', '×100', 106, C.pd], ['c', '칩이 나온 뒤', '×1000', 156, C.dft]];
-            o += pvdL('M30 228 H420', { c: 'currentColor', sw: 1.4, so: .5 });
+            const B = [['v', '검증 단계', '×1', 22, C.dv], ['s', '합성 이후', '×10', 52, C.rtl], ['p', '물리설계 이후', '×100', 88, C.pd], ['c', '칩이 나온 뒤', '×1000', 128, C.dft]];
+            const BASE = 178;
+            o += pvdL(`M12 ${BASE} H428`, { c: 'currentColor', sw: 1.4, so: .5 });
             B.forEach(([id, nm, mul, h, col], i) => {
-              const x = 44 + i * 98;
-              o += pvdG(f, [id], fdRect(x, 228 - h, 66, h, { rx: 6, fill: col, c: col, so: .95, sw: 1.2 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.35') + fdTxM(x + 33, 228 - h - 8, mul, { s: 13, w: 800, c: col }) + fdTxM(x + 33, 244, nm, { s: 9.2, w: 800 }));
+              const x = 14 + i * 104, cx = x + 46;
+              const th = [() => A.wave(x, BASE + 10, 92, 40, col, true), () => A.netlist(x, BASE + 10, 92, 40, col), () => A.layout(x, BASE + 10, 92, 40, 5), () => A.pkg(cx, BASE + 30, 26, col)][i]();
+              o += pvdG(f, [id], fdRect(cx - 28, BASE - h, 56, h, { rx: 6, fill: col, c: col, so: .95, sw: 1.2 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.35') + fdTxM(cx, BASE - h - 8, mul, { s: 14, w: 800, c: col }) + th + fdTxM(cx, BASE + 64, nm, { s: 9.5, w: 800 }));
             });
             if (f) {
-              const i = B.findIndex((b) => b[0] === f[0]), x = 44 + i * 98 + 33, col = B[i][4], h = B[i][3];
-              o += `<g transform="translate(${x},${228 - h - 34})"><ellipse cx="0" cy="0" rx="9" ry="7" style="fill:${WARN};fill-opacity:.9"/><path d="M-7 -3 l-6 -4 M7 -3 l6 -4 M-8 2 l-7 2 M8 2 l7 2 M-5 6 l-4 5 M5 6 l4 5" style="stroke:${WARN};stroke-width:1.6;stroke-linecap:round"/><circle cx="-3" cy="-1" r="1.3" style="fill:#fff"/><circle cx="3" cy="-1" r="1.3" style="fill:#fff"/></g>`;
-              if (i > 0) o += pvdL(`M${x - 8} ${228 - h - 44} Q${(x + 77) / 2} ${150 - i * 12} 77 ${228 - 26 - 8}`, { c: WARN, sw: 1.7, so: .85, dash: '4 3' }) + fdTxM(x - 40, 24, '되돌아가서 다시', { s: 9, w: 800, c: WARN });
+              const i = B.findIndex((b) => b[0] === f[0]), cx = 14 + i * 104 + 46, h = B[i][3];
+              o += bug(cx, BASE - h - 40);
+              if (i > 0) o += pvdL(`M${cx - 12} ${BASE - h - 46} Q${(cx + 60) / 2} ${40 - i * 4} 60 ${BASE - 34}`, { c: W, sw: 1.7, so: .85, dash: '4 3' }) + fdTxM((cx + 60) / 2, 22 + (3 - i) * 4, '되돌아가서 다시', { s: 9.5, w: 800, c: W });
             } else {
-              o += fdTxM(220, 22, '막대가 높을수록 다시 해야 할 일이 많다', { s: 9.5, w: 700, op: .9 });
+              o += fdTxM(220, 22, '막대가 높을수록 다시 해야 할 일이 많다', { s: 10, w: 700, op: .9 });
             }
-            o += fdTxM(220, 266, '※ 배수는 감각을 위한 예시입니다', { s: 8.5, op: .75 });
-            return dgSvg('버그 발견 시점: ' + s.label, o, '0 0 440 276');
+            o += fdTxM(220, 262, '※ 배수는 감각을 위한 예시입니다', { s: 8.8, op: .75 });
+            return dgSvg('버그 발견 시점: ' + s.label, o, '0 0 440 272');
           }
         },
 
@@ -11841,12 +11943,13 @@
             let o = fdDefs();
             const F = [['f1', '스펙 문서', '아키텍트', C.arch, '글 · 표'], ['f2', 'RTL 코드', '디지털 설계', C.rtl, '.v / .sv'], ['f3', '넷리스트', '합성 도구', C.rtl, '게이트 연결'], ['f4', 'GDS', '물리설계', C.pd, '층별 도형'], ['f5', '테스트 패턴', 'DFT', C.dft, '입력 · 기대값']];
             F.forEach(([id, nm, who, col, sub], i) => {
-              const x = 10 + i * 86;
-              o += pvdG(f, [id], fdTxM(x + 38, 24, who, { s: 8.8, w: 800, c: col }) + doc(x, 36, 76, 84, col, !!f) + fdTxM(x + 38, 70, nm === 'GDS' ? 'GDS' : '', { s: 12, w: 800, c: col }) + fdTxM(x + 38, 142, nm, { s: 9.5, w: 800 }) + fdTxM(x + 38, 156, sub, { s: 8.2, op: .85 }));
-              if (i < 4) o += pvdG(f, [id], fdArr(x + 84, 78, 'r', col));
+              const x = 6 + i * 86;
+              const th = [() => A.spec(x + 10, 30, 56, 66, col), () => A.code(x, 30, 76, 66, col), () => A.netlist(x, 30, 76, 66, col), () => A.layout(x, 30, 76, 66, 5), () => A.pattern(x, 30, 76, 66, col)][i]();
+              o += pvdG(f, [id], fdTxM(x + 38, 20, who, { s: 9.5, w: 800, c: col }) + th + fdTxM(x + 38, 116, nm, { s: 10.5, w: 800 }) + fdTxM(x + 38, 131, sub, { s: 8.8, op: .85 }));
+              if (i < 4) o += pvdG(f, [id], fdArr(x + 78, 63, 'r', col));
             });
-            o += fdTxM(220, 190, '왼쪽에서 오른쪽으로, 앞 단계의 결과가 다음 단계의 재료', { s: 9, op: .85 });
-            return dgSvg('단계별 파일: ' + s.label, o, '0 0 440 206');
+            o += fdTxM(220, 160, '왼쪽에서 오른쪽으로, 앞 단계의 결과가 다음 단계의 재료', { s: 9.5, op: .85 });
+            return dgSvg('단계별 파일: ' + s.label, o, '0 0 440 172');
           }
         },
       });
@@ -11854,8 +11957,7 @@
 
     // ===== 설계 직무 > 무료 글 "설계 용어" 그림 =====
     (() => {
-      const C = dsC, AC = dsAc;
-      const box = (x, y, w, h, col, on) => fdRect(x, y, w, h, { rx: 6, fill: 'rgba(148,163,184,.09)', c: col, so: on ? .95 : .85, sw: 1.6 });
+      const C = dsC, AC = dsAc, A = dsArt;
       Object.assign(DIAGRAMS, {
         // ---------- 같은 덧셈기, 네 가지 모습 ----------
         'dsn-abs': {
@@ -11871,25 +11973,21 @@
           svg(s) {
             const f = s.focus || null;
             let o = fdDefs();
-            const rows = [['beh', '동작', '무엇을 하나', C.arch, 14], ['rtl', 'RTL', '클록마다 어떻게', C.rtl, 82], ['net', '넷리스트', '어떤 게이트로', C.pd, 150], ['gds', 'GDS', '어디에 어떤 모양', C.dft, 218]];
-            rows.forEach(([id, nm, q, col, y]) => {
-              o += pvdG(f, [id], box(14, y, 412, 60, col) + fdTxM(24, y + 24, nm, { a: 'start', s: 12, w: 800, c: col }) + fdTxM(24, y + 42, q, { a: 'start', s: 8.8, op: .9 }));
+            const rows = [['beh', '동작', '무엇을 하나', C.arch], ['rtl', 'RTL', '클록마다 어떻게', C.rtl], ['net', '넷리스트', '어떤 게이트로', C.pd], ['gds', 'GDS', '어디에 어떤 모양', C.dft]];
+            rows.forEach(([id, nm, q, col], i) => {
+              const y = 8 + i * 70, X = 132, W = 294;
+              let art = '';
+              if (id === 'beh') art = A.panel(X, y, W, 62, col) + fdTxM(X + 54, y + 26, 'a', { s: 14, w: 800, c: '#e2e8f0' }) + fdTxM(X + 54, y + 50, 'b', { s: 14, w: 800, c: '#e2e8f0' }) + A.ln(`M${X + 66} ${y + 23} H${X + 118} V${y + 29} M${X + 66} ${y + 47} H${X + 118} V${y + 41}`, col, 1.6) + `<circle cx="${X + 118}" cy="${y + 35}" r="13" style="fill:${col};fill-opacity:.2;stroke:${col};stroke-width:1.8"/>` + fdTxM(X + 118, y + 41, '+', { s: 17, w: 800, c: col }) + A.ln(`M${X + 131} ${y + 35} H${X + 190}`, col, 1.6) + fdArr(X + 190, y + 35, 'r', col) + fdTxM(X + 222, y + 41, 'sum', { s: 14, w: 800, c: '#e2e8f0' });
+              else if (id === 'rtl') art = A.code(X, y, 150, 62, col) + A.ln(`M${X + 156} ${y + 31} H${X + 172}`, col, 1.6) + fdRect(X + 174, y + 12, 38, 38, { rx: 3, fill: 'rgba(96,165,250,.18)', c: col, so: .95, sw: 1.6 }) + fdTxM(X + 184, y + 28, 'D', { s: 9, w: 800, c: col }) + fdTxM(X + 202, y + 28, 'Q', { s: 9, w: 800, c: col }) + A.ln(`M${X + 174} ${y + 40} l6 -4 l-6 -4`, col, 1.3) + A.ln(`M${X + 212} ${y + 31} H${X + 232}`, col, 1.6) + fdTxM(X + 262, y + 35, 'clk', { s: 9, w: 700, c: '#93c5fd' });
+              else if (id === 'net') art = A.panel(X, y, W, 62, col) + A.gate('xor', X + 60, y + 6, 36, 24, col) + A.gate('and', X + 60, y + 36, 36, 24, col) + A.gate('or', X + 150, y + 36, 36, 24, col) + A.ln(`M${X + 104} ${y + 18} H${X + 180}`, col, 1.5) + A.ln(`M${X + 104} ${y + 48} H${X + 138} V${y + 42} H${X + 142}`, col, 1.5) + fdTxM(X + 222, y + 22, 'sum', { s: 10, w: 800, c: col }) + fdTxM(X + 226, y + 52, 'carry', { s: 10, w: 800, c: col }) + A.ln(`M${X + 194} ${y + 48} H${X + 206}`, col, 1.5);
+              else art = A.layout(X, y, W, 62, 5);
+              o += pvdG(f, [id], fdRect(8, y, 120, 62, { rx: 8, fill: 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 }) + fdTxM(18, y + 28, nm, { a: 'start', s: 13, w: 800, c: col }) + fdTxM(18, y + 46, q, { a: 'start', s: 9.2, op: .9 }) + art);
             });
-            // 동작
-            o += pvdG(f, ['beh'], fdTxM(270, 50, 'sum = a + b', { s: 15, w: 800 }));
-            // RTL
-            o += pvdG(f, ['rtl'], fdRect(150, 98, 52, 28, { rx: 4, fill: 'rgba(96,165,250,.16)', c: C.rtl, so: .9, sw: 1.4 }) + fdTxM(176, 116, 'a + b', { s: 10, w: 800 }) + fdArr(206, 112, 'r', C.rtl) + fdRect(214, 98, 52, 28, { rx: 4, fill: 'rgba(96,165,250,.28)', c: C.rtl, so: .9, sw: 1.4 }) + fdTxM(240, 116, '저장(q)', { s: 9, w: 800 }) + fdArr(270, 112, 'r', C.rtl) + fdTxM(318, 116, '클록마다 갱신', { s: 8.5, op: .9 }));
-            // 넷리스트
-            const g = (x, y, t) => fdRect(x, y, 40, 22, { rx: 11, fill: 'rgba(251,191,36,.18)', c: C.pd, so: .9, sw: 1.4 }) + fdTxM(x + 20, y + 15, t, { s: 8.8, w: 800 });
-            o += pvdG(f, ['net'], g(146, 160, 'XOR') + g(146, 190, 'AND') + g(230, 190, 'OR') + pvdL('M186 171 H214 M186 201 H230 M270 201 H290', { c: C.pd, sw: 1.4, so: .85 }) + fdTxM(224, 168, 'sum', { s: 8.5, c: C.pd, w: 800 }) + fdTxM(318, 205, 'carry', { s: 8.5, c: C.pd, w: 800 }));
-            // GDS
-            const rr = (x, y, w, h, col) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" style="fill:${col};fill-opacity:.55;stroke:${col};stroke-opacity:.9;stroke-width:1"/>`;
-            o += pvdG(f, ['gds'], rr(150, 232, 70, 12, '#f87171') + rr(150, 254, 70, 12, '#f87171') + rr(162, 228, 8, 42, '#60a5fa') + rr(186, 228, 8, 42, '#60a5fa') + rr(206, 228, 8, 42, '#60a5fa') + rr(240, 232, 62, 6, '#34d399') + rr(240, 246, 62, 6, '#34d399') + rr(240, 260, 62, 6, '#34d399') + rr(316, 228, 8, 40, '#fbbf24') + fdTxM(366, 252, '층별 도형', { s: 8.8, op: .9 }));
             return dgSvg('수준별 표현: ' + s.label, o, '0 0 440 290');
           }
         },
 
-        // ---------- PPA 삼각형 ----------
+        // ---------- PPA ----------
         'dsn-ppa': {
           title: 'PPA: 속도 · 전력 · 면적은 함께 오르내린다',
           wide: true,
@@ -11902,18 +12000,19 @@
           svg(s) {
             const f = s.focus ? s.focus[0] : 'mid';
             let o = fdDefs();
-            const V = { perf: [130, 34], pwr: [36, 196], area: [224, 196] }, ctr = [130, 142];
-            const P = { mid: ctr, perf: [130, 80], pwr: [70, 172], area: [190, 172] }[f];
-            o += pvdL(`M${V.perf[0]} ${V.perf[1]} L${V.pwr[0]} ${V.pwr[1]} L${V.area[0]} ${V.area[1]} Z`, { c: AC, sw: 1.8, so: .85 });
-            o += fdTxM(130, 22, '속도 (빠르게)', { s: 10, w: 800, c: C.rtl }) + fdTxM(40, 216, '전력 (적게)', { s: 10, w: 800, c: C.dv }) + fdTxM(224, 216, '면적 (작게)', { s: 10, w: 800, c: C.pd });
-            o += `<circle cx="${P[0]}" cy="${P[1]}" r="9" style="fill:${AC};fill-opacity:.9"/><circle cx="${P[0]}" cy="${P[1]}" r="15" style="fill:none;stroke:${AC};stroke-opacity:.45;stroke-width:1.4"/>` + fdTxM(130, 240, f === 'mid' ? '설계점 = 가운데' : '설계점이 한 꼭짓점으로 쏠림', { s: 9, op: .85 });
             const R = { mid: [60, 50, 50], perf: [92, 88, 74], pwr: [36, 24, 54], area: [52, 46, 22] }[f];
-            const bars = [['속도', R[0], C.rtl, '빠를수록 길게'], ['전력', R[1], C.dv, '쓸수록 길게'], ['면적', R[2], C.pd, '클수록 길게']];
-            bars.forEach(([nm, v, col, note], i) => {
-              const y = 60 + i * 52;
-              o += fdTxM(274, y - 8, nm, { a: 'start', s: 10, w: 800, c: col }) + fdTxM(424, y - 8, note, { a: 'end', s: 8, op: .8 }) + fdRect(274, y, 150, 14, { rx: 7, fill: 'rgba(148,163,184,.1)', c: col, so: .5, sw: 1 }) + fdRect(274, y, Math.max(8, v * 1.5), 14, { rx: 7, fill: col, c: col, so: .9, sw: 1 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.55');
+            const cols = [C.rtl, C.dv, C.pd], NM = ['속도', '전력', '면적'], NT = ['빠를수록 길게', '쓸수록 길게', '클수록 길게'];
+            NM.forEach((nm, i) => {
+              const x = 8 + i * 144, col = cols[i], v = R[i], PW = 132;
+              let art = A.panel(x + 8, 34, 116, 84, col);
+              if (i === 0) { const n = Math.round(2 + v / 14), hw = 100 / n / 2; art += A.ln(`M${x + 16} 90 ` + Array.from({ length: n }, () => `v-34 h${hw} v34 h${hw}`).join(' '), col, 1.6) + fdTxM(x + 66, 47, 'clk', { s: 9, w: 700, c: '#e2e8f0', op: .8 }); }
+              else if (i === 1) { const n = 6, amp = 6 + v * .4; art += A.ln(`M${x + 16} 108 ` + Array.from({ length: n }, () => `l4 ${-amp} l5 ${amp} h6`).join(' '), col, 1.6) + fdTxM(x + 66, 47, 'I (supply)', { s: 9, w: 700, c: '#e2e8f0', op: .8 }); }
+              else { const side = 20 + v * .72; art += rc2(x + 66 - 40, 76 - 40, 80, 80, '#475569', true) + `<rect x="${x + 66 - side / 2}" y="${76 - side / 2}" width="${side}" height="${side}" rx="2" style="fill:${col};fill-opacity:.35;stroke:${col};stroke-width:1.8"/>` + fdTxM(x + 66, 112, 'die', { s: 9, w: 700, c: '#e2e8f0', op: .8 }); }
+              o += pvdG(s.focus || null, i === 0 ? ['perf'] : i === 1 ? ['pwr'] : ['area'], fdTxM(x + 66, 22, nm, { s: 13, w: 800, c: col }) + art + fdRect(x + 8, 134, 116, 12, { rx: 6, fill: 'rgba(148,163,184,.1)', c: col, so: .5, sw: 1 }) + fdRect(x + 8, 134, Math.max(8, v * 1.16), 12, { rx: 6, fill: col, c: col, so: .9, sw: 1 }).replace(/fill-opacity:[^;"]*/, 'fill-opacity:.55') + fdTxM(x + 66, 164, NT[i], { s: 9, op: .85 }));
             });
-            return dgSvg('PPA 균형: ' + s.label, o, '0 0 440 256');
+            o += fdTxM(220, 196, f === 'mid' ? '세 가지를 같이 보며 균형을 잡는다' : '한쪽으로 쏠리면 다른 쪽이 함께 변한다', { s: 10, w: 700, op: .9 });
+            return dgSvg('PPA 균형: ' + s.label, o, '0 0 440 208');
+            function rc2(x, y, w, h, c, dash) { return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" style="fill:none;stroke:${c};stroke-width:1.2;stroke-dasharray:${dash ? '4 3' : 'none'}"/>`; }
           }
         },
 
@@ -11933,18 +12032,370 @@
           svg(s) {
             const f = s.focus || null;
             let o = fdDefs();
-            const M = [['rtl', 'RTL', '동작을 코드로 적은 것', C.rtl, 14], ['net', 'Netlist', '게이트 연결 목록', C.pd, 158], ['gds', 'GDS', '칩 레이아웃 파일', C.dft, 302]];
-            M.forEach(([id, nm, sub, col, x], i) => {
-              o += pvdG(f, [id], fdRect(x, 16, 124, 70, { rx: 12, fill: 'rgba(148,163,184,.09)', c: col, so: .95, sw: 1.9 }) + fdTxM(x + 62, 46, nm, { s: 15, w: 800, c: col }) + fdTxM(x + 62, 68, sub, { s: 9, op: .9 }));
+            const card = (id, x, y, col, nm, sub, art) => pvdG(f, [id], fdRect(x, y, 128, 104, { rx: 10, fill: 'rgba(148,163,184,.07)', c: col, so: .95, sw: 1.8 }) + art + fdTxM(x + 64, y + 76, nm, { s: 13, w: 800, c: col }) + fdTxM(x + 64, y + 93, sub, { s: 9, op: .9 }));
+            const xs = [8, 156, 304];
+            o += card('rtl', xs[0], 8, C.rtl, 'RTL', '동작을 코드로 적은 것', A.code(xs[0] + 10, 18, 108, 48, C.rtl));
+            o += card('net', xs[1], 8, C.pd, 'Netlist', '게이트 연결 목록', A.netlist(xs[1] + 10, 18, 108, 48, C.pd));
+            o += card('gds', xs[2], 8, C.dft, 'GDS', '칩 레이아웃 파일', A.layout(xs[2] + 10, 18, 108, 48, 5));
+            o += pvdG(f, ['net'], fdArr(139, 58, 'r', C.rtl) + fdTxM(147, 124, '합성', { s: 9, w: 800, c: C.rtl }));
+            o += pvdG(f, ['gds'], fdArr(287, 58, 'r', C.pd) + fdTxM(295, 124, '배치·배선', { s: 9, w: 800, c: C.pd }));
+            const bot = [['sdc', 'SDC', '속도 목표 파일', C.rtl, A.wave(xs[0] + 10, 148, 108, 48, C.rtl)], ['pdk', 'PDK', '공정 설명서 묶음', C.dv, A.panel(xs[1] + 10, 148, 108, 48, C.dv) + A.gate('not', xs[1] + 28, 160, 22, 22, C.dv) + A.gate('nand', xs[1] + 74, 160, 26, 22, C.dv)], ['sta', 'STA · DRC', '타이밍 · 규칙 점검', C.dft, A.checks(xs[2] + 10, 148, 108, 48, C.dft)]];
+            bot.forEach(([id, nm, sub, col, art], i) => {
+              o += pvdG(f, [id], pvdL(`M${xs[i] + 64} 112 V138`, { c: col, sw: 1.5, so: .8, dash: '3 3' })) + card(id, xs[i], 138, col, nm, sub, art);
             });
-            o += pvdG(f, ['net'], pvdL('M140 52 H152', { c: C.rtl, sw: 1.8, so: .85 }) + fdArr(154, 52, 'r', C.rtl) + fdTxM(147, 100, '합성', { s: 8.8, w: 800, c: C.rtl }));
-            o += pvdG(f, ['gds'], pvdL('M284 52 H296', { c: C.pd, sw: 1.8, so: .85 }) + fdArr(298, 52, 'r', C.pd) + fdTxM(291, 100, '배치·배선', { s: 8.8, w: 800, c: C.pd }));
-            const H = [['sdc', 'SDC', '속도 목표 파일', 14, 120, C.rtl, 'M76 120 V86'], ['pdk', 'PDK', '공정 설명서 묶음', 158, 120, C.dv, 'M220 120 V86'], ['sta', 'STA · DRC', '타이밍 · 규칙 점검', 302, 120, C.dft, 'M364 120 V86']];
-            H.forEach(([id, nm, sub, x, y, col, ln]) => {
-              o += pvdG(f, [id], pvdL(ln, { c: col, sw: 1.5, so: .8, dash: '3 3' }) + fdRect(x, y + 14, 124, 56, { rx: 10, fill: 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 }) + fdTxM(x + 62, y + 38, nm, { s: 12, w: 800, c: col }) + fdTxM(x + 62, y + 56, sub, { s: 8.8, op: .9 }));
+            o += fdTxM(220, 262, '위: 설계가 바뀌는 모습 · 아래: 변환을 돕는 약속과 점검', { s: 9.5, op: .85 });
+            return dgSvg('설계 용어 지도: ' + s.label, o, '0 0 440 274');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 무료 글 "논리회로 복습" 그림 =====
+    (() => {
+      const C = dsC, AC = dsAc, A = dsArt;
+      const CLK = '#93c5fd', DAT = '#fcd34d', QQ = '#34d399', RED = '#f87171';
+      // 코드 한 줄: [[글자, 색], ...]
+      const mono = (x, y, toks, s = 11) => `<text class="dg-t" x="${x}" y="${y}" xml:space="preserve" style="font-size:${s}px;font-weight:700;font-family:monospace;white-space:pre">${toks.map(([t, c]) => `<tspan style="fill:${c}">${escH(t)}</tspan>`).join('')}</text>`;
+      const KW = '#c084fc', ID = '#e2e8f0', OP = '#fcd34d', NM = '#93c5fd';
+      // 시간 축 파형: ev = 신호가 뒤집히는 시각 목록
+      const tw = (x, y, h, ts, tmax, ev, init, col, sw = 1.8) => {
+        let lv = init, t = 0, d = `M${x} ${lv ? y : y + h}`;
+        ev.concat([tmax]).forEach((e) => { d += ` H${x + e * ts}`; if (e < tmax) { lv = 1 - lv; d += ` V${lv ? y : y + h}`; } t = e; });
+        return pvdL(d, { c: col, sw, so: 1 });
+      };
+      const bitw = (x, y, w, h, bits, col) => { const st = w / bits.length; let d = `M${x} ${bits[0] ? y : y + h}`; bits.forEach((b, i) => { const yy = b ? y : y + h; if (i) d += ` V${yy}`; d += ` H${x + (i + 1) * st}`; }); return pvdL(d, { c: col, sw: 1.8, so: 1 }); };
+      const lab = (x, y, t, col) => fdTxM(x, y, t, { a: 'start', s: 10, w: 800, c: col });
+      Object.assign(DIAGRAMS, {
+        // ---------- 기본 게이트와 파형 ----------
+        'dsn-gates': {
+          title: '기본 게이트: 기호, 파형, 코드 한 줄',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '게이트는 0과 1을 받아 정해진 규칙으로 0이나 1을 내보내는 부품이다. 기본은 NOT, AND, OR, XOR 네 가지이고 각각 기호와 파형, 그리고 RTL 한 줄로 표현된다. 게이트를 눌러 입력이 바뀔 때 출력이 어떻게 움직이는지 본다.' },
+            { id: 'not', label: 'NOT', focus: ['not'], desc: 'NOT은 입력을 뒤집는다. 0이면 1, 1이면 0이다. 입력이 하나뿐이고 인버터라고도 부른다. RTL에서는 ~a로 쓴다.' },
+            { id: 'and', label: 'AND', focus: ['and'], desc: 'AND는 두 입력이 모두 1일 때만 1을 낸다. 하나라도 0이면 0이다. 파형에서 y가 올라가는 구간은 a와 b가 함께 1인 구간뿐이다.' },
+            { id: 'or', label: 'OR', focus: ['or'], desc: 'OR는 입력 중 하나라도 1이면 1을 낸다. 둘 다 0일 때만 0이다. 파형에서 y는 a나 b 중 어느 하나가 올라가 있으면 올라가 있다.' },
+            { id: 'xor', label: 'XOR', focus: ['xor'], desc: 'XOR는 두 입력이 서로 다를 때 1을 낸다. 같으면 0이다. 덧셈기에서 합 비트를 만드는 핵심 게이트다.' },
+            { id: 'nand', label: 'NAND', focus: ['nand'], desc: 'NAND는 AND의 결과를 뒤집은 게이트다. NAND만 있으면 NOT도 AND도 OR도 만들 수 있어서 만능 게이트라고 부른다. 실제 칩에서도 NAND와 NOR 같은 뒤집힌 게이트가 가장 작고 빠르다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const CODE = { not: [['assign ', KW], ['y = ', ID], ['~', OP], ['a;', NM]], and: [['assign ', KW], ['y = a ', ID], ['&', OP], [' b;', NM]], or: [['assign ', KW], ['y = a ', ID], ['|', OP], [' b;', NM]], xor: [['assign ', KW], ['y = a ', ID], ['^', OP], [' b;', NM]], nand: [['assign ', KW], ['y = ', ID], ['~(a & b)', OP], [';', NM]] };
+            const FN = { not: (a) => 1 - a, and: (a, b) => a & b, or: (a, b) => a | b, xor: (a, b) => a ^ b, nand: (a, b) => 1 - (a & b) };
+            if (!f) {
+              ['not', 'and', 'or', 'xor'].forEach((k, i) => {
+                const x = 8 + (i % 2) * 216, y = 8 + Math.floor(i / 2) * 112, col = [C.arch, C.rtl, C.dv, C.pd][i];
+                o += fdRect(x, y, 208, 104, { rx: 10, fill: 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 }) + fdTxM(x + 104, y + 20, k.toUpperCase(), { s: 13, w: 800, c: col }) + A.gate(k, x + 60, y + 32, 52, 36, col) + A.panel(x + 12, y + 78, 184, 20, col) + mono(x + 20, y + 92, CODE[k], 10.5);
+                o += lab(x + 14, y + 52, 'a', col) + (k === 'not' ? '' : lab(x + 14, y + 66, 'b', col)) + fdTxM(x + 134, y + 54, 'y', { a: 'start', s: 11, w: 800, c: col });
+              });
+              return dgSvg('기본 게이트: ' + s.label, o, '0 0 440 232');
+            }
+            const col = { not: C.arch, and: C.rtl, or: C.dv, xor: C.pd, nand: C.dft }[f];
+            o += fdRect(8, 8, 118, 124, { rx: 10, fill: 'rgba(148,163,184,.07)', c: col, so: .95, sw: 1.8 }) + fdTxM(67, 28, f.toUpperCase(), { s: 14, w: 800, c: col });
+            o += A.gate(f, 34, 46, 56, 44, col) + lab(14, 62, 'a', col) + (f === 'not' ? '' : lab(14, 80, 'b', col)) + fdTxM(106, 72, 'y', { s: 11, w: 800, c: col });
+            if (f === 'nand') {
+              o += A.panel(136, 8, 296, 124, col) + fdTxM(284, 28, 'NOT = NAND', { s: 10.5, w: 800, c: '#e2e8f0' }) + A.gate('nand', 170, 40, 40, 30, col) + A.ln('M170 48 H162 V62 H170 M162 55 H150', col, 1.6) + lab(138, 58, 'a', col) + fdTxM(238, 58, 'y', { a: 'start', s: 11, w: 800, c: col }) + fdTxM(284, 88, 'AND = NAND + NAND', { s: 10.5, w: 800, c: '#e2e8f0' }) + A.gate('nand', 160, 96, 34, 26, col) + A.gate('nand', 224, 96, 34, 26, col) + A.ln('M202 109 H216 M224 109 V109', col, 1.6);
+            } else {
+              const a = [0, 0, 1, 1, 0, 0, 1, 1], b = [0, 1, 0, 1, 0, 1, 0, 1], y = a.map((v, i) => FN[f](v, b[i]));
+              const px = 150, pw = 270;
+              o += A.panel(136, 8, 296, 124, col);
+              o += lab(142, 32, 'a', CLK) + bitw(px, 22, pw, 14, a, CLK);
+              if (f !== 'not') o += lab(142, 68, 'b', DAT) + bitw(px, 58, pw, 14, b, DAT);
+              o += lab(142, 112, 'y', QQ) + bitw(px, 98, pw, 14, f === 'not' ? a.map((v) => 1 - v) : y, QQ);
+              for (let i = 1; i < 8; i++) o += pvdL(`M${px + i * pw / 8} 14 V126`, { c: '#475569', sw: .6, so: .7, dash: '2 3' });
+            }
+            o += A.panel(8, 142, 424, 30, col) + mono(24, 162, CODE[f], 13);
+            return dgSvg('기본 게이트: ' + s.label, o, '0 0 440 182');
+          }
+        },
+
+        // ---------- D 플립플롭 ----------
+        'dsn-dff': {
+          title: '플립플롭은 클록 엣지에서만 값을 읽는다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '플립플롭은 클록이 올라가는 순간(상승 엣지)에 입력 D를 읽어 출력 Q에 담아 두는 부품이다. 그 순간이 지나면 D가 바뀌어도 Q는 다음 엣지까지 그대로다. 그래서 칩 전체가 클록에 맞춰 한 박자씩 움직인다.' },
+            { id: 'sym', label: '기호', focus: ['sym'], desc: '플립플롭 기호에는 입력 D, 출력 Q, 그리고 클록 입력(작은 삼각형)이 있다. 삼각형은 엣지에서 동작한다는 표시다. 값 하나(1비트)를 저장하고, 이것을 여러 개 묶으면 레지스터가 된다.' },
+            { id: 'edge', label: '엣지 순간', focus: ['edge'], desc: '클록이 0에서 1로 올라가는 순간마다 D의 값이 Q로 복사된다. 파형에서 Q는 엣지 바로 뒤에 D의 값으로 바뀐다. 엣지가 아닌 때에는 Q가 움직이지 않는다.' },
+            { id: 'hold', label: '엣지 사이', focus: ['hold'], desc: '엣지와 엣지 사이에는 D가 바뀌어도 Q는 바뀌지 않는다. 짧게 튀는 값도 엣지에서 읽히지 않으면 사라진다. 이 성질이 회로의 값을 박자에 맞춰 안정하게 만든다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            if (f === 'sym') {
+              o += fdRect(150, 20, 140, 120, { rx: 4, fill: 'rgba(52,211,153,.12)', c: QQ, so: .95, sw: 2.4 }) + A.ln('M150 120 l12 -9 l-12 -9', QQ, 2) + fdTxM(170, 58, 'D', { s: 18, w: 800, c: QQ }) + fdTxM(270, 58, 'Q', { s: 18, w: 800, c: QQ }) + A.ln('M110 52 H150 M290 52 H330 M110 111 H150', QQ, 2.2) + fdTxM(98, 56, 'd', { a: 'end', s: 12, w: 800, c: DAT }) + fdTxM(342, 56, 'q', { a: 'start', s: 12, w: 800, c: QQ }) + fdTxM(98, 115, 'clk', { a: 'end', s: 12, w: 800, c: CLK });
+              o += A.panel(110, 156, 220, 30, QQ) + mono(124, 176, [['always ', KW], ['@(', ID], ['posedge ', OP], ['clk) ', NM], ['q <= d;', ID]], 11);
+              return dgSvg('플립플롭: ' + s.label, o, '0 0 440 196');
+            }
+            const ts = 8.2, T = 48, X = 28, Y = [26, 72, 118], H = 26;
+            const edges = [4, 12, 20, 28, 36, 44];
+            const clk = []; for (let i = 0; i < 6; i++) clk.push(edges[i], edges[i] + 4);
+            const dEv = [9, 15, 23.5, 31, 33, 38.5], qEv = [12, 20, 28, 44];
+            o += A.panel(8, 8, 424, 148, CLK);
+            o += lab(14, Y[0] + 16, 'clk', CLK) + tw(X + 10, Y[0], H, ts, T, clk, 0, CLK) + lab(14, Y[1] + 16, 'd', DAT) + tw(X + 10, Y[1], H, ts, T, dEv, 0, DAT) + lab(14, Y[2] + 16, 'q', QQ) + tw(X + 10, Y[2], H, ts, T, qEv, 0, QQ);
+            const ex = (t) => X + 10 + t * ts;
+            if (!f || f === 'edge') edges.forEach((t) => { o += pvdL(`M${ex(t)} 14 V150`, { c: f ? CLK : '#475569', sw: f ? 1.4 : .8, so: f ? .9 : .7, dash: '3 3' }) + (f ? `<circle cx="${ex(t)}" cy="${Y[1] + (dEv.filter((e) => e < t).length % 2 ? 0 : H)}" r="3.4" style="fill:${DAT}"/>` : ''); });
+            if (f === 'hold') { [[28, 36]].forEach(([a, b]) => { o += `<rect x="${ex(a) + 3}" y="${Y[1] - 6}" width="${(b - a) * ts - 6}" height="${H + 12}" rx="4" style="fill:${RED};fill-opacity:.15;stroke:${RED};stroke-opacity:.7;stroke-width:1.2;stroke-dasharray:4 3"/>` + `<rect x="${ex(a) + 3}" y="${Y[2] - 6}" width="${(b - a) * ts - 6}" height="${H + 12}" rx="4" style="fill:${QQ};fill-opacity:.12;stroke:${QQ};stroke-opacity:.7;stroke-width:1.2;stroke-dasharray:4 3"/>`; }); edges.forEach((t) => { o += pvdL(`M${ex(t)} 14 V150`, { c: '#475569', sw: .8, so: .7, dash: '3 3' }); }); }
+            o += fdTxM(220, 178, f === 'edge' ? '점이 찍힌 엣지의 D 값이 q로 넘어간다' : f === 'hold' ? '점선 칸: d는 흔들려도 q는 그대로' : '엣지마다 d를 읽어 q에 담는다', { s: 10, w: 700, op: .9 });
+            return dgSvg('플립플롭: ' + s.label, o, '0 0 440 190');
+          }
+        },
+
+        // ---------- 상태기계(신호등) ----------
+        'dsn-fsm': {
+          title: '상태기계: 신호등으로 보는 순차회로',
+          wide: true,
+          states: [
+            { id: 'all', label: '상태도', desc: '상태기계(FSM)는 정해진 몇 개의 상태 사이를 한 박자씩 옮겨 다니는 회로다. 신호등은 빨강, 초록, 노랑 세 상태가 정해진 순서로 돈다. 동그라미가 상태이고 화살표가 다음 박자에 옮겨 가는 길이다.' },
+            { id: 'red', label: '빨강', focus: ['red'], desc: '지금 상태가 빨강이면 출력은 빨간 불이 켜지는 것이다. 다음 박자에 조건(시간이 다 됨)을 만족하면 초록으로 옮겨 간다. 출력은 현재 상태만으로 정해진다.' },
+            { id: 'green', label: '초록', focus: ['green'], desc: '초록 상태에서는 초록 불이 켜지고 시간이 다 되면 노랑으로 간다. 상태를 몇 개 두고 어떤 조건에 어디로 가는지를 적는 것이 FSM 설계의 전부다.' },
+            { id: 'yellow', label: '노랑', focus: ['yellow'], desc: '노랑 상태는 짧게 머물다가 빨강으로 돌아간다. 한 바퀴를 돌아 처음 상태로 돌아오므로 신호등은 끝없이 반복한다.' },
+            { id: 'hw', label: '회로 구성', focus: ['hw'], desc: 'FSM은 회로에서 세 덩어리로 나뉜다. 지금 상태를 저장하는 플립플롭, 다음 상태를 계산하는 조합 논리, 출력을 만드는 논리다. 다음 상태가 다시 플립플롭으로 돌아가는 고리가 이 회로를 순차회로로 만든다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            if (f === 'hw') {
+              const bx = (x, y, w, h, col, t) => fdRect(x, y, w, h, { rx: 8, fill: 'rgba(148,163,184,.08)', c: col, so: .95, sw: 1.8 }) + fdTxM(x + w / 2, y + 16, t, { s: 10, w: 800, c: col });
+              o += bx(30, 30, 118, 84, C.rtl, '다음 상태 논리') + A.netlist(40, 48, 98, 56, C.rtl);
+              o += bx(196, 30, 100, 84, C.dv, '상태 저장') + fdRect(214, 52, 64, 52, { rx: 3, fill: 'rgba(52,211,153,.12)', c: QQ, so: .95, sw: 2 }) + A.ln('M214 96 l8 -5 l-8 -5', QQ, 1.6) + fdTxM(226, 76, 'D', { s: 11, w: 800, c: QQ }) + fdTxM(266, 76, 'Q', { s: 11, w: 800, c: QQ });
+              o += bx(344, 30, 90, 84, C.pd, '출력 논리') + A.netlist(352, 48, 74, 56, C.pd);
+              o += A.ln('M148 72 H196 M296 72 H344', C.dft, 1.8) + fdArr(190, 72, 'r', C.dft) + fdArr(338, 72, 'r', C.dft) + A.ln('M320 72 V138 H88 V114', C.dft, 1.8, 1, '4 3') + fdArr(88, 118, 'u', C.dft) + fdTxM(204, 154, '현재 상태가 다음 계산으로 돌아온다', { s: 9.5, w: 700, c: C.dft });
+              o += fdTxM(88, 22, '입력', { s: 9.5, w: 700 }) + A.ln('M88 26 V30', C.rtl, 1.6) + fdTxM(246, 22, 'clk', { s: 10, w: 800, c: CLK }) + A.ln('M246 26 V52', CLK, 1.6);
+              o += pvdL('M0 0', { c: 'none' });
+              return dgSvg('상태기계: ' + s.label, o, '0 0 440 166');
+            }
+            const ST = { red: [78, 74, RED, '빨강'], green: [220, 74, QQ, '초록'], yellow: [150, 158, DAT, '노랑'] };
+            o += A.panel(8, 8, 270, 196, '#475569');
+            const arrow = (a, b, d) => A.ln(d, '#94a3b8', 1.8) + '';
+            o += A.ln('M104 74 H196', '#94a3b8', 1.8) + fdArr(196, 74, 'r', '#94a3b8') + A.ln('M208 98 Q196 134 172 146', '#94a3b8', 1.8) + A.ln('M128 146 Q98 130 86 98', '#94a3b8', 1.8) + fdArr(88, 100, 'u', '#94a3b8');
+            Object.entries(ST).forEach(([k, [cx, cy, col, nm]]) => {
+              o += pvdG(f ? [f] : null, [k], `<circle cx="${cx}" cy="${cy}" r="26" style="fill:${col};fill-opacity:.18;stroke:${col};stroke-width:2.2"/>` + fdTxM(cx, cy + 4, nm, { s: 11, w: 800, c: col }));
             });
-            o += fdTxM(220, 224, '위: 설계가 바뀌는 모습 · 아래: 변환을 돕는 약속과 점검', { s: 9, op: .85 });
-            return dgSvg('설계 용어 지도: ' + s.label, o, '0 0 440 236');
+            o += fdTxM(143, 36, '시간이 다 되면 다음 상태로', { s: 9, op: .8, c: '#e2e8f0' });
+            // 신호등
+            o += fdRect(318, 14, 74, 188, { rx: 14, fill: '#0f172a', c: '#475569', so: .9, sw: 2 });
+            [[RED, 'red'], [DAT, 'yellow'], [QQ, 'green']].forEach(([col, k], i) => {
+              const on = f === k || !f;
+              o += `<circle cx="355" cy="${52 + i * 54}" r="19" style="fill:${col};fill-opacity:${on ? (f ? 1 : .5) : .12};stroke:${col};stroke-width:1.6"/>`;
+            });
+            o += fdTxM(355, 218, f ? { red: '출력: 빨강 불', green: '출력: 초록 불', yellow: '출력: 노랑 불' }[f] : '출력: 상태에 맞는 불', { s: 9.5, w: 700, c: f ? ST[f][2] : undefined });
+            return dgSvg('상태기계: ' + s.label, o, '0 0 440 230');
+          }
+        },
+
+        // ---------- 코드와 회로의 대응 ----------
+        'dsn-cs': {
+          title: 'RTL 코드 한 줄은 회로의 어느 부분인가',
+          wide: true,
+          states: [
+            { id: 'all', label: '둘 비교', desc: 'RTL 코드는 두 종류로 나뉜다. 클록이 없는 assign은 게이트로 이어진 조합 회로이고, 클록 조건이 붙은 always는 플립플롭이 들어간 순차 회로다. 코드 한 줄이 회로의 어느 부분이 되는지 눈으로 매겨 보는 것이 RTL을 읽는 첫걸음이다.' },
+            { id: 'comb', label: '조합', focus: ['comb'], desc: 'assign으로 쓴 줄은 입력이 바뀌면 출력이 곧바로 따라 바뀌는 게이트 묶음이 된다. 기억하는 곳이 없으므로 같은 입력에는 항상 같은 출력이다. 클록이 보이지 않는 것이 특징이다.' },
+            { id: 'seq', label: '순차', focus: ['seq'], desc: 'always @(posedge clk)로 쓴 줄은 플립플롭이 된다. 클록 엣지에서만 값이 바뀌고 다음 엣지까지 저장된다. 과거를 기억하므로 같은 입력에도 이전 상태에 따라 출력이 달라질 수 있다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const row = (id, y, col, nm, code, art, note) => pvdG(f ? [f] : null, [id], fdRect(8, y, 424, 96, { rx: 10, fill: 'rgba(148,163,184,.06)', c: col, so: .9, sw: 1.7 }) + fdTxM(18, y + 20, nm, { a: 'start', s: 12, w: 800, c: col }) + A.panel(18, y + 30, 206, 54, col) + code + fdArr(230, y + 57, 'r', col) + A.panel(248, y + 30, 174, 54, col) + art + fdTxM(334, y + 20, note, { s: 9.5, w: 700, op: .9 }));
+            o += row('comb', 8, C.rtl, '조합', mono(30, 64, [['assign ', KW], ['y = a ', ID], ['&', OP], [' b;', NM]], 12) + mono(30, 80, [['  ', ID]], 8), A.gate('and', 308, 52, 40, 30, C.rtl) + A.ln('M288 61 H300 M288 76 H300', C.rtl, 1.6) + fdTxM(262, 69, 'a b', { s: 9, w: 700, c: DAT }) + fdTxM(392, 70, 'y', { s: 11, w: 800, c: QQ }) + A.ln('M356 66 H382', C.rtl, 1.6), '클록 없음, 입력이 바뀌면 바로 바뀐다');
+            o += row('seq', 112, C.dv, '순차', mono(30, 164, [['always ', KW], ['@(', ID], ['posedge ', OP], ['clk)', NM]], 11) + mono(30, 182, [['  q <= d;', ID]], 12), fdRect(302, 148, 44, 44, { rx: 3, fill: 'rgba(52,211,153,.12)', c: QQ, so: .95, sw: 2 }) + A.ln('M302 182 l8 -5 l-8 -5 M286 164 H302 M346 164 H372', QQ, 1.8) + fdTxM(314, 170, 'D', { s: 10, w: 800, c: QQ }) + fdTxM(336, 170, 'Q', { s: 10, w: 800, c: QQ }) + fdTxM(268, 168, 'd', { s: 10, w: 800, c: DAT }) + fdTxM(388, 168, 'q', { s: 10, w: 800, c: QQ }), '클록 엣지에서만 값을 저장한다');
+            return dgSvg('코드와 회로: ' + s.label, o, '0 0 440 216');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 유료 글 "클록과 타이밍 기초" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const CLK = '#93c5fd', DAT = '#fcd34d', QQ = '#34d399', RED = '#f87171', OKC = '#4ade80';
+      const lab = (x, y, t, col, a = 'start', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const ff = (x, y, w, h, col, nm) => fdRect(x, y, w, h, { rx: 4, fill: 'rgba(52,211,153,.12)', c: col, so: .95, sw: 2 }) + A.ln(`M${x} ${y + h - 14} l8 -5 l-8 -5`, col, 1.6) + fdTxM(x + 12, y + 22, 'D', { a: 'start', s: 11, w: 800, c: col }) + fdTxM(x + w - 12, y + 22, 'Q', { a: 'end', s: 11, w: 800, c: col }) + fdTxM(x + w / 2, y - 6, nm, { s: 9.5, w: 800, c: col });
+      const mono = (x, y, t, col, s = 10.5, a = 'start', w = 700) => `<text class="dg-t" x="${x}" y="${y}" text-anchor="${a}" xml:space="preserve" style="font-size:${s}px;font-weight:${w};font-family:monospace;white-space:pre;fill:${col}">${escH(t)}</text>`;
+      const sq = (x, y, h, ts, ev, tmax, init, col, sw = 1.8) => { let lv = init, d = `M${x} ${lv ? y : y + h}`; ev.concat([tmax]).forEach((e) => { d += ` H${x + e * ts}`; if (e < tmax) { lv = 1 - lv; d += ` V${lv ? y : y + h}`; } }); return pvdL(d, { c: col, sw, so: 1 }); };
+      Object.assign(DIAGRAMS, {
+        // ---------- 타이밍 경로 ----------
+        'dsn-path': {
+          title: '타이밍 경로: 출발 플립플롭에서 도착 플립플롭까지',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '타이밍은 플립플롭에서 출발한 값이 조합 논리를 지나 다음 플립플롭에 도착하는 한 번의 여행을 다룬다. 출발과 도착은 같은 클록의 서로 다른 엣지에 맞춰지고, 그 한 박자 안에 도착해야 한다.' },
+            { id: 'launch', label: '출발', focus: ['launch'], desc: '출발 플립플롭은 클록 엣지가 오면 저장해 둔 값을 Q로 내보낸다. 엣지가 온 뒤 값이 나오기까지도 아주 짧은 시간(clock-to-Q)이 걸린다. 여행은 이 지연에서 시작한다.' },
+            { id: 'logic', label: '조합 논리', focus: ['logic'], desc: '값은 게이트 몇 개를 지나며 계산된다. 게이트마다 지연이 있고 선도 시간이 걸려서 경로가 길수록 오래 걸린다. 한 박자의 대부분은 여기서 쓰인다.' },
+            { id: 'cap', label: '도착', focus: ['cap'], desc: '도착 플립플롭은 다음 클록 엣지에서 D를 읽는다. 읽기 전에 값이 먼저 안정되어 있어야 하는 준비 시간(setup)이 있어서, 실제로는 엣지보다 조금 일찍 도착해야 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += A.ln('M30 22 H410', CLK, 2.4) + lab(24, 16, 'clk', CLK, 'end', 10) + A.ln('M48 22 V74 M392 22 V74', CLK, 1.8);
+            o += pvdG(f ? [f] : null, ['launch'], ff(26, 74, 60, 56, QQ, 'FF1') + lab(56, 150, '출발 플립플롭', QQ, 'middle', 10));
+            o += pvdG(f ? [f] : null, ['cap'], ff(354, 74, 60, 56, QQ, 'FF2') + lab(384, 150, '도착 플립플롭', QQ, 'middle', 10));
+            o += pvdG(f ? [f] : null, ['logic'], fdRect(120, 66, 212, 72, { rx: 14, fill: 'rgba(148,163,184,.07)', c: C.pd, so: .9, sw: 1.8, dash: '5 4' }) + A.gate('and', 140, 78, 34, 24, C.pd) + A.gate('xor', 204, 96, 34, 24, C.pd) + A.gate('or', 270, 80, 34, 24, C.pd) + A.ln('M182 90 H190 V104 H196 M246 108 H254 V92 H262', C.pd, 1.5) + lab(226, 158, '조합 논리', C.pd, 'middle', 10));
+            o += A.ln('M86 100 H120 M332 100 H354', DAT, 2.2);
+            o += pvdG(f ? [f] : null, [f || 'launch'], '');
+            // 데이터 경로 화살표
+            o += A.ln('M56 176 H384', DAT, 1.8, 1, '5 4') + fdArr(384, 176, 'r', DAT) + lab(220, 196, f === 'launch' ? '클록 엣지가 오면 값이 출발한다' : f === 'logic' ? '게이트를 지날 때마다 지연이 쌓인다' : f === 'cap' ? '다음 엣지 전에 안정되어 도착해야 한다' : '한 박자 안에 출발에서 도착까지 닿아야 한다', DAT, 'middle', 10);
+            return dgSvg('타이밍 경로: ' + s.label, o, '0 0 440 206');
+          }
+        },
+
+        // ---------- setup/hold 구간 ----------
+        'dsn-window': {
+          title: 'setup과 hold: 엣지 앞뒤에서는 데이터가 가만히 있어야 한다',
+          wide: true,
+          states: [
+            { id: 'all', label: '안전한 경우', desc: '플립플롭은 클록 엣지 앞뒤의 짧은 구간에서 입력이 가만히 있기를 요구한다. 엣지 전의 구간이 setup, 엣지 뒤의 구간이 hold다. 데이터가 이 구간 밖에서 바뀌면 q는 깨끗하게 새 값을 담는다.' },
+            { id: 'setup', label: 'setup 위반', focus: ['setup'], desc: '데이터가 엣지 직전에 바뀌어 setup 구간 안으로 들어오면 플립플롭이 값을 제대로 읽지 못한다. 출력 q는 0도 1도 아닌 불안정한 값이 될 수 있다. 조합 논리가 너무 느릴 때 생긴다.' },
+            { id: 'hold', label: 'hold 위반', focus: ['hold'], desc: '엣지가 지난 직후에 데이터가 바뀌어 hold 구간 안으로 들어오면 방금 읽은 값이 흐트러진다. 앞 플립플롭에서 오는 값이 너무 빨리 도착할 때 생긴다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const ts = 3.4, X = 40, T = 110, ex = X + 60 * ts, su = 14 * ts, hd = 7 * ts;
+            o += A.panel(8, 8, 424, 168, CLK);
+            o += lab(14, 36, 'clk', CLK) + sq(X, 24, 24, ts, [20, 40, 60, 80, 100], T, 0, CLK);
+            const dEvF = f === 'setup' ? [54] : f === 'hold' ? [30, 62.5] : [30, 80];
+            o += lab(14, 82, 'd', DAT) + sq(X, 70, 24, ts, dEvF, T, 0, DAT);
+            o += `<rect x="${ex - su}" y="14" width="${su + hd}" height="156" rx="3" style="fill:${f ? RED : DAT};fill-opacity:${f ? .12 : .1};stroke:${f ? RED : DAT};stroke-opacity:.7;stroke-width:1.2;stroke-dasharray:4 3"/>`;
+            o += pvdL(`M${ex} 14 V170`, { c: CLK, sw: 1.4, so: .9, dash: '3 3' });
+            o += lab(ex - su / 2, 166, 'setup', f === 'hold' ? '#94a3b8' : (f ? RED : DAT), 'middle', 9.5) + lab(ex + hd / 2, 166, 'hold', f === 'setup' ? '#94a3b8' : (f ? RED : DAT), 'middle', 9.5);
+            // q
+            const qy = 122;
+            if (!f) o += lab(14, qy + 16, 'q', QQ) + A.ln(`M${X} ${qy + 24} H${ex} V${qy} H${X + 100 * ts} V${qy + 24} H${X + T * ts}`, QQ, 1.8);
+            else o += lab(14, qy + 16, 'q', RED) + A.ln(`M${X} ${qy + 24} H${ex} L${ex + 6} ${qy + 8} L${ex + 12} ${qy + 20} L${ex + 18} ${qy + 4} L${ex + 24} ${qy + 18} L${ex + 30} ${qy + 12}`, RED, 1.8) + A.ln(`M${ex + 30} ${qy + 12} H${ex + 120}`, RED, 1.8, 1, '3 3') + lab(ex + 78, qy - 4, '?', RED, 'middle', 14);
+            o += fdTxM(220, 196, !f ? 'setup · hold 구간 밖에서 바뀐 d는 안전하게 읽힌다' : f === 'setup' ? 'd가 엣지 직전에 바뀌어 q가 불안정해진다' : 'd가 엣지 직후에 바뀌어 q가 불안정해진다', { s: 10, w: 700, c: f ? RED : undefined, op: .95 });
+            return dgSvg('setup과 hold: ' + s.label, o, '0 0 440 206');
+          }
+        },
+
+        // ---------- slack ----------
+        'dsn-slack': {
+          title: 'slack: 한 박자에서 남는 시간',
+          wide: true,
+          states: [
+            { id: 'all', label: '여유 있음', desc: '한 박자(주기)에서 출발 지연, 조합 논리 지연, 준비 시간을 모두 쓰고도 시간이 남으면 slack이 양수다. 이 경로는 안전하다. slack은 주기에서 이 합을 뺀 값이다.' },
+            { id: 'fail', label: '위반', focus: ['fail'], desc: '조합 논리가 길어져 합이 주기를 넘으면 slack이 음수다. 도착 플립플롭이 엣지에서 값을 제때 읽지 못하는 상태라 칩이 오동작할 수 있다. 사인오프에서 반드시 없애야 한다.' },
+            { id: 'logic', label: '논리를 줄여 고침', focus: ['logic'], desc: '경로의 게이트를 줄이거나 중간에 플립플롭을 넣어 나누면 조합 논리 지연이 줄어든다. 합이 주기 안으로 들어오면 slack이 다시 양수가 된다. 가장 흔한 해결책이다.' },
+            { id: 'clk', label: '주기를 늘려 고침', focus: ['clk'], desc: '클록 주기를 늘리면 더 많은 시간이 생겨 slack이 양수가 된다. 대신 칩이 더 느리게 돈다. 성능 목표를 포기하는 선택이어서 마지막 수단이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const P = { all: [2.0, .4, 1.2, .2], fail: [2.0, .4, 1.6, .2], logic: [2.0, .4, 1.3, .2], clk: [2.4, .4, 1.6, .2] }[f || 'all'];
+            const [Tn, tcq, lg, su] = P, sl = Math.round((Tn - tcq - lg - su) * 10) / 10, k = 150, x0 = 34, y0 = 70, h = 40;
+            o += A.panel(8, 8, 424, 168, '#475569');
+            for (let i = 0; i <= 2; i++) o += pvdL(`M${x0 + i * k} 20 V150`, { c: '#475569', sw: .8, so: .8, dash: '2 3' }) + lab(x0 + i * k, 164, i + ' ns', '#94a3b8', 'middle', 9);
+            const seg = (a, b, col, nm) => `<rect x="${x0 + a * k}" y="${y0}" width="${(b - a) * k}" height="${h}" style="fill:${col};fill-opacity:.4;stroke:${col};stroke-width:1.4"/>` + lab(x0 + (a + b) / 2 * k, y0 + 24, nm, '#e2e8f0', 'middle', 9.5);
+            o += seg(0, tcq, CLK, 'tcq') + seg(tcq, tcq + lg, DAT, 'logic') + seg(tcq + lg, tcq + lg + su, '#c084fc', 'su');
+            if (sl >= 0) o += `<rect x="${x0 + (Tn - sl) * k}" y="${y0}" width="${sl * k}" height="${h}" style="fill:${OKC};fill-opacity:.25;stroke:${OKC};stroke-width:1.2;stroke-dasharray:4 3"/>` + lab(x0 + (Tn - sl / 2) * k, sl * k >= 28 ? y0 + 24 : y0 - 6, '+' + sl.toFixed(1), OKC, 'middle', 10);
+            else o += `<rect x="${x0 + Tn * k}" y="${y0}" width="${-sl * k}" height="${h}" style="fill:${RED};fill-opacity:.35;stroke:${RED};stroke-width:1.4"/>` + lab(x0 + (Tn - sl / 2) * k, y0 - 6, sl.toFixed(1), RED, 'middle', 10);
+            o += pvdL(`M${x0 + Tn * k} 30 V150`, { c: sl >= 0 ? OKC : RED, sw: 2.2, so: 1 }) + lab(x0 + Tn * k, 26, 'T = ' + Tn.toFixed(1) + ' ns', sl >= 0 ? OKC : RED, 'middle', 10.5);
+            o += lab(x0, 134, 'slack = T − (tcq + logic + su) = ' + (sl > 0 ? '+' : '') + sl.toFixed(1) + ' ns', sl >= 0 ? OKC : RED, 'start', 11);
+            if (f === 'logic') o += `<rect x="${x0 + (tcq + lg) * k}" y="${y0 - 14}" width="${.3 * k}" height="8" style="fill:none;stroke:#94a3b8;stroke-width:1;stroke-dasharray:3 2"/>`;
+            o += fdTxM(220, 196, !f ? '합이 주기 안에 들어오면 slack이 양수다' : f === 'fail' ? '합이 주기를 넘어 slack이 음수다' : f === 'logic' ? '논리 지연을 줄여 합이 주기 안으로 들어왔다' : '주기를 늘려 시간을 더 확보했다', { s: 10, w: 700, c: f === 'fail' ? RED : undefined, op: .95 });
+            return dgSvg('slack: ' + s.label, o, '0 0 440 206');
+          }
+        },
+
+        // ---------- 클록 skew와 hold ----------
+        'dsn-skew': {
+          title: '클록 skew와 hold 위반',
+          wide: true,
+          states: [
+            { id: 'all', label: '클록 skew', desc: '클록은 같은 순간에 모든 플립플롭에 닿지 않는다. 배선과 버퍼를 지나며 플립플롭마다 도착 시각이 조금씩 다르다. 이 차이를 skew라고 부른다. 도착이 늦은 플립플롭은 엣지도 그만큼 늦게 온다.' },
+            { id: 'hold', label: 'hold 위반', focus: ['hold'], desc: '출발 쪽의 새 값이 너무 빨리 도착 플립플롭에 닿는데, 도착 쪽 클록이 늦으면 아직 이전 값을 읽고 있는 중에 값이 바뀐다. 짧은 경로와 큰 skew가 겹칠 때 생긴다.' },
+            { id: 'fix', label: '지연으로 고침', focus: ['fix'], desc: '데이터 경로에 지연용 버퍼를 넣어 새 값이 늦게 닿게 만든다. hold 위반은 주기를 늘려도 고쳐지지 않고, 이렇게 경로를 늘려야 고쳐진다. 물리설계 도구가 자동으로 넣어 준다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += A.ln('M16 24 H60 V34 M60 24 H120 V34', CLK, 1.8) + A.ln('M300 24 H398', CLK, 1.8) + lab(10, 18, 'clk', CLK, 'start', 10);
+            o += `<path d="M120 24 H168 M168 18 L184 24 L168 30 Z M184 24 H210" style="fill:none;stroke:${CLK};stroke-width:1.8"/><path d="M168 18 L184 24 L168 30 Z" style="fill:${CLK};fill-opacity:.25;stroke:${CLK};stroke-width:1.6"/>`;
+            o += A.ln('M210 24 H368 V34', CLK, 1.8);
+            o += ff(34, 34, 52, 40, QQ, 'FF1') + ff(342, 34, 52, 40, QQ, 'FF2');
+            o += A.ln('M86 60 H342', DAT, 2.2);
+            if (f === 'fix') o += `<path d="M200 50 L224 60 L200 70 Z" style="fill:${DAT};fill-opacity:.3;stroke:${DAT};stroke-width:1.8"/>` + lab(212, 88, 'buf', DAT, 'middle', 9.5);
+            o += lab(130, 14, 'skew', RED, 'middle', 9.5);
+            // 파형
+            const ts = 3.2, X = 40, T = 120, sk = 8;
+            o += A.panel(8, 100, 424, 100, CLK);
+            o += lab(14, 124, 'clk1', CLK) + sq(X + 22, 112, 18, ts, [10, 40, 70, 100], T - 7, 0, CLK, 1.6);
+            o += lab(14, 152, 'clk2', CLK) + sq(X + 22, 140, 18, ts, [10 + sk, 40 + sk, 70 + sk, 100 + sk], T - 7, 0, CLK, 1.6);
+            o += pvdL(`M${X + 22 + 10 * ts} 106 V194 M${X + 22 + (10 + sk) * ts} 106 V194`, { c: '#94a3b8', sw: .8, so: .7, dash: '2 3' }) + `<path d="M${X + 22 + 10 * ts} 134 H${X + 22 + (10 + sk) * ts}" style="stroke:${RED};stroke-width:1.8"/>`;
+            const arr = f === 'fix' ? 22 : 3.5;
+            o += lab(14, 184, 'd', DAT) + sq(X + 22, 168, 18, ts, [10 + arr, 40 + arr], T - 7, 0, DAT, 1.6);
+            const bad = f === 'hold';
+            o += `<rect x="${X + 22 + (10 + sk) * ts}" y="104" width="${5 * ts}" height="92" style="fill:${bad ? RED : OKC};fill-opacity:${f ? .14 : 0};stroke:${bad ? RED : OKC};stroke-opacity:${f ? .8 : 0};stroke-width:1.2;stroke-dasharray:4 3"/>`;
+            o += lab(220, 218, bad ? 'hold 위반: 새 값이 너무 일찍 온다' : f === 'fix' ? 'hold 만족: 새 값이 늦게 온다' : 'FF2의 엣지가 늦게 온다', bad ? RED : f === 'fix' ? OKC : '#e2e8f0', 'middle', 10.5);
+            return dgSvg('클록 skew: ' + s.label, o, '0 0 440 226');
+          }
+        },
+
+        // ---------- 클록 도메인 교차 ----------
+        'dsn-cdc': {
+          title: '클록 도메인 교차: 박자가 다른 두 영역 사이',
+          wide: true,
+          states: [
+            { id: 'all', label: '두 클록 영역', desc: '칩 안에는 박자가 서로 다른 클록 영역이 여러 개 있다. 한 영역의 플립플롭 출력이 다른 영역으로 넘어갈 때 두 박자가 맞지 않아, 받는 쪽 엣지와 값이 바뀌는 순간이 겹칠 수 있다. 이것이 클록 도메인 교차(CDC)다.' },
+            { id: 'meta', label: '그냥 연결', focus: ['meta'], desc: '다른 영역의 신호를 그대로 받으면 값이 바뀌는 순간이 받는 쪽 setup, hold 구간에 걸릴 수 있다. 그때 출력은 0과 1 사이의 불안정한 상태(메타스터빌리티)에 한동안 머물 수 있고, 뒤의 회로가 제각각 다른 값을 읽는다.' },
+            { id: 'sync', label: '2단 동기화기', focus: ['sync'], desc: '받는 영역 안에 플립플롭을 두 개 이어 붙인다. 첫 단이 불안정해져도 한 박자 기다리는 사이 안정되고, 두 번째 단이 깨끗한 값을 받는다. 한 비트 신호를 넘길 때 쓰는 가장 기본적인 방법이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += fdRect(8, 8, 150, 120, { rx: 12, fill: 'rgba(96,165,250,.07)', c: C.rtl, so: .9, sw: 1.6 }) + fdRect(176, 8, 256, 120, { rx: 12, fill: 'rgba(251,191,36,.06)', c: C.pd, so: .9, sw: 1.6 });
+            o += lab(18, 24, 'clk_a', C.rtl) + lab(186, 24, 'clk_b', C.pd);
+            o += ff(40, 50, 52, 50, QQ, 'FF_a') + A.ln('M92 80 H176', DAT, 2);
+            o += A.ln('M158 8 V128', '#94a3b8', 1.4, 1, '4 3');
+            if (f === 'sync') o += ff(196, 50, 52, 50, QQ, 'FF_b1') + A.ln('M248 80 H282', DAT, 2) + ff(282, 50, 52, 50, QQ, 'FF_b2') + A.ln('M334 80 H420', DAT, 2) + A.ln('M176 80 H196', DAT, 2);
+            else o += A.ln('M176 80 H210', DAT, 2) + ff(210, 50, 52, 50, QQ, 'FF_b') + A.ln('M262 80 H420', DAT, 2);
+            o += lab(88, 118, f === 'sync' ? '' : '', '#94a3b8', 'middle');
+            // 하단 파형 (받는 쪽 출력)
+            o += A.panel(8, 140, 424, 54, CLK);
+            o += lab(14, 172, 'out', f === 'meta' ? RED : QQ);
+            if (f === 'meta') o += A.ln('M44 176 H150 L158 156 L166 172 L174 152 L182 168 L190 156 L198 162', RED, 1.8) + A.ln('M198 162 H250 L254 152 H420', RED, 1.8, 1, '3 3') + lab(300, 170, '0도 1도 아닌 값', RED, 'start', 10);
+            else if (f === 'sync') o += A.ln('M44 176 H220 V152 H420', QQ, 1.8) + lab(260, 170, '두 박자 뒤에 깨끗한 값', QQ, 'start', 10);
+            else o += A.ln('M44 176 H220 V152 H420', '#94a3b8', 1.8) + lab(260, 170, '박자가 맞지 않는 영역 사이', '#e2e8f0', 'start', 10);
+            return dgSvg('클록 도메인 교차: ' + s.label, o, '0 0 440 204');
+          }
+        },
+
+        // ---------- STA 리포트 ----------
+        'dsn-sta': {
+          title: 'STA 리포트 읽기: 가장 느린 경로 한 줄',
+          wide: true,
+          states: [
+            { id: 'all', label: '리포트 전체', desc: 'STA 도구는 모든 경로를 계산해 가장 느린 경로부터 리포트로 보여 준다. 리포트는 어디서 출발해 어디에 도착하는지, 시간이 얼마나 걸렸는지, 얼마나 남는지를 위에서 아래로 적는다. 읽는 순서만 알면 어떤 칩의 리포트도 같은 모양이다.' },
+            { id: 'ends', label: '출발과 도착', focus: ['ends'], desc: '맨 위의 Startpoint와 Endpoint가 이 경로의 양 끝 플립플롭이다. 리포트를 열면 먼저 이 경로가 어느 블록의 어느 레지스터 사이인지를 보고, 고칠 곳이 어디인지 짚는다.' },
+            { id: 'arr', label: '도착 시간', focus: ['arr'], desc: '출발 지연과 게이트마다의 지연을 한 줄씩 더하면 data arrival time이 된다. 어느 게이트가 가장 큰 숫자를 차지하는지 보면 경로를 줄일 때 어디를 손볼지 알 수 있다.' },
+            { id: 'req', label: '요구 시간', focus: ['req'], desc: 'data required time은 값이 늦어도 이 시각까지는 와야 한다는 한계다. 클록 주기에서 도착 플립플롭의 준비 시간(setup)을 뺀 값이다. 클록 주기를 바꾸면 이 줄이 따라 바뀐다.' },
+            { id: 'slack', label: 'slack', focus: ['slack'], desc: 'slack은 요구 시간에서 도착 시간을 뺀 값이다. 양수면 MET(만족), 음수면 VIOLATED(위반)로 표시된다. 사인오프 점검은 모든 경로의 slack이 0 이상인지를 확인하는 일이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += `<rect x="8" y="8" width="424" height="226" rx="6" style="fill:#020617;fill-opacity:.94;stroke:#475569;stroke-width:1.3"/>` + `<circle cx="20" cy="19" r="3" style="fill:#f87171"/><circle cx="31" cy="19" r="3" style="fill:#fbbf24"/><circle cx="42" cy="19" r="3" style="fill:#4ade80"/>` + lab(54, 22, 'report_timing', '#94a3b8', 'start', 9);
+            const R = [
+              ['ends', 'Startpoint: cnt_reg[3]', '', 0], ['ends', 'Endpoint:   alu_reg[7]', '', 0],
+              ['arr', '  cnt_reg[3]/CK → Q', '0.42', 0], ['arr', '  u_add/U12 (XOR2)', '0.31', 0], ['arr', '  u_add/U15 (AND2)', '0.27', 0], ['arr', '  u_mux/U3  (NAND2)', '0.22', 0],
+              ['arr', 'data arrival time', '1.22', 1],
+              ['req', '  clock period', '2.00', 0], ['req', '  library setup time', '−0.11', 0], ['req', 'data required time', '1.89', 1],
+              ['slack', 'slack (MET)', '0.67', 1],
+            ];
+            const G = { ends: [0, 1], arr: [2, 6], req: [7, 9], slack: [10, 10] };
+            const LBL = { ends: '출발 · 도착', arr: '도착 시간', req: '요구 시간', slack: '여유' };
+            const rh = 17.5, y0 = 38;
+            Object.entries(G).forEach(([g, [a, b]]) => {
+              const on = !f || f === g;
+              let t = '';
+              for (let i = a; i <= b; i++) { const [, nm, v, bold] = R[i]; const y = y0 + i * rh + (i >= 2 ? 6 : 0) + (i >= 7 ? 0 : 0); t += mono(20, y + 12, nm, g === 'slack' ? OKC : '#e2e8f0', 10.5, 'start', bold ? 800 : 600) + (v ? mono(300, y + 12, v, g === 'slack' ? OKC : DAT, 10.5, 'end', bold ? 800 : 600) : ''); }
+              const yA = y0 + a * rh + (a >= 2 ? 6 : 0), yB = y0 + b * rh + (b >= 2 ? 6 : 0) + 16;
+              if (f === g) t = `<rect x="14" y="${yA - 1}" width="296" height="${yB - yA + 1}" rx="3" style="fill:${g === 'slack' ? OKC : DAT};fill-opacity:.14;stroke:${g === 'slack' ? OKC : DAT};stroke-opacity:.8;stroke-width:1.2"/>` + t;
+              t += A.ln(`M322 ${yA + 2} H328 V${yB - 3} H322`, g === 'slack' ? OKC : '#94a3b8', 1.4) + lab(336, (yA + yB) / 2 + 3, LBL[g], g === 'slack' ? OKC : '#e2e8f0', 'start', 10);
+              o += pvdG(f ? [f] : null, [g], t);
+            });
+            return dgSvg('STA 리포트: ' + s.label, o, '0 0 440 242');
           }
         },
       });
