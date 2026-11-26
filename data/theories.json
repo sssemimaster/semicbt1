@@ -1314,8 +1314,8 @@
     "lab": "",
     "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
     "premium": true,
-    "mins": 8,
-    "figs": 3
+    "mins": 15,
+    "figs": 6
   },
   {
     "id": "TH-f680dfa8",
@@ -1333,7 +1333,7 @@
     "lab": "",
     "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
     "premium": true,
-    "mins": 8,
-    "figs": 3
+    "mins": 14,
+    "figs": 5
   }
 ]

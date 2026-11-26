@@ -9648,6 +9648,216 @@
         }
       },
     });
+    // ===== 현장 직무 > 실무 이해 글 확장용 그림 (진공 · 가스/RF) =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 터보펌프 단면 ----------
+      'fld-vac-turbo': {
+        title: '터보펌프 안: 날개가 분자를 아래로 보낸다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '터보분자펌프는 회전 날개와 고정 날개를 여러 단 겹쳐 놓은 구조다. 위에서 들어온 분자를 날개가 아래로 튕겨 보내고, 아래로 갈수록 분자가 빽빽해져 뒤의 드라이 펌프가 받아 낸다.' },
+          { id: 'rotor', label: '회전 날개', focus: ['rotor', 'path'], desc: '가운데 축에 붙은 날개가 분당 수만 번 돈다. 날개의 비스듬한 면에 맞은 분자는 날개의 속도를 얻어 아래쪽으로 튕겨 나간다. 분자끼리 부딪히지 않는 낮은 압력에서만 이렇게 일할 수 있다.' },
+          { id: 'stator', label: '고정 날개', focus: ['stator', 'path'], desc: '고정 날개는 반대 방향으로 기울어 있다. 회전 날개가 보낸 분자를 받아 다음 단으로 넘겨 주고, 분자가 다시 위로 올라가지 못하게 막는다. 회전 날개와 고정 날개 한 쌍이 한 단이다.' },
+          { id: 'comp', label: '압축', focus: ['comp'], desc: '여러 단을 지나면서 분자가 한 단씩 아래로 밀려 아래쪽이 위쪽보다 훨씬 빽빽해진다. 이 압력 차를 압축비라 한다. 질소처럼 무거운 분자는 잘 압축되지만 수소나 헬륨 같은 가벼운 가스는 덜 압축된다.' },
+          { id: 'fore', label: '포어라인', focus: ['fore'], desc: '맨 아래 배출구가 포어라인이다. 터보펌프가 내보낸 가스는 아직 압력이 낮아서 드라이 펌프가 받아 대기로 내보낸다. 드라이 펌프가 멈추거나 포어라인 압력이 오르면 터보펌프도 일하지 못하고 알람이 뜬다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC, cx = 220;
+          let o = fdDefs();
+          let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+          // 흡입구
+          o += [170, 220, 270].map((x) => pvdL(`M${x} 20 V38`, { c: '#7dd3fc', sw: 2, so: .9 }) + fdArr(x, 42, 'd', '#7dd3fc')).join('') + fdTx(220, 12, '챔버에서 들어온 분자', { s: 9, w: 700, c: '#7dd3fc' });
+          o += fdRect(112, 44, 216, 11, { rx: 3, fill: 'url(#fdMt)', so: .8 });
+          // 하우징
+          o += fdRect(124, 55, 192, 196, { rx: 6, fill: 'rgba(96,165,250,.07)', c: C.eq, so: .9, sw: 1.8 });
+          // 고정 날개
+          let st = '', rt = '';
+          for (let i = 0; i < 4; i++) {
+            const y = 98 + i * 42;
+            st += `<path d="M126 ${y + 9} L${cx - 12} ${y} V${y + 5} L126 ${y + 14} Z" style="fill:rgba(96,165,250,.4);stroke:${C.eq};stroke-width:1.3"/><path d="M314 ${y + 9} L${cx + 12} ${y} V${y + 5} L314 ${y + 14} Z" style="fill:rgba(96,165,250,.4);stroke:${C.eq};stroke-width:1.3"/>`;
+            const y2 = 77 + i * 42;
+            rt += `<path d="M${cx - 9} ${y2} L140 ${y2 + 11} V${y2 + 16} L${cx - 9} ${y2 + 6} Z" style="fill:rgba(251,146,60,.5);stroke:${fdAc};stroke-width:1.3"/><path d="M${cx + 9} ${y2} L300 ${y2 + 11} V${y2 + 16} L${cx + 9} ${y2 + 6} Z" style="fill:rgba(251,146,60,.5);stroke:${fdAc};stroke-width:1.3"/>`;
+          }
+          o += pvdG(f, ['stator'], st);
+          o += pvdG(f, ['rotor'], fdRect(cx - 9, 56, 18, 194, { rx: 2, fill: 'url(#fdMt)', c: fdAc, so: .8, sw: 1.4 }) + rt);
+          // 분자 한 개의 길
+          const P = [[158, 62], [166, 88], [150, 108], [172, 132], [152, 150], [176, 174], [156, 192], [180, 216], [160, 244]];
+          let pg = pvdL('M' + P.map((p) => p.join(' ')).join(' L'), { c: '#fbbf24', sw: 1.8, so: .95, dash: '4 3' });
+          P.slice(1, -1).forEach(([x, y]) => { pg += `<circle cx="${x}" cy="${y}" r="3" style="fill:#fbbf24;stroke:#92400e;stroke-width:1"/>`; });
+          pg += `<circle cx="${P[0][0]}" cy="${P[0][1]}" r="4" style="fill:#fbbf24;stroke:#92400e;stroke-width:1.2"/>` + fdArr(160, 250, 'd', '#fbbf24');
+          o += pvdG(f, ['path'], pg);
+          // 라벨
+          o += pvdG(f, ['rotor'], pvdL('M112 90 H150', { c: fdAc, sw: 1.2, so: .9 }) + fdTx(108, 88, '회전 날개', { a: 'end', s: 10, w: 800, c: fdAc }) + fdTx(108, 101, '수만 rpm', { a: 'end', s: 8.5, op: .85 }));
+          o += pvdG(f, ['stator'], pvdL('M112 150 H134', { c: C.eq, sw: 1.2, so: .9 }) + fdTx(108, 148, '고정 날개', { a: 'end', s: 10, w: 800, c: C.eq }) + fdTx(108, 161, '기울기 반대', { a: 'end', s: 8.5, op: .85 }));
+          // 밀도 띠
+          let dn = fdRect(342, 62, 84, 184, { rx: 6, fill: 'rgba(148,163,184,.08)', so: .5, sw: 1.2 });
+          [1, 2, 4, 7, 11, 16].forEach((n, i) => { for (let j = 0; j < n; j++) dn += `<circle cx="${(350 + rnd() * 68).toFixed(1)}" cy="${(68 + i * 30 + rnd() * 24).toFixed(1)}" r="2.2" style="fill:#94a3b8;fill-opacity:.85"/>`; });
+          dn += fdTx(384, 58, '위: 성김', { s: 9, w: 800, c: '#10b981' }) + fdTx(384, 262, '아래: 빽빽', { s: 9, w: 800, c: '#ef4444' }) + pvdL('M334 80 V228', { c: fdAc, sw: 1.6, so: .9 }) + fdArr(334, 232, 'd', fdAc);
+          o += pvdG(f, ['comp'], dn);
+          // 포어라인
+          o += pvdG(f, ['fore'], pvdL(`M${cx} 251 V292 H330`, { sw: 3, so: .35 }) + fdFlow(`M${cx} 252 V292 H328`, C.eq, 1.6) + fdTx(280, 284, '포어라인', { s: 9, w: 800, c: C.eq }) + fdRect(330, 268, 96, 50, { rx: 6, fill: 'rgba(52,211,153,.14)', c: C.op, so: .95, sw: 1.8 }) + `<circle cx="356" cy="293" r="10" style="fill:none;stroke:${C.op};stroke-width:1.6"/><circle cx="384" cy="293" r="10" style="fill:none;stroke:${C.op};stroke-width:1.6"/><path d="M356 287 v12 M350 293 h12 M384 287 v12 M378 293 h12" style="stroke:${C.op};stroke-width:1.2;stroke-opacity:.7"/>` + fdTx(378, 312, '드라이 펌프', { s: 9, w: 800 }));
+          o += fdTx(220, 336, '터보펌프는 드라이 펌프가', { s: 9.5, w: 800, c: fdAc }) + fdTx(220, 349, '뒤에서 받쳐 줄 때만 돈다', { s: 9.5, w: 800, c: fdAc });
+          return dgSvg('터보펌프: ' + s.label, o, '0 0 440 358');
+        }
+      },
+
+      // ---------- 배관 컨덕턴스 ----------
+      'fld-vac-cond': {
+        title: '배관이 좁으면 펌프가 아무리 커도 소용없다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '챔버와 펌프 사이 배관은 가스가 지나는 길이다. 같은 펌프를 달아도 배관이 굵고 짧으면 펌프의 힘이 거의 그대로 챔버에 전해지고, 가늘고 길면 병목이 되어 챔버에서 느끼는 배기 속도가 크게 줄어든다.' },
+          { id: 'a', label: '굵고 짧은 배관', focus: ['a'], desc: '배관의 컨덕턴스가 펌프 속도보다 충분히 크면 병목이 거의 없다. 예시 값으로 펌프 1,000 L/s에 배관 컨덕턴스가 3,500 L/s이면 챔버에서의 유효 배기 속도는 약 780 L/s다.' },
+          { id: 'b', label: '가늘고 긴 배관', focus: ['b'], desc: '같은 펌프라도 배관이 가늘고 굽어 있으면 컨덕턴스가 작다. 예시 값으로 배관 컨덕턴스가 250 L/s이면 유효 배기 속도는 약 200 L/s로 떨어진다. 펌프 능력의 대부분을 쓰지 못한다.' },
+          { id: 'rule', label: '합치는 법', focus: ['rule'], desc: '펌프와 배관은 직렬로 이어져 있어서 느린 쪽에 끌려간다. 유효 배기 속도 S는 1/S = 1/펌프 속도 + 1/컨덕턴스로 구한다. 그래서 배관은 굵고 짧게, 꺾임은 적게 놓는다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const pump = (x, y) => fdRect(x, y, 84, 76, { rx: 6, fill: 'rgba(52,211,153,.14)', c: C.op, so: .95, sw: 1.8 }) + `<circle cx="${x + 42}" cy="${y + 34}" r="17" style="fill:none;stroke:${C.op};stroke-width:1.6"/><path d="M${x + 42} ${y + 19} v30 M${x + 27} ${y + 34} h30 M${x + 31} ${y + 23} l22 22 M${x + 53} ${y + 23} l-22 22" style="stroke:${C.op};stroke-width:1.2;stroke-opacity:.7"/>` + fdTx(x + 42, y + 70, '펌프 1,000 L/s', { s: 8, w: 700 });
+          const chb = (x, y) => fdRect(x, y, 70, 84, { rx: 6, fill: 'rgba(96,165,250,.1)', c: '#60a5fa', so: .9, sw: 1.8 }) + `<ellipse cx="${x + 35}" cy="${y + 40}" rx="24" ry="16" style="fill:url(#fdPl)"/>` + fdTx(x + 35, y - 6, '챔버', { s: 10, w: 800 });
+          const res = (x, y, big, c, w, note) => fdTx(x + 55, y + 18, '챔버에서의 배기 속도', { s: 8.5, op: .85 }) + fdTx(x + 55, y + 42, big, { s: 15, w: 800, c }) + fdRect(x, y + 54, 110, 9, { rx: 4, fill: 'rgba(148,163,184,.12)', so: .5, sw: 1 }) + `<rect x="${x}" y="${y + 54}" width="${w}" height="9" rx="4" style="fill:${c};fill-opacity:.75"/>` + fdTx(x + 55, y + 80, note, { s: 8, op: .8 });
+          // A: 굵고 짧은 배관
+          let a = chb(18, 34) + fdRect(88, 62, 112, 38, { rx: 3, fill: 'rgba(148,163,184,.22)', so: .8, sw: 1.4 }) + [70, 81, 92].map((y) => fdFlow(`M92 ${y} H190`, '#7dd3fc', 2.2)).join('') + fdArr(196, 81, 'r', '#7dd3fc') + fdTx(144, 56, '굵고 짧은 배관', { s: 9, w: 800 }) + pump(200, 44) + res(310, 44, '약 780 L/s', '#10b981', 86, '예시 값');
+          o += pvdG(f, ['a'], a);
+          // B: 가늘고 긴 배관
+          let b = chb(18, 184) + `<path d="M88 226 H122 V198 H168 V226 H200" style="fill:none;stroke:rgba(148,163,184,.75);stroke-width:13;stroke-linejoin:round"/><path d="M88 226 H122 V198 H168 V226 H200" style="fill:none;stroke:var(--tbl-bg);stroke-width:8.5;stroke-linejoin:round"/>` + fdFlow('M90 226 H122 V198 H168 V226 H196', '#7dd3fc', 1.6) + fdArr(200, 226, 'r', '#7dd3fc') + fdTx(144, 186, '가늘고 굽은 배관', { s: 9, w: 800 }) + pump(200, 194) + res(310, 194, '약 200 L/s', '#ef4444', 22, '예시 값');
+          o += pvdG(f, ['b'], b);
+          // 규칙
+          o += pvdG(f, ['rule'], fdTx(220, 316, '직렬이라 느린 쪽에 끌려간다', { s: 9.5, w: 700, c: fdAc }) + fdTx(220, 334, '1/S = 1/펌프 + 1/컨덕턴스', { s: 10.5, w: 800 }));
+          return dgSvg('배관과 배기 속도: ' + s.label, o, '0 0 440 348');
+        }
+      },
+
+      // ---------- 배기가 느린 날 ----------
+      'fld-vac-case': {
+        title: '배기가 느린 날: 세 가지를 구별한다',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '배기가 평소보다 오래 걸릴 때 흔한 원인은 누설, 아웃개싱, 펌프 성능 저하의 셋이다. 압력이 오르는 모양과 최근에 한 작업, 펌프의 소리와 온도가 단서가 된다. 어느 쪽이든 오퍼레이터는 기록하고 전달한다.' },
+          { id: 'leak', label: '누설', focus: ['leak'], desc: '문이나 O링, 플랜지, 배관 이음부로 밖의 공기가 들어오는 경우다. O링에 입자가 끼었거나 체결이 풀린 것이 흔하다. 배기 밸브를 닫고 압력이 오르는 속도를 재면 시간에 비례해 계속 오른다.' },
+          { id: 'outgas', label: '아웃개싱', focus: ['outgas'], desc: '챔버를 대기에 연 뒤에는 벽에 수분이 붙는다. 이 물이 진공에서 천천히 떨어져 나오는 동안 압력이 쉽게 내려가지 않는다. 상승률 시험에서는 오르다가 점점 완만해지고, 시간이 지나면 나아진다.' },
+          { id: 'pump', label: '펌프 성능', focus: ['pump'], desc: '드라이 펌프에 부산물이 쌓이거나 부품이 닳으면 배기가 서서히 느려진다. 소리, 진동, 온도가 평소와 다르고 러핑 시간도 함께 길어진다. 펌프 알람이 뜨면 설비 엔지니어에게 넘긴다.' },
+          { id: 'rep', label: '전달', focus: ['rep'], desc: '원인을 오퍼레이터가 확정할 필요는 없다. 밸브를 임의로 돌리지 말고 알람 번호, 압력 값, 시각, 최근 작업을 있는 그대로 기록해 설비 엔지니어에게 전하면 원인 찾는 시간이 크게 줄어든다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 증상
+          o += `<circle cx="120" cy="38" r="22" style="fill:var(--tbl-bg);stroke:${fdAc};stroke-width:1.8"/><path d="M104 48 A18 18 0 0 1 136 48" style="fill:none;stroke:currentColor;stroke-opacity:.35;stroke-width:1.2"/><path d="M120 38 L130 26" style="stroke:${fdAc};stroke-width:2.2;stroke-linecap:round"/><circle cx="120" cy="38" r="2.6" style="fill:${fdAc}"/>`
+            + fdTx(152, 34, '배기가 평소보다', { a: 'start', s: 11, w: 800 }) + fdTx(152, 49, '오래 걸린다', { a: 'start', s: 11, w: 800, c: fdAc });
+          o += pvdL('M220 64 V82 M74 82 H366 M74 82 V100 M220 82 V100 M366 82 V100', { c: fdAc, sw: 1.6, so: .8 });
+          const card = (k, x, c, title, l1, l2, test, ill) => pvdG(f, [k], fdRect(x, 100, 132, 190, { rx: 8, fill: 'rgba(148,163,184,.07)', c, so: .8, sw: 1.5 }) + ill
+            + fdTx(x + 66, 212, title, { s: 12, w: 800, c }) + fdTx(x + 66, 228, l1, { s: 8.5, op: .9 }) + fdTx(x + 66, 241, l2, { s: 8.5, op: .9 })
+            + pvdL(`M${x + 14} 251 H${x + 118}`, { c, sw: 1, so: .4 }) + fdTx(x + 66, 266, '구별하려면', { s: 8, w: 800, c }) + fdTx(x + 66, 280, test, { s: 9, w: 700 }));
+          // 누설: 플랜지 + O링 + 입자
+          const leak = fdRect(30, 160, 88, 14, { rx: 2, fill: 'url(#fdMt)', so: .7 }) + fdRect(30, 128, 88, 14, { rx: 2, fill: 'url(#fdMt)', so: .7 }) + `<circle cx="74" cy="151" r="7" style="fill:rgba(251,191,36,.55);stroke:#92400e;stroke-width:1.3"/>` + fdPart(80, 146, 3.4, '#7f1d1d')
+            + pvdL('M12 148 H58 Q74 136 90 144 H122', { c: '#ef4444', sw: 2, so: .95, dash: '5 3' }) + fdArr(128, 144, 'r', '#ef4444') + fdTx(20, 124, '밖', { s: 8.5, w: 800, c: '#ef4444' }) + fdTx(122, 124, '안', { s: 8.5, w: 800, c: '#ef4444' }) + fdTx(74, 190, 'O링에 낀 입자', { s: 8, op: .85 });
+          o += card('leak', 8, '#f87171', '누설', '문 · O링 · 이음부', '밖의 공기가 새어 든다', '계속 오른다', leak);
+          // 아웃개싱: 벽 + 물방울
+          let og = fdRect(166, 122, 12, 72, { rx: 2, fill: 'url(#fdMt)', so: .7 }) + fdTx(172, 116, '벽의 수분', { s: 8.5, w: 800, c: '#60a5fa' });
+          [134, 150, 166, 182].forEach((y, i) => { og += `<circle cx="184" cy="${y}" r="3.4" style="fill:#60a5fa;fill-opacity:.9"/>` + pvdL(`M192 ${y} H${212 + (i % 2) * 6}`, { c: '#60a5fa', sw: 1.3, so: .7 }) + fdArr(216 + (i % 2) * 6, y, 'r', '#60a5fa') + `<circle cx="${236 + (i % 2) * 6}" cy="${y}" r="1.8" style="fill:#93c5fd;fill-opacity:.55"/><circle cx="${250 + (i % 2) * 6}" cy="${y}" r="1.5" style="fill:#93c5fd;fill-opacity:.3"/>`; });
+          o += card('outgas', 154, '#60a5fa', '아웃개싱', '챔버를 연 지 얼마 안 됨', '벽의 수분이 빠지는 중', '점점 완만해진다', og);
+          // 펌프
+          const pp = fdRect(312, 136, 84, 52, { rx: 6, fill: 'rgba(52,211,153,.14)', c: C.op, so: .95, sw: 1.8 }) + `<circle cx="338" cy="164" r="10" style="fill:none;stroke:${C.op};stroke-width:1.6"/><circle cx="368" cy="164" r="10" style="fill:none;stroke:${C.op};stroke-width:1.6"/><path d="M338 158 v12 M332 164 h12 M368 158 v12 M362 164 h12" style="stroke:${C.op};stroke-width:1.2;stroke-opacity:.7"/>`
+            + pvdL('M322 124 q5 -7 10 0 t10 0 t10 0 t10 0', { c: '#fbbf24', sw: 1.6, so: .95 }) + `<rect x="408" y="130" width="7" height="40" rx="3.5" style="fill:var(--tbl-bg);stroke:#ef4444;stroke-width:1.3"/><circle cx="411.5" cy="175" r="7" style="fill:#ef4444"/><rect x="410" y="142" width="3" height="32" style="fill:#ef4444"/>`;
+          o += card('pump', 300, C.op, '펌프 성능', '소리 · 온도 · 진동 변화', '배기가 서서히 느려진다', '러핑도 길어진다', pp);
+          // 전달
+          o += pvdG(f, ['rep'], fdRect(8, 304, 424, 60, { rx: 8, fill: 'rgba(251,146,60,.08)', c: fdAc, so: .85, sw: 1.6 }) + fdMan(46, 358, fdAc, .9) + fdTx(84, 324, '밸브를 임의로 돌리지 않는다', { a: 'start', s: 10.5, w: 800 }) + fdTx(84, 340, '알람 번호 · 압력 · 시각을 적어', { a: 'start', s: 9, w: 700 }) + fdTx(84, 354, '설비 엔지니어에게 그대로 전한다', { a: 'start', s: 9, w: 800, c: fdAc }));
+          return dgSvg('배기가 느린 날: ' + s.label, o, '0 0 440 372');
+        }
+      },
+    });
+    Object.assign(DIAGRAMS, {
+      // ---------- 샤워헤드와 배기 ----------
+      'fld-gas-shower': {
+        title: '샤워헤드에서 배기까지: 가스가 웨이퍼 위를 지나는 길',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '가스는 샤워헤드의 작은 구멍으로 웨이퍼 위에 고르게 뿌려지고, 웨이퍼 표면을 따라 가장자리로 흘러 배기구로 빠진다. 스로틀 밸브는 압력 게이지가 읽은 값에 맞춰 배기 속도를 조절하고, 가스가 챔버에 머무는 시간은 배기 속도가 정한다.' },
+          { id: 'shower', label: '샤워헤드', focus: ['shower'], desc: '샤워헤드는 구멍이 많이 뚫린 판이다. 위의 빈 공간에 가스가 먼저 퍼진 뒤 구멍으로 고르게 나와 웨이퍼 전체에 닿는다. 구멍이 막히거나 판이 오염되면 한쪽에만 가스가 몰려 식각이나 증착이 고르지 않게 된다.' },
+          { id: 'flow', label: '가스의 흐름', focus: ['flow'], desc: '웨이퍼에 닿은 가스는 표면을 따라 가장자리로 퍼져 나가 배기구로 빠진다. 가운데는 새 가스가 막 닿은 곳이고 가장자리는 반응 부산물이 섞인 가스가 지나는 곳이라 가운데와 가장자리의 속도가 다르게 나올 수 있다.' },
+          { id: 'press', label: '압력 제어', focus: ['press'], desc: '압력 게이지가 챔버 압력을 읽고, 값이 설정과 다르면 스로틀 밸브를 더 열거나 닫아 배기 속도를 바꾼다. 가스 유량이 정해져 있어도 밸브로 압력을 맞출 수 있다. 밸브가 끝까지 열렸는데도 압력이 높으면 배기나 누설을 의심한다.' },
+          { id: 'stay', label: '체류 시간', focus: ['stay'], desc: '가스가 챔버에 머무는 시간은 챔버 부피를 배기 속도로 나눈 값이다. 오래 머물수록 반응 부산물이 웨이퍼 위에 남아 다시 반응에 끼어들어 식각 속도와 모양이 달라진다. 압력이 높거나 배기가 느릴 때 길어진다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          // 챔버
+          o += fdRect(84, 64, 226, 192, { rx: 8, fill: 'rgba(96,165,250,.07)', c: '#60a5fa', so: .85, sw: 1.8 });
+          // 샤워헤드
+          let sh = pvdL('M197 24 V70', { c: '#7dd3fc', sw: 2.4, so: .9 }) + fdArr(197, 70, 'd', '#7dd3fc') + fdTx(197, 14, '가스 (MFC를 지나서)', { s: 9, w: 700, c: '#7dd3fc' })
+            + fdRect(112, 74, 170, 20, { rx: 4, fill: 'rgba(125,211,252,.1)', c: '#7dd3fc', so: .5, sw: 1.2 }) + fdTx(197, 88, '가스가 먼저 퍼지는 공간', { s: 8, op: .85 })
+            + fdRect(112, 94, 170, 7, { rx: 1.5, fill: 'url(#fdMt)', so: .8 });
+          for (let k = 0; k < 9; k++) { const x = 124 + k * 18.5; sh += `<rect x="${x - 2.4}" y="93.5" width="4.8" height="8" style="fill:var(--tbl-bg)"/>` + fdFlow(`M${x} 104 V150`, '#7dd3fc', 1.3) + fdArr(x, 154, 'd', '#7dd3fc'); }
+          sh += fdTx(298, 100, '샤워헤드', { a: 'start', s: 9, w: 800 });
+          o += pvdG(f, ['shower'], sh);
+          // 웨이퍼 + 척
+          o += fdRect(124, 182, 146, 6, { rx: 1.5, fill: 'url(#fdSi)', so: .7 }) + fdRect(110, 188, 174, 34, { rx: 4, fill: 'url(#fdMt)', c: C.eq, so: .9, sw: 1.5 }) + fdTx(197, 209, '웨이퍼 · 척', { s: 9, w: 700, op: .8 });
+          // 흐름
+          let fl = '';
+          [[-1, 'M180 178 H120 Q98 178 98 200 V238 H186'], [1, 'M214 178 H274 Q296 178 296 200 V238 H208']].forEach(([d, p]) => { fl += pvdL(p, { c: fdAc, sw: 3, so: .3 }) + fdFlow(p, fdAc, 1.5); });
+          fl += fdArr(190, 238, 'r', fdAc) + fdArr(204, 238, 'l', fdAc) + fdTx(52, 248, '가장자리로', { a: 'start', s: 8.5, w: 700, c: fdAc }) + fdTx(52, 260, '흘러 빠진다', { a: 'start', s: 8.5, w: 700, c: fdAc });
+          o += pvdG(f, ['flow'], fl);
+          // 체류 시간: 부산물
+          let st = '';
+          [[142, 168], [158, 172], [176, 166], [218, 170], [236, 166], [252, 172]].forEach(([x, y], i) => { st += fdPart(x, y, 3 + (i % 2), '#92400e'); });
+          st += pvdL('M258 156 L276 140', { c: fdAc, sw: 1.2, so: .9 }) + fdTx(280, 138, '부산물', { a: 'start', s: 9, w: 800, c: fdAc }) + fdTx(262, 336, '체류 시간 = 부피 ÷ 배기 속도', { s: 9.5, w: 800, c: fdAc }) + fdTx(262, 349, '오래 머물수록 부산물이 끼어든다', { s: 8.5, op: .9 });
+          o += pvdG(f, ['stay'], st);
+          // 배기 + 스로틀 밸브 + 펌프
+          const pipe = 'M197 256 V316 H340';
+          o += pvdG(f, ['flow', 'press', 'stay'], pvdL(pipe, { sw: 3, so: .35 }) + fdFlow('M197 258 V316 H338', fdAc, 1.5));
+          let pm = fdRect(340, 294, 84, 44, { rx: 6, fill: 'rgba(52,211,153,.14)', c: C.op, so: .95, sw: 1.8 }) + `<circle cx="382" cy="316" r="13" style="fill:none;stroke:${C.op};stroke-width:1.6"/><path d="M382 303 v26 M369 316 h26" style="stroke:${C.op};stroke-width:1.2;stroke-opacity:.7"/>` + fdTx(382, 350, '펌프', { s: 9, w: 800 });
+          o += pvdG(f, ['flow', 'stay'], pm);
+          o += pvdG(f, ['press'], `<circle cx="197" cy="284" r="10" style="fill:var(--tbl-bg);stroke:${fdAc};stroke-width:2"/><path d="M190 291 L204 277" style="stroke:${fdAc};stroke-width:2.4;stroke-linecap:round"/>` + fdTx(212, 287, '스로틀 밸브', { a: 'start', s: 9, w: 800, c: fdAc })
+            + `<circle cx="40" cy="150" r="17" style="fill:var(--tbl-bg);stroke:${C.eq};stroke-width:1.8"/><path d="M27 158 A15 15 0 0 1 53 158" style="fill:none;stroke:currentColor;stroke-opacity:.35;stroke-width:1.2"/><path d="M40 150 L47 140" style="stroke:${fdAc};stroke-width:2;stroke-linecap:round"/><circle cx="40" cy="150" r="2.4" style="fill:${fdAc}"/>` + pvdL('M57 150 H84', { sw: 1.8, so: .7 }) + fdTx(40, 180, '압력 게이지', { s: 8.5, w: 800 })
+            + pvdL('M40 168 V300 H184', { c: fdAc, sw: 1.4, so: .85, dash: '4 3' }) + fdArr(186, 300, 'r', fdAc) + fdTx(112, 294, '읽은 값에 맞춰', { s: 8.5, w: 700, c: fdAc }) + fdTx(112, 314, '밸브를 조절한다', { s: 8.5, w: 700, c: fdAc }));
+          return dgSvg('샤워헤드와 배기: ' + s.label, o, '0 0 440 358');
+        }
+      },
+
+      // ---------- 시스와 바이어스 ----------
+      'fld-rf-sheath': {
+        title: '바이어스 파워: 이온을 얼마나 세게 끌어당기나',
+        wide: true,
+        states: [
+          { id: 'all', label: '전체 보기', desc: '플라즈마와 웨이퍼 사이에는 시스라는 얇은 층이 생긴다. 바이어스 파워는 이 층의 전기장을 정해 이온이 웨이퍼를 때리는 세기를 조절한다. 바이어스가 낮으면 이온이 약하고 비스듬히, 높으면 세고 곧게 들어간다.' },
+          { id: 'low', label: '바이어스 낮게', focus: ['low'], desc: '이온이 약하게 부딪히면 파 내려가는 힘이 작고, 가는 길에 다른 입자와 부딪혀 방향도 흩어진다. 홈의 옆면까지 깎여 모양이 퍼지고 얕아진다. 대신 마스크와 아래 막은 덜 상한다.' },
+          { id: 'high', label: '바이어스 높게', focus: ['high'], desc: '이온이 세고 곧게 들어가 홈 바닥을 깊게 곧은 벽으로 판다. 좁고 깊은 구조를 만들 때 필요한 조건이다. 이온 하나하나의 에너지가 크기 때문에 식각 속도도 빨라진다.' },
+          { id: 'mask', label: '손해도 있다', focus: ['high', 'mask'], desc: '바이어스를 올리면 마스크의 모서리와 아래 막도 같이 더 깎이고 웨이퍼에 손상이 남을 수 있다. 마스크가 먼저 닳으면 선택비가 나빠진다. 그래서 곧게 파는 힘과 손상 사이에서 시험으로 찾은 값이 레시피에 들어 있다.' },
+        ],
+        svg(s) {
+          const f = s.focus || null, C = fdC;
+          let o = fdDefs();
+          const rot = (x, y, ang, c) => `<g transform="translate(${x} ${y}) rotate(${ang})">${fdArr(0, 0, 'd', c)}</g>`;
+          const panel = (k, x, hi) => {
+            const cx = x + 102, c = hi ? '#a78bfa' : '#c4b5fd';
+            let g = fdRect(x, 34, 204, 248, { rx: 8, fill: 'rgba(148,163,184,.05)', so: .45, sw: 1.2 }) + fdTx(cx, 26, hi ? '바이어스 높게' : '바이어스 낮게', { s: 11, w: 800, c: hi ? C.eq : '#94a3b8' });
+            g += `<ellipse cx="${cx}" cy="64" rx="82" ry="22" style="fill:url(#fdPl)"/>` + fdTx(cx, 68, '플라즈마', { s: 8.5, w: 800, c: '#a78bfa' }) + pvdL(`M${x + 10} 100 H${x + 194}`, { c: '#a78bfa', sw: 1.2, so: .7, dash: '3 3' }) + fdTx(x + 192, 94, '시스', { a: 'end', s: 8.5, w: 800, c: '#a78bfa' });
+            // 이온
+            [[-52, hi ? 0 : -9], [0, hi ? 0 : 5], [52, hi ? 0 : 10]].forEach(([dx, sl]) => {
+              const x0 = cx + dx, len = 66, x1 = x0 + sl * (len / 20);
+              g += `<circle cx="${x0}" cy="112" r="4" style="fill:${c};stroke:#5b21b6;stroke-width:1"/>` + pvdL(`M${x0} 116 L${x1} ${112 + len}`, { c, sw: hi ? 3 : 1.5, so: hi ? 1 : .8 }) + rot(x1, 112 + len + 4, -Math.atan(sl / 20) * 57.3, c);
+            });
+            // 웨이퍼 + 홈
+            const depth = hi ? 50 : 22, bw = hi ? 20 : 11, x0 = x + 14, x1 = x + 190;
+            g += `<path d="M${x0} 196 H${cx - 20} L${cx - bw} ${196 + depth} H${cx + bw} L${cx + 20} 196 H${x1} V268 H${x0} Z" style="fill:url(#fdSi);stroke:currentColor;stroke-opacity:.5;stroke-width:1.2"/>`;
+            const mh = hi ? 7 : 13;
+            const L = hi ? `M${x0} 196 V${196 - mh} H${cx - 27} L${cx - 20} 196 Z` : `M${x0} 196 V${196 - mh} H${cx - 20} V196 Z`, R = hi ? `M${x1} 196 V${196 - mh} H${cx + 27} L${cx + 20} 196 Z` : `M${x1} 196 V${196 - mh} H${cx + 20} V196 Z`;
+            g += `<path d="${L}" style="fill:rgba(251,146,60,.55);stroke:${fdAc};stroke-width:1.2"/><path d="${R}" style="fill:rgba(251,146,60,.55);stroke:${fdAc};stroke-width:1.2"/>`;
+            g += fdTx(cx, 298, hi ? '깊고 곧은 홈' : '얕고 비스듬한 홈', { s: 10, w: 800, c: hi ? C.eq : '#94a3b8' }) + fdTx(cx, 312, hi ? '마스크·아래 막도 더 깎인다' : '마스크는 덜 상한다', { s: 8.5, op: .9 });
+            return g;
+          };
+          o += pvdG(f, ['low'], panel('low', 8, false));
+          let hiG = panel('high', 228, true);
+          o += pvdG(f, ['high'], hiG);
+          // 마스크 손상 표시
+          o += pvdG(f, ['mask'], [[330 - 26, 190], [330 + 26, 190]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" style="fill:none;stroke:#ef4444;stroke-width:1.6;stroke-dasharray:3 2"/>`).join(''));
+          o += fdTx(220, 334, '소스 파워는 이온의 양을 정하고', { s: 9.5, w: 800, c: fdAc }) + fdTx(220, 348, '바이어스 파워는 이온의 세기를 정한다', { s: 9.5, w: 800, c: fdAc });
+          return dgSvg('바이어스와 이온: ' + s.label, o, '0 0 440 358');
+        }
+      },
+    });
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
