@@ -12401,6 +12401,421 @@
       });
     })();
 
+    // ===== 설계 직무 > 유료 글 "RTL 설계 기초" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const CLK = '#93c5fd', DAT = '#fcd34d', QQ = '#34d399', RED = '#f87171', OKC = '#4ade80';
+      const KW = '#c084fc', ID = '#e2e8f0', OP = '#fcd34d', NM = '#93c5fd';
+      const lab = (x, y, t, col, a = 'start', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const mono = (x, y, toks, s = 10) => `<text class="dg-t" x="${x}" y="${y}" xml:space="preserve" style="font-size:${s}px;font-weight:700;font-family:monospace;white-space:pre">${toks.map(([t, c]) => `<tspan style="fill:${c}">${escH(t)}</tspan>`).join('')}</text>`;
+      const bitw = (x, y, w, h, bits, col) => { const st = w / bits.length; let d = `M${x} ${bits[0] ? y : y + h}`; bits.forEach((b, i) => { const yy = b ? y : y + h; if (i) d += ` V${yy}`; d += ` H${x + (i + 1) * st}`; }); return pvdL(d, { c: col, sw: 1.8, so: 1 }); };
+      // 작은 플립플롭 (D 핀의 높이는 y + h / 2)
+      const mff = (x, y, col, h = 34, w = 30, fill = 'rgba(52,211,153,.12)') => fdRect(x, y, w, h, { rx: 3, fill, c: col, so: .95, sw: 1.8 }) + A.ln(`M${x} ${y + h - 11} l6 -4 l-6 -4`, col, 1.4) + fdTxM(x + 5, y + h / 2 - 3, 'D', { a: 'start', s: 8.5, w: 800, c: col }) + fdTxM(x + w - 5, y + h / 2 - 3, 'Q', { a: 'end', s: 8.5, w: 800, c: col });
+      Object.assign(DIAGRAMS, {
+        // ---------- 모듈은 입출력이 있는 상자 ----------
+        'dsn-module': {
+          title: '모듈은 입출력이 있는 상자다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: 'RTL의 기본 단위는 모듈이다. 입력과 출력만 밖에 드러내고 안의 동작은 감춘 상자라고 생각하면 된다. 코드의 머리 부분이 포트를 적고, 몸통이 안의 동작을 적는다.' },
+            { id: 'ports', label: '포트', focus: ['ports'], desc: '포트는 모듈이 바깥과 주고받는 선이다. input은 들어오는 선이고 output은 나가는 선이다. 모듈을 쓰는 쪽은 이 포트만 알면 되고, 안이 어떻게 생겼는지는 몰라도 된다.' },
+            { id: 'inside', label: '내부 동작', focus: ['inside'], desc: '몸통에는 입력으로 출력을 만드는 방법을 적는다. 여기서는 assign 한 줄이 XOR 게이트 하나가 된다. 안쪽 구현을 바꿔도 포트가 같으면 바깥 회로는 영향을 받지 않는다.' },
+            { id: 'hier', label: '계층', focus: ['hier'], desc: '큰 설계는 작은 모듈을 가져다 쓰는 계층으로 만든다. 위 모듈이 아래 모듈의 복사본(인스턴스)을 여러 개 이어 붙인다. 같은 덧셈기를 두 번 쓰면 인스턴스 u0과 u1이 생긴다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            if (f === 'hier') {
+              const ins = (x, nm) => fdRect(x, 46, 112, 76, { rx: 8, fill: 'rgba(96,165,250,.10)', c: C.rtl, so: .95, sw: 1.8 }) + fdTxM(x + 56, 63, 'adder', { s: 11, w: 800, c: C.rtl }) + mono(x + 56, 77, [[nm, OP]], 10).replace('<text ', '<text text-anchor="middle" ') + A.gate('xor', x + 34, 88, 40, 26, C.rtl) + A.ln(`M${x + 74} 101 H${x + 112}`, C.rtl, 1.6) + A.ln(`M${x} 70 H${x + 20} V94 H${x + 26} M${x} 104 H${x + 20} V108 H${x + 26}`, C.rtl, 1.4);
+              o += fdRect(24, 8, 400, 150, { rx: 12, fill: 'rgba(148,163,184,.05)', c: C.arch, so: .9, sw: 1.7, dash: '5 4' }) + lab(34, 26, 'top', C.arch);
+              o += ins(84, 'u0') + ins(268, 'u1');
+              o += A.ln('M6 70 H84 M6 104 H84', DAT, 1.8) + lab(10, 64, 'x', DAT) + lab(10, 98, 'y', DAT);
+              o += A.ln('M196 101 H232 V70 H268', QQ, 1.8) + lab(214, 94, 't', QQ, 'middle');
+              o += A.ln('M6 140 H244 V104 H268', DAT, 1.8) + lab(10, 134, 'z', DAT);
+              o += A.ln('M380 101 H434', QQ, 1.8) + fdArr(434, 101, 'r', QQ) + lab(420, 94, 'out', QQ, 'middle');
+              o += A.panel(8, 168, 424, 46, C.arch) + mono(18, 186, [['adder ', NM], ['u0 ', OP], ['(.a(x), .b(y), .sum(t));', ID]], 10) + mono(18, 204, [['adder ', NM], ['u1 ', OP], ['(.a(t), .b(z), .sum(out));', ID]], 10);
+              return dgSvg('모듈: ' + s.label, o, '0 0 440 222');
+            }
+            const on = (id) => (f ? [f] : null);
+            o += A.panel(8, 8, 208, 206, C.rtl);
+            o += pvdG(on(), ['ports'], A.rc(12, 36, 200, 56, C.pd, { fo: .16, sw: 0 }) + mono(18, 30, [['module ', KW], ['adder', NM], ['(', ID]], 10.5) + mono(18, 50, [['  input ', KW], [' a, b,', ID]], 10.5) + mono(18, 68, [['  output ', KW], ['sum', ID]], 10.5) + mono(18, 86, [[');', ID]], 10.5));
+            o += pvdG(on(), ['inside'], A.rc(12, 104, 200, 22, C.rtl, { fo: .16, sw: 0 }) + mono(18, 120, [['  assign ', KW], ['sum = a ', ID], ['^', OP], [' b;', NM]], 10.5));
+            o += mono(18, 146, [['endmodule', KW]], 10.5);
+            o += fdRect(262, 40, 108, 128, { rx: 8, fill: 'rgba(96,165,250,.08)', c: C.rtl, so: .95, sw: 2 }) + fdTxM(316, 58, 'adder', { s: 11.5, w: 800, c: C.rtl });
+            o += pvdG(on(), ['ports'], A.ln('M232 88 H262 M232 132 H262 M370 110 H428', C.pd, 2) + fdArr(262, 88, 'r', C.pd) + fdArr(262, 132, 'r', C.pd) + fdArr(428, 110, 'r', C.pd) + lab(236, 82, 'a', C.pd) + lab(236, 126, 'b', C.pd) + lab(399, 104, 'sum', C.pd, 'middle'));
+            o += pvdG(on(), ['inside'], A.gate('xor', 290, 94, 44, 32, C.rtl) + A.ln('M262 88 H272 V103 H282 M262 132 H272 V117 H282 M334 110 H370', C.rtl, 1.6));
+            return dgSvg('모듈: ' + s.label, o, '0 0 440 222');
+          }
+        },
+
+        // ---------- <= 와 = ----------
+        'dsn-nb': {
+          title: '<=와 =의 차이: 두 단 지연이 한 단으로 줄어든다',
+          wide: true,
+          states: [
+            { id: 'all', label: '둘 비교', desc: '클록이 있는 always 블록에서는 논블로킹 대입(<=)을 쓰는 것이 기본 규칙이다. 같은 두 줄에서 <= 대신 블로킹 대입(=)을 쓰면 전혀 다른 회로가 나온다. 두 코드가 어떤 회로와 파형이 되는지 나란히 본다.' },
+            { id: 'nb', label: '논블로킹', focus: ['nb'], desc: '논블로킹은 오른쪽 값을 모두 엣지 순간의 값으로 읽은 뒤 한꺼번에 왼쪽에 넣는다. q2는 q1의 이전 값을 받으므로 플립플롭 두 개가 줄지어 이어진 회로가 되고, 파형에서 q2는 d보다 두 박자 늦다.' },
+            { id: 'blk', label: '블로킹', focus: ['blk'], desc: '블로킹은 윗줄이 끝나야 아랫줄이 읽는다. q1에 들어간 새 값을 q2가 곧바로 받아 가므로 두 플립플롭이 같은 d를 동시에 읽는 모양이 되고, q2는 q1과 똑같이 움직인다. 두 단 지연을 의도했다면 틀린 회로다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const row = (id, y, col, ttl, note, nbad, code, circ, q2bits) => pvdG(f ? [f] : null, [id],
+              fdRect(8, y, 424, 106, { rx: 10, fill: 'rgba(148,163,184,.06)', c: col, so: .9, sw: 1.7 }) + fdTxM(18, y + 17, ttl, { a: 'start', s: 11, w: 800, c: col }) + fdTxM(424, y + 17, note, { a: 'end', s: 10, w: 800, c: nbad ? RED : OKC })
+              + A.panel(16, y + 26, 166, 70, col) + code + circ
+              + A.panel(300, y + 26, 124, 70, col) + lab(306, y + 43, 'd', DAT) + lab(306, y + 62, 'q1', QQ) + lab(306, y + 81, 'q2', nbad ? RED : QQ)
+              + bitw(326, y + 34, 92, 10, [0, 1, 1, 0, 0], DAT) + bitw(326, y + 53, 92, 10, [0, 0, 1, 1, 0], QQ) + bitw(326, y + 72, 92, 10, q2bits, nbad ? RED : QQ)
+              + [1, 2, 3, 4].map((i) => pvdL(`M${326 + i * 18.4} ${y + 30} V${y + 90}`, { c: '#475569', sw: .6, so: .7, dash: '2 3' })).join(''));
+            // 논블로킹: 플립플롭 두 개가 줄지어
+            const y1 = 8, y2 = 122;
+            o += row('nb', y1, C.dv, '논블로킹 <=', '의도한 두 단 지연', false,
+              mono(22, y1 + 42, [['always ', KW], ['@(', ID], ['posedge ', OP], ['clk) ', NM], ['begin', KW]], 9.4) + mono(22, y1 + 58, [['  q1 ', ID], ['<=', OP], [' d;', NM]], 9.8) + mono(22, y1 + 73, [['  q2 ', ID], ['<=', OP], [' q1;', NM]], 9.8) + mono(22, y1 + 88, [['end', KW]], 9.4),
+              A.ln(`M186 ${y1 + 61} H200 M230 ${y1 + 61} H248 M278 ${y1 + 61} H296`, DAT, 1.8) + mff(200, y1 + 44, C.dv) + mff(248, y1 + 44, C.dv) + lab(190, y1 + 55, 'd', DAT, 'start', 9) + lab(239, y1 + 55, 'q1', QQ, 'middle', 8.5) + lab(288, y1 + 55, 'q2', QQ, 'middle', 8.5),
+              [0, 0, 0, 1, 1]);
+            o += row('blk', y2, RED, '블로킹 =', '한 단으로 줄어든다', true,
+              mono(22, y2 + 42, [['always ', KW], ['@(', ID], ['posedge ', OP], ['clk) ', NM], ['begin', KW]], 9.4) + mono(22, y2 + 58, [['  q1 ', ID], ['=', OP], [' d;', NM]], 9.8) + mono(22, y2 + 73, [['  q2 ', ID], ['=', OP], [' q1;', NM]], 9.8) + mono(22, y2 + 88, [['end', KW]], 9.4),
+              A.ln(`M186 ${y2 + 60} H208 M208 ${y2 + 44} V${y2 + 76} M208 ${y2 + 44} H222 M208 ${y2 + 76} H222 M252 ${y2 + 44} H296 M252 ${y2 + 76} H296`, DAT, 1.8) + mff(222, y2 + 30, QQ, 28, 30) + mff(222, y2 + 62, RED, 28, 30, 'rgba(248,113,113,.12)') + lab(190, y2 + 54, 'd', DAT, 'start', 9) + lab(272, y2 + 40, 'q1', QQ, 'middle', 8.5) + lab(272, y2 + 72, 'q2', RED, 'middle', 8.5),
+              [0, 0, 1, 1, 0]);
+            return dgSvg('블로킹과 논블로킹: ' + s.label, o, '0 0 440 238');
+          }
+        },
+
+        // ---------- FSM 코드의 세 덩어리 ----------
+        'dsn-fsmc': {
+          title: 'FSM 코드는 세 덩어리로 쓴다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: 'FSM을 RTL로 쓸 때는 세 덩어리로 나누는 방식이 가장 흔하다. 상태를 저장하는 레지스터, 다음 상태를 고르는 조합 논리, 출력을 만드는 논리다. 코드의 덩어리 하나가 회로의 상자 하나에 그대로 대응한다.' },
+            { id: 'reg', label: '상태 레지스터', focus: ['reg'], desc: '상태 레지스터는 클록 엣지마다 계산된 다음 상태를 받아 저장한다. always @(posedge clk) 블록 하나가 되고 이 블록 안에서만 값을 저장한다. 상태가 몇 개인지에 따라 플립플롭 몇 개로 합성된다.' },
+            { id: 'next', label: '다음 상태', focus: ['next'], desc: '다음 상태 논리는 현재 상태와 입력을 보고 어디로 갈지 고른다. case 문으로 상태마다 조건을 적고 클록은 쓰지 않는다. 맨 위에 현재 상태를 기본값으로 먼저 적어 두면 빠뜨린 경우에도 래치가 생기지 않는다.' },
+            { id: 'out', label: '출력', focus: ['out'], desc: '출력 논리는 현재 상태에서 출력 값을 만든다. 상태가 RUN인 동안만 busy가 1이 되는 식이다. 출력이 현재 상태만으로 정해지는 이 방식을 무어(Moore) 방식이라고 부른다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const g = (ids, inner) => pvdG(f ? [f] : null, ids, inner);
+            o += A.panel(8, 8, 214, 180, C.rtl);
+            o += g(['reg'], A.rc(12, 14, 206, 34, C.dv, { fo: .18, sw: 0 }) + mono(18, 28, [['always ', KW], ['@(', ID], ['posedge ', OP], ['clk)', NM]], 9.6) + mono(18, 42, [['  state ', ID], ['<=', OP], [' next;', NM]], 9.6));
+            o += g(['next'], A.rc(12, 54, 206, 104, C.rtl, { fo: .18, sw: 0 }) + mono(18, 68, [['always ', KW], ['@(*) ', ID], ['begin', KW]], 9.6) + mono(18, 82, [['  next = state;', ID]], 9.6) + mono(18, 96, [['  case ', KW], ['(state)', ID]], 9.6) + mono(18, 110, [['    IDLE: ', NM], ['if ', KW], ['(go) next = RUN;', ID]], 9.6) + mono(18, 124, [['    RUN : ', NM], ['if ', KW], ['(done) next = IDLE;', ID]], 9.6) + mono(18, 138, [['  endcase', KW]], 9.6) + mono(18, 152, [['end', KW]], 9.6));
+            o += g(['out'], A.rc(12, 164, 206, 18, C.pd, { fo: .18, sw: 0 }) + mono(18, 177, [['assign ', KW], ['busy = (state == RUN);', ID]], 9.6));
+            // 회로
+            o += g(['next'], fdRect(238, 40, 88, 44, { rx: 8, fill: 'rgba(96,165,250,.10)', c: C.rtl, so: .95, sw: 1.8 }) + fdTxM(282, 66, '다음 상태 논리', { s: 9.6, w: 800, c: C.rtl }) + A.ln('M282 14 V40', DAT, 1.8) + fdArr(282, 40, 'd', DAT) + lab(282, 11, 'go · done', DAT, 'middle', 9));
+            o += g(['reg'], fdRect(350, 40, 76, 44, { rx: 8, fill: 'rgba(52,211,153,.10)', c: C.dv, so: .95, sw: 1.8 }) + fdTxM(388, 66, '상태 저장', { s: 9.6, w: 800, c: C.dv }) + A.ln('M350 74 l6 -4 l-6 -4', C.dv, 1.4));
+            o += g(['reg', 'next'], A.ln('M326 62 H350', QQ, 1.8) + fdArr(350, 62, 'r', QQ) + A.ln('M388 84 V108 H282 V84', QQ, 1.8) + fdArr(282, 84, 'u', QQ));
+            o += g(['reg', 'out'], A.ln('M388 108 V130', QQ, 1.8) + fdArr(388, 130, 'd', QQ) + `<circle cx="388" cy="108" r="2.6" style="fill:${QQ}"/>`);
+            o += g(['out'], fdRect(340, 130, 86, 40, { rx: 8, fill: 'rgba(251,191,36,.10)', c: C.pd, so: .95, sw: 1.8 }) + fdTxM(383, 154, '출력 논리', { s: 9.6, w: 800, c: C.pd }) + A.ln('M340 150 H306', DAT, 1.8) + fdArr(306, 150, 'l', DAT) + lab(300, 154, 'busy', DAT, 'end', 10));
+            o += fdTxM(332, 186, '현재 상태가 다음 계산으로 돌아온다', { s: 9.4, op: .85 });
+            return dgSvg('FSM 코드: ' + s.label, o, '0 0 440 196');
+          }
+        },
+
+        // ---------- 파이프라인 ----------
+        'dsn-pipe': {
+          title: '파이프라인: 긴 경로를 레지스터로 자른다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '조합 논리가 길어 한 박자(주기)가 길어졌다면, 중간에 레지스터를 끼워 경로를 둘로 자르는 방법이 있다. 이것이 파이프라인이다. 위는 자르기 전, 아래는 자른 뒤이고 가장 긴 경로가 짧아져 주기를 줄일 수 있다.' },
+            { id: 'before', label: '자르기 전', focus: ['before'], desc: '자르기 전에는 A와 B를 한 박자에 모두 지나야 하므로 주기가 둘을 더한 길이로 정해진다. 이 예에서는 2.0 ns이고 클록은 약 500 MHz까지만 돌릴 수 있다. 회색은 출발 지연과 준비 시간이다.' },
+            { id: 'after', label: '자른 뒤', focus: ['after'], desc: 'A와 B 사이에 레지스터를 넣으면 한 박자에 둘 중 하나만 지나면 된다. 더 긴 쪽(B 단계의 1.3 ns)이 주기를 정하므로 클록은 약 770 MHz까지 올라간다. 대신 레지스터가 늘어서 면적이 커진다.' },
+            { id: 'flow', label: '데이터 흐름', focus: ['flow'], desc: '자른 뒤에는 데이터가 단계 1에서 단계 2로 한 칸씩 넘어가고, 그 사이에 다음 데이터가 단계 1을 쓴다. 첫 결과는 두 박자 뒤에 나오지만 그 뒤로는 매 박자 결과가 하나씩 나온다. 지연은 조금 늘고 처리량은 늘어난다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const GR = '#64748b', CA = C.rtl, CB = C.pd;
+            if (f === 'flow') {
+              const x0 = 72, cw = 68, IC = ['#f472b6', '#60a5fa', '#34d399', '#fbbf24'];
+              o += lab(8, 22, 'clk', CLK, 'start', 10) + lab(8, 58, '단계 1', CA, 'start', 10) + lab(8, 98, '단계 2', CB, 'start', 10) + lab(8, 144, '결과', QQ, 'start', 10);
+              for (let i = 0; i < 5; i++) o += fdTxM(x0 + cw * (i + .5), 22, String(i + 1), { s: 10.5, w: 800, c: CLK }) + pvdL(`M${x0 + cw * (i + 1)} 10 V122`, { c: '#475569', sw: .8, so: .8, dash: '3 3' });
+              o += pvdL(`M${x0} 10 V122`, { c: '#475569', sw: .8, so: .8, dash: '3 3' });
+              IC.forEach((col, k) => {
+                const nm = 'd' + (k + 1);
+                o += A.rc(x0 + cw * k + 4, 38, cw - 8, 30, col, { fo: .45, sw: 1.6, rx: 5 }) + fdTxM(x0 + cw * (k + .5), 57, nm, { s: 11, w: 800 });
+                o += A.rc(x0 + cw * (k + 1) + 4, 78, cw - 8, 30, col, { fo: .45, sw: 1.6, rx: 5 }) + fdTxM(x0 + cw * (k + 1.5), 97, nm, { s: 11, w: 800 });
+                o += A.ln(`M${x0 + cw * (k + 1.5)} 108 V128`, col, 1.8) + fdArr(x0 + cw * (k + 1.5), 128, 'd', col) + fdTxM(x0 + cw * (k + 1.5), 144, 'r' + (k + 1), { s: 11, w: 800, c: col });
+              });
+              o += A.ln(`M${x0 + 4} 166 H${x0 + cw * 2 - 4}`, DAT, 1.6) + lab(x0 + cw, 182, '첫 결과까지 두 박자', DAT, 'middle', 9.6);
+              o += A.ln(`M${x0 + cw * 2 + 4} 166 H${x0 + cw * 5 - 4}`, OKC, 1.6) + lab(x0 + cw * 3.5, 182, '이후엔 한 박자에 하나씩', OKC, 'middle', 9.6);
+              return dgSvg('파이프라인: ' + s.label, o, '0 0 440 192');
+            }
+            const seg = (x, y, w, col, t) => A.rc(x, y, w, 14, col, { fo: .5, sw: 1.2, rx: 2 }) + (t ? fdTxM(x + w / 2, y + 11, t, { s: 9, w: 800 }) : '');
+            const SC = 80;
+            const blk = (x, y, w, col, t) => fdRect(x, y, w, 34, { rx: 5, fill: 'rgba(148,163,184,.07)', c: col, so: .95, sw: 1.8 }) + fdTxM(x + w / 2, y + 21, t, { s: 11, w: 800, c: col });
+            // 자르기 전
+            const yb = 8;
+            o += pvdG(f ? [f] : null, ['before'], fdRect(8, yb, 424, 104, { rx: 10, fill: 'rgba(148,163,184,.06)', c: CA, so: .9, sw: 1.7 }) + fdTxM(18, yb + 18, '자르기 전', { a: 'start', s: 11, w: 800, c: CA }) + fdTxM(424, yb + 18, '≈ 500 MHz', { a: 'end', s: 10, w: 800, c: RED })
+              + mff(20, yb + 38, QQ, 34, 26) + blk(62, yb + 38, 60, CA, 'A') + blk(130, yb + 38, 60, CB, 'B') + mff(206, yb + 38, QQ, 34, 26)
+              + A.ln(`M46 ${yb + 55} H62 M122 ${yb + 55} H130 M190 ${yb + 55} H206`, DAT, 1.8)
+              + seg(240, yb + 48, 24, GR) + seg(264, yb + 48, 56, CA, 'A') + seg(320, yb + 48, 72, CB, 'B') + seg(392, yb + 48, 8, GR)
+              + pvdL(`M400 ${yb + 36} V${yb + 72}`, { c: RED, sw: 1.6, so: .95, dash: '3 3' }) + fdTxM(400, yb + 30, 'T = 2.0 ns', { a: 'end', s: 9.6, w: 800, c: RED }));
+            // 자른 뒤
+            const ya = 122;
+            o += pvdG(f ? [f] : null, ['after'], fdRect(8, ya, 424, 106, { rx: 10, fill: 'rgba(148,163,184,.06)', c: CB, so: .9, sw: 1.7 }) + fdTxM(18, ya + 18, '자른 뒤', { a: 'start', s: 11, w: 800, c: CB }) + fdTxM(424, ya + 18, '≈ 770 MHz', { a: 'end', s: 10, w: 800, c: OKC })
+              + mff(20, ya + 38, QQ, 34, 26) + blk(56, ya + 38, 44, CA, 'A') + mff(108, ya + 38, OKC, 34, 26, 'rgba(74,222,128,.28)') + blk(142, ya + 38, 44, CB, 'B') + mff(194, ya + 38, QQ, 34, 26)
+              + A.ln(`M46 ${ya + 55} H56 M100 ${ya + 55} H108 M134 ${ya + 55} H142 M186 ${ya + 55} H194`, DAT, 1.8)
+              + fdTxM(121, ya + 90, '추가된 레지스터', { s: 9.2, w: 800, c: OKC })
+              + seg(240, ya + 42, 24, GR) + seg(264, ya + 42, 56, CA, 'A') + seg(320, ya + 42, 8, GR)
+              + seg(240, ya + 62, 24, GR) + seg(264, ya + 62, 72, CB, 'B') + seg(336, ya + 62, 8, GR)
+              + pvdL(`M344 ${ya + 34} V${ya + 82}`, { c: OKC, sw: 1.6, so: .95, dash: '3 3' }) + fdTxM(344, ya + 28, 'T = 1.3 ns', { a: 'end', s: 9.6, w: 800, c: OKC }));
+            return dgSvg('파이프라인: ' + s.label, o, '0 0 440 236');
+          }
+        },
+
+        // ---------- 의도치 않은 래치 ----------
+        'dsn-latch': {
+          title: 'else를 빼면 래치가 생긴다',
+          wide: true,
+          states: [
+            { id: 'all', label: '둘 비교', desc: '조합 논리를 쓰는 always 블록에서 모든 경우의 출력을 정해 주지 않으면, 합성 도구는 정해지지 않은 경우에 이전 값을 그대로 두라는 뜻으로 읽는다. 값을 기억하는 래치가 생기는 이유다.' },
+            { id: 'bad', label: '래치가 생김', focus: ['bad'], desc: 'en이 0일 때 y가 무엇이 되는지 적지 않았다. 도구는 이전 값을 유지하라는 뜻으로 읽고 래치를 만든다. 의도한 것이 아니라면 클록과 상관없이 값을 기억하는 소자가 끼어들어 타이밍 분석과 검증이 어려워진다.' },
+            { id: 'good', label: '조합 논리', focus: ['good'], desc: 'else로 en이 0일 때의 값까지 적으면 모든 입력 조합에서 출력이 정해진다. 이 코드는 AND 게이트 하나로 합성되고 값을 기억하는 소자가 없다. 기본값을 먼저 적고 시작하는 습관도 같은 효과가 있다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const g = (id, inner) => pvdG(f ? [f] : null, [id], inner);
+            const yb = 8, yg = 116;
+            o += g('bad', fdRect(8, yb, 424, 100, { rx: 10, fill: 'rgba(248,113,113,.05)', c: RED, so: .9, sw: 1.7 }) + fdTxM(18, yb + 17, 'else를 빼먹은 경우', { a: 'start', s: 11, w: 800, c: RED })
+              + A.panel(16, yb + 26, 200, 66, RED)
+              + mono(24, yb + 41, [['always ', KW], ['@(*)', ID]], 10) + mono(24, yb + 55, [['  if ', KW], ['(en)', ID]], 10) + mono(24, yb + 69, [['    y = a;', ID]], 10) + lab(24, yb + 83, '// else 빠짐', '#f87171', 'start', 10)
+              + A.ln(`M244 ${yb + 50} H300 M244 ${yb + 68} H300 M356 ${yb + 50} H424`, DAT, 1.8)
+              + fdRect(300, yb + 34, 56, 44, { rx: 4, fill: 'rgba(248,113,113,.16)', c: RED, so: .95, sw: 2 })
+              + fdTxM(306, yb + 53, 'D', { a: 'start', s: 9.5, w: 800, c: RED }) + fdTxM(350, yb + 53, 'Q', { a: 'end', s: 9.5, w: 800, c: RED }) + fdTxM(306, yb + 71, 'EN', { a: 'start', s: 9, w: 800, c: RED })
+              + lab(328, yb + 30, 'LATCH', RED, 'middle', 9) + lab(240, yb + 44, 'a', DAT, 'end', 10) + lab(240, yb + 62, 'en', DAT, 'end', 10) + lab(420, yb + 44, 'y', DAT, 'end', 10)
+              + fdTxM(332, yb + 92, '값을 기억해 버린다', { s: 9.4, w: 800, c: RED }));
+            o += g('good', fdRect(8, yg, 424, 100, { rx: 10, fill: 'rgba(74,222,128,.05)', c: OKC, so: .9, sw: 1.7 }) + fdTxM(18, yg + 17, 'else까지 쓴 경우', { a: 'start', s: 11, w: 800, c: OKC })
+              + A.panel(16, yg + 26, 200, 66, OKC)
+              + mono(24, yg + 44, [['always ', KW], ['@(*)', ID]], 10) + mono(24, yg + 60, [['  if ', KW], ['(en) y = a;', ID]], 10) + mono(24, yg + 76, [['  else    y = 0;', ID]], 10)
+              + A.gate('and', 316, yg + 36, 44, 32, OKC) + A.ln(`M244 ${yg + 45} H308 M244 ${yg + 59} H308 M360 ${yg + 52} H424`, DAT, 1.8)
+              + lab(240, yg + 40, 'a', DAT, 'end', 10) + lab(240, yg + 55, 'en', DAT, 'end', 10) + lab(420, yg + 46, 'y', DAT, 'end', 10)
+              + fdTxM(332, yg + 90, '값을 기억하지 않는다', { s: 9.4, w: 800, c: OKC }));
+            return dgSvg('래치: ' + s.label, o, '0 0 440 224');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 유료 글 "합성과 제약(SDC)" 그림 =====
+    (() => {
+      const C = dsC, AC = dsAc, A = dsArt, L = dsL;
+      const CLK = '#93c5fd', DAT = '#fcd34d', QQ = '#34d399', RED = '#f87171', OKC = '#4ade80', GR = '#64748b';
+      const KW = '#c084fc', ID = '#e2e8f0', OP = '#fcd34d', NM = '#93c5fd';
+      const lab = (x, y, t, col, a = 'start', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const mono = (x, y, toks, s = 10) => `<text class="dg-t" x="${x}" y="${y}" xml:space="preserve" style="font-size:${s}px;font-weight:700;font-family:monospace;white-space:pre">${toks.map(([t, c]) => `<tspan style="fill:${c}">${escH(t)}</tspan>`).join('')}</text>`;
+      const card = (x, y, w, h, col, ttl, inner = '', so = .9) => fdRect(x, y, w, h, { rx: 8, fill: 'rgba(148,163,184,.07)', c: col, so, sw: 1.6 }) + (ttl ? fdTxM(x + 8, y + 15, ttl, { a: 'start', s: 9.8, w: 800, c: col }) : '') + inner;
+      Object.assign(DIAGRAMS, {
+        // ---------- 합성의 입력과 출력 ----------
+        'dsn-synflow': {
+          title: '합성 도구에 들어가는 것과 나오는 것',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '합성 도구는 세 가지를 받아 게이트 연결 목록(넷리스트)과 결과 리포트를 낸다. 무엇을 만들지는 RTL이 정하고, 무엇으로 만들지는 셀 라이브러리가 정하고, 얼마나 빠르게 만들지는 제약(SDC)이 정한다.' },
+            { id: 'in', label: '입력 셋', focus: ['in'], desc: '입력은 셋이다. RTL은 회로가 하는 일을, 셀 라이브러리는 공정에서 쓸 수 있는 게이트의 목록과 각 게이트의 면적과 지연을, SDC는 클록 주기 같은 목표를 알려 준다. 하나라도 어긋나면 결과가 달라진다.' },
+            { id: 'tool', label: '합성 도구', focus: ['tool'], desc: '도구는 RTL을 범용 게이트로 옮기고(번역), 논리를 간소화하고(최적화), 라이브러리의 실제 셀로 바꾼다(매핑). 이 모든 과정에서 SDC의 목표를 맞추는 쪽으로 고른다.' },
+            { id: 'out', label: '출력 둘', focus: ['out'], desc: '출력은 넷리스트와 리포트다. 넷리스트는 다음 단계인 물리설계의 입력이 되고, 리포트는 면적, 타이밍, 전력이 목표를 만족하는지 보여 준다. 리포트에서 위반이 보이면 RTL이나 제약으로 돌아가 고친다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const g = (ids, inner) => pvdG(f ? [f] : null, ids, inner);
+            const cell = (x, y, w, t) => fdRect(x, y, w, 20, { rx: 3, fill: 'rgba(34,211,238,.14)', c: C.an, so: .95, sw: 1.4 }) + fdTxM(x + w / 2, y + 14, t, { s: 8.2, w: 800, c: C.an });
+            o += g(['in'],
+              card(8, 8, 128, 66, C.rtl, 'RTL 코드', A.code(16, 26, 112, 40, C.rtl))
+              + card(8, 82, 128, 66, C.an, '셀 라이브러리', A.panel(16, 100, 112, 40, C.an) + cell(21, 110, 26, 'INV') + cell(51, 110, 34, 'NAND2') + cell(89, 110, 34, 'DFF'))
+              + card(8, 156, 128, 66, C.pd, '타이밍 제약 (SDC)', A.wave(16, 174, 112, 40, C.pd))
+              + A.ln('M136 41 H156 V189 M136 189 H156 M136 115 H176', DAT, 1.8) + fdArr(176, 115, 'r', DAT));
+            o += g(['tool'],
+              fdRect(176, 44, 92, 142, { rx: 10, fill: 'rgba(167,139,250,.10)', c: AC, so: .95, sw: 2 }) + fdTxM(222, 64, '합성 도구', { s: 11.5, w: 800, c: AC })
+              + ['번역', '최적화', '매핑'].map((t, i) => fdRect(188, 80 + i * 34, 68, 24, { rx: 6, fill: 'rgba(167,139,250,.16)', c: AC, so: .8, sw: 1.3 }) + fdTxM(222, 96 + i * 34, t, { s: 10, w: 800, c: AC }) + (i < 2 ? fdArr(222, 114 + i * 34, 'd', AC) : '')).join(''));
+            const bar = (y, w, col, t) => fdTxM(324, y + 7, t, { a: 'start', s: 8, w: 800, c: '#e2e8f0' }) + A.rc(352, y, w, 8, col, { fo: .75, sw: 0, rx: 2 });
+            o += g(['out'],
+              A.ln('M268 115 H286 M286 63 V149 M286 63 H304 M286 149 H304', DAT, 1.8) + fdArr(304, 63, 'r', DAT) + fdArr(304, 149, 'r', DAT)
+              + card(304, 28, 128, 70, C.dv, '넷리스트', A.netlist(312, 46, 112, 44, C.dv))
+              + card(304, 114, 128, 70, C.fw, '리포트', A.panel(312, 132, 112, 44, C.fw) + bar(138, 58, C.pd, 'Area') + bar(151, 46, C.dv, 'Timing') + bar(164, 34, C.rtl, 'Power')));
+            return dgSvg('합성의 입출력: ' + s.label, o, '0 0 440 232');
+          }
+        },
+
+        // ---------- 합성의 세 걸음 ----------
+        'dsn-stages': {
+          title: '합성의 세 걸음: 번역, 최적화, 매핑',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '합성은 세 걸음으로 나뉜다. RTL의 식을 일단 범용 게이트로 옮기고, 식을 정리해 게이트 수를 줄이고, 마지막으로 공정이 제공하는 실제 셀로 바꾼다. 같은 식 y = a·b + a·c가 걸음마다 어떻게 달라지는지 본다.' },
+            { id: 'tr', label: '번역', focus: ['tr'], desc: '번역 단계에서는 RTL의 식이 쓰인 그대로 범용 게이트로 옮겨진다. 식의 모양을 그대로 따르므로 AND 둘과 OR 하나, 게이트 세 개가 필요하다. 아직 어느 공정의 부품인지는 정해지지 않았다.' },
+            { id: 'op', label: '최적화', focus: ['op'], desc: '최적화 단계에서는 식을 정리해 같은 동작을 더 적은 게이트로 만든다. a가 두 번 나오는 식을 a·(b + c)로 묶으면 게이트가 둘로 줄어든다. 면적과 속도 중 무엇을 아낄지도 SDC의 목표를 보고 고른다.' },
+            { id: 'mp', label: '매핑', focus: ['mp'], desc: '매핑 단계에서는 정리된 게이트를 라이브러리에 실제로 있는 셀로 바꾼다. OR와 AND를 합친 OA21 셀 하나가 이 식 전체를 대신한다. 이때부터 각 셀은 면적과 지연이라는 실제 숫자를 갖게 된다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const col = { tr: C.rtl, op: C.pd, mp: C.dv };
+            const hd = (x, id, n, nm) => fdRect(x, 8, 128, 176, { rx: 10, fill: 'rgba(148,163,184,.06)', c: col[id], so: .9, sw: 1.7 }) + `<circle cx="${x + 16}" cy="26" r="9" style="fill:${col[id]};fill-opacity:.9"/>` + fdTxM(x + 16, 30, n, { s: 10.5, w: 800, c: '#0f172a' }) + fdTxM(x + 32, 30, nm, { a: 'start', s: 12, w: 800, c: col[id] });
+            const g = (id, inner) => pvdG(f ? [f] : null, [id], inner);
+            // 1 번역
+            let x = 8; const y = 40;
+            o += g('tr', hd(x, 'tr', '1', '번역')
+              + A.gate('and', x + 22, y + 24, 32, 22, C.rtl) + A.gate('and', x + 22, y + 60, 32, 22, C.rtl) + A.gate('or', x + 90, y + 42, 32, 24, C.rtl)
+              + A.ln(`M${x + 54} ${y + 35} H${x + 70} V${y + 48.7} H${x + 82} M${x + 54} ${y + 71} H${x + 70} V${y + 59.3} H${x + 82}`, C.rtl, 1.6)
+              + lab(x + 8, y + 33, 'a', DAT, 'start', 10.5) + lab(x + 8, y + 43, 'b', DAT, 'start', 10.5) + lab(x + 8, y + 69, 'a', DAT, 'start', 10.5) + lab(x + 8, y + 79, 'c', DAT, 'start', 10.5)
+              + fdTxM(x + 64, y + 112, '게이트 3개', { s: 11, w: 800, c: C.rtl }) + fdTxM(x + 64, y + 130, 'y = a·b + a·c', { s: 10.5, w: 700 }));
+            o += fdArr(152, 112, 'r', '#94a3b8');
+            // 2 최적화
+            x = 156;
+            o += g('op', hd(x, 'op', '2', '최적화')
+              + A.gate('or', x + 22, y + 32, 32, 24, C.pd) + A.gate('and', x + 86, y + 44, 32, 24, C.pd)
+              + A.ln(`M${x + 54} ${y + 44} H${x + 70} V${y + 50.7} H${x + 78} M${x + 4} ${y + 61.3} H${x + 78}`, C.pd, 1.6)
+              + lab(x + 6, y + 42, 'b', DAT, 'start', 10.5) + lab(x + 6, y + 53, 'c', DAT, 'start', 10.5) + lab(x + 6, y + 74, 'a', DAT, 'start', 10.5)
+              + fdTxM(x + 64, y + 112, '게이트 2개', { s: 11, w: 800, c: C.pd }) + fdTxM(x + 64, y + 130, 'y = a·(b + c)', { s: 10.5, w: 700 }));
+            o += fdArr(300, 112, 'r', '#94a3b8');
+            // 3 매핑
+            x = 304;
+            o += g('mp', hd(x, 'mp', '3', '매핑')
+              + fdRect(x + 36, y + 18, 62, 66, { rx: 6, fill: 'rgba(52,211,153,.12)', c: C.dv, so: .95, sw: 2 }) + fdTxM(x + 67, y + 56, 'OA21', { s: 12, w: 800, c: C.dv })
+              + A.ln(`M${x + 20} ${y + 32} H${x + 36} M${x + 20} ${y + 50} H${x + 36} M${x + 20} ${y + 70} H${x + 36} M${x + 98} ${y + 51} H${x + 118}`, C.dv, 1.6)
+              + lab(x + 8, y + 31, 'b', DAT, 'start', 10.5) + lab(x + 8, y + 49, 'c', DAT, 'start', 10.5) + lab(x + 8, y + 69, 'a', DAT, 'start', 10.5)
+              + fdTxM(x + 64, y + 112, '셀 1개', { s: 11, w: 800, c: C.dv }) + fdTxM(x + 64, y + 130, 'y = OA21(b, c, a)', { s: 10.5, w: 700 }));
+            return dgSvg('합성의 세 걸음: ' + s.label, o, '0 0 440 192');
+          }
+        },
+
+        // ---------- 같은 셀, 다른 세기 ----------
+        'dsn-lib': {
+          title: '같은 NAND2도 크기가 여러 개다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 NAND2 게이트도 라이브러리에는 세기가 다른 여러 크기(X1, X2, X4)가 들어 있다. 트랜지스터가 클수록 큰 부하를 빨리 구동하지만 면적을 더 쓴다. 합성 도구는 경로마다 필요한 만큼의 크기를 골라 쓴다.' },
+            { id: 'x1', label: 'X1', focus: ['x1'], desc: 'X1은 가장 작은 크기다. 면적이 작아 칩에 많이 넣을 수 있지만 구동력이 약해서, 뒤에 이어진 부하가 크면 느려진다. 시간이 넉넉한 경로에는 이것을 쓴다.' },
+            { id: 'x2', label: 'X2', focus: ['x2'], desc: 'X2는 두 배 큰 크기다. 면적과 속도의 균형이 좋아서 가장 흔히 쓰인다. 경로가 빡빡해지면 도구가 X1을 X2로 바꿔서 시간을 번다.' },
+            { id: 'x4', label: 'X4', focus: ['x4'], desc: 'X4는 가장 센 크기다. 큰 부하를 빨리 구동하지만 면적을 많이 차지하고 전력도 더 쓴다. 가장 느린 경로처럼 꼭 필요한 곳에만 들어간다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const D = [['x1', 'NAND2_X1', 34, 1, 24, 96, '작고 느리다', C.arch], ['x2', 'NAND2_X2', 56, 2, 48, 56, '균형', C.pd], ['x4', 'NAND2_X4', 100, 4, 96, 34, '크고 빠르다', C.dv]];
+            D.forEach(([id, nm, cw, n, ar, dl, note, col], i) => {
+              const x = 8 + i * 144, cx = x + 68;
+              let inner = fdRect(x, 8, 136, 196, { rx: 10, fill: 'rgba(148,163,184,.06)', c: col, so: .9, sw: 1.7 }) + fdTxM(cx, 28, nm, { s: 11, w: 800, c: col });
+              // 셀 도면: 칸이 클수록 트랜지스터를 더 크게 그린다
+              const x0 = cx - cw / 2;
+              inner += fdRect(x0, 40, cw, 56, { rx: 3, fill: 'rgba(96,165,250,.10)', c: C.rtl, so: .95, sw: 1.6 });
+              inner += A.rc(x0 + 4, 46, cw - 8, 10, L.nd, { fo: .55, sw: .8 }) + A.rc(x0 + 4, 80, cw - 8, 10, L.pd, { fo: .55, sw: .8 });
+              for (let k = 0; k < n * 2; k++) inner += A.rc(x0 + (cw / (n * 2 + 1)) * (k + 1) - 2, 42, 4, 52, L.po, { fo: .85, sw: 0 });
+              // 면적 · 지연 막대
+              inner += lab(x + 14, 118, '면적', C.pd, 'start', 9.5) + A.rc(x + 14, 124, ar, 10, C.pd, { fo: .7, sw: 0, rx: 2 });
+              inner += lab(x + 14, 152, '지연', RED, 'start', 9.5) + A.rc(x + 14, 158, dl, 10, RED, { fo: .7, sw: 0, rx: 2 });
+              inner += fdTxM(cx, 192, note, { s: 10, w: 800, c: col });
+              o += pvdG(f ? [f] : null, [id], inner);
+            });
+            return dgSvg('셀 라이브러리: ' + s.label, o, '0 0 440 212');
+          }
+        },
+
+        // ---------- SDC의 클록과 입출력 지연 ----------
+        'dsn-sdcclk': {
+          title: 'SDC가 알려 주는 시간: 클록과 입출력 지연',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '합성 도구는 타이밍 목표를 SDC 파일로 받는다. 가장 먼저 클록의 주기를 알려 주고, 칩 밖의 회로가 입력과 출력에 쓰는 시간을 알려 준다. 이 시간을 뺀 나머지가 칩 안의 경로에 남은 시간이다.' },
+            { id: 'clk', label: '클록', focus: ['clk'], desc: 'create_clock은 이 설계의 클록 주기를 정한다. 주기 2.0 ns는 500 MHz에 해당한다. 모든 타이밍 검사의 기준이 되므로 SDC에서 가장 먼저 쓰고 가장 먼저 확인한다.' },
+            { id: 'in', label: '입력 지연', focus: ['in'], desc: '입력은 칩 밖에서 이미 시간을 쓰고 들어온다. set_input_delay 0.6은 클록 엣지 뒤 0.6 ns에 입력이 도착한다고 알려 준다. 칩 안의 경로는 주기에서 이 시간을 뺀 나머지 안에 끝나야 한다.' },
+            { id: 'out', label: '출력 지연', focus: ['out'], desc: '출력은 바깥 회로가 읽어 가기까지의 시간을 남겨 두어야 한다. set_output_delay 0.8은 바깥 회로가 0.8 ns를 쓴다는 뜻이고, 칩 안의 경로는 나머지 1.2 ns 안에 출력까지 도착해야 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const g = (id, inner) => pvdG(f ? [f] : null, [id], inner);
+            const seg = (x, y, w, col, t, tc) => A.rc(x, y, w, 20, col, { fo: .5, sw: 1.2, rx: 2 }) + (t ? fdTxM(x + w / 2, y + 14, t, { s: 9, w: 800 }) : '');
+            // 클록
+            let d = 'M44 50';
+            for (let k = 0; k < 3; k++) { const x = 44 + 120 * k; d += ` H${x + 20} V28 H${x + 80} V50 H${x + 120}`; }
+            o += g('clk', A.panel(8, 8, 424, 96, C.pd) + A.ln(d, CLK, 2) + lab(18, 24, 'clk', CLK, 'start', 9.5)
+              + A.ln('M64 64 H184', DAT, 1.8) + fdArr(64, 64, 'l', DAT) + fdArr(184, 64, 'r', DAT) + A.ln('M64 56 V72 M184 56 V72', DAT, 1.4) + fdTxM(124, 80, 'T = 2.0 ns', { s: 10, w: 800, c: DAT })
+              + mono(18, 97, [['create_clock ', KW], ['-period ', ID], ['2.0 ', OP], ['[get_ports clk]', NM]], 9.4));
+            // 입력 쪽
+            const x0 = 16;
+            o += g('in', card(8, 108, 424, 70, C.pd, '입력 쪽 경로') + seg(x0, 130, 120, C.pd, '입력 지연 0.6') + seg(x0 + 120, 130, 260, C.rtl, '칩 안의 경로 1.3') + seg(x0 + 380, 130, 20, GR, '') + A.ln(`M${x0 + 400} 126 V152`, RED, 1.6, 1, '3 3')
+              + A.panel(16, 156, 408, 18, C.pd) + mono(24, 169, [['set_input_delay ', KW], ['0.6 ', OP], ['-clock clk ', ID], ['[get_ports din]', NM]], 10));
+            // 출력 쪽
+            o += g('out', card(8, 186, 424, 70, C.pd, '출력 쪽 경로') + seg(x0, 208, 240, C.rtl, '칩 안의 경로 1.2') + seg(x0 + 240, 208, 160, C.pd, '출력 지연 0.8') + A.ln(`M${x0 + 400} 204 V230`, RED, 1.6, 1, '3 3')
+              + A.panel(16, 234, 408, 18, C.pd) + mono(24, 247, [['set_output_delay ', KW], ['0.8 ', OP], ['-clock clk ', ID], ['[get_ports dout]', NM]], 10));
+            return dgSvg('SDC 시간 지정: ' + s.label, o, '0 0 440 266');
+          }
+        },
+
+        // ---------- 예외 제약 ----------
+        'dsn-exc': {
+          title: '예외 제약: 멀티사이클과 거짓 경로',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '모든 경로를 한 박자 안에 끝내라고 검사하는 것이 기본 규칙이다. 실제로는 이 규칙이 맞지 않는 경로가 있고, 그런 경로는 예외 제약으로 따로 알려 줘야 한다. 대표적인 것이 멀티사이클 경로와 거짓 경로다.' },
+            { id: 'mc', label: '멀티사이클', focus: ['mc'], desc: '멀티사이클 경로는 값이 일부러 두 박자에 걸쳐 천천히 만들어지는 경로다. 기본 검사는 첫 엣지에서 값이 늦었다며 위반을 내지만, 실제로는 둘째 엣지에서 읽으면 충분하다. 이 사실을 SDC로 알려 주면 두 박자를 쓸 수 있다.' },
+            { id: 'fp', label: '거짓 경로', focus: ['fp'], desc: '거짓 경로는 도구가 경로로 보지만 실제로는 값이 의미를 갖지 않는 경로다. 예를 들어 부팅 때 한 번만 쓰고 그 뒤로는 바뀌지 않는 설정 값이다. 검사에서 빼 주면 필요 없는 위반이 사라진다. 잘못 쓰면 진짜 위반이 가려지므로 이유를 설명할 수 있을 때만 쓴다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const g = (id, inner) => pvdG(f ? [f] : null, [id], inner);
+            const mff = (x, y, col, nm) => fdRect(x, y, 34, 36, { rx: 3, fill: 'rgba(52,211,153,.12)', c: col, so: .95, sw: 1.8 }) + A.ln(`M${x} ${y + 26} l6 -4 l-6 -4`, col, 1.4) + fdTxM(x + 17, y + 14, 'D  Q', { s: 8, w: 800, c: col }) + fdTxM(x + 17, y - 5, nm, { s: 9, w: 800, c: col });
+            // 멀티사이클
+            const ym = 8;
+            let ck = `M24 ${ym + 52}`;
+            const ex = [60, 140, 220, 300, 380];
+            ex.forEach((e, i) => { ck += ` H${e} V${ym + 34} H${e + 40} V${ym + 52}`; });
+            ck += ' H420';
+            o += g('mc', fdRect(8, ym, 424, 118, { rx: 10, fill: 'rgba(148,163,184,.06)', c: C.dv, so: .9, sw: 1.7 }) + fdTxM(18, ym + 17, '멀티사이클 경로', { a: 'start', s: 11, w: 800, c: C.dv })
+              + lab(24, ym + 40, 'clk', CLK, 'start', 9) + A.ln(ck.replace(`M24 ${ym + 52}`, `M44 ${ym + 52}`), CLK, 1.8)
+              + A.rc(66, ym + 60, 124, 20, RED, { fo: .22, sw: 1, rx: 2 }) + lab(24, ym + 74, 'd', DAT, 'start', 9)
+              + A.ln(`M44 ${ym + 70} H66 M190 ${ym + 70} H420`, DAT, 1.8) + A.ln(`M66 ${ym + 70} l12 -6 l12 12 l12 -12 l12 12 l12 -12 l12 12 l12 -12 l12 12 l4 -6`, RED, 1.4)
+              + pvdL(`M140 ${ym + 28} V${ym + 88}`, { c: RED, sw: 1.8, so: .95, dash: '3 3' }) + pvdL(`M220 ${ym + 28} V${ym + 88}`, { c: OKC, sw: 1.8, so: .95, dash: '3 3' })
+              + lab(60, ym + 104, '출발', DAT, 'middle', 9.5) + lab(140, ym + 104, '기본 검사', RED, 'middle', 9.5) + lab(220, ym + 104, '지정한 검사', OKC, 'middle', 9.5)
+              + A.panel(278, ym + 80, 146, 32, C.dv) + mono(286, ym + 94, [['set_multicycle_path ', KW], ['2', OP]], 9.6) + mono(286, ym + 107, [['  -from a_reg -to b_reg', NM]], 9.6));
+            // 거짓 경로
+            const yf = 134;
+            o += g('fp', fdRect(8, yf, 424, 98, { rx: 10, fill: 'rgba(148,163,184,.06)', c: C.dft, so: .9, sw: 1.7 }) + fdTxM(18, yf + 17, '거짓 경로', { a: 'start', s: 11, w: 800, c: C.dft })
+              + mff(34, yf + 42, QQ, 'cfg') + mff(260, yf + 42, QQ, 'out')
+              + fdRect(110, yf + 36, 110, 48, { rx: 12, fill: 'rgba(148,163,184,.07)', c: GR, so: .8, sw: 1.4, dash: '5 4' })
+              + A.ln(`M68 ${yf + 60} H110 M220 ${yf + 60} H260`, DAT, 1.8, .55, '4 3')
+              + A.ln(`M154 ${yf + 49} L176 ${yf + 71} M176 ${yf + 49} L154 ${yf + 71}`, RED, 3.2)
+              + lab(165, yf + 94, '검사하지 않는다', RED, 'middle', 9.4)
+              + A.panel(296, yf + 40, 128, 40, C.dft) + mono(304, yf + 56, [['set_false_path ', KW]], 9.6) + mono(304, yf + 71, [['-from cfg -to out', NM]], 9.6));
+            return dgSvg('예외 제약: ' + s.label, o, '0 0 440 240');
+          }
+        },
+
+        // ---------- 면적과 속도의 맞바꿈 ----------
+        'dsn-qor': {
+          title: '목표를 빡빡하게 잡을수록 면적이 늘어난다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '목표 주기를 짧게 잡을수록 합성 도구는 큰 셀을 더 많이 써서 속도를 끌어올리므로 면적이 늘어난다. 처음에는 완만하게 늘다가 어느 지점부터 가파르게 치솟는다. 이 곡선에서 알맞은 목표를 고르는 것이 합성 설정의 핵심이다.' },
+            { id: 'loose', label: '느슨한 목표', focus: ['loose'], desc: '목표가 느슨하면 작은 셀만으로 시간을 맞출 수 있어 면적이 가장 작다. 하지만 필요보다 느리게 설계한 셈이라 성능이 아깝다.' },
+            { id: 'knee', label: '꺾이는 곳', focus: ['knee'], desc: '곡선이 꺾이는 지점이 보통 가장 알맞은 목표다. 면적을 조금만 더 써도 속도가 크게 오르는 구간의 끝이어서, 그 이상은 얻는 것보다 드는 것이 많아진다.' },
+            { id: 'tight', label: '빡빡한 목표', focus: ['tight'], desc: '목표를 너무 빡빡하게 잡으면 도구가 큰 셀과 복사한 논리를 마구 써서 면적과 전력이 크게 늘고, 그래도 안 맞는 경로는 위반으로 남는다. 이럴 때는 제약을 푸는 것보다 파이프라인 같은 RTL 구조를 바꾸는 것이 낫다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const X0 = 48, X1 = 420, Y0 = 170;
+            const pt = (u) => [X0 + u * (X1 - X0), Y0 - (14 * u + 120 * Math.pow(u, 5))];
+            let d = ''; for (let i = 0; i <= 40; i++) { const [x, y] = pt(i / 40); d += (i ? ' L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
+            o += A.ln(`M${X0} 24 V${Y0} H${X1 + 6}`, '#94a3b8', 1.6) + fdArr(X1 + 8, Y0, 'r', '#94a3b8') + fdArr(X0, 22, 'u', '#94a3b8');
+            o += lab(X0 + 6, 28, '면적', '#94a3b8', 'start', 10) + lab(X0, Y0 + 18, '느슨', OKC, 'start', 10) + lab(X1, Y0 + 18, '빡빡', RED, 'end', 10) + lab((X0 + X1) / 2, Y0 + 18, '목표 주기가 짧아진다', '#94a3b8', 'middle', 9.6);
+            o += A.ln(d, DAT, 2.4);
+            o += pvdL(`M${X1} 30 V${Y0}`, { c: RED, sw: 1.6, so: .8, dash: '4 3' });
+            const P = [['loose', .12, OKC, '작은 셀로 충분'], ['knee', .66, DAT, '가장 알맞은 지점'], ['tight', .96, RED, '면적이 치솟는다']];
+            P.forEach(([id, u, col, t]) => {
+              const [x, y] = pt(u);
+              const lx = id === 'tight' ? x - 10 : x, la = id === 'tight' ? 'end' : 'middle', ly = id === 'loose' ? y - 16 : y - 18;
+              o += pvdG(f ? [f] : null, [id], `<circle cx="${x}" cy="${y}" r="7" style="fill:${col};fill-opacity:.9;stroke:#0f172a;stroke-width:1.6"/>` + fdTxM(lx, ly, t, { a: la, s: 10, w: 800, c: col }));
+              if (f === id) o += pvdL(`M${x} ${y + 8} V${Y0}`, { c: col, sw: 1.4, so: .8, dash: '3 3' });
+            });
+            return dgSvg('면적과 속도: ' + s.label, o, '0 0 440 196');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
