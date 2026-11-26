@@ -11071,6 +11071,290 @@
       });
     })();
 
+    // ===== 현장 직무 > 집중 연습: 수율과 결함 밀도 =====
+    const YH = (() => {
+      const lcg = (seed) => { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; };
+      const grid = (cx, cy, R, n, full) => { const p = 2 * R / n, d = []; for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const x = cx - R + (i + .5) * p, y = cy - R + (j + .5) * p; const ok = full ? [[-1, -1], [1, -1], [-1, 1], [1, 1]].every((c) => Math.hypot(x + c[0] * p / 2 - cx, y + c[1] * p / 2 - cy) <= R) : Math.hypot(x - cx, y - cy) <= R - p * .45; d.push({ i, j, x, y, p, ok }); } return { p, d: d.filter((q) => q.ok), all: d }; };
+      const rects = (w, bad, o = {}) => w.d.map((q, k) => { const b = bad(q, k); return `<rect x="${(q.x - q.p / 2 + .5).toFixed(1)}" y="${(q.y - q.p / 2 + .5).toFixed(1)}" width="${(q.p - 1).toFixed(1)}" height="${(q.p - 1).toFixed(1)}" rx="${o.rx == null ? 1 : o.rx}" style="fill:${b ? '#ef4444' : '#34d399'};fill-opacity:${b ? .85 : (o.go || .5)}"/>`; }).join('');
+      const ring = (cx, cy, R) => `<circle cx="${cx}" cy="${cy}" r="${R + 2}" style="fill:rgba(148,163,184,.1);stroke:#94a3b8;stroke-width:1.6"/><path d="M${cx - 5} ${cy + R + 2} l5 -4 l5 4" style="fill:none;stroke:#94a3b8;stroke-width:1.2"/>`;
+      // 웨이퍼 맵 패턴: 각 다이가 불량인지 결정
+      const PAT = {
+        random: (q, c, R, r) => r() < .16,
+        edge: (q, c, R, r) => (Math.hypot(q.x - c.x, q.y - c.y) > R * .76 ? r() < .78 : r() < .04),
+        center: (q, c, R, r) => (Math.hypot(q.x - c.x, q.y - c.y) < R * .38 ? r() < .85 : r() < .05),
+        scratch: (q, c, R, r) => (Math.abs((q.y - c.y) - (q.x - c.x) * .55 + R * .12) < q.p * .62 ? r() < .93 : r() < .04),
+        cluster: (q, c, R, r) => (Math.hypot(q.x - c.x - R * .32, q.y - c.y + R * .3) < R * .3 ? r() < .88 : Math.hypot(q.x - c.x + R * .35, q.y - c.y - R * .38) < R * .2 ? r() < .8 : r() < .04),
+        repeat: (q, c, R, r) => ((q.i % 3 === 1 && q.j % 3 === 2) ? r() < .97 : r() < .03),
+      };
+      const mapBad = (kind, w, c, R, seed) => { const r = lcg(seed), f = PAT[kind]; return w.d.map((q) => f(q, c, R, r)); };
+      return { lcg, grid, rects, ring, PAT, mapBad };
+    })();
+    (() => {
+      const C = fdC, RED = '#ef4444', AC = fdAc, GR = '#94a3b8', GRN = '#34d399';
+      const card = (x, y, w, h, col, o = {}) => fdRect(x, y, w, h, { rx: o.rx || 10, fill: o.fill || 'rgba(148,163,184,.07)', c: col, so: .9, sw: 1.6 });
+      const waf = (cx, cy, R, n, bad, o = {}) => { const w = YH.grid(cx, cy, R, n, o.full); return YH.ring(cx, cy, R) + YH.rects(w, (q, k) => bad[k], o); };
+
+      Object.assign(DIAGRAMS, {
+        // ---------- 수율은 세 군데에서 센다 ----------
+        'fld-yld-stack': {
+          title: '수율은 세 군데에서 세고 곱한다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '웨이퍼를 넣어 팔 수 있는 칩이 나오기까지 수율은 세 번 걸러진다. 각 단계의 수율은 따로 세고, 최종 수율은 세 값을 곱해서 얻는다. 아래 숫자는 이해를 위한 예시다.' },
+            { id: 'line', label: '라인 수율', focus: ['l'], desc: '웨이퍼 단위의 수율이다. 공정 중에 깨지거나 불량으로 폐기되지 않고 끝까지 살아남은 웨이퍼의 비율이다. 웨이퍼 취급 사고와 홀드 뒤 폐기가 여기에 들어간다.' },
+            { id: 'die', label: '다이 수율', focus: ['d'], desc: '살아남은 웨이퍼 위의 칩(다이) 중 EDS 검사를 통과한 비율이다. 현장의 결함과 공정 변동이 가장 크게 깎는 단계라서 보통 수율이라고 하면 이 값을 가리킨다.' },
+            { id: 'fin', label: '최종 수율', focus: ['f'], desc: '잘라서 조립한 뒤 패키지 상태에서 하는 최종 테스트의 통과 비율이다. 대개 높게 유지되지만 조립 사고나 고온 시험에서 걸리는 칩이 여기서 빠진다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const st = [['l', 100, 98, '라인 수율', '웨이퍼가 끝까지 살아남은 비율', '98', C.eq], ['d', 98, 83.3, '다이 수율', '칩이 EDS를 통과한 비율', '85', AC], ['f', 83.3, 82.5, '최종 수율', '조립 뒤 최종 테스트 통과', '99', C.op]];
+            const W = 250, X0 = 20;
+            o += fdTxM(X0 + W / 2, 18, '웨이퍼 투입', { s: 10.5, w: 800 });
+            st.forEach((a, i) => {
+              const y = 30 + i * 76, w1 = W * a[1] / 100, w2 = W * a[2] / 100, xa = X0 + (W - w1) / 2, xb = X0 + (W - w2) / 2;
+              o += pvdG(f, [a[0]], `<path d="M${xa} ${y} H${xa + w1} L${xb + w2} ${y + 54} H${xb} Z" style="fill:${a[6]};fill-opacity:.18;stroke:${a[6]};stroke-width:1.7;stroke-linejoin:round"/>` + fdTxM(X0 + W / 2, y + 24, a[3], { s: 11.5, w: 800, c: a[6] }) + fdTxM(X0 + W / 2, y + 40, a[4], { s: 8.8, op: .9 }) + fdTxM(318, y + 30, a[5] + '%', { s: 22, w: 800, c: a[6] }) + (i ? fdTxM(292, y + 8, '×', { s: 14, w: 800, op: .7 }) : ''));
+            });
+            o += fdRect(70, 252, 300, 26, { rx: 8, fill: 'rgba(251,146,60,.1)', c: AC, so: .9, sw: 1.5 }) + fdTxM(220, 270, '98% × 85% × 99% = 82.5%', { s: 12, w: 800, c: AC });
+            return dgSvg('수율의 세 단계: ' + s.label, o, '0 0 440 286');
+          }
+        },
+
+        // ---------- 한 장에서 몇 개나 ----------
+        'fld-yld-dpw': {
+          title: '칩이 커지면 한 장에서 나오는 수가 급격히 준다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 웨이퍼에서 칩이 커지면 개수가 줄고, 가장자리에서 버려지는 몫은 더 늘어난다. 아래는 300 mm 웨이퍼에 칩 면적 100 mm²와 400 mm²를 놓은 모식도다(실제 개수는 그림의 수보다 훨씬 많다).' },
+            { id: 'sm', label: '작은 칩', focus: ['sm'], desc: '칩 면적이 100 mm²일 때 한 장에서 대략 640개가 나온다. 가장자리에서 못 쓰는 칩의 몫이 작아서 웨이퍼 면적을 거의 다 쓴다.' },
+            { id: 'lg', label: '큰 칩', focus: ['lg'], desc: '칩 면적이 4배인 400 mm²가 되면 개수는 약 143개로 4배보다 더 줄어든다. 큰 칩일수록 가장자리의 못 쓰는 면적이 커지기 때문이다.' },
+            { id: 'edge', label: '가장자리 손실', focus: ['sm', 'lg', 'edge'], desc: '웨이퍼는 둥글고 칩은 네모라서 가장자리에는 잘려서 못 쓰는 칩이 생긴다. 회색으로 표시한 칩이다. 칩이 클수록 이 손실이 차지하는 비율이 커진다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null, edge = f && f.includes('edge');
+            let o = fdDefs();
+            const one = (id, cx, n, label, num) => { const w = YH.grid(cx, 108, 76, n, false), full = YH.grid(cx, 108, 76, n, true); const fs = new Set(full.d.map((q) => q.i + ',' + q.j)); return pvdG(f, [id], YH.ring(cx, 108, 76) + w.d.map((q) => { const g = fs.has(q.i + ',' + q.j); return `<rect x="${(q.x - q.p / 2 + .5).toFixed(1)}" y="${(q.y - q.p / 2 + .5).toFixed(1)}" width="${(q.p - 1).toFixed(1)}" height="${(q.p - 1).toFixed(1)}" rx="1" style="fill:${g ? GRN : GR};fill-opacity:${g ? .55 : (edge ? .6 : .3)}"/>`; }).join('') + fdTxM(cx, 208, label, { s: 11, w: 800 }) + fdTxM(cx, 228, num, { s: 17, w: 800, c: AC })); };
+            o += one('sm', 98, 14, '칩 면적 100 mm²', '약 640개');
+            o += one('lg', 342, 7, '칩 면적 400 mm²', '약 143개');
+            o += pvdG(f, ['edge'], fdRect(176, 252, 88, 18, { rx: 6, fill: 'rgba(148,163,184,.15)', c: GR, so: .6, sw: 1 }) + fdTxM(220, 265, '못 쓰는 가장자리 칩', { s: 8.8, w: 700 }));
+            o += !f ? fdTxM(220, 104, '면적 4배', { s: 11, w: 800, c: AC }) + fdTxM(220, 120, '개수 1/4.5', { s: 10, w: 800, c: AC }) : '';
+            return dgSvg('웨이퍼당 칩 수: ' + s.label, o, '0 0 440 278');
+          }
+        },
+
+        // ---------- 치명 결함 ----------
+        'fld-yld-kill': {
+          title: '모든 결함이 칩을 죽이지는 않는다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '입자나 흠집 같은 결함은 어디에 떨어졌느냐에 따라 칩을 죽이기도 하고 아무 일도 없기도 하다. 칩을 죽이는 결함을 치명 결함이라고 한다. 확대한 배선층의 위쪽 모습이다.' },
+            { id: 'safe', label: '피해 없음', focus: ['safe'], desc: '배선 사이 틈보다 작은 입자나 배선이 없는 빈 곳에 떨어진 입자는 회로를 건드리지 않는다. 결함으로 세어져도 칩은 살아남는다.' },
+            { id: 'short', label: '합선', focus: ['short'], desc: '배선 사이 틈보다 큰 입자가 두 배선에 걸치면 배선이 서로 이어진다. 합선이 되어 칩이 죽는 대표적인 치명 결함이다.' },
+            { id: 'open', label: '끊김', focus: ['open'], desc: '배선 위에 입자가 앉아 식각이나 증착을 가리면 배선이 끊기거나 가늘어진다. 선이 끊어진 칩은 신호가 지나가지 못해 죽는다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const ys = [48, 82, 116, 150, 184];
+            o += fdRect(16, 22, 300, 202, { rx: 10, fill: 'rgba(148,163,184,.06)', c: GR, so: .55, sw: 1.2 });
+            ys.forEach((y, i) => { const cut = i === 3; o += cut ? `<rect x="30" y="${y}" width="106" height="14" rx="3" style="fill:#fbbf24;fill-opacity:.8"/><rect x="170" y="${y}" width="130" height="14" rx="3" style="fill:#fbbf24;fill-opacity:.8"/>` : `<rect x="30" y="${y}" width="270" height="14" rx="3" style="fill:#fbbf24;fill-opacity:${i === 1 || i === 2 ? .8 : .55}"/>`; });
+            o += pvdG(f, ['safe'], `<circle cx="84" cy="73" r="4.6" style="fill:#64748b;stroke:#334155;stroke-width:1"/>` + `<circle cx="244" cy="210" r="8" style="fill:#64748b;stroke:#334155;stroke-width:1"/>` + fdTxM(84, 36, '틈보다 작음', { s: 8.8, w: 800, c: GRN }) + fdTxM(262, 236, '빈 곳', { s: 8.8, w: 800, c: GRN }) + `<path d="M84 41 V66" style="stroke:${GRN};stroke-width:1.2;stroke-dasharray:3 2"/>`);
+            o += pvdG(f, ['short'], `<circle cx="200" cy="99" r="12" style="fill:#64748b;stroke:#7f1d1d;stroke-width:1.6"/>` + `<circle cx="200" cy="99" r="19" style="fill:none;stroke:${RED};stroke-width:1.4;stroke-dasharray:4 3"/>` + fdTxM(246, 98, '합선', { s: 10, w: 800, c: RED }) + fdTxM(246, 112, '두 배선이 이어짐', { s: 8.3 }));
+            o += pvdG(f, ['open'], `<circle cx="153" cy="157" r="12" style="fill:#64748b;stroke:#7f1d1d;stroke-width:1.6"/>` + `<circle cx="153" cy="157" r="19" style="fill:none;stroke:${RED};stroke-width:1.4;stroke-dasharray:4 3"/>` + fdTxM(153, 196, '끊김', { s: 10, w: 800, c: RED }) + fdTxM(153, 209, '선이 끊어짐', { s: 8.3 }));
+            // 범례
+            o += fdRect(330, 22, 98, 202, { rx: 10, fill: 'rgba(148,163,184,.06)', c: GR, so: .55, sw: 1.2 }) + fdTxM(379, 42, '결과', { s: 10, w: 800 });
+            [['safe', '살아남음', GRN, 74], ['short', '칩이 죽음', RED, 124], ['open', '칩이 죽음', RED, 174]].forEach((a) => { o += pvdG(f, [a[0]], `<circle cx="352" cy="${a[3]}" r="8" style="fill:#64748b"/>` + fdTxM(396, a[3] + 4, a[1], { s: 8.8, w: 800, c: a[2] })); });
+            o += fdTxM(220, 258, '치명 결함만 수율을 깎는다', { s: 10.5, w: 800, c: AC });
+            return dgSvg('결함의 영향: ' + s.label, o, '0 0 440 270');
+          }
+        },
+
+        // ---------- 수율 곡선 ----------
+        'fld-yld-curve': {
+          title: '칩 면적과 결함 밀도가 수율을 정한다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '결함이 무작위로 흩어져 있다고 보면 칩 하나가 결함 없이 살아남을 확률은 e의 −(면적 × 결함 밀도) 제곱이다. 면적이나 결함 밀도가 커질수록 수율은 곡선을 따라 떨어진다.' },
+            { id: 'area', label: '면적이 커지면', focus: ['area'], desc: '결함 밀도가 0.1개/cm²로 같아도 칩 면적이 1 cm²에서 4 cm²로 커지면 수율은 약 90%에서 약 67%로 떨어진다. 큰 칩일수록 결함 하나에 죽을 확률이 높다.' },
+            { id: 'den', label: '결함 밀도가 크면', focus: ['den'], desc: '같은 1 cm² 칩이라도 결함 밀도가 0.1에서 0.5개/cm²로 늘면 수율은 약 90%에서 약 61%로 떨어진다. 현장에서 입자 하나를 줄이는 일이 수율로 이어지는 이유다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const X0 = 52, X1 = 410, Y0 = 214, Y1 = 30, ax = (a) => X0 + (X1 - X0) * a / 6, ay = (y) => Y0 - (Y0 - Y1) * y;
+            o += `<path d="M${X0} ${Y1} V${Y0} H${X1}" style="fill:none;stroke:${GR};stroke-width:1.4"/>` + fdTxM(X0 - 10, Y1 + 4, '100%', { s: 8.5, a: 'end' }) + fdTxM(X0 - 10, ay(.5) + 3, '50%', { s: 8.5, a: 'end' }) + fdTxM(X0 - 10, Y0 + 3, '0%', { s: 8.5, a: 'end' });
+            [0, 2, 4, 6].forEach((a) => { o += fdTxM(ax(a), Y0 + 15, a + '', { s: 8.5 }); });
+            o += fdTxM((X0 + X1) / 2, Y0 + 30, '칩 면적 (cm²)', { s: 9.5, w: 700 });
+            const curve = (D, col, id, lab) => { let d = ''; for (let a = 0; a <= 6.001; a += .1) d += (a ? 'L' : 'M') + ax(a).toFixed(1) + ' ' + ay(Math.exp(-a * D)).toFixed(1); return pvdG(f, id, `<path d="${d}" style="fill:none;stroke:${col};stroke-width:2.4;stroke-linecap:round"/>` + fdTxM(ax(5.6), ay(Math.exp(-5.6 * D)) - 8, lab, { s: 9, w: 800, c: col, a: 'end' })); };
+            o += curve(.1, C.op, ['area', 'den'], 'D 0.1');
+            o += pvdG(f, ['den'], '');
+            o += curve(.5, RED, ['den'], 'D 0.5');
+            o += curve(.3, AC, ['all'], 'D 0.3');
+            const pt = (a, D, col, id, t1, t2, dx, dy) => pvdG(f, id, `<circle cx="${ax(a).toFixed(1)}" cy="${ay(Math.exp(-a * D)).toFixed(1)}" r="5.2" style="fill:${col};stroke:#fff;stroke-width:1.4"/>` + fdTxM(ax(a) + dx, ay(Math.exp(-a * D)) + dy, t1, { s: 11, w: 800, c: col }) + fdTxM(ax(a) + dx, ay(Math.exp(-a * D)) + dy + 13, t2, { s: 8.5 }));
+            o += pt(1, .1, C.op, ['area', 'den'], '90%', '1 cm²', 18, -10);
+            o += pt(4, .1, C.op, ['area'], '67%', '4 cm²', 4, -18);
+            o += pt(1, .5, RED, ['den'], '61%', 'D 0.5', 26, 22);
+            o += !f ? fdTxM(350, 46, 'Y = e^(−A × D)', { s: 12, w: 800 }) + fdTxM(350, 60, 'A 면적 · D 결함 밀도', { s: 8.8 }) : '';
+            return dgSvg('수율 곡선: ' + s.label, o, '0 0 440 262');
+          }
+        },
+      });
+    })();
+
+    (() => {
+      const C = fdC, RED = '#ef4444', AC = fdAc, GR = '#94a3b8', GRN = '#34d399';
+      const dieRects = (w, bad) => YH.rects(w, (q, k) => bad[k]);
+      Object.assign(DIAGRAMS, {
+        // ---------- 군집 ----------
+        'fld-yld-cluster': {
+          title: '결함이 뭉치면 같은 결함 수에서도 수율이 오른다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '두 웨이퍼의 결함 수는 똑같다. 왼쪽은 결함이 고르게 흩어졌고 오른쪽은 몇 곳에 뭉쳤다. 칩 한 개 안에 결함이 여러 개 있어도 칩은 한 번만 죽으므로, 뭉친 쪽이 살아남는 칩이 더 많다.' },
+            { id: 'rnd', label: '무작위', focus: ['rnd'], desc: '결함이 서로 상관없이 흩어지면 대부분의 결함이 서로 다른 칩에 떨어진다. 결함 하나가 칩 하나를 죽이므로 죽는 칩이 가장 많다. 푸아송 모델이 이 경우를 그린다.' },
+            { id: 'clu', label: '군집', focus: ['clu'], desc: '결함이 몇 곳에 몰려 있으면 한 칩이 결함을 여러 개 떠안는다. 죽는 칩의 수가 결함 수보다 훨씬 적다. 실제 웨이퍼에서는 이런 군집이 흔해서 푸아송보다 수율이 높게 나온다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const R = 74, n = 12;
+            const mk = (cx, cy, pts) => { const w = YH.grid(cx, cy, R, n, false); const bad = w.d.map((q) => pts.some((p) => Math.abs(p[0] - q.x) < q.p / 2 && Math.abs(p[1] - q.y) < q.p / 2)); return { w, bad, nb: bad.filter(Boolean).length, tot: w.d.length }; };
+            const r = YH.lcg(11), rnd = [], clu = [];
+            while (rnd.length < 24) { const x = (r() * 2 - 1) * R, y = (r() * 2 - 1) * R; if (Math.hypot(x, y) < R - 3) rnd.push([x, y]); }
+            const r2 = YH.lcg(5), cen = [[-30, -22], [26, 20], [-14, 38], [34, -34]];
+            while (clu.length < 24) { const c = cen[clu.length % 4], x = c[0] + ((r2() + r2() + r2()) / 3 - .5) * 44, y = c[1] + ((r2() + r2() + r2()) / 3 - .5) * 44; if (Math.hypot(x, y) < R - 3) clu.push([x, y]); }
+            const side = (id, cx, pts, label) => { const cy = 112, abs = pts.map((p) => [p[0] + cx, p[1] + cy]), m = mk(cx, cy, abs); return pvdG(f, [id], YH.ring(cx, cy, R) + dieRects(m.w, m.bad) + abs.map((p) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.1" style="fill:#7f1d1d;stroke:#fff;stroke-width:.6"/>`).join('') + fdTxM(cx, 214, label, { s: 11, w: 800, c: id === 'rnd' ? RED : GRN }) + fdTxM(cx, 232, '결함 24개', { s: 9 }) + fdTxM(cx - 28, 252, '죽은 칩', { s: 9 }) + fdTxM(cx + 28, 252, m.nb + '개', { s: 15, w: 800, c: RED })); };
+            o += side('rnd', 108, rnd, '무작위로 흩어짐');
+            o += side('clu', 332, clu, '몇 곳에 뭉침');
+            return dgSvg('결함의 분포: ' + s.label, o, '0 0 440 266');
+          }
+        },
+
+        // ---------- 웨이퍼 맵 6종 ----------
+        'fld-yld-maps': {
+          title: '웨이퍼 맵의 모양이 원인을 알려 준다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '붉은 칩이 불량이다. 불량이 어디에 어떻게 모였는지가 원인의 지문이다. 같은 불량률이어도 모양이 다르면 원인이 완전히 다르다.' },
+            { id: 'rnd', label: '무작위', focus: ['rnd'], desc: '불량이 전체에 고르게 흩어졌다. 입자 같은 무작위 결함의 모습이다. 특정 장비 하나를 의심하기보다 클린룸·장비 청결 전반을 본다.' },
+            { id: 'edge', label: '가장자리', focus: ['edge'], desc: '둘레를 따라 불량이 몰렸다. 가장자리 두께나 식각 속도 같은 균일도 문제, 웨이퍼를 잡는 클램프나 가장자리 가스 흐름을 의심한다.' },
+            { id: 'ctr', label: '중앙', focus: ['ctr'], desc: '중앙 부근이 불량이다. 중앙으로 가스가 쏠리거나 온도가 높아서 생기는 두께·도핑 편차를 의심한다.' },
+            { id: 'scr', label: '긁힘', focus: ['scr'], desc: '불량이 한 줄로 이어졌다. 이송 로봇, 카세트, 연마 같은 물리적 접촉이 만든 긁힘의 모양이다. 줄의 방향이 어디서 닿았는지 알려 준다.' },
+            { id: 'clu', label: '군집', focus: ['clu'], desc: '불량이 몇 군데에 덩어리로 있다. 한 번의 오염이나 국소적인 이물, 가스 노즐 막힘처럼 한 사건이 남긴 흔적이다. 시간을 거슬러 그 사건을 찾는다.' },
+            { id: 'rep', label: '반복', focus: ['rep'], desc: '같은 위치의 칩이 일정한 간격으로 계속 불량이다. 한 번에 찍히는 노광 영역 안의 같은 자리가 문제라는 뜻이라서 마스크(레티클) 결함을 의심한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const R = 56, n = 16, defs = [['rnd', '무작위', 'random', 3], ['edge', '가장자리', 'edge', 4], ['ctr', '중앙', 'center', 5], ['scr', '긁힘', 'scratch', 6], ['clu', '군집', 'cluster', 7], ['rep', '반복', 'repeat', 8]];
+            defs.forEach((d, k) => {
+              const cx = 74 + (k % 3) * 146, cy = 64 + Math.floor(k / 3) * 140, w = YH.grid(cx, cy, R, n, false), bad = YH.mapBad(d[2], w, { x: cx, y: cy }, R, d[3] * 977);
+              o += pvdG(f, [d[0]], YH.ring(cx, cy, R) + YH.rects(w, (q, i) => bad[i], { rx: .8, go: .42 }) + fdTxM(cx, cy + R + 16, d[1], { s: 10.5, w: 800, c: AC }));
+            });
+            return dgSvg('웨이퍼 맵 패턴: ' + s.label, o, '0 0 440 280');
+          }
+        },
+
+        // ---------- 수율 폭포 ----------
+        'fld-yld-waterfall': {
+          title: '수율 손실을 원인별로 쪼개 본다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '수율 100%에서 시작해 원인별로 깎인 몫을 차례로 뺀 모습이다. 숫자는 이해를 위한 예시다. 어떤 원인이 얼마나 깎는지 보이면 어디부터 고칠지가 정해진다.' },
+            { id: 'rnd', label: '무작위 손실', focus: ['rnd'], desc: '입자처럼 어디에나 흩어진 결함이 깎는 몫이다. 줄이는 데 시간이 오래 걸린다. 장비 청결과 클린룸을 꾸준히 올려야 해서 한 번의 조치로 끝나지 않는다.' },
+            { id: 'sys', label: '계통 손실', focus: ['sys'], desc: '가장자리 불균일, 특정 챔버의 편차, 설계 마진 같은 원인이 있는 손실이다. 웨이퍼 맵과 장비별 비교로 원인을 짚으면 한 번의 조치로 크게 줄어든다. 수율 개선은 보통 여기서 먼저 얻는다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const bars = [['투입', 0, 100, 'all', C.eq, '100'], ['무작위 입자', 100, 93, 'rnd', RED, '−7'], ['가장자리', 93, 89, 'sys', AC, '−4'], ['챔버 편차', 89, 86, 'sys', AC, '−3'], ['설계 마진', 86, 84, 'sys', AC, '−2'], ['최종', 0, 84, 'all', C.op, '84']];
+            const X0 = 28, bw = 48, gap = 18, Y0 = 220, H = 170, y = (v) => Y0 - H * v / 100;
+            o += `<path d="M${X0 - 8} ${y(100)} V${Y0} H430" style="fill:none;stroke:${GR};stroke-width:1.3"/>` + fdTxM(X0 - 12, y(100) + 3, '100', { s: 8.5, a: 'end' }) + fdTxM(X0 - 12, y(50) + 3, '50', { s: 8.5, a: 'end' }) + fdTxM(X0 - 12, Y0 + 3, '0', { s: 8.5, a: 'end' });
+            bars.forEach((b, i) => {
+              const x = X0 + i * (bw + gap), top = i === 0 || i === 5 ? b[2] : b[1], bot = i === 0 || i === 5 ? 0 : b[2];
+              o += pvdG(f, i === 0 || i === 5 ? ['all', 'rnd', 'sys'] : [b[3]], `<rect x="${x}" y="${y(top).toFixed(1)}" width="${bw}" height="${(y(bot) - y(top)).toFixed(1)}" rx="3" style="fill:${b[4]};fill-opacity:${i === 0 || i === 5 ? .35 : .75};stroke:${b[4]};stroke-width:1.5"/>` + fdTxM(x + bw / 2, y(top) - 6, b[5], { s: 11, w: 800, c: b[4] }) + fdTxM(x + bw / 2, Y0 + 15, b[0], { s: 9, w: 700 }) + (i > 0 && i < 5 ? `<path d="M${x - gap} ${y(b[1]).toFixed(1)} H${x}" style="stroke:${GR};stroke-width:1;stroke-dasharray:3 2"/>` : ''));
+            });
+            o += !f ? fdTxM(220, 252, '계통 손실은 원인을 찾아 고칠 수 있다', { s: 9.5, w: 800, c: AC }) : '';
+            return dgSvg('수율 폭포: ' + s.label, o, '0 0 440 262');
+          }
+        },
+
+        // ---------- 수율 램프 ----------
+        'fld-yld-ramp': {
+          title: '새 공정의 수율은 몇 분기에 걸쳐 오른다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '새 공정은 시작할 때 결함 밀도가 높아 수율이 낮다. 결함을 찾아 고칠수록 밀도가 내려가고 수율이 곡선을 따라 오른다. 숫자는 이해를 위한 예시다.' },
+            { id: 'dev', label: '개발기', focus: ['dev'], desc: '수율이 낮은 시기다. 설계와 공정을 맞추며 큰 문제를 찾아낸다. 웨이퍼 한 장 한 장이 귀한 정보라서 장비 사고나 분실이 특히 아깝다.' },
+            { id: 'ramp', label: '램프', focus: ['ramp'], desc: '수율이 가파르게 오르는 시기다. 웨이퍼 맵과 장비별 비교로 계통 원인을 찾아 하나씩 지운다. 현장에서 알람과 변동을 빨리 잡는 일이 속도를 정한다.' },
+            { id: 'mat', label: '양산 안정', focus: ['mat'], desc: '곡선이 완만해진 시기다. 남은 손실은 대부분 무작위 결함이라 줄이기 어렵다. 이때는 수율을 지키는 일, 즉 변동 감시와 예방 정비가 중심이다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const X0 = 50, X1 = 414, Y0 = 212, Y1 = 28, T = 12, ax = (t) => X0 + (X1 - X0) * t / T, ay = (y) => Y0 - (Y0 - Y1) * y, Y = (t) => Math.exp(-(2.0 * Math.exp(-t / 2.2) + .1));
+            o += `<path d="M${X0} ${Y1} V${Y0} H${X1}" style="fill:none;stroke:${GR};stroke-width:1.4"/>` + fdTxM(X0 - 8, Y1 + 4, '100%', { s: 8.5, a: 'end' }) + fdTxM(X0 - 8, ay(.5) + 3, '50%', { s: 8.5, a: 'end' }) + fdTxM(X0 - 8, Y0 + 3, '0%', { s: 8.5, a: 'end' }) + fdTxM((X0 + X1) / 2, Y0 + 32, '시간 (분기)', { s: 9.5, w: 700 });
+            const zone = (a, b, id, lab, col) => pvdG(f, [id], `<rect x="${ax(a)}" y="${Y1}" width="${ax(b) - ax(a)}" height="${Y0 - Y1}" style="fill:${col};fill-opacity:.1"/>` + fdTxM((ax(a) + ax(b)) / 2, Y0 + 15, lab, { s: 9.5, w: 800, c: col }));
+            o += zone(0, 3, 'dev', '개발기', C.eq) + zone(3, 7, 'ramp', '램프', AC) + zone(7, 12, 'mat', '양산 안정', C.op);
+            let d = ''; for (let t = 0; t <= 12.001; t += .2) d += (t ? 'L' : 'M') + ax(t).toFixed(1) + ' ' + ay(Y(t)).toFixed(1);
+            o += `<path d="${d}" style="fill:none;stroke:#e5e7eb;stroke-width:2.6;stroke-linecap:round;stroke-opacity:.9"/>`;
+            [[0, 3, 'dev', C.eq], [3, 7, 'ramp', AC], [7, 12, 'mat', C.op]].forEach((z) => { let p = ''; for (let t = z[0]; t <= z[1] + .001; t += .2) p += (p ? 'L' : 'M') + ax(t).toFixed(1) + ' ' + ay(Y(t)).toFixed(1); o += pvdG(f, [z[2]], `<path d="${p}" style="fill:none;stroke:${z[3]};stroke-width:3;stroke-linecap:round"/>`); });
+            [[0, 'dev'], [3, 'ramp'], [7, 'mat'], [12, 'mat']].forEach((p) => { o += pvdG(f, [p[1]], `<circle cx="${ax(p[0]).toFixed(1)}" cy="${ay(Y(p[0])).toFixed(1)}" r="4.6" style="fill:#fff;stroke:#475569;stroke-width:1.6"/>` + fdTxM(ax(p[0]) + (p[0] === 12 ? -6 : 6), ay(Y(p[0])) - 11, Math.round(Y(p[0]) * 100) + '%', { s: 10.5, w: 800, a: p[0] === 12 ? 'end' : 'start' })); });
+            return dgSvg('수율 램프: ' + s.label, o, '0 0 440 262');
+          }
+        },
+
+        // ---------- 장비의 particle adder ----------
+        'fld-yld-adder': {
+          title: '장비 하나의 입자가 수율까지 올라온다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '웨이퍼는 수백 단계를 거치고 장비는 단계마다 입자를 조금씩 보탠다. 그 합이 결함 밀도가 되어 수율을 정한다. 숫자는 이해를 위한 예시다.' },
+            { id: 'ok', label: '정상', focus: ['ok'], desc: '네 종류의 장비가 단계당 0.0005개/cm²를 보태고 각각 100단계를 거치면 합이 0.2개/cm²다. 칩 면적이 1 cm²이면 수율은 약 82%다.' },
+            { id: 'bad', label: '한 곳이 나쁨', focus: ['bad'], desc: '식각 장비 하나가 단계당 입자를 4배로 보태면 합이 0.35개/cm²가 되고 수율은 약 70%로 떨어진다. 장비 하나가 최종 수율을 12%p나 깎는다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const tl = ['증착', '식각', '세정', '노광'];
+            tl.forEach((t, i) => {
+              const x = 14 + i * 104, isBad = i === 1;
+              o += pvdG(f, ['ok', 'bad'], fdRect(x, 24, 94, 78, { rx: 10, fill: 'rgba(148,163,184,.07)', c: isBad && f && f.includes('bad') ? RED : GR, so: .9, sw: isBad && f && f.includes('bad') ? 2.2 : 1.4 }) + fdTxM(x + 47, 44, t, { s: 11.5, w: 800 }) + fdTxM(x + 47, 61, '100단계', { s: 9 }) + fdTxM(x + 47, 80, isBad && f && f.includes('bad') ? '0.0020' : '0.0005', { s: 12, w: 800, c: isBad && f && f.includes('bad') ? RED : C.op }) + fdTxM(x + 47, 93, '개/cm²·단계', { s: 7.8 }));
+              o += `<path d="M${x + 47} 104 V128" style="stroke:${GR};stroke-width:1.4"/>`;
+            });
+            const bad = f && f.includes('bad'), D = bad ? '0.35' : '0.20', Yy = bad ? '70%' : '82%', col = bad ? RED : C.op;
+            o += fdRect(14, 128, 412, 50, { rx: 10, fill: 'rgba(148,163,184,.08)', c: GR, so: .8, sw: 1.4 }) + fdTxM(220, 148, '결함 밀도 = 단계 수 × 단계당 입자의 합', { s: 10, w: 700 }) + fdTxM(220, 168, 'D = ' + D + ' 개/cm²', { s: 14, w: 800, c: col });
+            o += `<path d="M220 180 V198" style="stroke:${GR};stroke-width:1.6"/>` + fdArr(220, 202, 'down', GR);
+            o += fdRect(120, 208, 200, 46, { rx: 12, fill: bad ? 'rgba(239,68,68,.1)' : 'rgba(52,211,153,.1)', c: col, so: .9, sw: 1.8 }) + fdTxM(220, 228, '칩 1 cm² 수율', { s: 10, w: 700 }) + fdTxM(220, 246, Yy, { s: 18, w: 800, c: col });
+            return dgSvg('입자와 수율: ' + s.label, o, '0 0 440 266');
+          }
+        },
+
+        // ---------- 비용 ----------
+        'fld-yld-cost': {
+          title: '큰 칩일수록 수율이 값에 두 번 반영된다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '웨이퍼 한 장의 값은 같으므로 양품 한 개의 값은 웨이퍼 값을 양품 수로 나눈 값이다. 작은 칩을 1로 놓고 비교했다. 숫자는 이해를 위한 예시다.' },
+            { id: 'big', label: '큰 칩', focus: ['big'], desc: '칩 면적이 4배면 웨이퍼에서 나오는 개수가 줄고 수율도 떨어진다. 두 효과가 겹쳐 양품 한 개의 값은 작은 칩의 약 6배가 된다.' },
+            { id: 'fix', label: '결함 밀도를 절반으로', focus: ['fix'], desc: '결함 밀도를 절반으로 줄이면 큰 칩의 수율이 약 67%에서 약 82%로 오르고 양품 한 개의 값은 약 4.9배로 내려온다. 결함 한 개를 줄이는 일의 값이 큰 칩에서 더 크다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const rows = [['sm', '작은 칩 100 mm²', '640개 × 90%', 1.0, C.op, '1.0×'], ['big', '큰 칩 400 mm²', '143개 × 67%', 6.04, RED, '6.0×'], ['fix', '큰 칩 · 밀도 절반', '143개 × 82%', 4.94, AC, '4.9×']];
+            const X0 = 150, W = 230, mx = 6.04;
+            rows.forEach((r, i) => {
+              const y = 34 + i * 70, w = Math.max(6, W * r[3] / mx);
+              o += pvdG(f, i === 0 ? ['big', 'fix'] : [r[0]], fdTxM(14, y + 17, r[1], { s: 10.5, w: 800, a: 'start' }) + fdTxM(14, y + 33, r[2], { s: 8.8, a: 'start' }) + `<rect x="${X0 + 6}" y="${y + 2}" width="${w.toFixed(1)}" height="34" rx="5" style="fill:${r[4]};fill-opacity:.7;stroke:${r[4]};stroke-width:1.5"/>` + fdTxM(X0 + 14 + w, y + 25, r[5], { s: 15, w: 800, c: r[4], a: 'start' }));
+            });
+            o += `<path d="M${X0} 22 V240" style="stroke:${GR};stroke-width:1.3"/>` + fdTxM(220, 262, '양품 한 개의 값 (작은 칩 = 1)', { s: 9.5, w: 700 });
+            return dgSvg('양품 한 개의 값: ' + s.label, o, '0 0 440 272');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
@@ -11181,7 +11465,84 @@
       });
       draw();
     }
+    // ===== 실습: 수율 실험실 (yield-lab) =====
+    const YL_Q = [
+      { k: 'random', seed: 3, o: [['중앙으로 쏠린 가스·온도', '중앙에 몰리지 않고 전체에 고르게 퍼졌어요. 중앙 쏠림은 중앙이 유독 붉은 맵이에요.'], ['입자 같은 무작위 결함', ''], ['마스크(레티클) 결함', '마스크 결함이면 같은 자리가 일정한 간격으로 반복돼요. 여기는 위치에 규칙이 없어요.'], ['이송·연마 접촉 긁힘', '긁힘은 불량이 줄을 이뤄요. 여기는 줄이 없어요.']], a: 1, why: '위치에 규칙 없이 흩어진 불량은 입자 같은 무작위 결함의 모습이에요. 장비 하나보다 클린룸과 장비 청결 전반을 살펴요.' },
+      { k: 'edge', seed: 4, o: [['입자 같은 무작위 결함', '입자라면 둘레에 몰릴 이유가 없어요. 둘레만 붉다는 건 웨이퍼 둘레에서 달라지는 공정이에요.'], ['가장자리 균일도 문제', ''], ['한 번의 국소 오염 사건', '한 번의 오염은 덩어리로 남지만 둘레를 따라 고리를 만들지는 않아요.'], ['마스크(레티클) 결함', '마스크 결함은 같은 자리가 반복되지 둘레를 따라 몰리지 않아요.']], a: 1, why: '둘레를 따라 불량이 몰리면 가장자리의 두께나 식각 속도 같은 균일도, 웨이퍼를 잡는 부분의 영향을 의심해요.' },
+      { k: 'center', seed: 5, o: [['가장자리 균일도 문제', '둘레는 멀쩡하고 중앙이 붉어요. 가장자리 문제와는 반대예요.'], ['중앙으로 쏠린 가스·온도', ''], ['이송·연마 접촉 긁힘', '긁힘은 한 줄로 이어져요. 여기는 중앙에 둥글게 몰렸어요.'], ['입자 같은 무작위 결함', '무작위 결함이면 중앙만 유독 붉을 이유가 없어요.']], a: 1, why: '중앙이 둥글게 붉으면 가스 흐름이나 온도가 중앙으로 쏠려 두께와 도핑이 어긋난 경우가 많아요.' },
+      { k: 'scratch', seed: 6, o: [['입자 같은 무작위 결함', '무작위 결함은 줄을 만들지 않아요. 불량이 한 줄로 이어졌다면 무언가 지나간 자국이에요.'], ['중앙으로 쏠린 가스·온도', '중앙 쏠림은 둥글게 퍼져요. 여기는 가늘게 이어진 줄이에요.'], ['이송·연마 접촉 긁힘', ''], ['마스크(레티클) 결함', '마스크 결함은 일정한 간격의 반복이지 연속된 줄이 아니에요.']], a: 2, why: '한 줄로 이어진 불량은 이송 로봇, 카세트, 연마처럼 물리적으로 닿은 자국이에요. 줄의 방향이 어디서 닿았는지 단서가 돼요.' },
+      { k: 'cluster', seed: 7, o: [['입자 같은 무작위 결함', '무작위 결함이라면 흩어져야 해요. 여기는 몇 군데에 덩어리로 있어요.'], ['가장자리 균일도 문제', '가장자리를 따라 몰리지 않았어요. 덩어리가 웨이퍼 안쪽에 있어요.'], ['한 번의 국소 오염 사건', ''], ['이송·연마 접촉 긁힘', '긁힘은 줄 모양이에요. 여기는 둥근 덩어리예요.']], a: 2, why: '덩어리로 몰린 불량은 한 번의 오염이나 국소적인 이물, 노즐 막힘 같은 한 사건의 흔적이에요. 그 웨이퍼가 언제 어떤 장비를 거쳤는지 거슬러 올라가요.' },
+      { k: 'repeat', seed: 8, o: [['이송·연마 접촉 긁힘', '긁힘이면 줄로 이어져요. 여기는 일정한 간격으로 점점이 반복돼요.'], ['한 번의 국소 오염 사건', '한 번의 오염이면 덩어리 하나로 남아요. 여기는 같은 자리가 여러 번 반복돼요.'], ['마스크(레티클) 결함', ''], ['가장자리 균일도 문제', '가장자리 문제라면 둘레에 몰려요. 여기는 웨이퍼 전체에 규칙적으로 퍼졌어요.']], a: 2, why: '같은 위치의 칩이 일정한 간격으로 불량이면 한 번에 찍히는 노광 영역의 같은 자리가 문제예요. 마스크(레티클)의 결함을 의심해요.' },
+    ];
+    function ylSim(A, D, cl, seed) {
+      const R = 150, s = Math.sqrt(A), r = YH.lcg(seed * 7919 + 13), N = Math.round(D * Math.PI * 15 * 15), pts = [];
+      const kc = Math.max(2, Math.round(N / 12)), cen = [];
+      for (let k = 0; k < 60; k++) { const a = r() * 6.2832, rr = Math.sqrt(r()) * R * .92; cen.push([Math.cos(a) * rr, Math.sin(a) * rr]); }
+      for (let k = 0; k < N; k++) {
+        const u1 = r(), u2 = r(), u3 = r(), u4 = r(), u5 = r();
+        if (!cl) { const rr = Math.sqrt(u1) * R, a = u2 * 6.2832; pts.push([Math.cos(a) * rr, Math.sin(a) * rr]); }
+        else { const c = cen[Math.floor(u3 * kc) % 60]; pts.push([c[0] + (u1 + u2 + u4 + u5 - 2) * 16, c[1] + (u1 * 3.7 % 1 + u2 * 5.3 % 1 + u3 * 2.9 % 1 + u4 * 7.1 % 1 - 2) * 16]); }
+      }
+      const nm = Math.ceil(R / s) + 1, bad = new Set();
+      pts.forEach((p) => { bad.add(Math.floor(p[0] / s) + ',' + Math.floor(p[1] / s)); });
+      const ok = [], ko = [];
+      for (let i = -nm; i < nm; i++) for (let j = -nm; j < nm; j++) {
+        const x0 = i * s, y0 = j * s, x1 = x0 + s, y1 = y0 + s;
+        if ([[x0, y0], [x1, y0], [x0, y1], [x1, y1]].every((c) => Math.hypot(c[0], c[1]) <= R - 3)) (bad.has(i + ',' + j) ? ko : ok).push([x0, y0]);
+      }
+      return { s, ok, ko, n: ok.length + ko.length, g: ok.length, y: (ok.length / Math.max(1, ok.length + ko.length)) * 100, th: Math.exp(-(A / 100) * D) * 100 };
+    }
+    function ylHydrate(fig) {
+      if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc', 'pr-al', 'pr-yl');
+      const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
+      const st = { m: 'calc', A: 100, D: .1, cl: false, seed: 1, qi: 0, pick: null, ok: 0 };
+      const wfSvg = (m) => { const sc = 93 / 150, w = Math.max(.5, m.s * sc - (m.s * sc > 4 ? .7 : .25)), path = (a) => a.map((q) => `M${(100 + q[0] * sc).toFixed(1)} ${(100 + q[1] * sc).toFixed(1)}h${w.toFixed(2)}v${w.toFixed(2)}h${(-w).toFixed(2)}z`).join(''); return `<svg viewBox="0 0 200 200" role="img" aria-label="${escH(tt('시뮬레이션한 웨이퍼'))}"><circle cx="100" cy="100" r="95" style="fill:rgba(148,163,184,.1);stroke:#94a3b8;stroke-width:1.6"/><path d="M95 195 l5 -4 l5 4" style="fill:none;stroke:#94a3b8;stroke-width:1.2"/><path d="${path(m.ok)}" style="fill:#34d399;fill-opacity:.6"/><path d="${path(m.ko)}" style="fill:#ef4444;fill-opacity:.9"/></svg>`; };
+      const qSvg = (q) => { const R = 70, w = YH.grid(80, 80, R, 18, false), bad = YH.mapBad(q.k, w, { x: 80, y: 80 }, R, q.seed * 977); return `<svg viewBox="0 0 160 160" role="img" aria-label="${escH(tt('웨이퍼 맵'))}">${YH.ring(80, 80, R)}${YH.rects(w, (c, i) => bad[i], { rx: .8, go: .5 })}</svg>`; };
+      const upd = () => {
+        const m = ylSim(st.A, st.D, st.cl, st.seed), $ = (c) => fig.querySelector(c);
+        $('.yl-wf').innerHTML = wfSvg(m);
+        $('.yl-n').textContent = m.n; $('.yl-g').textContent = m.g; $('.yl-ys').textContent = m.y.toFixed(1) + '%'; $('.yl-yt').textContent = m.th.toFixed(1) + '%'; $('.yl-c').textContent = m.g ? (1000 / m.g).toFixed(1) : '—';
+        $('.yl-av').textContent = st.A; $('.yl-dv').textContent = st.D.toFixed(2);
+        const d = m.y - m.th, msg = !st.cl ? (Math.abs(d) < 3 ? '시뮬레이션이 이론과 거의 맞아요. 무작위로 흩어진 결함은 푸아송 식을 따라요.' : d > 0 ? '이번 뿌림은 이론보다 운이 좋았어요. 결함이 적은 웨이퍼는 숫자가 크게 흔들려요. 다시 뿌려 보세요.' : '이번 뿌림은 이론보다 운이 나빴어요. 결함이 적은 웨이퍼는 숫자가 크게 흔들려요. 다시 뿌려 보세요.') : (d > 1 ? '같은 결함 수인데 뭉치니 수율이 이론보다 높아요. 한 칩에 결함이 여러 개 겹쳐 죽는 칩이 줄었어요.' : '결함이 너무 적거나 칩이 너무 작으면 뭉쳐도 차이가 잘 안 보여요. 칩을 키우거나 밀도를 올려 보세요.');
+        $('.yl-msg').textContent = tt(msg);
+        $('.yl-win').style.display = st.A === 400 && m.th >= 80 ? '' : 'none';
+      };
+      const draw = () => {
+        let h = `<div class="dg-head"><span class="dg-tag">${escH(tt('직접 해 보기'))}</span><span class="dg-title">${escH(tt('수율 실험실'))}</span></div>`;
+        h += `<div class="pr-row yl-tabs"><button type="button" class="dg-btn${st.m === 'calc' ? ' on' : ''}" data-a="mode" data-m="calc">${escH(tt('수율 계산기'))}</button><button type="button" class="dg-btn${st.m === 'quiz' ? ' on' : ''}" data-a="mode" data-m="quiz">${escH(tt('웨이퍼 맵 읽기'))}</button></div>`;
+        if (st.m === 'calc') {
+          h += `<div class="yl-wrap"><div class="yl-wf"></div><div class="yl-side">`;
+          h += `<label class="yl-sl"><span>${escH(tt('칩 면적 (mm²)'))} <b class="yl-av"></b></span><input type="range" min="50" max="600" step="50" value="${st.A}" data-r="A"></label>`;
+          h += `<label class="yl-sl"><span>${escH(tt('결함 밀도 (개/cm²)'))} <b class="yl-dv"></b></span><input type="range" min="1" max="100" step="1" value="${Math.round(st.D * 100)}" data-r="D"></label>`;
+          h += `<div class="pr-row"><button type="button" class="dg-btn${st.cl ? '' : ' on'}" data-a="cl" data-v="0">${escH(tt('무작위'))}</button><button type="button" class="dg-btn${st.cl ? ' on' : ''}" data-a="cl" data-v="1">${escH(tt('군집'))}</button><button type="button" class="dg-btn" data-a="seed">${escH(tt('다시 뿌리기'))}</button></div></div></div>`;
+          h += `<div class="yl-out"><div><span>${escH(tt('웨이퍼당 칩'))}</span><b class="yl-n"></b></div><div><span>${escH(tt('양품'))}</span><b class="yl-g"></b></div><div><span>${escH(tt('시뮬레이션 수율'))}</span><b class="yl-ys"></b></div><div><span>${escH(tt('이론 수율'))}</span><b class="yl-yt"></b></div><div class="yl-w"><span>${escH(tt('양품 한 개의 값 (웨이퍼 한 장 = 1000)'))}</span><b class="yl-c"></b></div></div>`;
+          h += `<p class="dg-desc yl-msg"></p><p class="pr-hint">${escH(tt('도전: 칩 면적 400 mm²에서 이론 수율을 80% 넘기려면 결함 밀도를 얼마로 낮춰야 할까요?'))}</p><p class="pr-hint yl-win" style="display:none"><b>${escH(tt('✔ 도전 성공'))}</b> ${escH(tt('이론 식으로 계산한 값과도 맞아요. 밀도 0.05 이하가 필요해요.'))}</p>`;
+        } else if (st.qi >= YL_Q.length) {
+          const r = st.ok, msg = r >= YL_Q.length - 1 ? '맵의 모양에서 원인을 읽는 눈이 생겼어요. 실제로는 모양 하나로 끝내지 말고 장비 이력과 맞춰 확인해요.' : r >= 3 ? '좋아요. 놓친 모양은 웨이퍼 맵 그림을 다시 보고 도전해 보세요.' : '웨이퍼 맵 그림의 여섯 모양을 다시 보고 도전해 보세요. 어디에 어떻게 몰렸는지부터 보면 쉬워져요.';
+          h += `<p class="pr-score">${escH(tt('결과'))} <b>${r} / ${YL_Q.length}</b></p><p class="dg-desc">${escH(tt(msg))}</p><div class="pr-row"><button type="button" class="dg-btn on" data-a="again">${escH(tt('다시 해 보기'))}</button></div>`;
+        } else {
+          const q = YL_Q[st.qi], ans = st.pick != null;
+          h += `<p class="pr-q"><b>${escH(tt('맵'))} ${st.qi + 1} / ${YL_Q.length}</b> · ${escH(tt('붉은 칩이 불량'))}</p><div class="yl-map">${qSvg(q)}</div><p class="pr-hint"><b>${escH(tt('이 맵에서 가장 먼저 의심할 원인은?'))}</b></p>`;
+          h += `<div class="al-opts">${q.o.map((o, k) => `<button type="button" class="dg-btn al-o${ans ? (k === q.a ? ' good' : k === st.pick ? ' bad' : '') : ''}" data-a="opt" data-k="${k}" ${ans ? 'disabled' : ''}>${escH(tt(o[0]))}</button>`).join('')}</div>`;
+          if (ans) { const okk = st.pick === q.a; h += `<div class="pr-fb"><b>${escH(tt(okk ? '✔ 맞아요' : '✘ 아쉬워요'))}</b>${okk ? '' : `<p>${escH(tt(q.o[st.pick][1]))}</p>`}<p>${escH(tt(q.why))}</p></div><div class="pr-row"><button type="button" class="dg-btn on" data-a="next">${escH(tt(st.qi + 1 >= YL_Q.length ? '결과 보기' : '다음'))}</button></div>`; }
+        }
+        fig.innerHTML = h + (cap ? `<figcaption>${escH(cap)}</figcaption>` : '');
+        if (st.m === 'calc') upd();
+      };
+      fig.addEventListener('input', (e) => { const r = e.target.dataset && e.target.dataset.r; if (!r) return; if (r === 'A') st.A = +e.target.value; else st.D = +e.target.value / 100; upd(); });
+      fig.addEventListener('click', (e) => {
+        const act = e.target.closest && e.target.closest('[data-a]'); if (!act) return;
+        const a = act.dataset.a;
+        if (a === 'mode') { st.m = act.dataset.m; } else if (a === 'cl') { st.cl = act.dataset.v === '1'; } else if (a === 'seed') { st.seed++; }
+        else if (a === 'opt' && st.pick == null) { st.pick = +act.dataset.k; if (st.pick === YL_Q[st.qi].a) st.ok++; }
+        else if (a === 'next') { st.pick = null; st.qi++; } else if (a === 'again') { st.qi = 0; st.pick = null; st.ok = 0; }
+        if (st.m === 'calc' && (a === 'cl' || a === 'seed')) { fig.querySelectorAll('[data-a=cl]').forEach((b) => b.classList.toggle('on', (b.dataset.v === '1') === st.cl)); upd(); return; }
+        draw();
+      });
+      draw();
+    }
     function prHydrate(fig) {
+      if (fig.dataset.pr === 'yield-lab') return ylHydrate(fig);
       if (fig.dataset.pr === 'alarm-drill') return alHydrate(fig);
       if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc');
       const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
