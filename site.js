@@ -47,7 +47,7 @@
     }
     function saveWrong() { try { localStorage.setItem('semiCbtWrong', JSON.stringify(wrongNotes)); } catch (e) {} }
     // 이론 글(마크다운 변환 결과)은 화면에 넣기 전에 걸러서, 글에 섞인 스크립트·이벤트 속성이 실행되지 않게 한다.
-    const safeHtml = (h) => (window.DOMPurify ? DOMPurify.sanitize(String(h), { ADD_ATTR: ['data-dg', 'data-cap'] }) : String(h).replace(/<[^>]*>/g, ''));
+    const safeHtml = (h) => (window.DOMPurify ? DOMPurify.sanitize(String(h), { ADD_ATTR: ['data-dg', 'data-cap', 'data-pr'] }) : String(h).replace(/<[^>]*>/g, ''));
     const escH = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     
     let pmGateId = null, pmGateOpener = null;   // 해금 팝업: 이번 방문에서 이미 띄운 콘텐츠 / 닫을 때 돌아갈 곳
@@ -1053,6 +1053,7 @@
     // 이론 글에 한 줄로 {{diagram:그림id|캡션}} 을 쓰면 아래 부품이 그 자리에 들어간다. (모르는 id 는 조용히 사라진다)
     // 그림은 사람이 만든 SVG 라서 AI 가 쓰는 글과 달리 틀릴 일이 없다. 새 그림은 DIAGRAMS 에 항목을 추가하고, scripts/generate_all.py 의 DIAGRAMS 목록에도 같은 id 를 적는다.
     const DG_RE = /^[ \t]*\{\{\s*diagram:([a-z0-9-]+)(?:\|([^}\n]*))?\}\}[ \t]*$/gm;
+    const PR_RE = /^[ \t]*\{\{\s*practice:([a-z0-9-]+)(?:\|([^}\n]*))?\}\}[ \t]*$/gm;   // 집중 연습 글의 체험 칸
     // 용어 풀이·접는 설명: 비전문가가 모를 말이나 본문에 넣기엔 애매한 곁가지 설명을 눌러서 보게 한다.
     //   문장 속 어디서나  {{term:용어|풀이}}   /   한 줄로  {{toggle:제목|내용}}
     const TERM_RE = /\{\{\s*term:([^|}\n]+)\|([^}\n]+)\}\}/g, TOGGLE_RE = /^[ \t]*\{\{\s*toggle:([^|}\n]+)\|([^}\n]+)\}\}[ \t]*$/gm;
@@ -10481,7 +10482,396 @@
         if (el.closest('.fj-canvas')) fjSwipe(d); else { const fig = el.closest('figure.dg'); if (fig) dgStep(fig, d); }
       }, { passive: true });
     })();
+    // ===== 현장 직무 > 집중 연습: SPC 관리도 읽기 =====
+    (() => {
+      const C = fdC, RED = '#ef4444', BLU = '#60a5fa';
+      // 관리도 한 장의 좌표계: x0,y0,w,h 는 그림 칸, zr 은 위아래로 보여 줄 σ 범위, n 은 점 수
+      const mkc = (x0, y0, w, h, zr, n) => ({ x0, y0, w, h, zr, n, X: (i) => x0 + 8 + i * ((w - 16) / (n - 1)), Y: (z) => y0 + h / 2 - Math.max(-zr, Math.min(zr, z)) * (h / 2) / zr });
+      const zones = (k) => {
+        const Y = k.Y, rc = (a, b, col, op) => `<rect x="${k.x0}" y="${Y(b)}" width="${k.w}" height="${Y(a) - Y(b)}" style="fill:${col};fill-opacity:${op}"/>`;
+        let s = rc(-1, 1, '#34d399', .1) + rc(1, 2, '#fbbf24', .1) + rc(-2, -1, '#fbbf24', .1) + rc(2, 3, '#fb923c', .13) + rc(-3, -2, '#fb923c', .13) + rc(3, k.zr, RED, .1) + rc(-k.zr, -3, RED, .1);
+        [-2, -1, 1, 2].forEach((z) => { s += pvdL(`M${k.x0} ${Y(z)} H${k.x0 + k.w}`, { sw: .8, so: .3, dash: '3 3' }); });
+        [-3, 3].forEach((z) => { s += pvdL(`M${k.x0} ${Y(z)} H${k.x0 + k.w}`, { c: RED, sw: 1.6, so: .9 }); });
+        return s + pvdL(`M${k.x0} ${Y(0)} H${k.x0 + k.w}`, { c: C.op, sw: 1.6, so: .95 });
+      };
+      const zlab = (k, o = {}) => {
+        const x = k.x0 + k.w + 4, s = o.s || 8.5;
+        let t = fdTxM(x, k.Y(3) + 3, 'UCL', { a: 'start', s, w: 800, c: RED }) + fdTxM(x, k.Y(0) + 3, 'CL', { a: 'start', s, w: 800, c: C.op }) + fdTxM(x, k.Y(-3) + 3, 'LCL', { a: 'start', s, w: 800, c: RED });
+        if (o.sig) [-2, -1, 1, 2].forEach((z) => { t += fdTxM(x, k.Y(z) + 3, (z > 0 ? '+' : '−') + Math.abs(z) + 'σ', { a: 'start', s: 8, op: .7 }); });
+        return t;
+      };
+      const trace = (k, z, o = {}) => {
+        const hi = new Set(o.hi || []), fl = o.flag == null ? -1 : o.flag, col = o.c || BLU, off = o.off || 0;
+        let s = pvdL('M' + z.map((v, i) => k.X(i + off).toFixed(1) + ' ' + k.Y(v).toFixed(1)).join(' L'), { c: col, sw: 1.5, so: .85 });
+        z.forEach((v, i) => { const isF = i === fl, isH = hi.has(i); s += `<circle cx="${k.X(i + off).toFixed(1)}" cy="${k.Y(v).toFixed(1)}" r="${isF ? 4.6 : isH ? 3.8 : 2.8}" style="fill:${isF ? RED : isH ? fdAc : col};stroke:${isH || isF ? '#fff' : 'none'};stroke-width:.9"/>`; });
+        return s;
+      };
+      const NORM = [0.3, -0.7, 0.9, -0.2, 0.5, -1.1, 0.2, 0.8, -0.5, 1.4, -0.3, 0.4, -0.9, 0.6, 1.1, -0.4];
+
+      Object.assign(DIAGRAMS, {
+        // ---------- 흔들림의 두 얼굴: 탄착군 ----------
+        'fld-spc-shots': {
+          title: '흔들림에는 받아들일 것과 잡아낼 것이 있다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 조건으로 돌려도 공정의 결과는 조금씩 흔들린다. 과녁에 쏜 탄착군처럼 중심 둘레에 고르게 흩어지는 흔들림은 공정의 성격이고, 탄착군이 통째로 옮겨 가거나 한 발이 멀리 튀는 것은 무언가 바뀌었다는 신호다. 관리도는 이 둘을 가르는 도구다.' },
+            { id: 'a', label: '우연 원인', focus: ['a'], desc: '가스 유량이나 온도의 미세한 흔들림처럼 늘 있는 작은 요인이 겹쳐 생기는 흩어짐이다. 점마다 방향과 크기가 제각각이라 하나하나에 반응할 필요가 없고, 줄이려면 공정 자체를 개선해야 한다.' },
+            { id: 'b', label: '평균 이동', focus: ['b'], desc: '흩어지는 폭은 그대로인데 탄착군 전체가 한쪽으로 옮겨 간 모습이다. PM 뒤에 부품이나 설정이 바뀌었을 때 흔히 나타난다. 점 하나는 평범해 보여도 무리 전체가 한쪽에 몰린다.' },
+            { id: 'c', label: '튀는 점', focus: ['c'], desc: '무리는 그대로인데 한 발만 멀리 벗어난 모습이다. 순간 노이즈나 측정 오류일 때가 많아서 먼저 다시 재 보고, 그래도 같으면 원인을 찾는다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const dots = [[-12, -6], [8, -14], [15, 4], [-5, 12], [2, -3], [-16, 8], [10, 16], [-8, -18], [18, -8], [-2, 6], [12, -2], [-14, -1]];
+            const target = (cx, cy, col, dx, dy) => [55, 39, 23, 8].map((r, i) => `<circle cx="${cx}" cy="${cy}" r="${r}" style="fill:${i % 2 ? 'rgba(148,163,184,.08)' : 'rgba(148,163,184,.16)'};stroke:#94a3b8;stroke-opacity:.6;stroke-width:1"/>`).join('') + dots.map((p) => `<circle cx="${cx + p[0] + dx}" cy="${cy + p[1] + dy}" r="2.8" style="fill:${col};stroke:#fff;stroke-width:.7"/>`).join('');
+            const cap = (x, t1, t2, t3, col) => fdTxM(x, 166, t1, { s: 10.5, w: 800, c: col }) + fdTxM(x, 182, t2, { s: 9 }) + fdTxM(x, 195, t3, { s: 9, op: .85 });
+            o += pvdG(f, ['a'], target(76, 88, C.op, 0, 0) + `<circle cx="76" cy="88" r="26" style="fill:none;stroke:${C.op};stroke-width:1.4;stroke-dasharray:4 3"/>` + cap(76, '우연 원인만', '고르게 흩어짐', '가스·온도의 미세한 흔들림', C.op));
+            o += pvdG(f, ['b'], target(220, 88, fdAc, 28, -18) + pvdL('M222 86 L244 71', { c: fdAc, sw: 1.8, so: .95 }) + fdArr(247, 69, 'r', fdAc) + `<circle cx="248" cy="70" r="26" style="fill:none;stroke:${fdAc};stroke-width:1.4;stroke-dasharray:4 3"/>` + cap(220, '평균이 이동', '무리가 통째로 옮겨 감', 'PM 뒤 설정·부품이 바뀜', fdAc));
+            o += pvdG(f, ['c'], target(364, 88, C.eq, 0, 0) + `<circle cx="404" cy="118" r="3.4" style="fill:${RED};stroke:#fff;stroke-width:.8"/><circle cx="404" cy="118" r="8" style="fill:none;stroke:${RED};stroke-width:1.5"/>` + cap(364, '튀는 점', '혼자 멀리 벗어남', '순간 노이즈·측정 오류', C.eq));
+            o += fdRect(70, 218, 300, 56, { rx: 10, fill: 'rgba(148,163,184,.08)', c: '#94a3b8', so: .5, sw: 1.2 }) + fdTxM(220, 240, '흩어짐은 받아들이고', { s: 10.5, w: 800 }) + fdTxM(220, 259, '이동과 이탈은 일찍 알아챈다', { s: 10.5, w: 800, c: fdAc });
+            return dgSvg('흔들림의 종류: ' + s.label, o, '0 0 440 286');
+          }
+        },
+
+        // ---------- 종 모양을 눕히면 관리도 ----------
+        'fld-spc-bell': {
+          title: '종 모양을 눕히면 관리도가 된다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '안정된 공정의 값은 평균 둘레에 종 모양으로 흩어진다. 이 종을 90도 눕혀 시간 축을 붙이면 그대로 관리도가 된다. 중심선은 종의 꼭대기, 관리 한계는 종 가장자리에 긋는 선이다.' },
+            { id: 'bell', label: '종 모양', focus: ['bell'], desc: '값은 평균 근처에서 가장 자주 나오고, 멀어질수록 드물어진다. 이 흩어짐의 크기를 표준편차 σ(시그마)로 잰다. σ가 작을수록 종이 좁고 뾰족하다.' },
+            { id: 'zone', label: '구간 비율', focus: ['zone'], desc: '평균에서 ±1σ 안에 값의 약 68%, ±2σ 안에 약 95%, ±3σ 안에 약 99.7%가 들어온다. 바깥으로 나갈수록 그 값이 우연히 나올 확률은 급격히 작아진다.' },
+            { id: 'limit', label: '관리 한계', focus: ['limit'], desc: '±3σ에 긋는 선이 관리 한계(UCL·LCL)다. 정상 공정에서도 이 밖으로 나갈 확률은 약 370점에 한 번뿐이라, 밖으로 나간 점은 무언가 바뀌었다고 의심할 만하다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const k = mkc(150, 22, 222, 232, 3.6, 12), bx = 142, amp = 92;
+            const pts = []; for (let z = -3.6; z <= 3.61; z += .2) pts.push([bx - Math.exp(-z * z / 2) * amp, k.Y(z)]);
+            const bell = 'M' + bx + ' ' + k.Y(-3.6) + ' L' + pts.map((p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L') + ' L' + bx + ' ' + k.Y(3.6) + ' Z';
+            [-3, -2, -1, 1, 2, 3].forEach((z) => { o += pvdL(`M20 ${k.Y(z)} H${bx}`, { sw: .8, so: .22, dash: '3 3' }); });
+            o += pvdG(f, ['bell'], `<path d="${bell}" style="fill:rgba(96,165,250,.2);stroke:${BLU};stroke-width:1.8"/>` + pvdL(`M${bx} ${k.Y(3.6)} V${k.Y(-3.6)}`, { sw: 1.4, so: .6 }) + fdTxM(70, 276, '값이 나오는 빈도', { s: 9.5, w: 700 }));
+            o += pvdG(f, ['zone', 'limit'], zones(k));
+            o += pvdG(f, ['zone'], fdTxM(26, k.Y(0) - 2, '±1σ', { s: 9.5, w: 800, c: C.op }) + fdTxM(26, k.Y(0) + 10, '68%', { s: 10, w: 800, c: C.op }) + fdTxM(26, k.Y(1.5) - 2, '±2σ', { s: 9.5, w: 800, c: '#fbbf24' }) + fdTxM(26, k.Y(1.5) + 10, '95%', { s: 10, w: 800, c: '#fbbf24' }) + fdTxM(26, k.Y(2.55) - 2, '±3σ', { s: 9.5, w: 800, c: fdAc }) + fdTxM(26, k.Y(2.55) + 10, '99.7%', { s: 10, w: 800, c: fdAc }));
+            o += pvdG(f, ['bell', 'zone', 'limit'], trace(k, [0.3, -0.7, 0.9, -0.2, 0.5, -1.1, 0.2, 0.8, -0.5, 1.4, -0.3, 0.4]));
+            o += pvdG(f, ['limit'], zlab(k, { s: 9 }) + fdTxM(k.x0 + k.w / 2, k.Y(3.4) + 3, '밖이면 약 370점에 한 번', { s: 9, w: 800, c: RED }));
+            o += pvdG(f, ['bell', 'zone'], zlab(k, { s: 8 }));
+            o += fdTxM(k.x0 + k.w / 2, 276, '시간 →', { s: 9.5, w: 700 });
+            return dgSvg('종 모양과 관리도: ' + s.label, o, '0 0 440 286');
+          }
+        },
+
+        // ---------- 차선과 가드레일 ----------
+        'fld-spc-limits': {
+          title: '관리 한계는 차선이고, 규격은 가드레일이다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '관리 한계와 규격은 이름도 비슷하고 둘 다 위아래 한 쌍의 선이지만 전혀 다른 것이다. 관리 한계는 공정이 스스로 보여 주는 평소 범위이고, 규격은 고객이 정한 합격선이다. 차선을 밟는 것과 가드레일을 넘는 것은 다른 일이다.' },
+            { id: 'lane', label: '관리 한계', focus: ['lane', 'cars'], desc: '관리 한계(UCL·LCL)는 공정의 실제 데이터에서 계산한다. 공정이 안정되어 있다면 점은 대부분 이 차선 안에서 움직이고, 차선을 밟는다는 것은 평소와 다른 일이 생겼다는 뜻이다.' },
+            { id: 'rail', label: '규격', focus: ['rail'], desc: '규격(USL·LSL)은 제품이 쓸 수 있는 한계로 고객이나 설계가 정한다. 공정의 실제 모습과 상관없이 정해지며, 이 밖으로 나가면 불량이다. 규격은 관리 한계를 정하는 데 쓰지 않는다.' },
+            { id: 'cross', label: '차선을 밟음', focus: ['cross', 'lane'], desc: '점이 관리 한계를 넘었지만 아직 규격 안인 상태다. 지금은 불량이 아니어도 공정이 평소와 달라졌다는 가장 이른 신호이므로, 가드레일에 닿기 전에 원인을 찾을 수 있는 시점이다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const car = (cx, cy, col) => fdRect(cx - 21, cy - 9, 42, 18, { rx: 7, fill: col + '55', c: col, so: .95, sw: 1.7 }) + fdRect(cx + 3, cy - 6.5, 11, 13, { rx: 3, fill: 'rgba(15,23,42,.45)', c: col, so: .5, sw: .8 }) + [[-14, -11], [8, -11], [-14, 8], [8, 8]].map((p) => `<rect x="${cx + p[0]}" y="${cy + p[1]}" width="8" height="3.4" rx="1.4" style="fill:#475569"/>`).join('');
+            o += `<rect x="10" y="70" width="420" height="140" style="fill:rgba(148,163,184,.1)"/>`;
+            o += pvdG(f, ['rail'], fdRect(10, 62, 420, 8, { rx: 2, fill: 'rgba(239,68,68,.35)', c: RED, so: .9, sw: 1.4 }) + fdRect(10, 210, 420, 8, { rx: 2, fill: 'rgba(239,68,68,.35)', c: RED, so: .9, sw: 1.4 }) + fdTxM(14, 55, 'USL 가드레일(규격)', { a: 'start', s: 9.5, w: 800, c: RED }) + fdTxM(14, 233, 'LSL 가드레일(규격)', { a: 'start', s: 9.5, w: 800, c: RED }));
+            o += pvdG(f, ['lane'], pvdL('M10 110 H430', { c: '#fbbf24', sw: 2, so: .95, dash: '9 6' }) + pvdL('M10 170 H430', { c: '#fbbf24', sw: 2, so: .95, dash: '9 6' }) + pvdL('M10 140 H430', { c: C.op, sw: 1.2, so: .6, dash: '2 5' }) + fdTxM(14, 104, 'UCL 차선(관리 한계)', { a: 'start', s: 9.5, w: 800, c: '#fbbf24' }) + fdTxM(14, 184, 'LCL 차선(관리 한계)', { a: 'start', s: 9.5, w: 800, c: '#fbbf24' }) + fdTxM(14, 135, 'CL', { a: 'start', s: 9, w: 800, c: C.op }));
+            o += pvdG(f, ['cars', 'cross'], pvdL('M80 140 C140 140 160 124 210 120 C260 116 290 104 340 96', { c: BLU, sw: 1.6, so: .6, dash: '5 4' }));
+            o += pvdG(f, ['cars'], car(80, 140, C.eq) + car(210, 120, C.eq) + fdTxM(80, 252, '평소 흔들림', { s: 9.5, w: 700 }) + fdTxM(210, 252, '한쪽으로 기울어 감', { s: 9.5, w: 700 }));
+            o += pvdG(f, ['cross'], car(340, 96, fdAc) + fdTxM(340, 252, '차선을 밟음', { s: 9.5, w: 800, c: fdAc }) + fdTxM(340, 266, '아직 규격 안이지만 지금 조치', { s: 9, c: fdAc }));
+            return dgSvg('관리 한계와 규격: ' + s.label, o, '0 0 440 278');
+          }
+        },
+
+        // ---------- 부분군 ----------
+        'fld-spc-subgroup': {
+          title: '한 로트에서 몇 장을 뽑아 점 하나를 만든다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '관리도의 점 하나는 웨이퍼 한 장이 아니라 한 로트에서 뽑은 몇 장의 묶음(부분군)을 요약한 값이다. 뽑고, 재고, 평균과 범위를 구해 차트에 점을 찍는다.' },
+            { id: 'pick', label: '뽑기', focus: ['pick'], desc: '한 로트 25장에서 5장을 뽑는다. 같은 조건에서 가까운 시간에 처리된 웨이퍼끼리 묶어야 부분군 안의 차이가 순수한 흔들림만 담는다. 서로 다른 챔버나 다른 날의 웨이퍼를 한 묶음에 섞지 않는다.' },
+            { id: 'measure', label: '재기', focus: ['measure'], desc: '뽑은 5장의 막 두께를 잰다. 이 값들이 서로 얼마나 다른지가 그 묶음 안의 산포이고, 묶음의 평균이 어디에 앉아 있는지가 위치다.' },
+            { id: 'plot', label: '점 찍기', focus: ['plot'], desc: '5개 값의 평균(X̄)과 범위(R, 최대에서 최소를 뺀 값)를 구한다. 평균은 X̄ 차트에, 범위는 R 차트에 점 하나씩 찍는다. 이렇게 로트마다 점이 하나씩 늘어난다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const pick = new Set([0, 7, 14, 18, 24]);
+            let g = '';
+            for (let i = 0; i < 25; i++) { const cx = 28 + (i % 5) * 20, cy = 36 + Math.floor(i / 5) * 20, on = pick.has(i); g += `<circle cx="${cx}" cy="${cy}" r="8" style="fill:${on ? 'rgba(251,146,60,.55)' : 'rgba(148,163,184,.18)'};stroke:${on ? fdAc : '#94a3b8'};stroke-width:${on ? 1.8 : 1};stroke-opacity:${on ? 1 : .6}"/>`; }
+            g += fdTxM(70, 20, '한 로트 25장', { s: 10, w: 800 }) + pvdL('M126 76 H156', { c: fdAc, sw: 1.8, so: .95 }) + fdArr(162, 76, 'r', fdAc);
+            [0, 1, 2, 3, 4].forEach((i) => { g += `<circle cx="${196 + i * 40}" cy="80" r="9" style="fill:rgba(251,146,60,.55);stroke:${fdAc};stroke-width:1.8"/>`; });
+            g += fdTxM(276, 52, '5장을 뽑아 한 묶음(부분군)', { s: 10, w: 800, c: fdAc }) + fdTxM(276, 112, '같은 조건·가까운 시간끼리', { s: 9, op: .9 });
+            o += pvdG(f, ['pick'], g);
+            let m = fdTxM(210, 148, '막 두께 측정값(Å)', { s: 9.5, w: 800 });
+            ['500.8', '499.1', '501.2', '500.3', '498.9'].forEach((v, i) => { m += fdRect(20 + i * 62, 156, 56, 26, { rx: 7, fill: 'rgba(96,165,250,.12)', c: C.eq, so: .95, sw: 1.5 }) + fdTxM(48 + i * 62, 173, v, { s: 10.5, w: 800 }); });
+                    o += pvdG(f, ['measure'], m);
+            let p = fdRect(14, 208, 150, 66, { rx: 9, fill: 'rgba(52,211,153,.1)', c: C.op, so: .95, sw: 1.8 }) + fdTxM(89, 228, '평균 X̄ = 500.06', { s: 10.5, w: 800, c: C.op }) + fdTxM(89, 246, '범위 R = 2.3', { s: 10.5, w: 800, c: C.op }) + fdTxM(89, 262, '(최대 − 최소)', { s: 9, op: .85 }) + pvdL('M168 241 H184', { c: C.op, sw: 1.8, so: .95 }) + fdArr(192, 241, 'r', C.op);
+            const k = mkc(200, 206, 226, 70, 3.4, 12), zz = [0.3, -0.7, 0.9, -0.2, 0.5, -1.1, 0.2, 0.8, -0.5, 0.4, -0.3, 1.0];
+            p += zones(k) + trace(k, zz, { hi: [11] }) + fdTxM(k.X(11) - 22, k.Y(2.45) + 3, '이 점 하나', { s: 9, w: 800, c: fdAc }) + pvdL(`M${k.X(11) - 8} ${k.Y(2.2)} L${k.X(11) - 1} ${k.Y(1.3)}`, { c: fdAc, sw: 1.4, so: .9 });
+            o += pvdG(f, ['plot'], p);
+            return dgSvg('부분군: ' + s.label, o, '0 0 440 286');
+          }
+        },
+
+        // ---------- X̄-R 한 쌍 ----------
+        'fld-spc-xr': {
+          title: '평균 차트와 범위 차트는 한 쌍으로 읽는다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '로트마다 평균(X̄)과 범위(R)를 따로 차트에 찍는다. 평균 차트는 공정의 위치를, 범위 차트는 흩어짐의 크기를 본다. 읽는 순서는 범위 차트가 먼저, 평균 차트가 그다음이다.' },
+            { id: 'r', label: '범위 차트 먼저', focus: ['r'], desc: '평균 차트의 한계는 범위 차트에서 구한 흩어짐을 바탕으로 계산한다. 그래서 흩어짐이 안정되어 있는지부터 확인해야 평균 차트의 판정을 믿을 수 있다. 이 예에서 범위는 안정되어 있다.' },
+            { id: 'x', label: '그다음 평균', focus: ['x'], desc: '범위가 안정되어 있다면 평균 차트를 읽는다. 이 예에서는 뒤쪽 점들이 중심선 위쪽에 계속 몰려 있다. 흩어짐은 그대로인데 위치만 옮겨 갔으니 평균을 움직인 무언가가 바뀐 것이다.' },
+            { id: 'b', label: '범위가 커질 때', focus: ['x', 'r'], desc: '범위 차트가 올라가면 한 묶음 안의 웨이퍼끼리 서로 달라지고 있다는 뜻이다. 평균 차트도 따라서 흔들린다. 위치를 맞추는 문제가 아니라 장비나 조건이 불안정해진 것이므로 안정성부터 점검한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null, B = s.id === 'b';
+            let o = fdDefs();
+            const xA = [0.3, -0.5, 0.7, -0.2, 0.4, -0.9, 0.2, 0.6, -0.4, 0.1, -0.6, 0.5, 1.1, 0.8, 1.3, 0.6, 1.0, 0.7, 1.4, 0.9, 0.5, 1.2, 0.8, 1.0];
+            const rA = [0.9, 1.1, 0.8, 1.2, 1.0, 0.9, 1.3, 0.7, 1.1, 1.0, 0.8, 1.2, 1.0, 0.9, 1.2, 0.8, 1.1, 1.0, 0.9, 1.3, 0.8, 1.1, 1.0, 0.9];
+            const xB = [0.3, -0.5, 0.7, -0.2, 0.4, -0.9, 0.2, 0.9, -0.8, 0.5, -1.2, 1.0, -1.4, 1.3, -1.7, 1.5, -1.9, 1.8, -2.2, 2.0, -2.4, 2.3, -2.6, 2.9];
+            const rB = [0.9, 1.1, 0.8, 1.2, 1.0, 0.9, 1.3, 1.1, 1.2, 1.3, 1.4, 1.5, 1.5, 1.7, 1.6, 1.8, 1.9, 1.8, 2.0, 2.1, 2.2, 2.0, 2.3, 2.4];
+            const kx = mkc(14, 34, 366, 118, 3.6, 24), ky0 = 198, kh = 100, rm = 2.8, ry = (v) => ky0 + kh - v / rm * kh, rx = (i) => kx.X(i);
+            const xz = B ? xB : xA, rz = B ? rB : rA;
+            o += fdTxM(14, 26, '평균 X̄ 차트 (위치)', { a: 'start', s: 10, w: 800, c: C.eq });
+            o += pvdG(f, ['x'], zones(kx) + trace(kx, xz, { hi: B ? [] : [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23] }) + zlab(kx, { s: 8.5 }) + pvdNum(396, 28, 2, C.eq));
+            const rband = `<rect x="14" y="${ry(rm)}" width="366" height="${ry(2.11) - ry(rm)}" style="fill:${RED};fill-opacity:.1"/>` + pvdL(`M14 ${ry(2.11)} H380`, { c: RED, sw: 1.6, so: .9 }) + pvdL(`M14 ${ry(1)} H380`, { c: C.op, sw: 1.6, so: .95 }) + pvdL(`M14 ${ry(0)} H380`, { sw: 1, so: .4 });
+            const rpath = pvdL('M' + rz.map((v, i) => rx(i).toFixed(1) + ' ' + ry(v).toFixed(1)).join(' L'), { c: fdAc, sw: 1.5, so: .85 }) + rz.map((v, i) => `<circle cx="${rx(i).toFixed(1)}" cy="${ry(v).toFixed(1)}" r="2.8" style="fill:${v > 2.11 ? RED : fdAc}"/>`).join('');
+            o += fdTxM(14, 190, '범위 R 차트 (흩어짐)', { a: 'start', s: 10, w: 800, c: fdAc });
+            o += pvdG(f, ['r'], rband + rpath + fdTxM(384, ry(2.11) + 3, 'UCL', { a: 'start', s: 8.5, w: 800, c: RED }) + fdTxM(384, ry(1) + 3, 'CL', { a: 'start', s: 8.5, w: 800, c: C.op }) + fdTxM(384, ry(0) + 3, '0', { a: 'start', s: 8.5, op: .7 }) + pvdNum(396, 192, 1, fdAc));
+            o += fdTxM(197, 322, B ? '범위가 커지면 장비·조건 불안정' : '범위 안정 → 평균 쏠림은 위치 문제', { s: 9.5, w: 800 });
+            return dgSvg('X̄-R 차트: ' + s.label, o, '0 0 440 334');
+          }
+        },
+
+        // ---------- 이상 신호 규칙 ----------
+        'fld-spc-rules': {
+          title: '점이 한계 안에 있어도 이상 신호는 있다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '점이 한계 안에 있어도 놓치면 안 되는 신호가 있다. 구간을 ±1σ, ±2σ, ±3σ로 나누면 정상 공정의 점은 대부분 안쪽에 있고, 바깥으로 갈수록 드물다. 아래 규칙들은 정상 공정에서 우연히 나오기 어려운 점의 모양을 정리한 것이다.' },
+            { id: 'r1', label: '규칙 1', focus: ['r'], desc: '점 하나가 ±3σ 밖으로 나갔다. 가장 분명한 신호로 정상 공정이라면 약 370점에 한 번뿐이다. 먼저 측정 오류가 아닌지 다시 재 보고, 같으면 멈추고 원인을 찾는다.' },
+            { id: 'r2', label: '규칙 2', focus: ['r'], desc: '연속한 3점 중 2점이 같은 쪽 2σ 밖에 있다. 한 점씩은 한계 안이어도 두 점이 같은 쪽에 몰리는 일은 우연으로 보기 어렵다. 한계 이탈이 곧 일어날 전조일 때가 많다.' },
+            { id: 'r3', label: '규칙 3', focus: ['r'], desc: '연속한 5점 중 4점이 같은 쪽 1σ 밖에 있다. 점들이 한쪽 바깥 구간에 자꾸 모이는 모양이라 평균이 슬며시 옮겨 가고 있다는 신호다.' },
+            { id: 'r4', label: '규칙 4', focus: ['r'], desc: '연속 8점이 중심선의 같은 쪽에 있다. 정상 공정이라면 점은 중심선 위아래를 오가므로 어느 쪽이든 여덟 번 연속 한쪽일 확률은 약 0.8%뿐이다. 평균이 한쪽으로 옮겨 간 쏠림의 전형이다.' },
+            { id: 'r5', label: '규칙 5', focus: ['r'], desc: '연속 6점이 계속 오르거나 계속 내린다. 소모품 마모나 오염 축적처럼 서서히 변하는 원인에서 나타나는 추세 신호로, 한계에 닿기 전에 점검 시점을 알려 준다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const D = {
+              all: { z: NORM, hi: [], fl: null, t1: '정상 공정의 점', t2: '대부분 ±1σ 안, 바깥은 드물다' },
+              r1: { z: [0.4, -0.5, 0.9, -0.2, 0.6, -1.0, 0.3, 3.4, 0.2, -0.6, 0.6, -0.1, 0.9, -0.8, 0.3, -0.2], hi: [7], fl: 7, t1: '규칙 1', t2: '한 점이 3σ(관리 한계) 밖' },
+              r2: { z: [0.5, -0.3, 0.7, -0.6, 0.2, -0.9, 0.4, 2.3, 0.9, 2.2, 0.3, -0.4, 0.7, -0.2, 0.5, -0.8], hi: [7, 8, 9], fl: 9, t1: '규칙 2', t2: '3점 중 2점이 같은 쪽 2σ 밖' },
+              r3: { z: [0.4, -0.6, 0.3, 0.6, 0.7, -0.5, 1.3, 1.1, 0.5, 1.4, 1.2, 0.4, -0.3, 0.6, -0.5, 0.3], hi: [6, 7, 8, 9, 10], fl: 10, t1: '규칙 3', t2: '5점 중 4점이 같은 쪽 1σ 밖' },
+              r4: { z: [0.2, -0.7, 0.5, -0.3, 0.8, -0.5, 0.3, -0.4, 0.4, 0.9, 0.3, 0.7, 0.5, 0.2, 0.8, 0.6], hi: [8, 9, 10, 11, 12, 13, 14, 15], fl: 15, t1: '규칙 4', t2: '연속 8점이 중심선 한쪽' },
+              r5: { z: [0.3, -0.4, 0.6, -0.5, 0.2, -0.6, -0.3, 0.1, 0.3, 0.5, 0.8, 0.4, -0.2, 0.5, -0.3, 0.2], hi: [5, 6, 7, 8, 9, 10], fl: 10, t1: '규칙 5', t2: '연속 6점이 계속 오르거나 내림' },
+            }[s.id];
+            const k = mkc(12, 18, 372, 214, 3.6, 16);
+            o += zones(k) + zlab(k, { sig: true });
+            o += trace(k, D.z, { hi: D.hi, flag: D.fl });
+            o += fdTxM(198, 252, D.t1, { s: 10.5, w: 800, c: s.id === 'all' ? undefined : fdAc }) + fdTxM(198, 268, D.t2, { s: 9.5, w: 700 });
+            return dgSvg('이상 신호 규칙: ' + s.label, o, '0 0 440 278');
+          }
+        },
+
+        // ---------- 장비의 석 달 ----------
+        'fld-spc-patterns': {
+          title: '한 장비의 석 달: 관리도에 나타나는 모양',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '하나의 차트가 시간에 따라 여러 모양을 보여 준다. 평소의 흩어짐, PM 뒤의 이동, 마모에 따른 추세, 두 가지가 섞인 번갈아 모양, 너무 평평해진 모양이 이어진다. 모양을 알아보면 원인 후보가 좁혀진다.' },
+            { id: 'shift', label: '수준 이동', focus: ['shift'], desc: '어느 시점부터 점들이 한쪽 수준으로 옮겨 가 머무른다. 이 예에서는 PM 직후에 일어났다. 바뀐 부품, 교정값, 레시피 변경, 소모품 로트 변경이 후보다. 변화가 시작된 시각을 정확히 찾는 것이 핵심이다.' },
+            { id: 'trend', label: '추세', focus: ['trend'], desc: '점들이 한 방향으로 서서히 움직인다. 소모품이 닳거나 챔버 벽에 부산물이 쌓일 때처럼 시간이 지날수록 변하는 원인에서 나타난다. 정비 주기를 정하는 단서가 된다.' },
+            { id: 'mix', label: '번갈아', focus: ['mix'], desc: '점이 위아래로 번갈아 튄다. 서로 다른 두 가지 조건의 결과가 한 차트에 섞여 올라올 때 생긴다. 챔버 A와 B를 번갈아 처리하거나 교대마다 다른 방법으로 잰다면 차트를 나눠 그려야 한다.' },
+            { id: 'flat', label: '너무 평평', focus: ['flat'], desc: '흩어짐이 갑자기 사라져 점이 중심선에 붙는다. 좋아 보여도 공정이 갑자기 좋아졌다기보다 측정이 굳었거나 같은 값이 복사되는 문제일 때가 많다. 너무 좋은 차트도 의심한다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            let seed = 7; const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }, nz = () => (rnd() + rnd() + rnd() - 1.5) * 2;
+            const n = 66, k = mkc(10, 22, 370, 190, 3.6, n), z = [];
+            for (let i = 0; i < n; i++) {
+              if (i < 11) z.push(nz() * .85); else if (i < 22) z.push(1.6 + nz() * .7); else if (i < 33) z.push(nz() * .85);
+              else if (i < 44) z.push((i - 33) * .26 + nz() * .6); else if (i < 55) z.push((i % 2 ? -1.3 : 1.3) + nz() * .25); else z.push(nz() * .13);
+            }
+            const seg = [['ok', 0, 10, '평소'], ['shift', 11, 21, '수준 이동'], ['ok', 22, 32, '조치 후'], ['trend', 33, 43, '추세'], ['mix', 44, 54, '번갈아'], ['flat', 55, 65, '너무 평평']];
+            o += zones(k) + zlab(k);
+            seg.forEach((g) => {
+              const a = g[1], b = Math.min(g[2] + 1, n - 1), part = z.slice(a, b + 1);
+              const col = g[0] === 'ok' ? BLU : fdAc;
+              o += pvdG(f, [g[0]], pvdL('M' + part.map((v, i) => k.X(a + i).toFixed(1) + ' ' + k.Y(v).toFixed(1)).join(' L'), { c: col, sw: 1.5, so: .85 }) + part.slice(0, g[2] - a + 1).map((v, i) => `<circle cx="${k.X(a + i).toFixed(1)}" cy="${k.Y(v).toFixed(1)}" r="2.4" style="fill:${col}"/>`).join(''));
+              o += pvdG(f, [g[0]], fdTxM((k.X(a) + k.X(g[2])) / 2, 234, g[3], { s: 9.5, w: 800, c: g[0] === 'ok' ? undefined : fdAc }));
+            });
+            [11, 22, 33, 44, 55].forEach((i) => { o += pvdL(`M${((k.X(i - 1) + k.X(i)) / 2).toFixed(1)} 22 V222`, { sw: .8, so: .25, dash: '2 4' }); });
+            o += pvdG(f, ['shift'], pvdL(`M${k.X(11).toFixed(1)} 14 V22`, { c: fdAc, sw: 1.6, so: .9 }) + fdTxM(k.X(11), 11, 'PM', { s: 9.5, w: 800, c: fdAc }));
+            o += fdTxM(195, 262, '시간 →', { s: 9.5, w: 700 });
+            return dgSvg('관리도 모양: ' + s.label, o, '0 0 440 272');
+          }
+        },
+
+        // ---------- 과잉 조정 ----------
+        'fld-spc-tamper': {
+          title: '점 하나마다 손대면 오히려 더 흔들린다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 공정을 두 가지 방식으로 돌려 보았다. 위는 손대지 않고 지켜본 결과이고, 아래는 점이 중심선에서 벗어날 때마다 그만큼 반대로 보정한 결과다. 보정한 쪽이 더 크게 흔들린다.' },
+            { id: 'keep', label: '지켜볼 때', focus: ['keep'], desc: '정상 공정의 점이 중심선을 오가는 것은 우연 원인의 흔들림이다. 신호가 없으면 그대로 두는 것이 가장 안정적인 선택이다.' },
+            { id: 'tamper', label: '매번 보정할 때', focus: ['tamper'], desc: '우연 원인 때문에 올라간 점을 보고 설정을 내리면, 다음 점은 제자리로 돌아와 있다가 내린 설정만큼 낮아진다. 보정이 흔들림을 더하게 되어 흩어짐이 약 1.4배로 커지고 번갈아 오르내리는 모양이 생긴다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const z = [0.3, -0.7, 0.9, -0.2, 0.5, -1.1, 0.2, 0.8, -0.5, 1.4, -0.3, 0.4, -0.9, 0.6, 1.1, -0.4, 0.1, -1.3, 0.7, -0.2, 0.5, -0.8, 1.0, -0.6, 0.3, -0.1, 0.9, -1.0, 0.4, -0.5];
+            const t = z.map((v, i) => (i ? v - z[i - 1] : v));   // 깔때기 규칙 2: 직전 편차만큼 반대로 보정하면 결과는 z[i]-z[i-1]
+            const k1 = mkc(14, 38, 332, 100, 3.6, 30), k2 = mkc(14, 178, 332, 100, 3.6, 30);
+            o += pvdG(f, ['keep'], fdTxM(14, 28, '손대지 않고 지켜봄', { a: 'start', s: 10, w: 800, c: C.op }) + zones(k1) + zlab(k1, { s: 8 }) + trace(k1, z, { c: C.op }) + `<circle cx="394" cy="88" r="18" style="fill:none;stroke:${C.op};stroke-width:2;stroke-dasharray:4 3"/>` + fdTxM(394, 92, '그대로', { s: 9, w: 800, c: C.op }) + fdTxM(394, 124, '흩어짐 1배', { s: 9, w: 700 }));
+            o += pvdG(f, ['tamper'], fdTxM(14, 168, '점마다 반대로 보정함', { a: 'start', s: 10, w: 800, c: fdAc }) + zones(k2) + zlab(k2, { s: 8 }) + trace(k2, t, { c: fdAc }) + `<circle cx="394" cy="228" r="16" style="fill:rgba(251,146,60,.16);stroke:${fdAc};stroke-width:2"/><path d="M394 228 L402 220" style="stroke:${fdAc};stroke-width:2.4;stroke-linecap:round"/>` + `<path d="M380 214 A18 18 0 0 1 408 214" style="fill:none;stroke:${fdAc};stroke-width:1.6;stroke-opacity:.8"/>` + fdTxM(394, 262, '흩어짐 약 1.4배', { s: 9, w: 800, c: fdAc }));
+            o += fdTxM(180, 296, '시간 →', { s: 9.5, w: 700 });
+            return dgSvg('과잉 조정: ' + s.label, o, '0 0 440 306');
+          }
+        },
+
+        // ---------- 공정 능력 ----------
+        'fld-spc-cpk': {
+          title: '규격 안에 종 모양이 어떻게 앉아 있나',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '규격(LSL·USL)이 같아도 공정의 분포가 어떻게 앉아 있느냐에 따라 불량 위험이 달라진다. 공정 능력 지수 Cpk는 분포가 규격 안에서 얼마나 여유 있게 앉아 있는지를 하나의 숫자로 말한다. 1.33 이상이면 보통 안정적으로 본다.' },
+            { id: 'c1', label: '가운데·좁음', focus: ['c1'], desc: '분포가 규격의 한가운데에 좁게 앉아 있다. 양쪽 모두 여유가 커서 Cpk가 1.67이다. 종이 좁고 높은 것은 흩어짐이 작다는 뜻이다.' },
+            { id: 'c2', label: '규격 한쪽에 치우침', focus: ['c2'], desc: '흩어짐은 괜찮지만 분포가 규격 한쪽으로 치우쳐 있다. 위쪽 규격과의 여유가 작아서 Cpk가 0.78로 낮고, 이 쪽으로 불량이 나온다. 평균을 가운데로 옮기면 해결된다.' },
+            { id: 'c3', label: '넓게 퍼짐', focus: ['c3'], desc: '평균은 가운데지만 분포가 넓어 양쪽 꼬리가 규격 밖으로 나간다. Cpk가 0.83이다. 평균을 아무리 맞춰도 줄지 않으므로 흩어짐 자체를 줄이는 개선이 필요하다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const L = 70, U = 370, sc = 15;
+            const rows = [
+              ['c1', 14, 220, 30, C.op, '1.67', ['가운데에', '좁게']],
+              ['c2', 106, 280, 38.7, fdAc, '0.78', ['위쪽으로', '치우침']],
+              ['c3', 198, 220, 60, '#fbbf24', '0.83', ['넓게', '퍼짐']],
+            ];
+            rows.forEach((r) => {
+              const [id, y, m, sg, col, cpk, tx] = r, base = y + 70, h = 52 * 30 / sg;
+              const px = (x) => base - h * Math.exp(-((x - m) ** 2) / (2 * sg * sg));
+              let line = ''; for (let x = 20; x <= 420; x += 4) line += (line ? ' L' : 'M') + x + ' ' + px(x).toFixed(1);
+              const tail = (a, b) => { let p = 'M' + a + ' ' + base; for (let x = a; x <= b; x += 2) p += ' L' + x + ' ' + px(x).toFixed(1); return p + ' L' + b + ' ' + base + ' Z'; };
+              let g = `<path d="${line} L420 ${base} L20 ${base} Z" style="fill:${col};fill-opacity:.16;stroke:none"/>`;
+              if (U < m + 3.2 * sg) g += `<path d="${tail(U, Math.min(420, Math.round(m + 4 * sg)))}" style="fill:${RED};fill-opacity:.55;stroke:none"/>`;
+              if (L > m - 3.2 * sg) g += `<path d="${tail(Math.max(20, Math.round(m - 4 * sg)), L)}" style="fill:${RED};fill-opacity:.55;stroke:none"/>`;
+              g += `<path d="${line}" style="fill:none;stroke:${col};stroke-width:2"/>` + pvdL(`M20 ${base} H420`, { sw: 1, so: .5 });
+              g += pvdL(`M${L} ${y + 6} V${base}`, { c: RED, sw: 2, so: .95 }) + pvdL(`M${U} ${y + 6} V${base}`, { c: RED, sw: 2, so: .95 });
+              g += fdTxM(L, y + 2, 'LSL', { s: 8.5, w: 800, c: RED }) + fdTxM(U, y + 2, 'USL', { s: 8.5, w: 800, c: RED });
+              g += fdTxM(396, y + 36, 'Cpk', { s: 8.5, w: 700 }) + fdTxM(396, y + 54, cpk, { s: 14, w: 800, c: col }) + fdTxM(38, y + 38, tx[0], { s: 10, w: 800 }) + fdTxM(38, y + 52, tx[1], { s: 10, w: 800 });
+              o += pvdG(f, [id], g);
+            });
+            return dgSvg('공정 능력: ' + s.label, o, '0 0 440 292');
+          }
+        },
+      });
+    })();
+
+    // ===== 현장 직무 체험: 관리도 판정 연습 ({{practice:spc-judge|캡션}}) =====
+    // 규칙(1~6)은 'fld-spc-rules' 그림과 같다. 정답은 아래 규칙 판정 함수가 데이터에서 직접 계산한다.
+    function spcFlags(z) {
+      const out = [], n = z.length;
+      for (let i = 0; i < n; i++) {
+        const w = (k) => z.slice(Math.max(0, i - k + 1), i + 1), cnt = (a, fn) => a.filter(fn).length;
+        if (Math.abs(z[i]) > 3) out.push([i, 1]);
+        if (i >= 2) { const a = w(3); if ((z[i] > 2 && cnt(a, (v) => v > 2) >= 2) || (z[i] < -2 && cnt(a, (v) => v < -2) >= 2)) out.push([i, 2]); }
+        if (i >= 4) { const a = w(5); if ((z[i] > 1 && cnt(a, (v) => v > 1) >= 4) || (z[i] < -1 && cnt(a, (v) => v < -1) >= 4)) out.push([i, 3]); }
+        if (i >= 7) { const a = w(8); if (a.every((v) => v > 0) || a.every((v) => v < 0)) out.push([i, 4]); }
+        if (i >= 5) { const a = w(6); if (a.every((v, k) => k === 0 || v > a[k - 1]) || a.every((v, k) => k === 0 || v < a[k - 1])) out.push([i, 5]); }
+        if (i >= 13) { const a = w(14); if (a.every((v, k) => k < 2 || (v - a[k - 1]) * (a[k - 1] - a[k - 2]) < 0)) out.push([i, 6]); }
+      }
+      return out.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+    }
+    const SPC_WIN = [0, 1, 3, 5, 8, 6, 14], SPC_KIND = [0, 0, 1, 1, 2, 3, 4];
+    const SPC_KINDS = ['한계 밖으로 튄 점', '한계 쪽에 몰린 점들', '평균이 한쪽으로 쏠림', '서서히 오르거나 내림', '번갈아 오르내림'];
+    const SPC_RULE = ['', '한 점이 3σ(관리 한계) 밖', '3점 중 2점이 같은 쪽 2σ 밖', '5점 중 4점이 같은 쪽 1σ 밖', '연속 8점이 중심선 한쪽', '연속 6점이 계속 오르거나 내림', '14점이 번갈아 오르내림'];
+    const SPC_SC = [
+      { m: '식각 후 막 두께 평균', u: 'Å', cl: 500, sg: 1.2, d: 1, sit: 'PM이 끝난 챔버의 식각 후 막 두께 평균입니다. 부분군 24개가 쌓였습니다.', why: '점들이 중심선 위아래로 고르게 흩어져 있고 어떤 규칙에도 걸리지 않아요. 13번째 점이 1.7σ쯤으로 조금 높지만 정상 공정에서도 흔히 나오는 크기예요. 이럴 때는 그대로 두는 것이 맞아요.',
+        z: [0.3, -0.6, 0.8, -0.2, 0.5, -1.1, 0.1, 0.9, -0.4, 0.2, -0.8, 0.6, 1.7, 0.1, -0.5, 0.7, -1.3, 0.4, -0.1, 0.9, -0.7, 0.2, -0.3, 0.6] },
+      { m: '챔버 압력 평균', u: 'mTorr', cl: 20, sg: 0.2, d: 2, sit: 'PM 직후 며칠 동안의 챔버 압력 평균입니다.', why: '점은 모두 한계 안이지만 연속 8점이 중심선 위쪽에 쌓였어요. 평균이 위로 옮겨 갔다는 쏠림 신호로, 한계에 닿기 전에 알아챌 수 있어요. PM 때 바뀐 부품이나 설정이 후보예요.',
+        z: [0.2, -0.7, 0.5, -0.3, 0.8, -0.5, 0.3, -0.9, -0.2, 0.4, 0.9, 0.3, 1.1, 0.5, 0.2, 0.8, 1.2, 0.6, 0.4, 0.7, 0.3, 0.9, 0.5, 0.6] },
+      { m: '선폭(CD) 평균', u: 'nm', cl: 45, sg: 0.4, d: 2, sit: '어제부터 오늘까지 로트별 선폭 평균입니다.', why: '16번째 점이 관리 한계 위로 나갔어요. 가장 분명한 신호라 멈추는 것이 맞아요. 먼저 측정 오류인지 다시 재 보고, 같다면 영향 로트를 잡아요. 다음 점이 돌아왔다고 사건이 지워지는 것은 아니에요.',
+        z: [0.4, -0.5, 0.9, -0.2, 0.6, -1.0, 0.3, 0.7, -0.6, 0.1, -0.4, 0.8, -0.3, 0.5, -0.7, 3.5, 0.2, -0.6, 0.6, -0.1, 0.9, -0.8, 0.3, -0.2] },
+      { m: '챔버 온도 평균', u: '℃', cl: 400, sg: 0.5, d: 1, sit: '한 점이 눈에 띄게 높습니다. 나머지는 평범해 보입니다.', why: '12번째 점이 2.6σ쯤으로 높지만 한계(3σ) 안이고 앞뒤 점은 평범해서 어떤 규칙에도 걸리지 않아요. 정상 공정에서도 가끔 나오는 점이고, 여기서 바로 설정을 만지면 오히려 흔들림이 커져요. 지켜보며 다음 점을 기다려요.',
+        z: [-0.3, 0.5, 0.9, -0.6, 0.2, -1.2, 0.4, 0.7, -0.1, -0.8, 0.3, 2.6, -0.5, 0.6, -0.9, 0.1, 0.8, -0.4, -0.7, 0.5, 0, -1.0, 0.4, 0.2] },
+      { m: 'RF 반사 파워 평균', u: 'W', cl: 8, sg: 0.3, d: 2, sit: '소모품을 교체하고 몇 주가 지난 챔버의 RF 반사 파워입니다.', why: '11번째 점에서 연속 6점이 계속 올랐어요. 한계는 아직 멀지만 부품 마모나 오염 축적처럼 서서히 변하는 원인의 전형이에요. 한계를 넘기 전에 점검 일정을 앞당길 수 있어요.',
+        z: [0.3, -0.4, 0.6, -0.5, 0.2, -0.6, -0.3, 0.1, 0.3, 0.5, 0.8, 1.1, 1.5, 1.9, 1.6, 2.0, 1.7, 2.1, 1.8, 2.2, 1.9, 2.0, 2.1, 1.8] },
+      { m: '스로틀 밸브 개도 평균', u: '%', cl: 35, sg: 0.6, d: 1, sit: '식각 단계에서 스로틀 밸브가 얼마나 열렸는지의 평균입니다.', why: '15번째 점에서 3점 중 2점이 같은 쪽 2σ 밖이에요. 두 점이 모두 한계 안이지만 같은 쪽에 몰리는 일은 정상 공정에서 우연히 나오기 어려워요. 한계 이탈로 가기 전의 경고예요.',
+        z: [0.5, -0.3, 0.7, -0.6, 0.2, -0.9, 0.4, 0.8, -0.5, 0.1, -0.7, 0.6, 2.3, 0.9, 2.2, 1.4, 0.3, -0.4, 0.7, -0.2, 0.5, -0.8, 0.3, 0.1] },
+      { m: '두 챔버를 번갈아 처리한 막 두께', u: 'Å', cl: 300, sg: 1.5, d: 1, sit: '챔버 A와 B가 번갈아 처리한 로트의 막 두께 평균이 한 차트에 올라옵니다.', why: '18번째 점까지 14점이 위아래로 번갈아 움직였어요. 서로 다른 두 조건이 한 차트에 섞인 모양이에요. 챔버별로 차트를 나눠 그리는 것이 먼저예요.',
+        z: [0.1, -0.5, 0.7, -0.3, 0.4, 0.9, -0.9, 1.1, -1.0, 0.8, -1.2, 1.0, -0.7, 1.3, -1.1, 0.9, -0.8, 1.2, -1.0, 0.7, -1.1, 1.0, -0.9, 0.8] },
+      { m: '식각률', u: 'Å/min', cl: 1200, sg: 8, d: 0, sit: '새 레시피로 바꾼 뒤 식각률의 평균입니다.', why: '11번째 점에서 5점 중 4점이 같은 쪽 1σ 밖이에요. 점 하나하나는 평범해 보여도 위쪽에 몰려 있어서 평균이 올라가고 있다는 신호예요.',
+        z: [0.4, -0.6, 0.3, 0.6, 0.7, -0.5, 1.3, 1.1, 0.5, 1.4, 1.2, 0.4, -0.3, 0.6, -0.5, 0.3, -0.2, 0.5, -0.4, 0.2, 0.1, -0.3, 0.4, 0] },
+    ];
+    function prHydrate(fig) {
+      if (fig.dataset.ready) return; fig.dataset.ready = '1'; fig.classList.add('dg-wide', 'pr-spc');
+      const tt = (s) => (typeof T === 'function' ? T(s) : s), cap = fig.dataset.cap || '';
+      const st = { i: 0, sel: null, ph: 'pick', g1: null, g2: null, full: 0 };
+      const chart = (sc, rev) => {
+        const z = sc.z, n = z.length, W = 420, L = 10, R = 352, Tp = 12, B = 214, zr = 3.7;
+        const X = (i) => L + 8 + i * ((R - L - 16) / (n - 1)), Y = (v) => (Tp + B) / 2 - Math.max(-zr + .1, Math.min(zr - .1, v)) * ((B - Tp) / 2) / zr;
+        const rc = (a, b, c, o) => `<rect x="${L}" y="${Y(b)}" width="${R - L}" height="${Y(a) - Y(b)}" fill="${c}" fill-opacity="${o}"/>`;
+        let s = rc(-1, 1, '#34d399', .1) + rc(1, 2, '#fbbf24', .1) + rc(-2, -1, '#fbbf24', .1) + rc(2, 3, '#fb923c', .13) + rc(-3, -2, '#fb923c', .13) + rc(3, zr, '#ef4444', .1) + rc(-zr, -3, '#ef4444', .1);
+        [-2, -1, 1, 2].forEach((v) => { s += `<path d="M${L} ${Y(v)} H${R}" stroke="currentColor" stroke-opacity=".28" stroke-width=".8" stroke-dasharray="3 3"/>`; });
+        [-3, 3].forEach((v) => { s += `<path d="M${L} ${Y(v)} H${R}" stroke="#ef4444" stroke-width="1.6" stroke-opacity=".9"/>`; });
+        s += `<path d="M${L} ${Y(0)} H${R}" stroke="#34d399" stroke-width="1.6"/>`;
+        const val = (v) => (sc.cl + v * sc.sg).toFixed(sc.d), lab = (y, t, c) => `<text class="dg-t" x="${R + 4}" y="${y + 3}" style="font-size:9px;font-weight:800;fill:${c}">${escH(t)}</text>`;
+        s += lab(Y(3), 'UCL ' + val(3), '#ef4444') + lab(Y(0), 'CL ' + val(0), '#34d399') + lab(Y(-3), 'LCL ' + val(-3), '#ef4444');
+        [-2, -1, 1, 2].forEach((v) => { s += `<text class="dg-t" x="${R + 4}" y="${Y(v) + 3}" style="font-size:8px;opacity:.6">${v > 0 ? '+' : '−'}${Math.abs(v)}σ</text>`; });
+        for (let i = 0; i < n; i += 4) s += `<text class="dg-t" x="${X(i)}" y="${B + 14}" text-anchor="middle" style="font-size:8px;opacity:.6">${i + 1}</text>`;
+        const hi = new Set(rev ? rev.win : []), fl = rev ? rev.at : -1;
+        s += `<path d="M${z.map((v, i) => X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' L')}" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-opacity=".85" stroke-linejoin="round"/>`;
+        z.forEach((v, i) => { const f = i === fl, h = hi.has(i); s += `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="${f ? 5 : h ? 4 : 3}" fill="${f ? '#ef4444' : h ? '#fb923c' : '#60a5fa'}" stroke="${f || h ? '#fff' : 'none'}" stroke-width="1"/>`; });
+        if (st.sel != null) s += `<path d="M${X(st.sel)} ${Tp} V${B}" stroke="#fbbf24" stroke-width="1.4" stroke-dasharray="4 3"/><circle cx="${X(st.sel).toFixed(1)}" cy="${Y(z[st.sel]).toFixed(1)}" r="7.5" fill="none" stroke="#fbbf24" stroke-width="2"/>`;
+        return `<svg viewBox="0 0 ${W} 232" role="img" aria-label="${escH(tt('관리도 연습 차트'))}" data-n="${n}" data-l="${X(0)}" data-r="${X(n - 1)}">${s}<rect class="pr-hit" x="${L}" y="${Tp}" width="${R - L}" height="${B - Tp}" fill="transparent"/></svg>`;
+      };
+      const draw = () => {
+        const a = st.i, done = a >= SPC_SC.length;
+        let h = `<div class="dg-head"><span class="dg-tag">${escH(tt('직접 해 보기'))}</span><span class="dg-title">${escH(tt('관리도 판정 연습'))}</span></div>`;
+        if (done) {
+          const nn = SPC_SC.length, r = st.full, msg = r >= nn - 1 ? '규칙이 몸에 익었어요. 이제 실제 차트에서 같은 눈으로 보세요.' : r >= Math.ceil(nn / 2) ? '좋아요. 놓친 문제는 이상 신호 규칙 그림을 다시 보고 도전해 보세요.' : '규칙 그림을 한 번 더 보고 다시 도전해 보세요. 쏠림과 추세부터 익히면 쉬워져요.';
+          h += `<p class="pr-score">${escH(tt('결과'))} <b>${r} / ${nn}</b></p><p class="dg-desc">${escH(tt(msg))}</p><div class="pr-row"><button type="button" class="dg-btn on" data-a="again">${escH(tt('다시 해 보기'))}</button></div>`;
+        } else {
+          const sc = SPC_SC[a], fl = spcFlags(sc.z)[0] || null, res = st.ph === 'res';
+          const rev = res && fl ? { at: fl[0], win: Array.from({ length: SPC_WIN[fl[1]] }, (_, k) => fl[0] - k).filter((v) => v >= 0) } : null;
+          h += `<p class="pr-q"><b>${escH(tt('문제'))} ${a + 1} / ${SPC_SC.length}</b> · ${escH(tt(sc.m))} (${escH(sc.u)})</p><p class="dg-desc">${escH(tt(sc.sit))}</p><div class="dg-svg pr-chart">${chart(sc, rev)}</div>`;
+          if (st.ph === 'pick') {
+            h += `<p class="pr-hint">${escH(st.sel == null ? tt('차트를 눌러 점을 고르세요') : tt(st.sel + 1 + '번째 점을 골랐어요'))}</p><div class="pr-row"><button type="button" class="dg-btn on" data-a="stop" ${st.sel == null ? 'disabled' : ''}>${escH(tt('이 점에서 멈춰요'))}</button><button type="button" class="dg-btn" data-a="ok">${escH(tt('문제 없어요'))}</button></div>`;
+          } else if (st.ph === 'kind') {
+            h += `<p class="pr-hint"><b>${escH(tt('맞아요, 여기가 첫 신호예요.'))}</b> ${escH(tt('어떤 신호였나요?'))}</p><div class="pr-row">${SPC_KINDS.map((k, i) => `<button type="button" class="dg-btn" data-a="kind" data-k="${i}">${escH(tt(k))}</button>`).join('')}</div>`;
+          } else {
+            let head;
+            if (!fl) head = st.g1 === 'ok' ? '✔ 맞아요, 멈추지 않아도 되는 차트예요' : '✘ 이 차트는 멈출 필요가 없어요';
+            else if (st.g1 === 'ok') head = '✘ 신호를 놓쳤어요';
+            else if (st.g1 !== fl[0]) head = st.g1 < fl[0] ? '✘ 아직 규칙에 걸리지 않은 점이에요' : '✘ 더 일찍 알아챌 수 있었어요';
+            else head = st.g2 === SPC_KIND[fl[1]] ? '✔ 맞아요' : '△ 점은 맞았지만 신호 종류가 달라요';
+            h += `<div class="pr-fb"><b>${escH(tt(head))}</b>${fl ? `<p>${escH(tt(SPC_RULE[fl[1]]))} → ${escH(tt((fl[0] + 1) + '번째 점에서 신호'))}</p>` : ''}<p>${escH(tt(sc.why))}</p></div><div class="pr-row"><button type="button" class="dg-btn on" data-a="next">${escH(tt(a + 1 < SPC_SC.length ? '다음 문제' : '결과 보기'))}</button></div>`;
+          }
+        }
+        fig.innerHTML = h + (cap ? `<figcaption>${escH(cap)}</figcaption>` : '');
+      };
+      fig.addEventListener('click', (e) => {
+        const sc = SPC_SC[st.i], act = e.target.closest && e.target.closest('[data-a]'), hit = e.target.closest && e.target.closest('.pr-hit');
+        if (hit && st.ph === 'pick') { const sv = hit.ownerSVGElement, r = sv.getBoundingClientRect(), n = +sv.dataset.n, l = +sv.dataset.l, rr = +sv.dataset.r, x = (e.clientX - r.left) / r.width * 420; st.sel = Math.max(0, Math.min(n - 1, Math.round((x - l) / ((rr - l) / (n - 1))))); draw(); return; }
+        if (!act) return;
+        const a = act.dataset.a, fl = sc && (spcFlags(sc.z)[0] || null);
+        if (a === 'stop') { st.g1 = st.sel; if (fl && st.sel === fl[0]) st.ph = 'kind'; else { st.ph = 'res'; } }
+        else if (a === 'ok') { st.g1 = 'ok'; st.ph = 'res'; }
+        else if (a === 'kind') { st.g2 = +act.dataset.k; st.ph = 'res'; }
+        else if (a === 'next') { const okk = (!fl && st.g1 === 'ok') || (fl && st.g1 === fl[0] && st.g2 === SPC_KIND[fl[1]]); if (okk) st.full++; st.i++; st.sel = null; st.ph = 'pick'; st.g1 = null; st.g2 = null; }
+        else if (a === 'again') { st.i = 0; st.full = 0; st.sel = null; st.ph = 'pick'; st.g1 = null; st.g2 = null; }
+        draw();
+      });
+      draw();
+    }
     function hydrateDiagrams(root) {
+      (root || document).querySelectorAll('figure.dg[data-pr]').forEach((fig) => { try { prHydrate(fig); } catch (e) { fig.remove(); } });
       (root || document).querySelectorAll('figure.dg[data-dg]').forEach(fig => {
         const D = DIAGRAMS[fig.dataset.dg]; if (!D) { fig.remove(); return; }
         if (fig.dataset.ready) return; fig.dataset.ready = '1';
@@ -10540,6 +10930,7 @@
       rawMarkdown = rawMarkdown.replace(TERM_RE, (m, w, d) => `<button type="button" class="th-term" data-def="${escH(d.trim())}">${escH(w.trim())}</button>`);
       rawMarkdown = rawMarkdown.replace(TOGGLE_RE, (m, ti, body) => `\n\n<details class="th-toggle"><summary>${escH(ti.trim())}</summary><div class="th-tg-body">${safeHtml(marked.parseInline(body.trim()))}</div></details>\n\n`);
       rawMarkdown = rawMarkdown.replace(DG_RE, (m, id, cap) => `\n\n<figure class="dg" data-dg="${id}" data-cap="${escH((cap || '').trim())}"></figure>\n\n`);
+      rawMarkdown = rawMarkdown.replace(PR_RE, (m, id, cap) => `\n\n<figure class="dg" data-pr="${id}" data-cap="${escH((cap || '').trim())}"></figure>\n\n`);
       if (adv) {   // 장비 사용 가이드 전용 블록: 상황별 대처(case)
         const adl = (rows) => `<dl>${rows.map(([k, v, a]) => `<dt${a ? ' class="act"' : ''}>${k}</dt><dd${a ? ' class="act"' : ''}>${safeHtml(marked.parseInline(String(v).trim()))}</dd>`).join('')}</dl>`;
         rawMarkdown = rawMarkdown.replace(ADV_CASE_RE, (m, ti, a, b, c, d) => `\n\n<details class="adv-case"><summary class="adv-case-h">${safeHtml(marked.parseInline(ti.trim()))}</summary>${adl([['증상', a], ['원인 후보', b], ['확인 순서', c], ['조치', d, 1]])}</details>\n\n`);

@@ -1392,5 +1392,24 @@
     "premium": true,
     "mins": 13,
     "figs": 5
+  },
+  {
+    "id": "TH-d9bed0e1",
+    "category": "심화 이론",
+    "subject": "현장 직무",
+    "title": "SPC 관리도 읽기",
+    "tags": [
+      "현장 직무",
+      "SPC",
+      "관리도",
+      "공정 능력",
+      "이상 신호"
+    ],
+    "equip": "",
+    "lab": "",
+    "content": "해금하면 읽을 수 있는 심화 가이드입니다.",
+    "premium": true,
+    "mins": 20,
+    "figs": 9
   }
 ]
