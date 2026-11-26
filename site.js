@@ -13688,6 +13688,453 @@
       });
     })();
 
+    // ===== 설계 직무 > 유료(10토큰) 글 "전력 설계 (IR drop · 전력 게이팅)" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c', CY = '#22d3ee';
+      const lab = (x, y, t, col, a = 'middle', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const cell = (x, y, w, h, col) => R(x, y, w, h, col, { fo: .22, c: col, sw: 1.4, rx: 3 });
+      const tri = (x, y, w, h, col) => `<path d="M${x} ${y} V${y + h} L${x + w} ${y + h / 2} Z" style="fill:${col};fill-opacity:.3;stroke:${col};stroke-width:1.3"/>`;
+      const dot = (x, y, r, col) => `<circle cx="${x}" cy="${y}" r="${r}" style="fill:${col};fill-opacity:.95"/>`;
+      const hot = (t) => { const a = [[52, 211, 153], [251, 191, 36], [248, 113, 113]], k = Math.min(.999, Math.max(0, t)) * 2, i = Math.floor(k), f = k - i, c = a[i].map((v, j) => Math.round(v + (a[i + 1][j] - v) * f)); return `rgb(${c})`; };
+      const cap = (x, y, col) => A.ln(`M${x} ${y} V${y + 8} M${x - 7} ${y + 8} H${x + 7} M${x - 7} ${y + 13} H${x + 7} M${x} ${y + 13} V${y + 21}`, col, 1.8);
+      Object.assign(DIAGRAMS, {
+        // ---------- 전력의 세 갈래 ----------
+        'dsn-pwrsrc': {
+          title: '칩이 쓰는 전력의 세 갈래',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '칩의 전력은 신호가 바뀔 때 쓰는 동적 전력, 바뀌는 순간 곧장 흐르는 단락 전력, 꺼져 있어도 새는 누설 전력으로 나뉜다. 갈래마다 줄이는 방법이 다르다.' },
+            { id: 'dyn', label: '동적 전력', focus: ['dyn'], desc: '신호가 0과 1을 오갈 때 선과 게이트의 작은 축전기를 채우고 비우며 쓰는 전력이다. 신호가 자주 바뀔수록, 전압이 높을수록, 클록이 빠를수록 커진다.' },
+            { id: 'sc', label: '단락 전력', focus: ['sc'], desc: '신호가 바뀌는 아주 짧은 순간 위와 아래 트랜지스터가 함께 켜져 전원에서 접지로 곧장 흐르는 전력이다. 신호가 천천히 바뀔수록 길어진다.' },
+            { id: 'lk', label: '누설 전력', focus: ['lk'], desc: '꺼진 트랜지스터를 완전히 막지 못해 새는 전류다. 신호가 바뀌지 않아도 전원이 켜져 있으면 계속 쓰고, 미세한 공정과 높은 온도에서 커진다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const P = (i, id, nm, col, pic) => { const x = 8 + i * 144; return pvdG(f ? [f] : null, [id], R(x, 12, 134, 98, col, { fo: .08, c: col, sw: 1.5, rx: 7 }) + pic(x + 12, 20, col) + lab(x + 67, 102, nm, col, 'middle', 10.5)); };
+            o += P(0, 'dyn', '동적 전력', CLK, (x, y, c) => A.ln(`M${x} ${y + 32} H${x + 14}`, GR, 1.6) + tri(x + 14, y + 22, 20, 20, c) + A.ln(`M${x + 34} ${y + 32} H${x + 60}`, GR, 1.6) + cap(x + 60, y + 32, c) + A.ln(`M${x + 60} ${y + 53} H${x + 80}`, GR, 1.2) + A.ln(`M${x + 70} ${y + 10} V${y + 26}`, c, 1.8) + fdArr(x + 70, y + 28, 'd', c) + A.ln(`M${x + 90} ${y + 28} V${y + 12}`, c, 1.8, .7) + fdArr(x + 90, y + 10, 'u', c));
+            o += P(1, 'sc', '단락 전력', AMB, (x, y, c) => R(x + 30, y + 6, 36, 18, c, { fo: .22, c, sw: 1.4, rx: 3 }) + R(x + 30, y + 50, 36, 18, c, { fo: .22, c, sw: 1.4, rx: 3 }) + lab(x + 48, y + 18, 'P', c, 'middle', 9) + lab(x + 48, y + 62, 'N', c, 'middle', 9) + A.ln(`M${x + 48} ${y} V${y + 6} M${x + 48} ${y + 24} V${y + 50} M${x + 48} ${y + 68} V${y + 76}`, GR, 1.4) + A.ln(`M${x + 80} ${y + 8} V${y + 66}`, RED, 2.4) + fdArr(x + 80, y + 68, 'd', RED) + lab(x + 90, y + 6, 'VDD', GR, 'start', 8) + lab(x + 90, y + 78, 'GND', GR, 'start', 8));
+            o += P(2, 'lk', '누설 전력', PUR, (x, y, c) => R(x + 28, y + 24, 40, 24, c, { fo: .1, c, sw: 1.4, rx: 3, dash: '3 2' }) + lab(x + 48, y + 40, 'OFF', c, 'middle', 9) + A.ln(`M${x + 48} ${y + 2} V${y + 24} M${x + 48} ${y + 48} V${y + 74}`, GR, 1.4) + A.ln(`M${x + 80} ${y + 14} V${y + 62}`, PUR, 1.2, .8, '2 3') + fdArr(x + 80, y + 64, 'd', PUR));
+            const rows = [['쉼 없이 일하는 칩', [70, 5, 25]], ['대부분 쉬는 칩', [12, 1, 87]]];
+            const ids = ['dyn', 'sc', 'lk'], cols = [CLK, AMB, PUR];
+            rows.forEach(([nm, v], r) => {
+              const y = 134 + r * 28; let x = 130;
+              o += lab(12, y + 11, nm, GR, 'start', 9.5);
+              v.forEach((p, i) => { const w = p * 2.9; o += pvdG(f ? [f] : null, [ids[i]], R(x, y, w, 18, cols[i], { fo: .45, c: cols[i], sw: 1.2, rx: 2 })); x += w; });
+            });
+            return dgSvg('전력: ' + s.label, o, '0 0 440 194');
+          }
+        },
+        // ---------- IR drop ----------
+        'dsn-irdrop': {
+          title: 'IR drop',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '전원은 저항이 있는 금속 선을 지나 셀에 닿는다. 입구에서 멀수록, 전류가 몰릴수록 셀이 받는 전압이 정해진 값보다 낮아진다.' },
+            { id: 'grid', label: '전원 입구와 망', focus: ['grid'], desc: '전원은 가장자리의 입구에서 들어와 링과 스트랩을 거쳐 셀로 간다. 길이 길수록 저항이 쌓인다.' },
+            { id: 'cur', label: '전류가 몰리는 곳', focus: ['cur'], desc: '한꺼번에 많은 셀이 움직이는 곳은 전류가 몰려 같은 선에서도 더 많이 떨어진다.' },
+            { id: 'drop', label: '전압 떨어짐', focus: ['drop'], desc: '색은 셀이 실제로 받는 전압이다. 초록은 거의 그대로, 빨강은 많이 떨어진 곳이다. 오른쪽 그래프는 단면의 전압이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const X0 = 20, Y0 = 28, CW = 18, CH = 16, NX = 12, NY = 8;
+            let heat = '';
+            for (let i = 0; i < NX; i++) for (let j = 0; j < NY; j++) {
+              const dx = Math.min(i, NX - 1 - i) / (NX / 2), dy = Math.min(j, NY - 1 - j) / (NY / 2), base = Math.min(dx, dy) * .85;
+              const hx = Math.exp(-(((i - 7.5) ** 2) + ((j - 3) ** 2)) / 6) * .28, t = Math.min(1, base + hx);
+              heat += `<rect x="${X0 + i * CW}" y="${Y0 + j * CH}" width="${CW - 1}" height="${CH - 1}" rx="2" style="fill:${hot(t)};fill-opacity:${f && f !== 'drop' ? .22 : .8}"/>`;
+            }
+            o += pvdG(f ? [f] : null, ['drop'], heat);
+            let g = R(X0 - 6, Y0 - 6, NX * CW + 12, NY * CH + 12, GR, { fo: 0, c: GR, sw: 2.4, rx: 4 });
+            [1, 2, 3, 4].forEach((k) => g += A.ln(`M${X0 + k * NX * CW / 5} ${Y0 - 6} V${Y0 + NY * CH + 6}`, GR, 1.2, .8));
+            [0, 1, 2, 3].forEach((i) => g += R(X0 + i * 62 + 14, 10, 14, 10, AMB, { fo: .9, sw: 0, rx: 2 }) + R(X0 + i * 62 + 14, Y0 + NY * CH + 12, 14, 10, AMB, { fo: .9, sw: 0, rx: 2 }));
+            g += lab(X0 + NX * CW / 2, 8, '전원 입구', AMB, 'middle', 8.5);
+            o += pvdG(f ? [f] : null, ['grid'], g);
+            const hx = X0 + 7.5 * CW, hy = Y0 + 3 * CH;
+            o += pvdG(f ? [f] : null, ['cur'], `<ellipse cx="${hx}" cy="${hy}" rx="38" ry="26" style="fill:none;stroke:${RED};stroke-width:1.8;stroke-dasharray:4 3"/>` + lab(hx + 4, hy + 2, '전류 몰림', RED, 'middle', 9) + fdArr(hx - 36, hy + 26, 'u', RED));
+            const px = 262, py = 34, pw = 160, ph = 100, vy = (v) => py + ph - (v - .9) / .1 * ph;
+            let pl = A.ln(`M${px} ${py} V${py + ph} H${px + pw}`, GR, 1.2, .8) + lab(px + pw / 2, py + ph + 22, '칩 단면의 위치', GR, 'middle', 9) + lab(px - 4, py + 6, '1.00', GR, 'end', 8.5) + lab(px - 4, py + ph, '0.90', GR, 'end', 8.5);
+            let d = ''; for (let k = 0; k <= 24; k++) { const t = k / 24, v = 1 - .085 * Math.sin(Math.PI * t) ** 1.3; d += (k ? ' L' : 'M') + (px + t * pw) + ' ' + vy(v); }
+            pl += A.ln(d, RED, 2.4) + A.ln(`M${px} ${vy(.95)} H${px + pw}`, AMB, 1.2, .8, '4 3') + lab(px + pw, vy(.95) - 5, '허용 한도', AMB, 'end', 8.5);
+            o += pvdG(f ? [f] : null, ['drop'], pl);
+            o += lab(X0 + NX * CW / 2, 190, '가운데로 갈수록, 전류가 몰릴수록 전압이 낮다', GR, 'middle', 9.5);
+            return dgSvg('IR drop: ' + s.label, o, '0 0 440 198');
+          }
+        },
+        // ---------- 디캡 ----------
+        'dsn-decap': {
+          title: '디커플링 캡의 역할',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '클록이 뛰는 순간 많은 셀이 한꺼번에 움직여 전류가 짧게 크게 몰린다. 디캡은 그 순간의 전하를 셀 가까이에서 내어 준다.' },
+            { id: 'no', label: '디캡이 없을 때', focus: ['no'], desc: '순간의 전류를 전원 입구에서 선을 따라 끌어와야 하므로 전압이 크게 출렁인다. 한 번 깊이 떨어지면 그 순간 타이밍이 어긋날 수 있다.' },
+            { id: 'ye', label: '디캡이 있을 때', focus: ['ye'], desc: '필요한 전하를 가까운 축전기가 먼저 내어 주고, 입구는 이후에 천천히 다시 채운다. 전압의 흔들림이 훨씬 작다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const row = (id, y, nm, dip, col, drawCap) => {
+              const x0 = 110, w = 300;
+              let g = lab(10, y + 22, nm, col, 'start', 10);
+              let ck = `M${x0} ${y + 64}`, vv = '', ii = '';
+              for (let k = 0; k < 4; k++) { const a = x0 + 20 + k * 72; ck += ` H${a} V${y + 54} H${a + 18} V${y + 64}`; ii += `M${a} ${y + 30} V${y + 16} H${a + 10} V${y + 30}`; }
+              ck += ` H${x0 + w}`;
+              g += A.ln(ck, CLK, 1.4, .8) + lab(x0 - 8, y + 62, 'clk', CLK, 'end', 8.5);
+              g += A.ln(ii, AMB, 1.8) + lab(x0 - 8, y + 26, '전류', AMB, 'end', 8.5);
+              let vd = `M${x0} ${y + 40}`; for (let k = 0; k < 4; k++) { const a = x0 + 20 + k * 72; vd += ` H${a} L${a + 6} ${y + 40 + dip} Q${a + 20} ${y + 40 + dip * .9} ${a + 40} ${y + 40}`; } vd += ` H${x0 + w}`;
+              g += A.ln(vd, col, 2.2) + lab(x0 - 8, y + 44, '전압', col, 'end', 8.5);
+              g += A.ln(`M${x0} ${y + 40} H${x0 + w}`, GR, 1, .5, '3 3');
+              if (drawCap) g += cap(x0 + w + 16, y + 22, OKC) + lab(x0 + w + 16, y + 56, '디캡', OKC, 'middle', 8.5);
+              return pvdG(f ? [f] : null, [id], g);
+            };
+            o += row('no', 8, '디캡 없음', 16, RED, false);
+            o += row('ye', 94, '디캡 있음', 4, OKC, true);
+            o += lab(220, 184, '같은 전류가 몰려도 가까운 저장소가 있으면 전압이 덜 흔들린다', GR, 'middle', 9.5);
+            return dgSvg('디캡: ' + s.label, o, '0 0 440 196');
+          }
+        },
+        // ---------- 클록 게이팅 ----------
+        'dsn-clkgate': {
+          title: '클록 게이팅',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '블록이 쉬는 동안 클록을 끊으면 플립플롭이 움직이지 않아 동적 전력이 거의 사라진다. 값은 그대로 남아 있어 다시 열면 이어서 일한다.' },
+            { id: 'icg', label: '게이팅 셀', focus: ['icg'], desc: '클록을 통과시키거나 막는 문이다. 문 앞에 래치가 있어 클록이 낮을 때만 enable을 받으므로 짧은 가짜 펄스가 생기지 않는다.' },
+            { id: 'wv', label: '파형', focus: ['wv'], desc: 'enable이 꺼진 동안 게이팅된 클록은 낮게 머문다. 그 뒤의 플립플롭은 그동안 움직이지 않는다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            let g = lab(10, 14, '클록 게이팅 셀', GR, 'start', 9.5);
+            g += R(14, 30, 52, 30, PUR, { fo: .16, c: PUR, sw: 1.5, rx: 4 }) + lab(40, 49, '래치', PUR, 'middle', 10);
+            g += `<path d="M96 28 H114 Q130 28 130 44 Q130 60 114 60 H96 Z" style="fill:${AMB};fill-opacity:.2;stroke:${AMB};stroke-width:1.5"/>` + lab(110, 49, 'AND', AMB, 'middle', 8.5);
+            g += A.ln('M66 45 H96 M2 45 H14', GR, 1.5) + A.ln('M0 86 H88 V54 H96', CLK, 1.6) + lab(4, 80, 'clk', CLK, 'start', 8.5) + A.ln('M130 44 H170', OKC, 1.8) + lab(172, 40, '게이팅된 clk', OKC, 'start', 8.5) + lab(0, 22, 'enable', PUR, 'start', 8.5);
+            g += R(172, 46, 36, 24, CLK, { fo: .18, c: CLK, sw: 1.4, rx: 3 }) + lab(190, 62, 'FF', CLK, 'middle', 9);
+            o += pvdG(f ? [f] : null, ['icg'], `<g transform="translate(14 8)">${g}</g>`);
+            const x0 = 262, w = 160, rows = [['clk', CLK, [1, 1, 1, 1, 1, 1, 1, 1]], ['enable', PUR, [1, 1, 0, 0, 0, 0, 1, 1]], ['게이팅된 clk', OKC, [1, 1, 0, 0, 0, 0, 1, 1]]];
+            let wv = '';
+            rows.forEach(([nm, c, e], r) => {
+              const y = 34 + r * 44, yt = y, yb = y + 24; let d = `M${x0} ${yb}`;
+              for (let k = 0; k < 8; k++) { const a = x0 + k * 20; if (nm === 'enable') { d += ` V${e[k] ? yt : yb} H${a + 20}`; } else if (e[k]) { d += ` H${a} V${yt} H${a + 10} V${yb} H${a + 20}`; } else d += ` H${a + 20}`; }
+              wv += lab(x0 - 6, y + 17, nm, c, 'end', 8.5) + A.ln(d, c, 1.8);
+            });
+            wv += R(x0 + 40, 26, 80, 130, RED, { fo: .06, c: RED, sw: 1, rx: 4, dash: '3 3' }) + lab(x0 + 80, 170, '쉬는 구간: 클록이 멈춘다', RED, 'middle', 9);
+            o += pvdG(f ? [f] : null, ['wv'], wv);
+            o += lab(120, 164, '문을 닫으면 FF가 움직이지 않는다', GR, 'middle', 9.5);
+            return dgSvg('클록 게이팅: ' + s.label, o, '0 0 440 184');
+          }
+        },
+        // ---------- 전력 게이팅 ----------
+        'dsn-pgate': {
+          title: '전력 게이팅',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '쉬는 블록의 전원을 끊으면 누설까지 없앨 수 있다. 전원 스위치, 격리 셀, 상태 유지 레지스터가 함께 있어야 안전하고, 켜고 끄는 순서도 정해져 있다.' },
+            { id: 'sw', label: '전원 스위치', focus: ['sw'], desc: '블록과 전원 사이의 큰 스위치다. 열면 블록의 전원이 끊긴다. 다시 켤 때 한꺼번에 큰 전류가 흐르지 않도록 조금씩 순서대로 켠다.' },
+            { id: 'iso', label: '격리 셀', focus: ['iso'], desc: '꺼진 블록의 출력은 값이 정해지지 않아 켜진 이웃에 쓰레기 신호를 보낸다. 경계의 격리 셀이 꺼진 동안 정해진 값으로 고정한다.' },
+            { id: 'ret', label: '상태 유지', focus: ['ret'], desc: '전원이 끊기면 레지스터 값이 사라진다. 상태 유지 레지스터가 값을 보관했다가 다시 켠 뒤 되살린다.' },
+            { id: 'seq', label: '켜고 끄는 순서', focus: ['seq'], desc: '끌 때는 격리를 먼저 켜고, 값을 저장하고, 전원을 끊는다. 켤 때는 전원을 올리고, 값을 되살리고, 격리를 푼다. 순서가 틀리면 값이 깨진다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += R(8, 22, 120, 84, GR, { fo: .06, c: GR, sw: 1.4, rx: 6 }) + lab(68, 16, '항상 켜진 영역', GR, 'middle', 9) + cell(24, 40, 40, 22, CLK) + lab(44, 55, '제어', CLK, 'middle', 9) + cell(24, 70, 40, 22, CLK) + lab(44, 85, '이웃', CLK, 'middle', 9);
+            o += R(214, 22, 150, 84, PUR, { fo: .06, c: PUR, sw: 1.4, rx: 6, dash: '4 3' }) + lab(289, 16, '꺼질 수 있는 블록', PUR, 'middle', 9);
+            o += pvdG(f ? [f] : null, ['ret'], R(224, 40, 62, 22, OKC, { fo: .3, c: OKC, sw: 1.6, rx: 3 }) + lab(255, 55, '유지 FF', OKC, 'middle', 8.5) + R(224, 70, 62, 22, GR, { fo: .12, c: GR, sw: 1.2, rx: 3 }) + lab(255, 85, '논리', GR, 'middle', 9) + R(296, 40, 60, 52, GR, { fo: .12, c: GR, sw: 1.2, rx: 3 }) + lab(326, 70, '논리', GR, 'middle', 9));
+            o += pvdG(f ? [f] : null, ['iso'], R(152, 38, 50, 24, AMB, { fo: .3, c: AMB, sw: 1.6, rx: 3 }) + lab(177, 54, '격리', AMB, 'middle', 9) + R(152, 68, 50, 24, AMB, { fo: .3, c: AMB, sw: 1.6, rx: 3 }) + lab(177, 84, '격리', AMB, 'middle', 9) + A.ln('M202 50 H214 M202 80 H214 M128 50 H152 M128 80 H152', GR, 1.4));
+            o += pvdG(f ? [f] : null, ['sw'], A.ln('M289 106 V124 M200 124 H378', GR, 1.4) + R(272, 112, 34, 14, RED, { fo: .35, c: RED, sw: 1.6, rx: 3 }) + lab(289, 122, '스위치', RED, 'middle', 8) + lab(390, 127, 'VDD', GR, 'start', 8.5));
+            const st = [['1 격리', AMB], ['2 값 저장', OKC], ['3 전원 끊기', RED], ['4 전원 켜기', RED], ['5 값 복구', OKC], ['6 격리 풀기', AMB]];
+            let sq = lab(10, 150, '끄기', PUR, 'start', 9) + lab(10, 172, '켜기', PUR, 'start', 9);
+            st.forEach(([t, c], i) => { const r = i < 3 ? 0 : 1, k = i % 3; sq += R(54 + k * 124, 138 + r * 22, 112, 16, c, { fo: .2, c, sw: 1.2, rx: 3 }) + lab(110 + k * 124, 150 + r * 22, t, c, 'middle', 9); if (k < 2) sq += fdArr(54 + (k + 1) * 124 - 4, 146 + r * 22, 'r', GR); });
+            o += pvdG(f ? [f] : null, ['seq'], sq);
+            return dgSvg('전력 게이팅: ' + s.label, o, '0 0 440 190');
+          }
+        },
+        // ---------- 단계별 전력 ----------
+        'dsn-pwrmap': {
+          title: '설계 단계별 전력 절감 크기',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '전력은 어느 단계에서든 줄일 수 있지만 앞 단계일수록 줄일 수 있는 크기가 크고, 뒤 단계일수록 작다. 반대로 앞 단계의 결정은 바꾸기 어렵다.' },
+            { id: 'arch', label: '구조·알고리즘', focus: ['arch'], desc: '같은 일을 더 적은 연산으로 하고 불필요한 데이터 이동을 없앤다. 가장 크게 줄지만 가장 바꾸기 어렵다.' },
+            { id: 'rtl', label: 'RTL', focus: ['rtl'], desc: '클록 게이팅, 쓰지 않는 입력 고정, 메모리를 나눠 필요한 조각만 켜기, 전력 게이팅 영역 정하기가 여기서 이루어진다.' },
+            { id: 'phy', label: '합성·물리설계', focus: ['phy'], desc: '셀 크기, 버퍼, 배치를 다듬어 몇 퍼센트씩 줄인다. 크기는 작지만 마지막까지 할 수 있다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const ST = [['arch', '구조·알고리즘', 76, C.arch], ['rtl', 'RTL', 52, C.rtl], ['phy', '합성·물리설계', 28, C.pd]];
+            ST.forEach(([id, nm, h, col], i) => {
+              const x = 24 + i * 100, y0 = 120;
+              o += pvdG(f ? [f] : null, [id], R(x, y0 - h, 76, h, col, { fo: .28, c: col, sw: 1.6, rx: 5 }) + lab(x + 38, y0 + 16, nm, col, 'middle', 10) + lab(x + 38, y0 - h - 6, ['크다', '중간', '작다'][i], col, 'middle', 10));
+            });
+            o += A.ln('M16 130 H330', GR, 1.2, .7) + lab(14, 12, '줄일 수 있는 크기', GR, 'start', 9.5);
+            o += A.ln('M360 40 V120', GR, 1.6) + fdArr(360, 124, 'd', GR) + lab(372, 66, '바꾸기', GR, 'start', 9.5) + lab(372, 80, '쉬워진다', GR, 'start', 9.5);
+            o += lab(170, 164, '큰 것은 앞에서, 작은 것은 뒤에서', GR, 'middle', 9.5);
+            return dgSvg('전력 줄이기: ' + s.label, o, '0 0 440 176');
+          }
+        },
+      });
+    })();
+
+    // ===== 설계 직무 > 유료(10토큰) 글 "설계 규칙(DRC/LVS)과 DFM" + 무료 글 "설계가 수율에 미치는 영향" 그림 =====
+    (() => {
+      const C = dsC, A = dsArt;
+      const GR = '#94a3b8', OKC = '#34d399', RED = '#f87171', AMB = '#fbbf24', CLK = '#60a5fa', PUR = '#c084fc', ORG = '#fb923c', CY = '#22d3ee';
+      const lab = (x, y, t, col, a = 'middle', s = 10) => fdTxM(x, y, t, { a, s, w: 800, c: col });
+      const R = (x, y, w, h, col, o = {}) => A.rc(x, y, w, h, col, o);
+      const box = (x, y, w, h, col) => R(x, y, w, h, col, { fo: .16, c: col, sw: 1.5, rx: 5 });
+      const M = (x, y, w, h, col = CLK) => R(x, y, w, h, col, { fo: .4, c: col, sw: 1.4, rx: 1 });
+      const dim = (x1, x2, y, t, col) => A.ln(`M${x1} ${y} H${x2} M${x1} ${y - 4} V${y + 4} M${x2} ${y - 4} V${y + 4}`, col, 1.3) + lab((x1 + x2) / 2, y - 6, t, col, 'middle', 8.5);
+      const ok = (x, y) => `<circle cx="${x}" cy="${y}" r="7" style="fill:${OKC};fill-opacity:.25;stroke:${OKC};stroke-width:1.4"/>` + A.ln(`M${x - 3} ${y} L${x - 1} ${y + 3} L${x + 4} ${y - 3}`, OKC, 1.8);
+      const bad = (x, y) => `<circle cx="${x}" cy="${y}" r="7" style="fill:${RED};fill-opacity:.25;stroke:${RED};stroke-width:1.4"/>` + A.ln(`M${x - 3} ${y - 3} L${x + 3} ${y + 3} M${x + 3} ${y - 3} L${x - 3} ${y + 3}`, RED, 1.8);
+      Object.assign(DIAGRAMS, {
+        // ---------- 규칙이 오는 길 ----------
+        'dsn-rulemap': {
+          title: '규칙이 오는 길',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '공정이 만들 수 있는 한계가 규칙집이 되고, 검사 도구가 설계를 규칙집에 비춰 본다. 설계자는 규칙을 만들지 않고 따른다.' },
+            { id: 'fab', label: '공정의 한계', focus: ['fab'], desc: '빛이 번지는 정도, 식각의 정밀도, 정렬의 오차 같은 물리적 한계가 규칙의 출발점이다.' },
+            { id: 'rule', label: '규칙집', focus: ['rule'], desc: '공정 회사가 한계를 숫자로 정리해 준 문서다. 최소 폭, 최소 간격, 최소 면적 등이 층마다 적혀 있다.' },
+            { id: 'tool', label: '검사 도구', focus: ['tool'], desc: '규칙집을 코드로 옮긴 검사 파일을 읽어 설계의 모든 모양과 연결을 검사한다. DRC는 모양, LVS는 회로 일치를 본다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const P = (id, x, w, col, nm, g) => pvdG(f ? [f] : null, [id], box(x, 26, w, 96, col) + lab(x + w / 2, 18, nm, col, 'middle', 10.5) + g);
+            // 공정
+            o += P('fab', 10, 118, ORG, '공정의 한계',
+              R(26, 58, 86, 10, GR, { fo: .5, sw: 0, rx: 1 }) + A.ln('M26 50 H112', AMB, 1.4, .9) + `<path d="M40 50 Q69 36 98 50" style="fill:none;stroke:${AMB};stroke-width:1.6;stroke-dasharray:3 2"/>` + A.ln('M44 74 Q58 70 62 82 Q78 94 96 80', RED, 1.6) + lab(69, 108, '빛 · 식각 · 정렬', ORG, 'middle', 9));
+            // 규칙집
+            const rows = ['최소 폭', '최소 간격', '최소 면적', '감싸기'];
+            let rl = ''; rows.forEach((t, i) => { rl += R(168, 40 + i * 18, 92, 13, PUR, { fo: .22, sw: 0, rx: 2 }) + lab(176, 50 + i * 18, t, PUR, 'start', 8.5) + lab(252, 50 + i * 18, '__', PUR, 'end', 8.5); });
+            o += P('rule', 156, 116, PUR, '규칙집', rl);
+            // 검사
+            o += P('tool', 300, 130, CLK, '검사 도구',
+              R(316, 40, 98, 24, CLK, { fo: .22, c: CLK, sw: 1.3, rx: 3 }) + lab(365, 56, 'DRC 모양', CLK, 'middle', 9.5) + R(316, 70, 98, 24, CLK, { fo: .22, c: CLK, sw: 1.3, rx: 3 }) + lab(365, 86, 'LVS 회로', CLK, 'middle', 9.5) + lab(365, 112, '설계를 규칙집에 비춘다', GR, 'middle', 8.5));
+            o += fdArr(138, 74, 'r', GR) + fdArr(282, 74, 'r', GR);
+            // 설계
+            o += R(300, 140, 130, 26, GR, { fo: .08, c: GR, sw: 1.3, rx: 4 }) + lab(365, 157, '설계 데이터', GR, 'middle', 9.5) + A.ln('M365 140 V126', GR, 1.5) + fdArr(365, 126, 'u', GR);
+            o += lab(150, 160, '규칙은 공정이 정하고, 설계자는 따른다', GR, 'middle', 9.5);
+            return dgSvg('규칙: ' + s.label, o, '0 0 440 176');
+          }
+        },
+        // ---------- DRC 네 가지 ----------
+        'dsn-drc': {
+          title: 'DRC가 보는 네 가지',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: 'DRC는 모양 하나하나가 너무 가늘지 않은지, 너무 가깝지 않은지, 너무 작지 않은지, 아래층을 충분히 덮는지 본다.' },
+            { id: 'w', label: '최소 폭', focus: ['w'], desc: '선이 너무 가늘면 제조 중 끊기거나 저항이 커진다. 규칙이 정한 폭 이상이어야 한다.' },
+            { id: 'sp', label: '최소 간격', focus: ['sp'], desc: '두 선이 너무 가까우면 제조 중 붙어 합선이 된다. 규칙이 정한 간격 이상 떨어져 있어야 한다.' },
+            { id: 'ar', label: '최소 면적', focus: ['ar'], desc: '너무 작은 조각은 공정 중 씻겨 나가거나 제대로 남지 않는다. 일정 면적 이상이어야 한다.' },
+            { id: 'en', label: '감싸기', focus: ['en'], desc: '비아와 접점은 위아래 금속이 가장자리까지 넉넉히 감싸야 한다. 어긋나도 연결이 유지되도록 한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const Q = (i, id, nm, left, right) => { const x = 8 + (i % 2) * 218, y = 10 + Math.floor(i / 2) * 92; return pvdG(f ? [f] : null, [id], box(x, y, 206, 84, GR) + lab(x + 103, y + 14, nm, GR, 'middle', 10) + `<g transform="translate(${x} ${y})">${left}${right}</g>`); };
+            // 폭
+            o += Q(0, 'w', '최소 폭', M(20, 38, 70, 5, RED) + bad(55, 58) + lab(55, 77, '가늘다', RED, 'middle', 8.5), M(116, 34, 70, 14, OKC) + ok(151, 58) + lab(151, 77, '충분', OKC, 'middle', 8.5));
+            // 간격
+            o += Q(1, 'sp', '최소 간격', M(20, 30, 70, 10, RED) + M(20, 43, 70, 10, RED) + bad(55, 66), M(116, 30, 70, 10, OKC) + M(116, 52, 70, 10, OKC) + ok(151, 70));
+            // 면적
+            o += Q(2, 'ar', '최소 면적', M(46, 36, 8, 8, RED) + bad(55, 58) + lab(55, 77, '너무 작다', RED, 'middle', 8.5), M(130, 30, 42, 24, OKC) + ok(151, 58) + lab(151, 77, '충분', OKC, 'middle', 8.5));
+            // 감싸기
+            o += Q(3, 'en', '감싸기', M(28, 30, 54, 28, RED) + M(70, 38, 16, 14, AMB) + bad(55, 70), M(116, 28, 66, 30, OKC) + M(138, 36, 18, 14, AMB) + ok(151, 70));
+            return dgSvg('DRC: ' + s.label, o, '0 0 440 196');
+          }
+        },
+        // ---------- LVS ----------
+        'dsn-lvs': {
+          title: 'LVS의 흐름',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: 'LVS는 레이아웃에서 실제로 이어진 회로를 뽑아내 설계한 넷리스트와 비교한다. 같으면 통과, 다르면 어디가 다른지 알려 준다.' },
+            { id: 'ex', label: '회로 뽑기', focus: ['ex'], desc: '레이아웃의 트랜지스터 모양과 금속 연결을 읽어 소자와 연결로 이루어진 회로를 다시 만든다.' },
+            { id: 'cmp', label: '비교', focus: ['cmp'], desc: '뽑아낸 회로와 설계 넷리스트를 소자와 연결 단위로 맞춰 본다. 이름이 아니라 구조로 맞춘다.' },
+            { id: 'mis', label: '불일치', focus: ['mis'], desc: '선이 붙어 버린 합선, 끊어진 개방, 빠지거나 더해진 소자, 크기가 다른 소자가 대표적이다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            o += pvdG(f ? [f] : null, ['ex'], box(10, 22, 120, 84, CLK) + lab(70, 16, '레이아웃', CLK, 'middle', 10) + M(26, 40, 40, 8, CLK) + M(26, 56, 40, 8, CLK) + M(74, 40, 8, 40, AMB) + M(26, 74, 56, 8, CLK) + A.ln('M30 100 H110', GR, 1, .5) + fdArr(138, 66, 'r', GR) + lab(142, 54, '추출', GR, 'start', 8.5));
+            o += pvdG(f ? [f] : null, ['ex'], box(170, 22, 100, 84, PUR) + lab(220, 16, '뽑은 회로', PUR, 'middle', 10) + R(184, 36, 30, 16, PUR, { fo: .22, c: PUR, sw: 1.3, rx: 3 }) + R(184, 64, 30, 16, PUR, { fo: .22, c: PUR, sw: 1.3, rx: 3 }) + A.ln('M214 44 H240 V72 H214', PUR, 1.4) + A.ln('M199 52 V64', PUR, 1.4));
+            o += pvdG(f ? [f] : null, ['cmp'], box(310, 22, 100, 84, OKC) + lab(360, 16, '설계 넷리스트', OKC, 'middle', 10) + R(324, 36, 30, 16, OKC, { fo: .22, c: OKC, sw: 1.3, rx: 3 }) + R(324, 64, 30, 16, OKC, { fo: .22, c: OKC, sw: 1.3, rx: 3 }) + A.ln('M354 44 H380 V72 H354', OKC, 1.4) + A.ln('M339 52 V64', OKC, 1.4) + fdArr(278, 66, 'l', GR) + lab(290, 54, '비교', GR, 'middle', 8.5));
+            // 불일치 예
+            const xs = 8, y = 128;
+            const ex = [['합선', (x) => A.ln(`M${x} ${y + 24} H${x + 24}`, CLK, 1.6) + A.ln(`M${x} ${y + 36} H${x + 24}`, CLK, 1.6) + A.ln(`M${x + 12} ${y + 24} V${y + 36}`, RED, 2.4)], ['개방', (x) => A.ln(`M${x} ${y + 30} H${x + 10} M${x + 16} ${y + 30} H${x + 26}`, CLK, 1.8) + lab(x + 13, y + 28, '×', RED, 'middle', 12)], ['소자 누락', (x) => R(x, y + 22, 26, 16, RED, { fo: .06, c: RED, sw: 1.3, rx: 3, dash: '3 2' })], ['크기 다름', (x) => R(x, y + 22, 14, 16, CLK, { fo: .22, c: CLK, sw: 1.3, rx: 3 }) + R(x + 18, y + 22, 24, 16, RED, { fo: .22, c: RED, sw: 1.3, rx: 3 })]];
+            let mg = ''; ex.forEach(([nm, fn], i) => { const x = xs + i * 108; mg += box(x, y, 100, 52, RED) + lab(x + 50, y + 14, nm, RED, 'middle', 9.5) + fn(x + 28); });
+            o += pvdG(f ? [f] : null, ['mis'], mg);
+            return dgSvg('LVS: ' + s.label, o, '0 0 440 196');
+          }
+        },
+        // ---------- 안테나 ----------
+        'dsn-antenna': {
+          title: '안테나 효과',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '제조 중 긴 금속 선이 플라스마의 전하를 모아 얇은 게이트 산화막을 망가뜨릴 수 있다. 점퍼나 다이오드로 막는다.' },
+            { id: 'prob', label: '문제', focus: ['prob'], desc: '아직 위층이 이어지지 않은 긴 선이 전하를 모아 게이트로 흘려보낸다. 얇은 산화막이 손상된다.' },
+            { id: 'jump', label: '점퍼', focus: ['jump'], desc: '긴 선을 위층으로 올렸다가 내려 한 번에 모으는 길이를 줄인다. 위층이 만들어질 때 비로소 이어진다.' },
+            { id: 'dio', label: '다이오드', focus: ['dio'], desc: '선에 다이오드를 달아 모인 전하를 기판으로 빼낸다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const gate = (x, y, col) => R(x, y, 18, 26, col, { fo: .3, c: col, sw: 1.5, rx: 2 }) + lab(x + 9, y + 38, '게이트', col, 'middle', 8);
+            const sub = (x, w) => R(x, 118, w, 12, GR, { fo: .15, sw: 0, rx: 1 });
+            const Z = (id, x, nm, body) => pvdG(f ? [f] : null, [id], box(x, 10, 140, 138, GR) + lab(x + 70, 24, nm, GR, 'middle', 10) + body);
+            // prob
+            o += Z('prob', 8, '문제',
+              M(20, 44, 100, 6, CLK) + A.ln('M110 50 V88', CLK, 2) + gate(102, 88, RED) + sub(16, 116) +
+              [30, 50, 70, 90].map((px) => `<circle cx="${px}" cy="36" r="3" style="fill:${AMB}"/>` + A.ln(`M${px} 32 V26`, AMB, 1, .6)).join('') + lab(70, 72, '긴 선에 전하가 모인다', AMB, 'middle', 8.5));
+            // jumper
+            o += Z('jump', 150, '점퍼',
+              M(160, 56, 38, 6, CLK) + M(212, 56, 36, 6, CLK) + M(176, 40, 54, 6, PUR) + A.ln('M180 46 V56 M226 46 V56', AMB, 2) + A.ln('M236 62 V88', CLK, 2) + gate(228, 88, OKC) + sub(158, 116) + lab(220, 34, '위층으로 건넌다', PUR, 'middle', 8.5));
+            // diode
+            o += Z('dio', 292, '다이오드',
+              M(302, 44, 100, 6, CLK) + A.ln('M394 50 V88', CLK, 2) + gate(386, 88, OKC) + A.ln('M330 50 V98', CLK, 1.6) + `<path d="M322 98 H338 L330 112 Z" style="fill:${OKC};fill-opacity:.3;stroke:${OKC};stroke-width:1.4"/>` + sub(300, 116) + lab(352, 74, '전하를 기판으로', OKC, 'middle', 8.5));
+            o += lab(220, 168, '긴 선이 게이트만 달고 홀로 남는 구간이 위험하다', GR, 'middle', 9.5);
+            return dgSvg('안테나: ' + s.label, o, '0 0 440 180');
+          }
+        },
+        // ---------- DFM ----------
+        'dsn-dfm': {
+          title: 'DFM의 방법',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '규칙을 지켜도 제조 중 흔들림에 약한 모양이 있다. DFM은 규칙의 최솟값보다 여유를 두어 수율을 높인다.' },
+            { id: 'via', label: 'via 이중화', focus: ['via'], desc: '연결 구멍인 via를 하나에서 둘로 늘린다. 한쪽이 불량이어도 다른 쪽이 연결을 지킨다.' },
+            { id: 'sp', label: '간격 넓히기', focus: ['sp'], desc: '공간이 남는 곳에서는 선 사이 간격을 최솟값보다 넓힌다. 합선 확률이 줄어든다.' },
+            { id: 'de', label: '밀도 맞추기', focus: ['de'], desc: '금속이 너무 많거나 적은 곳이 생기면 평탄화가 고르지 못하다. 빈 곳에 채움 금속을 넣어 밀도를 맞춘다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const Z = (i, id, nm, body) => { const x = 8 + i * 144; return pvdG(f ? [f] : null, [id], box(x, 10, 134, 130, GR) + lab(x + 67, 24, nm, GR, 'middle', 10) + `<g transform="translate(${x} 0)">${body}</g>`); };
+            const via = (x, y, c) => R(x, y, 10, 10, c, { fo: .5, c, sw: 1.3, rx: 1 });
+            o += Z(0, 'via', 'via 이중화',
+              M(14, 36, 40, 14, CLK) + M(14, 62, 40, 14, PUR) + via(30, 50, AMB) + lab(34, 92, '하나', GR, 'middle', 8.5) +
+              M(78, 36, 42, 14, CLK) + M(78, 62, 42, 14, PUR) + via(84, 50, OKC) + via(104, 50, OKC) + lab(99, 92, '둘', OKC, 'middle', 8.5) + A.ln('M58 56 H72', GR, 1.4) + fdArr(72, 56, 'r', GR));
+            o += Z(1, 'sp', '간격 넓히기',
+              M(14, 40, 44, 7, CLK) + M(14, 50, 44, 7, CLK) + lab(36, 76, '최솟값', AMB, 'middle', 8.5) +
+              M(76, 38, 44, 7, CLK) + M(76, 54, 44, 7, CLK) + lab(98, 76, '여유', OKC, 'middle', 8.5) + A.ln('M62 50 H70', GR, 1.4) + fdArr(70, 50, 'r', GR));
+            let fill = ''; for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) fill += R(84 + i * 12, 44 + j * 12, 8, 8, OKC, { fo: .4, c: OKC, sw: 1, rx: 1 });
+            o += Z(2, 'de', '밀도 맞추기',
+              R(14, 40, 44, 36, CLK, { fo: .45, c: CLK, sw: 1.2, rx: 2 }) + lab(36, 92, '빽빽', GR, 'middle', 8.5) +
+              R(78, 40, 52, 36, GR, { fo: .06, c: GR, sw: 1.2, rx: 2, dash: '3 2' }) + fill + lab(104, 92, '채움', OKC, 'middle', 8.5));
+            o += lab(220, 158, '규칙은 합격선이고, DFM은 그 위의 여유다', GR, 'middle', 9.5);
+            return dgSvg('DFM: ' + s.label, o, '0 0 440 170');
+          }
+        },
+        // ---------- 검사 정리 순서 ----------
+        'dsn-drcflow': {
+          title: '위반을 정리하는 순서',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '위반이 많아도 숫자에 놀라지 않는다. 설정부터 확인하고, 큰 덩어리를 먼저 없앤 뒤, 남은 것을 하나씩 고치고, 다시 검사한다.' },
+            { id: 'set', label: '설정 확인', focus: ['set'], desc: '규칙 파일 버전, 층 매핑, 단위가 맞는지 확인한다. 설정이 틀리면 수천 건이 한꺼번에 나온다.' },
+            { id: 'big', label: '큰 덩어리', focus: ['big'], desc: '같은 원인으로 쏟아진 위반을 묶어 한 번에 고친다. 숫자가 크게 줄어든다.' },
+            { id: 'one', label: '개별 수정', focus: ['one'], desc: '남은 위반을 위치별로 하나씩 고친다. 고치면서 다른 규칙을 깨지 않는지 본다.' },
+            { id: 'rec', label: '재검사', focus: ['rec'], desc: '고친 뒤에는 처음부터 다시 검사한다. 위반 수가 0이 될 때까지 반복한다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const st = [['set', '설정 확인', GR, '4 천'], ['big', '큰 덩어리', AMB, '3 백'], ['one', '개별 수정', CLK, '2 십'], ['rec', '재검사', OKC, '0']];
+            const nums = ['4,000', '300', '20', '0'];
+            st.forEach(([id, nm, c], i) => {
+              const x = 10 + i * 108;
+              o += pvdG(f ? [f] : null, [id], box(x, 22, 96, 54, c) + lab(x + 48, 16, nm, c, 'middle', 10) + lab(x + 48, 54, nums[i], c, 'middle', 17) + lab(x + 48, 68, '위반', c, 'middle', 8.5) + (i < 3 ? fdArr(x + 100, 50, 'r', GR) : ''));
+            });
+            const bars = [92, 34, 12, 2];
+            o += lab(12, 100, '남은 위반 수', GR, 'start', 9.5);
+            bars.forEach((h, i) => { const x = 20 + i * 108; o += pvdG(f ? [f] : null, [st[i][0]], R(x, 150 - h * .42, 74, h * .42, st[i][2], { fo: .35, c: st[i][2], sw: 1.3, rx: 2 })); });
+            o += A.ln('M10 150 H430', GR, 1, .6);
+            o += A.ln('M370 164 H60 V156', GR, 1.2, .7, '4 3') + lab(215, 176, '고친 뒤에는 처음부터 다시', GR, 'middle', 8.5);
+            return dgSvg('검사 정리: ' + s.label, o, '0 0 440 186');
+          }
+        },
+        // ---------- 수율 ----------
+        'dsn-yarea': {
+          title: '칩 면적과 수율',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '웨이퍼 위에 흩어진 결함의 수는 같아도 칩이 클수록 결함을 맞을 확률이 크다. 그래서 큰 칩의 수율이 더 낮다.' },
+            { id: 'sm', label: '작은 칩', focus: ['sm'], desc: '칩이 작으면 한 웨이퍼에 많이 들어가고, 결함 하나가 망치는 칩은 일부다.' },
+            { id: 'lg', label: '큰 칩', focus: ['lg'], desc: '칩이 크면 한 웨이퍼에 적게 들어가는데도 같은 결함이 더 많은 칩을 망친다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const defects = [[.18, .26], [.62, .18], [.38, .62], [.78, .7], [.24, .82], [.9, .38]];
+            const W = (x, y, n, id, nm) => {
+              const r = 70, cx = x + r, cy = y + r, cs = 140 / n; let g = '';
+              for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+                const px = x + i * cs, py = y + j * cs; if ((px + cs / 2 - cx) ** 2 + (py + cs / 2 - cy) ** 2 > (r - 2) ** 2) continue;
+                const hit = defects.some(([a, b]) => { const dx = x + a * 140, dy = y + b * 140; return dx >= px && dx < px + cs && dy >= py && dy < py + cs; });
+                g += R(px + .5, py + .5, cs - 1, cs - 1, hit ? RED : OKC, { fo: hit ? .5 : .2, c: hit ? RED : OKC, sw: .8, rx: 1 });
+              }
+              defects.forEach(([a, b]) => g += `<circle cx="${x + a * 140}" cy="${y + b * 140}" r="3" style="fill:#0f172a;stroke:${AMB};stroke-width:1.2"/>`);
+              return pvdG(f ? [f] : null, [id], `<circle cx="${cx}" cy="${cy}" r="${r}" style="fill:none;stroke:${GR};stroke-width:1.6"/>` + g + lab(cx, y + 156, nm, GR, 'middle', 10));
+            };
+            o += W(14, 14, 8, 'sm', '작은 칩: 대부분 살아남는다');
+            o += W(230, 14, 3, 'lg', '큰 칩: 같은 결함에 더 많이 죽는다');
+            o += lab(220, 186, '노란 점은 같은 개수의 결함이다', GR, 'middle', 9);
+            return dgSvg('수율: ' + s.label, o, '0 0 440 196');
+          }
+        },
+        'dsn-ymargin': {
+          title: '규칙의 여유',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '공정은 항상 조금씩 흔들린다. 최솟값에 맞춘 모양은 흔들림에 불량이 되고, 여유를 둔 모양은 버틴다.' },
+            { id: 'min', label: '최솟값', focus: ['min'], desc: '규칙에 딱 맞게 그린 간격은 공정이 조금만 흔들려도 선이 붙는다.' },
+            { id: 'mg', label: '여유', focus: ['mg'], desc: '여유를 둔 간격은 같은 흔들림에도 붙지 않는다. 면적을 조금 쓰는 대신 수율을 얻는다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            const P = (id, x, gap, ok2, nm, col) => {
+              const w = 26; const lx = x + 70 - gap / 2 - w, rx = x + 70 + gap / 2;
+              const wob = ok2 ? '' : `<path d="M${lx + w} 46 Q${lx + w + 8} 58 ${lx + w + 2} 70 Q${lx + w + 9} 82 ${lx + w} 94" style="fill:${RED};fill-opacity:.35;stroke:${RED};stroke-width:1.6"/>`;
+              return pvdG(f ? [f] : null, [id], box(x, 10, 140, 124, GR) + lab(x + 70, 26, nm, col, 'middle', 10) + M(lx, 40, w, 60, ok2 ? OKC : CLK) + M(rx, 40, w, 60, ok2 ? OKC : CLK) + wob + dim(lx + w, rx, 112, '', col) + (ok2 ? ok(x + 70, 118) : bad(x + 70, 118)));
+            };
+            o += P('min', 8, 12, false, '최솟값에 맞춤', RED);
+            o += P('mg', 156, 26, true, '여유를 둠', OKC);
+            let g = A.ln('M312 134 V46', GR, 1.2, .7) + A.ln('M312 134 H430', GR, 1.2, .7) + lab(318, 40, '수율', GR, 'start', 8.5) + lab(430, 148, '여유', GR, 'end', 8.5);
+            g += A.ln('M316 120 Q350 108 380 70 Q404 54 428 52', OKC, 2.2) + `<circle cx="328" cy="117" r="3.5" style="fill:${RED}"/><circle cx="392" cy="62" r="3.5" style="fill:${OKC}"/>` + lab(430, 120, '늘수록', GR, 'end', 8.5) + lab(430, 130, '오르다 둔해진다', GR, 'end', 8.5);
+            o += g;
+            return dgSvg('여유: ' + s.label, o, '0 0 440 156');
+          }
+        },
+        'dsn-yreg': {
+          title: '규칙적인 배열과 불규칙한 배열',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '같은 간격으로 반복되는 모양은 빛이 고르게 번져 안정적으로 찍힌다. 제각각인 모양은 곳곳이 어긋난다.' },
+            { id: 'reg', label: '규칙적', focus: ['reg'], desc: '모든 선이 같은 폭과 간격으로 반복되면 공정을 그 모양에 맞춰 다듬을 수 있어 흔들림이 작다.' },
+            { id: 'irr', label: '불규칙', focus: ['irr'], desc: '폭과 간격이 제각각이면 이웃에 따라 찍히는 모양이 달라져 어긋나는 곳이 생긴다.' },
+          ],
+          svg(s) {
+            const f = s.focus ? s.focus[0] : null;
+            let o = fdDefs();
+            let reg = ''; for (let i = 0; i < 8; i++) reg += M(24 + i * 24, 40, 12, 80, OKC);
+            o += pvdG(f ? [f] : null, ['reg'], box(8, 10, 206, 138, OKC) + lab(111, 26, '규칙적인 배열', OKC, 'middle', 10) + reg + ok(111, 136));
+            const ws = [8, 18, 10, 20, 8, 14, 12], gs = [22, 8, 26, 12, 20, 10]; let x = 232, irr = '';
+            ws.forEach((w, i) => { const sk = (i === 1 || i === 4) ? 5 : 0; irr += R(x, 40 + (i % 3) * 3, w, 80 - (i % 3) * 6, (i === 1 || i === 4) ? RED : CLK, { fo: .4, c: (i === 1 || i === 4) ? RED : CLK, sw: 1.4, rx: 1 }); x += w + (gs[i] || 0); });
+            o += pvdG(f ? [f] : null, ['irr'], box(222, 10, 210, 138, RED) + lab(327, 26, '불규칙한 배열', RED, 'middle', 10) + irr + bad(327, 136));
+            return dgSvg('배열: ' + s.label, o, '0 0 440 158');
+          }
+        },
+      });
+    })();
+
     function spcFlags(z) {
       const out = [], n = z.length;
       for (let i = 0; i < n; i++) {
