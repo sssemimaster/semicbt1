@@ -64,6 +64,17 @@
     const FIXED_SUBJECTS = Object.values(CATEGORY_TREE).flat().concat(["일반"]);
     
     let currentViewId = 'view-lobby'; let learnState = { level: 'home', category: '', subject: '', theoryId: '' };
+    // ===== 방문 측정: Google 태그 관리자(GTM)의 dataLayer 로 '행동' 이벤트만 보낸다 (이름·이메일 같은 개인 정보는 보내지 않는다) =====
+    // 이벤트: landing · view · guide_open · guide_cta · study_start · study_complete · theory_open · attend · sign_up · login · begin_checkout · token_purchase · unlock
+    // 쓰는 법: GTM 에서 '맞춤 이벤트' 트리거(이벤트 이름 = 위 이름)를 만들고 GA4 이벤트 태그에 연결하면 GA4 에 쌓인다.
+    function track(name, p) { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: name }, p || {})); } catch (e) {} }
+    (function trackLanding() {
+      try {
+        const q = new URLSearchParams(location.search), g = (k) => (q.get(k) || '').slice(0, 60);
+        let ref = ''; try { ref = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+        track('landing', { utm_source: g('utm_source'), utm_medium: g('utm_medium'), utm_campaign: g('utm_campaign'), utm_content: g('utm_content'), ref_host: ref && ref !== location.hostname ? ref : '' });
+      } catch (e) {}
+    })();
     let navLog = [], navIdx = 0, returnCtx = null;
 
     // 이론 페이지(theory/<id>/)도 이 앱 그대로(index.html 에 글을 미리 넣은 것)라서, 데이터·링크는 ROOT 기준으로 찾는다.
@@ -624,7 +635,7 @@
     async function payStart(packId) {
       if (PAY.busy) return; const P = PAY.packs.find((x) => x.id === packId); if (!P) return;
       const key = await payClientKey(); if (!key) { PAY.err = '결제 기능을 준비 중이에요.'; payRender(); return; }
-      PAY.busy = true; PAY.busyPack = packId; PAY.err = ''; PAY.note = ''; payRender();
+      PAY.busy = true; PAY.busyPack = packId; PAY.err = ''; PAY.note = ''; payRender(); track('begin_checkout', { pack: packId });
       try {
         const r = await apiJson('/orders', 'POST', { pack: packId });
         if (r.status === 503) throw new Error('unavailable');
@@ -677,7 +688,7 @@
         const r = await apiJson('/pay/confirm', 'POST', { orderId: pend.orderId });
         if (r.status === 200 && r.body.ok) {
           try { sessionStorage.removeItem(PAY_PENDING); } catch (e) {}
-          await walletLoad();
+          await walletLoad(); if (!r.body.already) track('token_purchase', { tokens: r.body.tokens });
           pmToast(r.body.already ? '이미 충전이 반영된 결제예요.' : `토큰 ${r.body.tokens}개가 충전됐어요`);
           if (document.getElementById('payM')) payLoadOrders();
           payGoBack();
@@ -745,6 +756,7 @@
 
     // ===== 브라우저 히스토리 연동: 크롬 뒤로가기/앞으로가기가 화면 이동을 그대로 따라간다 =====
     function navTo(viewId, newLearnState = null) {
+      if (viewId !== currentViewId) track('view', { view: viewId });
       if (navLog[navIdx]) navLog[navIdx].y = window.scrollY;   // 떠나는 화면의 스크롤 위치 기억
       if (newLearnState) learnState = { ...learnState, ...newLearnState };
       applyState(viewId, learnState); pushNav(viewId);
@@ -16226,7 +16238,7 @@
       openSetup(mode);
     }
     function showResult(mode) {
-      clearResume(); navTo('view-result');
+      clearResume(); navTo('view-result'); track('study_complete', { mode, total: filteredSession.length });
       const fromReview = mode === 'quiz' && reviewCtx && reviewCtx.ref === filteredSession; reviewCtx = null;
       const fromPath = mode === 'quiz' && pathQuizCtx && pathQuizCtx.ref === filteredSession; if (fromPath) pathMarkQuiz(pathQuizCtx.ids); pathQuizCtx = null;
       const total = filteredSession.length;
@@ -16338,6 +16350,7 @@
       filteredSession = setupPool();
       if (filteredSession.length === 0) return alert("선택한 과목에 등록된 문항이 없습니다.");
       filteredSession = filteredSession.sort(() => Math.random() - 0.5).slice(0, cnt);
+      track('study_start', { mode: currentMode, count: filteredSession.length });
       currentKeyword = null; currentIndex = 0; correctCount = 0; sessionLog = [];
       if (currentMode === 'quiz' && document.getElementById('examToggle').checked) return startExam();
       navTo(currentMode === 'quiz' ? 'view-quiz' : 'view-interview');
@@ -16485,6 +16498,7 @@
     }
     function openTheory(id) {
       const t = allTheories.find(x => x.id === id); if (!t) return;
+      track('theory_open', { theory_id: id, category: t.category });
       if (currentViewId !== 'view-learning' && RETURN_LABEL[currentViewId]) returnCtx = { view: currentViewId, label: RETURN_LABEL[currentViewId] };
       navTo('view-learning', { level: 'detail', category: t.category, subject: t.subject, theoryId: t.id });
     }
@@ -16921,10 +16935,18 @@
         $('wfcSkip').hidden = true; const ok = $('wfcOk'); ok.hidden = false; finished = true; ok.onclick = close; ok.focus();
       });
     }
+    // 로그인 이벤트: 한 탭에서 한 번만. 계정을 만든 직후의 첫 로그인이면 sign_up, 아니면 login
+    function trackAuth(u) {
+      try {
+        if (sessionStorage.getItem('semiTrkAuth')) return; sessionStorage.setItem('semiTrkAuth', '1');
+        const m = u.metadata || {}, fresh = m.creationTime && m.creationTime === m.lastSignInTime;
+        track(fresh ? 'sign_up' : 'login', { method: 'google' });
+      } catch (e) {}
+    }
     async function attendToday() {
       if (attendBusy) return; const t = todayData();
       if (attendDays.includes(dateStr()) || t.pts < DAILY_GOAL) return;
-      attendBusy = true; attendDays.push(dateStr()); saveAttend();
+      attendBusy = true; attendDays.push(dateStr()); saveAttend(); track('attend', { days: attendDays.length });
       try { await runCeremony(waferInfo(attendDays.length)); } catch (e) {}
       attendBusy = false; renderWaferPanel(); renderHome(); updateHeaderChip(); tokenClaim();
     }
@@ -17002,7 +17024,7 @@
         const app = A.initializeApp(cfg), auth = U.getAuth(app);
         fb = { app, auth, U };
         U.getRedirectResult(auth).catch((e) => { acct.err = acctErr(e); renderAcct(); });
-        U.onAuthStateChanged(auth, (u) => { acct.user = u; if (u) hintSet(true); renderAcct(); if (u) syncNow(); walletLoad().then(() => { if (u) payResume(); }); });
+        U.onAuthStateChanged(auth, (u) => { acct.user = u; if (u) { hintSet(true); trackAuth(u); } renderAcct(); if (u) syncNow(); walletLoad().then(() => { if (u) payResume(); }); });
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && acct.user && Date.now() - acct.last > 60000) syncNow(); });
       })().catch((e) => { sdkP = null; acct.err = '로그인 모듈을 불러오지 못했어요. 네트워크를 확인해 주세요.'; renderAcct(); throw e; });
       return sdkP;
@@ -17177,6 +17199,7 @@
         if (r.status === 200 && r.body.unlocked) {
           PRM.free = r.body.free; PRM.paid = r.body.paid;
           (Array.isArray(r.body.items) ? r.body.items : [id]).forEach((x) => PRM.unlocked.add(x));   // 번들이면 묶인 콘텐츠가 모두 열린다
+          if (!r.body.already) track('unlock', { content: id });
           tokenRender(); pmToast(r.body.already ? '이미 해금돼 있어요' : '해금했어요');
         }
         else if (r.status === 402) { PRM.free = r.body.free; PRM.paid = r.body.paid; tokenRender(); pmToast('토큰이 모자라요 (필요 ' + r.body.price + ')'); }
@@ -18114,7 +18137,7 @@
     ];
     let gdCtx = null;
     const gdReduce = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-    function guideOpen() { try { localStorage.setItem('semiCbtIntroSeen', '1'); } catch (e) { } navTo('view-guide'); }
+    function guideOpen() { track('guide_open'); try { localStorage.setItem('semiCbtIntroSeen', '1'); } catch (e) { } navTo('view-guide'); }
     function enterGuide() { guideMount(document.getElementById('guideRoot')); }
     function guideHTML() {
       const I = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -18366,6 +18389,7 @@ ${skyHTML}
     function guideGo(i) { const ch = document.getElementById('gd-c' + i); if (ch) ch.scrollIntoView({ behavior: gdReduce() ? 'auto' : 'smooth', block: 'start' }); }
     // 가이드 안의 모든 버튼이 지나가는 곳. 온보딩 팝업이면 먼저 팝업을 닫는다.
     function gdDo(a) {
+      track('guide_cta', { action: a });
       const c = gdCtx; if (c && c.onLeave) { c.onLeave(); const m = document.getElementById('onbM'); if (m) { m.style.display = 'none'; document.body.style.overflow = ''; } }
       if (a.indexOf('jx:') === 0) return jxOpen(a.slice(3));
       if (a.indexOf('lab:') === 0) return labOpen(a.slice(4));
