@@ -11973,5 +11973,15 @@ Object.assign(window.I18N_EN, {
   "건물과 회사 유형으로 보기": "Browse by building and company type",
   "내 전공으로 보기": "Browse by my major",
   "건물": "Buildings",
-  "회사 유형": "Company types"
+  "회사 유형": "Company types",
+  "비전공자도": "Even non-majors",
+  "이해할 수 있는": "can understand:",
+  "반도체 학습공간": "a semiconductor study space",
+  "어려운 용어는 쉬운 말로, 개념은 그림과 예시로 풀어 드려요. 읽고, 풀고, 직접 해 보며 처음부터 차근차근 따라오세요.": "Hard terms become plain words, and ideas come with pictures and examples. Read, solve, and learn by doing, step by step from the very start.",
+  "실제 체험 화면": "Actual experience screen",
+  "직접 체험해 보기": "Try it yourself",
+  "노광 (스캐너)": "Exposure (Scanner)",
+  "플라즈마 속 이온이 웨이퍼를 두드려, 마스크로 가리지 않은 곳만 깎아요. 가스·압력·파워·시간을 직접 정하고 단면이 깎이는 모습을 확인해요.": "Ions in the plasma hammer the wafer and cut away only the parts not covered by the mask. Choose the gas, pressure, power and time yourself, then watch the cross-section get etched.",
+  "두 가지 가스를 번갈아 흘려요. 온도와 펄스를 정하면 원자 한 층씩 얇은 막이 쌓이고, 깊은 구멍 바닥까지 덮이는지 확인해요.": "Two gases flow in turns. Set the temperature and pulses, and a thin film builds one atomic layer at a time. Then check that it covers even the bottom of deep holes.",
+  "레티클의 회로를 렌즈로 줄여 웨이퍼에 찍어요. 노광량과 초점을 정하고, 선폭과 정렬 오차를 확인해요.": "The circuit on the reticle is shrunk by the lens and printed on the wafer. Set the dose and focus, then check the line width and alignment error."
 });
