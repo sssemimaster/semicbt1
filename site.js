@@ -17024,7 +17024,7 @@
     // 🪙 토큰 · 유료 콘텐츠 (잔액·가격·해금은 전부 서버가 정한다. 화면은 요청만 보내고 결과를 보여 준다)
     // =====================================================
     const PRM = { free: 0, paid: 0, unlocked: new Set(), bundles: [], cache: {}, loaded: false, queue: [], pumpP: null, lastSent: 0, welcomed: false, busy: false };
-    const PRICE_HINT = { theory: 15, lab: 10, bundle: 22 };
+    const PRICE_HINT = { theory: 15, lab: 10, jx: 10, bundle: 22 };
     // 글마다 값이 다를 수 있다: 현장 직무 글은 로드맵 등급(FLD_TIER)의 값을 쓴다. 실제 결제액은 서버 카탈로그가 정한다
     function pmPrice(id, kind) {
       if (kind === 'theory') { const t = allTheories.find((x) => x.id === id); if (t && JOB_CFG[t.subject]) { const k = jobKey(t); if (k && FLD_TIER[k].p) return FLD_TIER[k].p; } }
@@ -17094,6 +17094,8 @@
       try {
         if (currentViewId === 'view-learning' && learnState.level === 'detail' && learnState.theoryId) { const t = allTheories.find(x => x.id === learnState.theoryId); if (t && t.premium) renderDetailDOM(t.id); }
         else if (currentViewId === 'view-lab' && typeof enterLab === 'function') { const k = labKind; if (k && !window[LABS[k].g]) enterLab(); }
+        else if (currentViewId === 'view-jx-run' && JX_PAID[learnState.jx] && !(window.JX && window.JX.exp[learnState.jx]) && PRM.unlocked.has(JX_PAID[learnState.jx])) enterJx();
+        jxMarkProgress();
       } catch (e) {}
     }
     // 학습 기록을 서버에 보낸다 (서버는 기록 사이 3초 이상을 요구하므로 줄을 세워 천천히 보낸다)
@@ -17161,9 +17163,9 @@
     }
     async function premiumUnlock(id) {
       if (PRM.busy || document.getElementById('pmc')) return;
-      const bd = (PRM.bundles || []).find((b) => b.id === id), isLab = String(id).indexOf('lab-') === 0;
-      const price = bd ? bd.price : pmPrice(id, isLab ? 'lab' : 'theory');
-      const name = bd ? '이론 + 장비 체험 번들' : isLab ? ((LABS[id.slice(4)] || {}).title || '장비 체험') : ((allTheories.find((x) => x.id === id) || {}).title || '이 글');
+      const bd = (PRM.bundles || []).find((b) => b.id === id), isLab = String(id).indexOf('lab-') === 0, isJx = String(id).indexOf('jx-') === 0;
+      const price = bd ? bd.price : pmPrice(id, isLab ? 'lab' : isJx ? 'jx' : 'theory');
+      const name = bd ? '이론 + 장비 체험 번들' : isJx ? ((JX_META[id] || {}).t || '직무 체험') : isLab ? ((LABS[id.slice(4)] || {}).title || '장비 체험') : ((allTheories.find((x) => x.id === id) || {}).title || '이 글');
       if (!(await pmConfirm(name, price))) return;
       return premiumUnlockDo(id);
     }
@@ -17243,7 +17245,11 @@
     }
     function pmGateFill(o, id, kind) {
       let title, sub, tick, ic, pts;
-      if (kind === 'lab') {
+      if (kind === 'jx') {
+        const m = JX_META[id] || { t: '직무 체험', d: '' };
+        title = m.t; sub = m.d; tick = 'JOB EXPERIENCE'; ic = ico('flask');
+        pts = ['<b>직접 해 보기</b> — 실제 업무처럼 판단하고 결과를 바로 확인해요', '<b>점수와 복기</b> — 끝나면 내가 한 행동을 순서대로 되짚어 봐요'];
+      } else if (kind === 'lab') {
         const k = id.slice(4), L = LABS[k], gt = allTheories.find((x) => x.category === ADV_CAT && x.lab === k);
         title = L.title; sub = L.desc; tick = 'EQUIPMENT LAB'; ic = ico('flask');
         pts = ['<b>직접 조작</b> — 공정 조건을 바꿔 가며 결과가 어떻게 달라지는지 바로 확인해요', '<b>단면과 수치로 확인</b> — 읽기만으로는 잡히지 않는 장비 감각을 손으로 익혀요']
@@ -17263,7 +17269,7 @@
         const bd = bundleOf(id);
         const mk = (cid, label, note, pr, rec) => `<button type="button" class="pmg-of${rec ? ' rec' : ''}"${have >= pr ? '' : ' disabled'} onclick="pmGateUnlock('${cid}')"><span><b>${label}</b><small>${note}</small></span><span class="pr">${TK()}${pr}</span></button>`;
         const offers = (bd ? mk(bd.id, '이론 + 장비 체험 번들', `<em>${bd.save}토큰 할인</em> · 따로 사면 ${bd.sum}토큰`, bd.price, true) : '')
-          + mk(id, kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
+          + mk(id, kind === 'jx' ? '이 체험만' : kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
         const min = bd ? Math.min(bd.price, price) : price;
         body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 획득법</button></p>` : '')
           + (have < min ? `<button type="button" class="pmg-cta" onclick="payFromGate()">${TK()} 토큰 충전하기</button>` : '') + `<p class="pmg-wallet">${TK()} 내 토큰 ${have}개 · 무료 ${PRM.free} · 유료 ${PRM.paid}</p>`;
@@ -17280,13 +17286,13 @@
       await premiumUnlock(cid);
       const cur = document.getElementById('pmg'); if (!cur) return;
       const id = cur.dataset.id;
-      if (PRM.unlocked.has(id)) pmGateClose(); else pmGateFill(cur, id, id.indexOf('lab-') === 0 ? 'lab' : 'theory');   // 실패(잔액 부족 등)면 최신 상태로 다시 그린다
+      if (PRM.unlocked.has(id)) pmGateClose(); else pmGateFill(cur, id, id.indexOf('lab-') === 0 ? 'lab' : id.indexOf('jx-') === 0 ? 'jx' : 'theory');   // 실패(잔액 부족 등)면 최신 상태로 다시 그린다
     }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pmg')) pmGateClose(); });
 
     function premiumLock(id, kind) {
       const el = document.createElement('div'); el.className = 'pm-lock';
-      const whatTopic = kind === 'lab' ? '이 장비 체험은' : '이 글의 나머지는', whatObj = kind === 'lab' ? '이 장비 체험을' : '이 글의 나머지를', whatFree = kind === 'lab' ? '이 장비 체험은' : '이 글은';
+      const whatTopic = kind === 'jx' ? '이 직무 체험은' : kind === 'lab' ? '이 장비 체험은' : '이 글의 나머지는', whatObj = kind === 'jx' ? '이 직무 체험을' : kind === 'lab' ? '이 장비 체험을' : '이 글의 나머지를', whatFree = kind === 'jx' ? '이 직무 체험은' : kind === 'lab' ? '이 장비 체험은' : '이 글은';
       const price = pmPrice(id, kind);
       const head = (ic, t, p) => `<div class="pml-ic" aria-hidden="true">${ico(ic)}</div><h4>${t}</h4>${p ? `<p>${p}</p>` : ''}`;
       let h;
@@ -17866,23 +17872,54 @@
     // ===== 🎮 직무 체험(현장·설계): 화면을 처음 열 때만 jx.js 를 불러온다 =====
     // 체험 4가지(알람 콘솔·SPC 운영실·파형 디버거·타이밍 ECO)는 #view-jx-run 한 화면을 함께 쓴다.
     const JX_FIELD = ['alarm', 'spc'], JX_DESIGN = ['wave', 'eco'];
-    let jxLoading = null;
+    // 탭마다 1개(알람 콘솔·파형 디버거)는 무료 맛보기로 jx.js 에 들어 있고, 나머지는 토큰(10)으로 해금한 뒤 서버에서 코드를 받는다
+    const JX_PAID = { spc: 'jx-spc', eco: 'jx-eco' };
+    const JX_META = {
+      'jx-spc': { t: 'SPC 관리도 운영실', d: '관리도가 실시간으로 자라요. 이상한 점을 잡아 장비를 멈춰요.' },
+      'jx-eco': { t: '타이밍 ECO 작업대', d: '타이밍 위반을 셀 크기, 문턱 전압, 버퍼, 클록 지연으로 고쳐요.' }
+    };
+    let jxLoading = null; const jxPaidLoads = {};
     function jxLoad() {
       if (window.JX) return Promise.resolve();
       if (jxLoading) return jxLoading;
-      jxLoading = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'jx.js?v=1'; sc.onload = ok; sc.onerror = () => no(new Error('jx.js')); document.head.appendChild(sc); }).catch((e) => { jxLoading = null; throw e; });
+      jxLoading = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'jx.js?v=2'; sc.onload = ok; sc.onerror = () => no(new Error('jx.js')); document.head.appendChild(sc); }).catch((e) => { jxLoading = null; throw e; });
       return jxLoading;
+    }
+    // 유료 체험 코드는 공개 파일이 아니라 서버(해금 확인 후)에서 받아 실행한다
+    function jxLoadPaid(id) {
+      if (window.JX && window.JX.exp[id]) return Promise.resolve();
+      if (jxPaidLoads[id]) return jxPaidLoads[id];
+      jxPaidLoads[id] = apiJson('/content/' + JX_PAID[id]).then((r) => {
+        if (r.status !== 200 || !r.body || !r.body.body) throw new Error('jx-' + r.status);
+        return new Promise((ok, no) => {
+          const url = URL.createObjectURL(new Blob([r.body.body], { type: 'text/javascript' })), sc = document.createElement('script');
+          sc.src = url; sc.onload = () => { URL.revokeObjectURL(url); sc.remove(); ok(); }; sc.onerror = () => { URL.revokeObjectURL(url); no(new Error('jx-script')); };
+          document.head.appendChild(sc);
+        });
+      }).catch((e) => { jxPaidLoads[id] = null; throw e; });
+      return jxPaidLoads[id];
     }
     function jxOpen(id) { navTo('view-jx-run', { jx: id }); }
     function enterJx(state) {
-      const root = document.getElementById('jxRoot'), id = (state && state.jx) || learnState.jx;
-      if (!window.JX) root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오는 중…')) + '</div>';
-      jxLoad().then(() => { if (currentViewId === 'view-jx-run') window.JX.start(id, root, { T, esc: escH, back: () => goBack(), open: jxOpen, field: JX_FIELD, design: JX_DESIGN }); })
-        .catch(() => { root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.')) + '</div>'; });
+      const root = document.getElementById('jxRoot'), id = (state && state.jx) || learnState.jx, pid = JX_PAID[id];
+      const fail = () => { root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.')) + '</div>'; };
+      if (pid && !(window.JX && window.JX.exp[id]) && !PRM.unlocked.has(pid)) {   // 해금 전: 잠금 화면 + 해금 팝업
+        if (window.JX) window.JX.stop();
+        root.innerHTML = '<h2 class="page-title text-slate-900 dark:text-white mb-4">' + escH(T((JX_META[pid] || {}).t || '직무 체험')) + '</h2>'; root.appendChild(premiumLock(pid, 'jx')); try { pmGateMaybe(pid, 'jx'); } catch (e) {}
+        return;
+      }
+      if (!window.JX || (pid && !window.JX.exp[id])) root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오는 중…')) + '</div>';
+      jxLoad().then(() => (pid ? jxLoadPaid(id) : null))
+        .then(() => { if (currentViewId === 'view-jx-run') window.JX.start(id, root, { T, esc: escH, back: () => goBack(), open: jxOpen, field: JX_FIELD, design: JX_DESIGN }); })
+        .catch(fail);
     }
     function jxStop() { if (window.JX) window.JX.stop(); }
-    // 목록 카드에 마지막 점수 표시 (기록은 이 기기에만 저장돼요)
+    // 목록 카드: 무료 맛보기 / 토큰 / 해금됨 표시와 마지막 점수 (기록은 이 기기에만 저장돼요)
     function jxMarkProgress() {
+      document.querySelectorAll('.jx-lk').forEach((el) => {
+        const pid = JX_PAID[el.dataset.jx];
+        el.innerHTML = !pid ? '<span class="tk-pr k1">무료 맛보기</span>' : PRM.unlocked.has(pid) ? '<span class="tk-pr k1">해금됨</span>' : `<span class="tk-pr k2">${pmPrice(pid, 'jx')}토큰</span>`;
+      });
       document.querySelectorAll('.jx-prog').forEach((el) => {
         let r = null; try { r = JSON.parse(localStorage.getItem('semiJx_' + el.dataset.jx) || 'null'); } catch (e) {}
         el.textContent = r && r.best != null ? T('최고 기록 ' + r.best + (r.unit || '')) : '';
