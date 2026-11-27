@@ -809,7 +809,7 @@
       ly = y;
     }, { passive: true }); })();
     function applyState(viewId, state) {
-      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-fab', 'view-lab', 'view-experience', 'view-equip', 'view-jx-field', 'view-jx-design', 'view-jx-run', 'view-glossary', 'view-path', 'view-subjects'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-fab', 'view-lab', 'view-experience', 'view-equip', 'view-jx-field', 'view-jx-design', 'view-jx-run', 'view-glossary', 'view-path', 'view-subjects', 'view-guide'].forEach(id => document.getElementById(id).classList.add('hidden'));
       const vEl = document.getElementById(viewId); vEl.classList.remove('hidden'); currentViewId = viewId; vEl.classList.remove('view-enter'); void vEl.offsetWidth; vEl.classList.add('view-enter');
       if (viewId !== 'view-exam') stopExamTimer();
       if (viewId !== 'view-learning') returnCtx = null;
@@ -828,6 +828,8 @@
       if (viewId === 'view-flow') enterFlow();
       if (viewId === 'view-glossary') enterGlossary();
       if (viewId === 'view-path') enterPath();
+      if (viewId !== 'view-guide') guideStop();
+      if (viewId === 'view-guide') enterGuide();
       if (viewId === 'view-subjects') renderHomeSubjects();
       if (viewId === 'view-search') { const si = document.getElementById('globalSearchInput'); runGlobalSearch(); setTimeout(() => si.focus(), 50); }
       if (viewId === 'view-learning') {
@@ -17382,7 +17384,7 @@
     }
     idle(acctInit, 3000);
     function updateNav() {
-      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'experience', 'view-equip': 'experience', 'view-jx-field': 'experience', 'view-jx-design': 'experience', 'view-jx-run': 'experience', 'view-fab': 'experience', 'view-lab': 'experience', 'view-glossary': 'glossary', 'view-path': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
+      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'experience', 'view-equip': 'experience', 'view-jx-field': 'experience', 'view-jx-design': 'experience', 'view-jx-run': 'experience', 'view-fab': 'experience', 'view-lab': 'experience', 'view-glossary': 'glossary', 'view-path': 'home', 'view-guide': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
       document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === map[v] || (v === 'view-glossary' && b.classList.contains('mt-btn') && b.dataset.nav === 'theory')));
       document.body.dataset.view = v; document.body.dataset.lvl = learnState.level;   // 모바일 화면 조정용 (하단 탭 숨김, 이론 머리글 숨김)
     }
@@ -18115,6 +18117,170 @@
       filteredSession = qs; currentKeyword = null; currentIndex = 0; correctCount = 0; sessionLog = []; currentMode = 'quiz';
       pathQuizCtx = { ref: filteredSession, ids: c.plan.ids.slice() };
       navTo('view-quiz'); renderQuiz();
+    }
+    // =====================================================
+    // 🧭 사이트 가이드: 처음 온 사람이 사이트 전체 구조와 쓰는 법을 스크롤하며 알아 가는 화면 (첫 화면 온보딩도 같은 내용을 쓴다)
+    //  - guideHTML() 이 장(chapter) 6개를 만들고, guideMount() 가 스크롤 연출(등장 · 숫자 올라가기 · 미니 체험 화면)을 붙인다.
+    //  - 글자는 요소마다 따로 넣는다. 영어 번역(T)이 텍스트 노드 정확 일치라서 앞뒤에 공백이 섞이면 안 맞는다.
+    //  - 버튼은 gdDo('동작') 하나로 모아 둔다. 온보딩 팝업에서도 같은 버튼이 팝업을 닫고 움직이도록.
+    // =====================================================
+    const GD_CH = ['소개', '배우기', '새기기', '직무 체험', '직무 지도', '시작'];
+    let gdCtx = null;
+    const gdReduce = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    function guideOpen() { try { localStorage.setItem('semiCbtIntroSeen', '1'); } catch (e) { } navTo('view-guide'); }
+    function enterGuide() { guideMount(document.getElementById('guideRoot')); }
+    function guideHTML() {
+      const I = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+      const NODES = [
+        ['theory', '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>', '이론 백과사전', '기본 이론을 폴더별로 차근차근 읽어요'],
+        ['glossary', '<path d="M2 5.5C4 4 8 4 12 6c4-2 8-2 10-.5V19c-2-1.5-6-1.5-10 .5-4-2-8-2-10-.5z"/><path d="M12 6v13.5"/>', '반도체 용어 단어장', '용어를 가려 놓고 떠올려 봐요'],
+        ['quiz', '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>', '문제 풀이', '한 문제씩 바로 채점해요'],
+        ['interview', '<path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1.1-4.2A8 8 0 1 1 21 12z"/><path d="M8.5 11h7M8.5 14h4"/>', '실무 면접 대비', '핵심 키워드로 말해 보는 연습이에요'],
+        ['note', '<path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6z"/><path d="M6 3v18M10 8h5M10 12h5"/>', '오답 노트', '틀린 문제가 자동으로 모여요']
+      ];
+      // 웨이퍼: 8×8 칸 중 원 안에 드는 칸만 쓴다
+      let dies = '', k = 0;
+      for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+        const x = 24 + c * 24, y = 24 + r * 24;
+        if (Math.hypot(x + 10 - 120, y + 10 - 120) > 98) continue;
+        dies += `<rect class="gd-die0" x="${x}" y="${y}" width="20" height="20" rx="3"/><rect class="gd-die" style="--d:${k++}" x="${x}" y="${y}" width="20" height="20" rx="3"/>`;
+      }
+      // 파형: 칸당 10px, 20칸을 두 번 이어 붙여 왼쪽으로 흘려 보낸다
+      const wv = (y, cells) => { let d = `M0,${cells[0] ? y : y + 14}`, p = cells[0]; for (let i = 0; i < cells.length * 2; i++) { const v = cells[i % cells.length]; if (v !== p) d += `V${v ? y : y + 14}`; d += `h10`; p = v; } return d; };
+      const clk = [], dat = [0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0], q = [0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0];
+      for (let i = 0; i < 20; i++) clk.push(i % 2 ? 0 : 1);
+      const jx = (id, tag, free, nm, ds, mock) => `<button type="button" class="gd-jx gd-rv" onclick="gdDo('jx:${id}')"><span class="gd-mon" aria-hidden="true">${mock}</span><span class="gd-jt"><span class="gd-tags"><span class="gd-tag">${tag}</span><span class="gd-tag ${free ? 'free' : 'lock'}">${free ? '무료 맛보기' : '토큰 해금'}</span></span><b>${nm}</b><span>${ds}</span></span></button>`;
+      const mockAlm = `<span class="gd-log"><span style="--l:0">12:03:41&nbsp; TEMP &nbsp;&nbsp;OK</span><span style="--l:1">12:03:44&nbsp; RF &nbsp;&nbsp;&nbsp;&nbsp;OK</span><span class="al" style="--l:2">12:03:47&nbsp; ALARM &nbsp;CH2 PRESS HIGH</span><span class="q" style="--l:3">12:03:48&nbsp; ACTION ?<i></i></span></span>`;
+      const mockSpc = `<svg viewBox="0 0 200 100" preserveAspectRatio="none" class="gd-spc"><line x1="0" y1="20" x2="200" y2="20" class="ucl"/><line x1="0" y1="80" x2="200" y2="80" class="ucl"/><line x1="0" y1="50" x2="200" y2="50" class="cl"/><polyline class="ln" points="0,52 14,48 28,55 42,46 56,53 70,49 84,57 98,47 112,52 126,44 140,50 154,38 168,24 182,14 196,7"/><circle class="pt" cx="196" cy="7" r="4"/></svg>`;
+      const mockWav = `<svg viewBox="0 0 200 100" preserveAspectRatio="none" class="gd-wav"><g class="gd-wvs"><path d="${wv(10, clk)}"/><path d="${wv(40, dat)}"/><path class="bad" d="${wv(70, q)}"/></g><line x1="132" y1="2" x2="132" y2="98" class="cur"/></svg>`;
+      const mockEco = `<span class="gd-eco"><small>SLACK</small><b class="gd-slack">-0.18</b><small>ns</small><span class="gd-path"><i></i><i></i><i></i><i></i></span></span>`;
+      return `<div class="gd-root">
+<section class="gd-ch gd-hero" id="gd-c0"><i class="gd-orb a"></i><i class="gd-orb b"></i><div class="gd-dies" aria-hidden="true"></div>
+<div class="gd-hin"><p class="gd-eb gd-rv">SITE GUIDE</p>
+<h1 class="gd-h1 gd-rv" style="--i:1"><span>읽고, 풀고,</span><span class="gd-grad">직접 해 보며</span><span>새기는 반도체</span></h1>
+<p class="gd-lead gd-rv" style="--i:2">이론과 문제, 면접, 그리고 직접 해 보는 직무 체험까지. 처음이라면 스크롤하며 한 번 둘러보세요.</p>
+<div class="gd-stats gd-rv" style="--i:3"><div class="gd-st" data-k="theory"><b class="gd-num">0</b><span>이론 글</span></div><div class="gd-st" data-k="quiz"><b class="gd-num">0</b><span>문항</span></div><div class="gd-st" data-k="iv"><b class="gd-num">0</b><span>면접 질문</span></div><div class="gd-st" data-k="job"><b class="gd-num">0</b><span>직무 정보</span></div><div class="gd-st" data-k="jx"><b class="gd-num" data-to="4">0</b><span>직무 체험</span></div></div>
+<p class="gd-cue gd-rv" style="--i:4" aria-hidden="true"><span>아래로 스크롤</span><i></i></p></div></section>
+
+<section class="gd-ch" id="gd-c1"><div class="gd-hd"><p class="gd-k gd-rv">01</p><h2 class="gd-h gd-rv" style="--i:1">배우고, 바로 확인해요</h2><p class="gd-p gd-rv" style="--i:2">이론을 읽고 용어를 익힌 뒤, 문제와 면접으로 내 것이 됐는지 검증해요. 틀린 문제는 오답 노트에 차곡차곡 쌓여요.</p></div>
+<ol class="gd-flow">${NODES.map((n, i) => `<li class="gd-node gd-rv" style="--i:${i + 1}"><button type="button" onclick="gdDo('${n[0]}')"><span class="gd-ni" style="--n:${i}">${I(n[1])}</span><b>${n[2]}</b><span>${n[3]}</span></button></li>`).join('')}</ol>
+<div class="gd-bar2 gd-rv" style="--i:2"><div><b>어디서부터 읽을지 막막하다면</b><span>학습 코스가 하루 분량을 순서대로 짜 줘요</span></div><button type="button" class="gd-btn ghost" onclick="gdDo('course')">학습 코스 보기</button></div></section>
+
+<section class="gd-ch" id="gd-c2"><div class="gd-hd"><p class="gd-k gd-rv">02</p><h2 class="gd-h gd-rv" style="--i:1">매일 새기면 웨이퍼가 채워져요</h2><p class="gd-p gd-rv" style="--i:2">하루 학습 점수를 채우고 출석하면 오늘의 회로가 웨이퍼에 새겨지고, 무료 토큰도 받아요.</p></div>
+<div class="gd-split"><div class="gd-wf gd-rv" aria-hidden="true"><svg viewBox="0 0 240 240" class="gd-wsvg"><defs><clipPath id="gdWc"><circle cx="120" cy="120" r="104"/></clipPath></defs><circle cx="120" cy="120" r="114" class="gd-wrim"/><circle cx="120" cy="120" r="106" class="gd-wbody"/><g clip-path="url(#gdWc)">${dies}<rect class="gd-scan" x="-40" y="0" width="40" height="240"/></g></svg></div>
+<ul class="gd-tks"><li class="gd-rv" style="--i:1"><span class="gd-tkb">${TK()}<b class="gd-num" data-to="5">0</b></span><span><b>하루 학습 점수를 채우고 출석하면</b><span>매일 무료 토큰 5개를 받아요</span></span></li><li class="gd-rv" style="--i:2"><span class="gd-tkb">${TK()}<b class="gd-num" data-to="10">0</b></span><span><b>가입하고 24시간이 지난 뒤</b><span>환영 토큰 10개를 한 번 받아요</span></span></li><li class="gd-rv" style="--i:3"><span class="gd-tkb">${TK()}<b class="gd-num" data-to="30">0</b></span><span><b>무료 토큰은 최대 30개까지</b><span>모아 뒀다가 필요할 때 써요</span></span></li></ul></div>
+<div class="gd-bar2 gd-unl gd-rv" style="--i:2"><div><b>모은 토큰으로 심화 이론과 장비 체험을 열어요</b><span>한 번 해금하면 내 계정에 영구로 남아요</span></div><button type="button" class="gd-btn ghost" onclick="gdDo('earn')">토큰 획득법</button></div>
+<p class="gd-link gd-rv" style="--i:3"><button type="button" onclick="gdDo('flow')">웨이퍼 한 장의 여정 보기 →</button></p></section>
+
+<section class="gd-ch" id="gd-c3"><div class="gd-hd"><p class="gd-k gd-rv">03</p><h2 class="gd-h gd-rv" style="--i:1">읽는 데서 끝나지 않고, 직접 해 봐요</h2><p class="gd-p gd-rv" style="--i:2">알람에 대응하고, 관리도에서 이상을 잡고, 파형을 디버깅하고, 타이밍을 고쳐요. 실제 직무에서 하는 판단을 그대로 체험해요.</p></div>
+<div class="gd-jxg">${jx('alarm', '현장 직무', true, '알람 대응 콘솔', '알람을 읽고 지금 할 행동을 골라요', mockAlm)}${jx('spc', '현장 직무', false, 'SPC 관리도 운영실', '관리도에서 이상한 점을 잡아 장비를 멈춰요', mockSpc)}${jx('wave', '설계 직무', true, '파형 디버거', '파형에서 원인이 시작된 사이클을 찾아요', mockWav)}${jx('eco', '설계 직무', false, '타이밍 ECO 작업대', '타이밍 위반을 예산 안에서 고쳐요', mockEco)}</div>
+<div class="gd-mini gd-rv" style="--i:2"><button type="button" onclick="gdDo('fab')"><b>3D</b><span>3D 팹 둘러보기</span></button><button type="button" onclick="gdDo('equip')"><b>LAB</b><span>공정 장비 체험</span></button></div></section>
+
+<section class="gd-ch" id="gd-c4"><div class="gd-hd"><p class="gd-k gd-rv">04</p><h2 class="gd-h gd-rv" style="--i:1">내 전공에서 시작하는 직무 지도</h2><p class="gd-p gd-rv" style="--i:2">반도체 직무는 이름만 봐서는 무슨 일인지 알기 어려워요. 전공을 고르면 잘 맞는 직무와 그곳에서 하는 일을 보여 줘요.</p></div>
+<div class="gd-map gd-rv" style="--i:2"><div class="gd-grp" id="gdGrp"></div><div class="gd-mrow"><div class="gd-mj"><small>전공</small><b id="gdMj">·&nbsp;·&nbsp;·</b></div><i class="gd-ar" aria-hidden="true"></i><div class="gd-jobs"><small>잘 맞는 직무</small><span id="gdJobs"></span></div></div></div>
+<p class="gd-link gd-rv" style="--i:3"><button type="button" onclick="gdDo('careers')">내 전공으로 직무 찾기 →</button></p></section>
+
+<section class="gd-ch gd-end" id="gd-c5"><div class="gd-hd"><p class="gd-k gd-rv">READY</p><h2 class="gd-h gd-rv" style="--i:1">이제 새겨 볼까요?</h2><p class="gd-p gd-rv" style="--i:2">오늘 5분만 해 봐도 웨이퍼 한 칸이 새겨져요.</p></div>
+<div class="gd-cta gd-rv" style="--i:3"><button type="button" class="gd-btn" onclick="gdDo('home')">오늘의 학습 시작하기</button><button type="button" class="gd-btn ghost" onclick="gdDo('course')">학습 코스 보기</button><button type="button" class="gd-btn ghost" onclick="gdDo('experience')">직무 체험하기</button></div>
+<p class="gd-note gd-rv" style="--i:4">이 가이드는 메뉴의 '사이트 가이드'에서 언제든 다시 볼 수 있어요.</p></section></div>`;
+    }
+    // 숫자 올라가기 (움직임 줄이기 설정이면 바로 끝값)
+    function gdNum(el, to, ms) {
+      if (el._r) cancelAnimationFrame(el._r);
+      if (gdReduce() || !ms) { el.textContent = to.toLocaleString(); return; }
+      const t0 = performance.now();
+      const f = (t) => { const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(to * e).toLocaleString(); if (p < 1) el._r = requestAnimationFrame(f); };
+      el.textContent = '0'; el._r = requestAnimationFrame(f);
+    }
+    function gdStats(ctx) {
+      const v = { theory: allTheories.length, quiz: allQuizData.length, iv: allInterviewData.length, job: careersData ? careersData.length : 0 };
+      ctx.root.querySelectorAll('.gd-st[data-k]').forEach(s => { const n = v[s.dataset.k]; if (n === 0) s.style.display = 'none'; else if (n) { s.style.display = ''; s.querySelector('.gd-num').dataset.to = n; } });
+    }
+    function gdEnter(ctx, ch) {
+      const id = ch.id;
+      if (id === 'gd-c0' || id === 'gd-c2') ch.querySelectorAll('.gd-num').forEach((n, i) => { const to = +n.dataset.to; if (to) { n.textContent = '0'; ctx.timers.push(setTimeout(() => !ctx.dead && gdNum(n, to, 1300), 250 + i * 160)); } });
+      if (id === 'gd-c3') gdEco(ctx, ch);
+      if (id === 'gd-c4') gdMapStart(ctx);
+    }
+    function gdLeave(ctx, ch) {
+      if (ch.id === 'gd-c3') { const b = ch.querySelector('.gd-slack'); if (b) { b.textContent = '-0.18'; b.classList.remove('ok'); } ch.querySelector('.gd-path') && ch.querySelector('.gd-path').classList.remove('ok'); }
+      if (ch.id === 'gd-c4') gdMapStop(ctx);
+    }
+    // 타이밍 ECO 미니 화면: 슬랙이 음수에서 양수로 올라가며 초록으로 바뀐다
+    function gdEco(ctx, ch) {
+      const b = ch.querySelector('.gd-slack'), p = ch.querySelector('.gd-path'); if (!b) return;
+      const end = () => { b.textContent = '+0.02'; b.classList.add('ok'); if (p) p.classList.add('ok'); };
+      if (gdReduce()) { end(); return; }
+      const t0 = performance.now() + 900, f = (t) => { if (ctx.dead || !ch.classList.contains('on')) return; if (t < t0) { ctx.eco = requestAnimationFrame(f); return; } const q = Math.min(1, (t - t0) / 2200), e = 1 - Math.pow(1 - q, 3), val = -0.18 + 0.2 * e; b.textContent = (val >= 0 ? '+' : '-') + Math.abs(val).toFixed(2); if (q < 1) ctx.eco = requestAnimationFrame(f); else end(); };
+      ctx.eco = requestAnimationFrame(f);
+    }
+    // 직무 지도 미니 화면: 전공이 차례로 바뀌며 잘 맞는 직무가 나온다
+    function gdMapInit(ctx) {
+      if (!cmData || !careersData || !careersData.length) return;
+      const list = []; (cmData.groups || []).forEach(g => cmData.majors.filter(m => m.g === g.id).slice(0, 2).forEach(m => list.push(m)));
+      ctx.mjs = list.slice(0, 10);
+      const gp = ctx.root.querySelector('#gdGrp'); if (gp) gp.innerHTML = (cmData.groups || []).map(g => `<span data-g="${escH(g.id)}">${escH(g.icon || '')}&nbsp;${escH(g.name)}</span>`).join('');
+      ctx.mi = 0; gdMapShow(ctx);
+      const ch = ctx.root.querySelector('#gd-c4'); if (ch && ch.classList.contains('on')) gdMapStart(ctx);
+    }
+    function gdMapShow(ctx) {
+      const m = ctx.mjs && ctx.mjs[ctx.mi % ctx.mjs.length]; if (!m) return;
+      const mj = ctx.root.querySelector('#gdMj'), jb = ctx.root.querySelector('#gdJobs'); if (!mj || !jb) return;
+      ctx.root.querySelectorAll('#gdGrp span').forEach(s => s.classList.toggle('on', s.dataset.g === m.g));
+      mj.textContent = m.name;
+      jb.innerHTML = (m.core || []).slice(0, 4).map(id => careersData.find(j => j.id === id)).filter(Boolean).map((j, i) => `<em style="--i:${i}">${escH(j.name)}</em>`).join('');
+      const box = jb.parentNode.parentNode; box.classList.remove('swp'); void box.offsetWidth; box.classList.add('swp');
+    }
+    function gdMapStart(ctx) {
+      if (ctx.mapT || !ctx.mjs || !ctx.mjs.length || gdReduce()) return;
+      ctx.mapT = setInterval(() => { if (ctx.dead) return; ctx.mi++; gdMapShow(ctx); }, 2800);
+    }
+    function gdMapStop(ctx) { if (ctx.mapT) { clearInterval(ctx.mapT); ctx.mapT = 0; } }
+    // 가이드를 화면에 붙인다. opt.scroller 가 없으면 창 스크롤을 쓴다 (온보딩 팝업은 팝업 안의 스크롤 영역을 넘긴다)
+    function guideMount(root, opt) {
+      guideStop(); opt = opt || {};
+      root.innerHTML = guideHTML();
+      const sc = opt.scroller || null, host = opt.host || document.body;
+      const ctx = gdCtx = { root, sc, host, timers: [], raf: 0, eco: 0, mapT: 0, io: null, dead: false, extra: [], onLeave: opt.onLeave || null };
+      const bar = document.createElement('div'); bar.className = 'gd-bar'; bar.setAttribute('aria-hidden', 'true');
+      const rail = document.createElement('nav'); rail.className = 'gd-rail'; rail.setAttribute('aria-label', '가이드 목차');
+      rail.innerHTML = GD_CH.map((n, i) => `<button type="button" onclick="guideGo(${i})" aria-label="${n}"><i></i><span>${n}</span></button>`).join('');
+      host.appendChild(bar); host.appendChild(rail); ctx.extra.push(bar, rail);
+      const dg = root.querySelector('.gd-dies'); if (dg) { let h = ''; for (let i = 0; i < 14 * 6; i++) h += `<i style="--d:${(i % 14) + ((i / 14) | 0) * 2}"></i>`; dg.innerHTML = h; }
+      const chs = [...root.querySelectorAll('.gd-ch')], dots = [...rail.querySelectorAll('button')];
+      if (!('IntersectionObserver' in window) || gdReduce()) chs.forEach(c => { c.classList.add('on'); gdEnter(ctx, c); });
+      else {
+        ctx.io = new IntersectionObserver((es) => es.forEach(e => {
+          const c = e.target, has = c.classList.contains('on');
+          if (e.isIntersecting && !has) { c.classList.add('on'); gdEnter(ctx, c); } else if (!e.isIntersecting && has) { c.classList.remove('on'); gdLeave(ctx, c); }
+        }), { root: sc, rootMargin: '-10% 0px -10% 0px', threshold: 0 });
+        chs.forEach(c => ctx.io.observe(c));
+      }
+      const upd = () => {
+        ctx.raf = 0; const st = sc ? sc.scrollTop : window.scrollY, vh = sc ? sc.clientHeight : innerHeight;
+        const mx = sc ? sc.scrollHeight - sc.clientHeight : document.documentElement.scrollHeight - innerHeight;
+        bar.style.transform = `scaleX(${mx > 0 ? Math.min(1, Math.max(0, st / mx)) : 0})`;
+        const top0 = sc ? sc.getBoundingClientRect().top : 0; let cur = 0;
+        chs.forEach((c, i) => { if (c.getBoundingClientRect().top - top0 < vh * .5) cur = i; });
+        dots.forEach((d, i) => d.classList.toggle('cur', i === cur)); root.style.setProperty('--py', Math.round(st * .12));
+      };
+      ctx.h = () => { if (!ctx.raf) ctx.raf = requestAnimationFrame(upd); };
+      (sc || window).addEventListener('scroll', ctx.h, { passive: true }); upd();
+      gdStats(ctx);
+      Promise.all([loadCareers(), cmFetch()]).then(() => { if (ctx.dead) return; gdStats(ctx); gdMapInit(ctx); const h0 = root.querySelector('#gd-c0'); if (h0 && h0.classList.contains('on')) gdEnter(ctx, h0); }).catch(() => { });
+    }
+    function guideStop() {
+      const c = gdCtx; if (!c) return; gdCtx = null; c.dead = true;
+      if (c.io) c.io.disconnect(); if (c.raf) cancelAnimationFrame(c.raf); if (c.eco) cancelAnimationFrame(c.eco);
+      c.timers.forEach(clearTimeout); gdMapStop(c); (c.sc || window).removeEventListener('scroll', c.h);
+      c.extra.forEach(e => e.remove()); c.root.innerHTML = '';
+    }
+    function guideGo(i) { const ch = document.getElementById('gd-c' + i); if (ch) ch.scrollIntoView({ behavior: gdReduce() ? 'auto' : 'smooth', block: 'start' }); }
+    // 가이드 안의 모든 버튼이 지나가는 곳. 온보딩 팝업이면 먼저 팝업을 닫는다.
+    function gdDo(a) {
+      const c = gdCtx; if (c && c.onLeave) c.onLeave();
+      if (a.indexOf('jx:') === 0) return jxOpen(a.slice(3));
+      ({ theory: () => navTo('view-learning', { level: 'home' }), glossary: () => glOpenView(), quiz: () => openSetup('quiz'), interview: () => openSetup('interview'), note: () => navTo('view-note'), course: () => ptOpen(), flow: () => fjOpen(), earn: () => earnOpen(), fab: () => fabOpen(), equip: () => navTo('view-equip'), careers: () => navTo('view-careers'), experience: () => navTo('view-experience'), home: () => navTo('view-lobby') }[a] || (() => { }))();
     }
     function ptOpen() { navTo('view-path'); }
     function enterPath() {
