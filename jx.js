@@ -43,7 +43,9 @@
   // 결과 화면의 공통 모양
   J.score = (pct, label) => `<div class="jx-grade g${J.grade(pct)}"><b>${J.grade(pct)}</b><span>${pct}${label || '%'}</span></div>`;
   J.css('jx-core', `
-.jx-root{--jx-bg:#0b1220;--jx-p1:#101a30;--jx-p2:#16223d;--jx-ln:rgba(255,255,255,.1);--jx-tx:#e2e8f0;--jx-mu:#94a3b8;--jx-ok:#34d399;--jx-wn:#fbbf24;--jx-bd:#f87171;--jx-ac:#60a5fa;--jx-pu:#a78bfa;color:var(--pt-ink,#0f172a);word-break:keep-all}
+.jx-root{--jx-bg:#f1f5f9;--jx-p1:#fff;--jx-p2:#e9eef5;--jx-ln:rgba(15,23,42,.12);--jx-tx:#0f172a;--jx-mu:#64748b;--jx-sub:#334155;--jx-ok:#059669;--jx-wn:#d97706;--jx-bd:#dc2626;--jx-ac:#2563eb;--jx-pu:#7c3aed;--jx-okbg:#ecfdf5;--jx-okln:#6ee7b7;--jx-okfg:#047857;--jx-bdbg:#fef2f2;--jx-bdln:#fca5a5;--jx-bdfg:#b91c1c;--jx-wnbg:#fffbeb;--jx-wnln:#fcd34d;--jx-wnfg:#b45309;--jx-infbg:#eff6ff;--jx-infln:#bfdbfe;--jx-inffg:#1d4ed8;--jx-ffbg:#e2e8f0;--jx-ffln:#cbd5e1;--jx-hi:#dbeafe;--jx-num:#0369a1;--jx-hov:rgba(15,23,42,.045);--jx-sel:rgba(37,99,235,.1)}
+html.dark .jx-root{--jx-bg:#0b1220;--jx-p1:#101a30;--jx-p2:#16223d;--jx-ln:rgba(255,255,255,.1);--jx-tx:#e2e8f0;--jx-mu:#94a3b8;--jx-sub:#cbd5e1;--jx-ok:#34d399;--jx-wn:#fbbf24;--jx-bd:#f87171;--jx-ac:#60a5fa;--jx-pu:#a78bfa;--jx-okbg:#052e22;--jx-okln:#065f46;--jx-okfg:#34d399;--jx-bdbg:#3b1217;--jx-bdln:#7f1d1d;--jx-bdfg:#fca5a5;--jx-wnbg:#3a2a08;--jx-wnln:#78350f;--jx-wnfg:#fcd34d;--jx-infbg:#12233f;--jx-infln:#1e3a8a;--jx-inffg:#bfdbfe;--jx-ffbg:#1e293b;--jx-ffln:#334155;--jx-hi:#1e3a6e;--jx-num:#7dd3fc;--jx-hov:rgba(255,255,255,.04);--jx-sel:rgba(96,165,250,.1)}
+.jx-root{color:var(--pt-ink,#0f172a);word-break:keep-all}
 .jx-load{padding:3rem 1rem;text-align:center;color:var(--pt-mute,#64748b);font-weight:600}
 .jx-hd{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}.jx-ttl{font-size:1.25rem;font-weight:800;color:var(--pt-ink,#0f172a);margin:0}.jx-sp{flex:1}
 .jx-tag{font-size:.68rem;font-weight:800;letter-spacing:.06em;padding:.2rem .55rem;border-radius:999px;background:var(--pt-accbg,#eef2ff);color:var(--pt-acc,#4f46e5)}
@@ -74,7 +76,7 @@
 @media(max-width:820px){.jx-two{grid-template-columns:minmax(0,1fr)}}
 .jx-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
 .jx-toast{position:absolute;left:.7rem;right:.7rem;bottom:.7rem;padding:.6rem .8rem;border-radius:.8rem;font-size:.82rem;line-height:1.5;font-weight:600;z-index:6;animation:jxIn .18s ease-out;border:1px solid var(--jx-ln)}
-.jx-toast.bad{background:#3b1217;color:#fecaca;border-color:#7f1d1d}.jx-toast.ok{background:#052e22;color:#a7f3d0;border-color:#065f46}.jx-toast.info{background:#12233f;color:#bfdbfe;border-color:#1e3a8a}
+.jx-toast.bad{background:var(--jx-bdbg);color:var(--jx-bdfg);border-color:var(--jx-bdln)}.jx-toast.ok{background:var(--jx-okbg);color:var(--jx-okfg);border-color:var(--jx-okln)}.jx-toast.info{background:var(--jx-infbg);color:var(--jx-inffg);border-color:var(--jx-infln)}
 @keyframes jxIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes jxBlink{50%{opacity:.35}}
 .lang-en .jx-btn{font-size:.76rem}
@@ -85,13 +87,13 @@ JX.reg('alarm', (root) => {
   const J = window.JX, e = J.e, T = J.T, esc = J.esc;
   J.css('jx-alarm', `
 .al-top{display:flex;align-items:center;gap:.6rem;padding:.55rem .8rem;background:var(--jx-p1);border-bottom:1px solid var(--jx-ln);flex-wrap:wrap}
-.al-top b{font-size:.9rem}.al-top .al-clk{margin-left:auto;font-size:1rem;font-weight:800;color:#cbd5e1}
+.al-top b{font-size:.9rem}.al-top .al-clk{margin-left:auto;font-size:1rem;font-weight:800;color:var(--jx-sub)}
 .al-chip{font-size:.68rem;font-weight:900;letter-spacing:.06em;padding:.18rem .55rem;border-radius:.4rem;border:1px solid}
-.al-chip.RUN{color:#34d399;border-color:#065f46;background:#052e22}.al-chip.DOWN{color:#fca5a5;border-color:#7f1d1d;background:#3b1217}.al-chip.HOLD{color:#fcd34d;border-color:#78350f;background:#3a2a08}.al-chip.IDLE{color:#cbd5e1;border-color:#334155;background:#1e293b}
+.al-chip.RUN{color:var(--jx-okfg);border-color:var(--jx-okln);background:var(--jx-okbg)}.al-chip.DOWN{color:var(--jx-bdfg);border-color:var(--jx-bdln);background:var(--jx-bdbg)}.al-chip.HOLD{color:var(--jx-wnfg);border-color:var(--jx-wnln);background:var(--jx-wnbg)}.al-chip.IDLE{color:var(--jx-sub);border-color:var(--jx-ffln);background:var(--jx-ffbg)}
 .al-gs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.45rem;padding:.6rem .7rem}
 @media(max-width:560px){.al-gs{grid-template-columns:repeat(4,minmax(0,1fr));gap:.3rem;padding:.45rem}.al-g{padding:.3rem .35rem}.al-g b{font-size:.98rem}.al-g em{display:none}.al-g svg{height:16px}.al-g span{font-size:.58rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.al-pn{min-height:4.6rem;max-height:7.4rem}.al-top{padding:.4rem .6rem}.al-mid{padding:0 .45rem .45rem}}
 .al-g{background:var(--jx-p1);border:1px solid var(--jx-ln);border-radius:.7rem;padding:.4rem .55rem;transition:border-color .2s,background .2s}
-.al-g.warn{border-color:#92400e;background:#2a1d08}.al-g.bad{border-color:#b91c1c;background:#341016;animation:jxBlink 1s infinite}
+.al-g.warn{border-color:var(--jx-wnln);background:var(--jx-wnbg)}.al-g.bad{border-color:var(--jx-bd);background:var(--jx-bdbg);animation:jxBlink 1s infinite}
 .al-g span{display:block;font-size:.64rem;font-weight:700;color:var(--jx-mu)}.al-g b{font-size:1.15rem;font-weight:800}.al-g em{font-style:normal;font-size:.62rem;color:var(--jx-mu);margin-left:.2rem}
 .al-g svg{display:block;width:100%;height:24px;margin-top:.15rem}
 .al-mid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:.5rem;padding:0 .7rem .6rem}
@@ -99,12 +101,12 @@ JX.reg('alarm', (root) => {
 .al-pn{background:var(--jx-p1);border:1px solid var(--jx-ln);border-radius:.7rem;min-height:9.2rem;max-height:13rem;overflow:auto}
 .al-pn h4{position:sticky;top:0;margin:0;padding:.3rem .6rem;font-size:.66rem;font-weight:800;color:var(--jx-mu);background:var(--jx-p2);letter-spacing:.05em}
 .al-r{display:flex;gap:.45rem;align-items:flex-start;padding:.38rem .6rem;border-top:1px solid var(--jx-ln);font-size:.78rem;line-height:1.4;cursor:pointer;animation:jxIn .2s}
-.al-r:hover{background:rgba(255,255,255,.04)}.al-r.new i{animation:jxBlink .8s infinite}.al-r.sel{outline:2px solid var(--jx-ac);outline-offset:-2px;background:rgba(96,165,250,.1)}
+.al-r:hover{background:var(--jx-hov)}.al-r.new i{animation:jxBlink .8s infinite}.al-r.sel{outline:2px solid var(--jx-ac);outline-offset:-2px;background:var(--jx-sel)}
 .al-r time{color:var(--jx-mu);font-size:.7rem;white-space:nowrap}.al-r i{width:.55rem;height:.55rem;border-radius:50%;margin-top:.3rem;flex:none}
-.al-r.warn i{background:#fbbf24}.al-r.alm i{background:#fb923c}.al-r.emo i{background:#ef4444}.al-r.sys i{background:#64748b}
-.al-r.gone{opacity:.45;text-decoration:line-through}.al-r small{display:block;color:#fca5a5;font-weight:700}
+.al-r.warn i{background:var(--jx-wn)}.al-r.alm i{background:#fb923c}.al-r.emo i{background:#ef4444}.al-r.sys i{background:#64748b}
+.al-r.gone{opacity:.45;text-decoration:line-through}.al-r small{display:block;color:var(--jx-bdfg);font-weight:700}
 .al-m{padding:.4rem .6rem;border-top:1px solid var(--jx-ln);font-size:.78rem;line-height:1.5;animation:jxIn .2s}.al-m b{display:block;font-size:.66rem;color:var(--jx-ac);font-weight:800}
-.al-lot{display:flex;gap:.5rem;align-items:center;padding:.5rem .8rem;background:var(--jx-p1);border-top:1px solid var(--jx-ln);font-size:.78rem;color:#cbd5e1}.al-lot svg{flex:none}
+.al-lot{display:flex;gap:.5rem;align-items:center;padding:.5rem .8rem;background:var(--jx-p1);border-top:1px solid var(--jx-ln);font-size:.78rem;color:var(--jx-sub)}.al-lot svg{flex:none}
 .al-q{font-size:.95rem;font-weight:800;line-height:1.55;margin:.2rem 0 .5rem;color:var(--pt-ink)}
 .al-cd{height:.3rem;border-radius:.2rem;background:var(--pt-soft,#f1f5f9);overflow:hidden;margin:.2rem 0 .6rem}.al-cd i{display:block;height:100%;background:#ef4444;transition:width .25s linear}
 .al-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem}
@@ -121,7 +123,7 @@ html.dark .al-a.bad{background:#3b1217}
 .al-sum{display:flex;flex-direction:column;gap:.5rem;margin:.6rem 0}.al-sr{display:flex;gap:.6rem;padding:.65rem .8rem;border-radius:.8rem;border:1px solid var(--pt-line);background:var(--pt-card);font-size:.82rem;line-height:1.55}
 .al-sr b{flex:none;width:1.4rem;height:1.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.78rem;background:#10b981}.al-sr.l b{background:#f59e0b}.al-sr.x b{background:#ef4444}
 .al-sr em{display:block;font-style:normal;font-size:.72rem;color:var(--pt-mute);margin-top:.15rem}
-.al-brief{padding:1.2rem 1.1rem;display:flex;flex-direction:column;gap:.7rem;min-height:18rem;justify-content:center}.al-brief h3{margin:0;font-size:1.15rem;font-weight:800}.al-brief p{margin:0;font-size:.9rem;line-height:1.7;color:#cbd5e1}
+.al-brief{padding:1.2rem 1.1rem;display:flex;flex-direction:column;gap:.7rem;min-height:18rem;justify-content:center}.al-brief h3{margin:0;font-size:1.15rem;font-weight:800}.al-brief p{margin:0;font-size:.9rem;line-height:1.7;color:var(--jx-sub)}
 .al-brief .jx-btn{align-self:flex-start}
 `);
   const GD = {
@@ -218,7 +220,7 @@ html.dark .al-a.bad{background:#3b1217}
   function brief(i) {
     const s = SC[i];
     root.innerHTML = J.head('현장 직무', '알람 대응 콘솔', `<button class="jx-btn sm" id="alMenu">${e('상황 목록')}</button>`) +
-      `<div class="jx-stage"><div class="al-brief"><span class="al-chip ${s.lv === 'emo' ? 'DOWN' : s.lv === 'alm' ? 'HOLD' : 'IDLE'}">${e(s.k)}</span><h3>${e(s.t)}</h3><p>${e(s.brief)}</p><p class="jx-mono" style="font-size:.78rem;color:#94a3b8">${esc(s.tool)} · ${esc(s.clk)}</p><button class="jx-btn pri" id="alGo">${e('콘솔 앞에 앉기')}</button></div></div>`;
+      `<div class="jx-stage"><div class="al-brief"><span class="al-chip ${s.lv === 'emo' ? 'DOWN' : s.lv === 'alm' ? 'HOLD' : 'IDLE'}">${e(s.k)}</span><h3>${e(s.t)}</h3><p>${e(s.brief)}</p><p class="jx-mono" style="font-size:.78rem;color:var(--jx-mu)">${esc(s.tool)} · ${esc(s.clk)}</p><button class="jx-btn pri" id="alGo">${e('콘솔 앞에 앉기')}</button></div></div>`;
     document.getElementById('alMenu').onclick = menu; document.getElementById('alGo').onclick = () => play(i);
   }
   // ---------- 진행 ----------
@@ -229,10 +231,10 @@ html.dark .al-a.bad{background:#3b1217}
     root.innerHTML = J.head('현장 직무', sc.t, `<button class="jx-btn sm" id="alMenu">${e('상황 목록')}</button>`) +
       `<div class="jx-two"><div class="jx-stage" id="alStage"><div class="al-top"><b class="jx-mono">${esc(sc.tool)}</b><span class="al-chip" id="alSt"></span><span class="al-clk jx-mono" id="alClk"></span></div>
       <div class="al-gs" id="alGs"></div><div class="al-mid"><div class="al-pn" id="alAl"><h4>${e('알람 목록')}</h4><div id="alRows"></div></div><div class="al-pn" id="alMs"><h4>${e('무전 · 메시지')}</h4><div id="alMsg"></div></div></div>
-      <div class="al-lot"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#64748b" stroke-width="2"/><circle cx="15" cy="15" r="4" fill="#94a3b8"/></svg><span id="alLot"></span></div></div>
+      <div class="al-lot"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="var(--jx-mu)" stroke-width="2"/><circle cx="15" cy="15" r="4" fill="var(--jx-mu)"/></svg><span id="alLot"></span></div></div>
       <div class="jx-card" id="alSide"></div></div>`;
     document.getElementById('alMenu').onclick = menu;
-    document.getElementById('alGs').innerHTML = A.g.map((g, k) => `<div class="al-g" data-k="${k}"><span>${e(g.d.n)}</span><b class="jx-mono">-</b><em>${esc(g.d.u)}</em><svg viewBox="0 0 100 24" preserveAspectRatio="none"><polyline fill="none" stroke="#60a5fa" stroke-width="1.4" points=""/></svg></div>`).join('');
+    document.getElementById('alGs').innerHTML = A.g.map((g, k) => `<div class="al-g" data-k="${k}"><span>${e(g.d.n)}</span><b class="jx-mono">-</b><em>${esc(g.d.u)}</em><svg viewBox="0 0 100 24" preserveAspectRatio="none"><polyline fill="none" style="stroke:var(--jx-ac)" stroke-width="1.4" points=""/></svg></div>`).join('');
     document.getElementById('alRows').addEventListener('click', (ev) => { const r = ev.target.closest('.al-r'); if (r) rowClick(+r.dataset.k); });
     drawStatus(); drawLot(); A.h = J.interval(tick, 250); nextStep();
   }
@@ -248,7 +250,7 @@ html.dark .al-a.bad{background:#3b1217}
       el.className = 'al-g ' + st; el.querySelector('b').textContent = g.v.toFixed(d.d);
       const sp = Math.max(Math.abs(d.x) * 1.4, Math.abs(d.b) * .12), pl = el.querySelector('polyline');
       pl.setAttribute('points', g.h.map((v, j) => (j * 100 / 39).toFixed(1) + ',' + (12 - Math.max(-11, Math.min(11, (v - d.b) / sp * 11 * (d.w < 0 ? -1 : 1)))).toFixed(1)).join(' '));
-      pl.setAttribute('stroke', st === 'bad' ? '#f87171' : st === 'warn' ? '#fbbf24' : '#60a5fa');
+      pl.style.stroke = st === 'bad' ? 'var(--jx-bd)' : st === 'warn' ? 'var(--jx-wn)' : 'var(--jx-ac)';
     });
     if (A.lim > 0) {
       A.lim -= .25; const bar = document.getElementById('alCd'); if (bar) bar.style.width = Math.max(0, A.lim / A.limMax * 100) + '%';
@@ -267,10 +269,10 @@ html.dark .al-a.bad{background:#3b1217}
     if (v.lot) { A.lot = v.lot; drawLot(); }
   }
   function drawAlarms() {
-    document.getElementById('alRows').innerHTML = A.alarms.map((a) => `<div class="al-r ${a.lv}${a.new ? ' new' : ''}${a.gone ? ' gone' : ''}${A.sel === a.k ? ' sel' : ''}" data-k="${a.k}"><i></i><time class="jx-mono">${esc(a.t)}</time><span>${e(a.x)}${a.gone ? '<small>' + e('해제됨 · 원인 기록 없음') + '</small>' : ''}</span></div>`).join('') || `<div class="al-m" style="color:#64748b">${e('알람 없음')}</div>`;
+    document.getElementById('alRows').innerHTML = A.alarms.map((a) => `<div class="al-r ${a.lv}${a.new ? ' new' : ''}${a.gone ? ' gone' : ''}${A.sel === a.k ? ' sel' : ''}" data-k="${a.k}"><i></i><time class="jx-mono">${esc(a.t)}</time><span>${e(a.x)}${a.gone ? '<small>' + e('해제됨 · 원인 기록 없음') + '</small>' : ''}</span></div>`).join('') || `<div class="al-m" style="color:var(--jx-mu)">${e('알람 없음')}</div>`;
   }
   function drawMsgs() {
-    document.getElementById('alMsg').innerHTML = A.msgs.map((m) => `<div class="al-m"><b>${e(m[0])}</b>${e(m[1])}</div>`).join('') || `<div class="al-m" style="color:#64748b">${e('메시지 없음')}</div>`;
+    document.getElementById('alMsg').innerHTML = A.msgs.map((m) => `<div class="al-m"><b>${e(m[0])}</b>${e(m[1])}</div>`).join('') || `<div class="al-m" style="color:var(--jx-mu)">${e('메시지 없음')}</div>`;
   }
   function drawStatus() { const el = document.getElementById('alSt'); el.className = 'al-chip ' + A.status; el.textContent = A.status; }
   function drawLot() { document.getElementById('alLot').textContent = T(A.lot); }
@@ -379,12 +381,12 @@ JX.reg('wave', (root) => {
 .wv-bar .jx-btn{background:transparent;border-color:var(--jx-ln);color:var(--jx-tx)}
 .wv-body{display:flex;align-items:flex-start}.wv-nm{flex:none;width:122px;background:var(--jx-p1);border-right:1px solid var(--jx-ln)}
 .wv-n{display:flex;justify-content:space-between;align-items:center;gap:.3rem;height:30px;padding:0 .5rem;font-size:.72rem;border-bottom:1px solid var(--jx-ln);cursor:pointer;white-space:nowrap}
-.wv-n:hover{background:rgba(255,255,255,.05)}.wv-n.on{background:rgba(96,165,250,.16)}.wv-n.gh{color:#fbbf24;font-style:italic}.wv-n em{font-style:normal;color:#7dd3fc;font-size:.68rem;max-width:56px;overflow:hidden;text-overflow:ellipsis}
+.wv-n:hover{background:var(--jx-hov)}.wv-n.on{background:var(--jx-sel)}.wv-n.gh{color:var(--jx-wnfg);font-style:italic}.wv-n em{font-style:normal;color:var(--jx-num);font-size:.68rem;max-width:56px;overflow:hidden;text-overflow:ellipsis}
 .wv-ax{height:24px;border-bottom:1px solid var(--jx-ln);font-size:.64rem;color:var(--jx-mu);padding:.4rem .5rem 0}
 .wv-sc{flex:1;min-width:0;overflow-x:auto;touch-action:pan-x pan-y}.wv-sc svg{display:block;cursor:crosshair}
 .wv-rd{display:flex;gap:.9rem;flex-wrap:wrap;padding:.45rem .7rem;font-size:.74rem;border-top:1px solid var(--jx-ln);background:var(--jx-p1);color:var(--jx-mu)}.wv-rd b{color:var(--jx-tx)}
-.wv-cd{margin-top:.8rem;border-radius:.9rem;background:#0b1220;border:1px solid var(--jx-ln);overflow:hidden}.wv-cd h4{margin:0;padding:.35rem .7rem;font-size:.68rem;font-weight:800;color:#94a3b8;background:#16223d;letter-spacing:.05em}
-.wv-ln{display:flex;font-size:.76rem;line-height:1.65;color:#cbd5e1;white-space:pre;overflow-x:auto}.wv-ln i{flex:none;width:2.1rem;text-align:right;padding-right:.6rem;color:#475569;font-style:normal;user-select:none}.wv-ln.hl{background:rgba(96,165,250,.16)}.wv-ln.bg{background:rgba(239,68,68,.22)}.wv-ln.fx{background:rgba(16,185,129,.2)}
+.wv-cd{margin-top:.8rem;border-radius:.9rem;background:var(--jx-bg);border:1px solid var(--jx-ln);overflow:hidden}.wv-cd h4{margin:0;padding:.35rem .7rem;font-size:.68rem;font-weight:800;color:var(--jx-mu);background:var(--jx-p2);letter-spacing:.05em}
+.wv-ln{display:flex;font-size:.76rem;line-height:1.65;color:var(--jx-sub);white-space:pre;overflow-x:auto}.wv-ln i{flex:none;width:2.1rem;text-align:right;padding-right:.6rem;color:var(--jx-mu);font-style:normal;user-select:none}.wv-ln.hl{background:var(--jx-sel)}.wv-ln.bg{background:var(--jx-bdbg)}.wv-ln.fx{background:var(--jx-okbg)}
 .wv-q{font-size:.95rem;font-weight:800;line-height:1.55;margin:.2rem 0 .6rem}.wv-st{display:flex;gap:.3rem;margin-bottom:.5rem}.wv-st i{flex:1;height:.28rem;border-radius:.2rem;background:var(--pt-soft)}.wv-st i.on{background:var(--pt-acc)}.wv-st i.ok{background:#10b981}
 .wv-o{display:block;width:100%;text-align:left;padding:.6rem .75rem;margin:.3rem 0;border-radius:.75rem;border:1px solid var(--pt-line);background:var(--pt-card);font:inherit;font-size:.82rem;line-height:1.5;color:inherit;cursor:pointer}.wv-o:hover{border-color:var(--pt-acc)}
 .wv-o.ok{border-color:#10b981;background:#ecfdf5}.wv-o.ng{border-color:#f87171;background:#fef2f2}html.dark .wv-o.ok{background:#052e22}html.dark .wv-o.ng{background:#3b1217}
@@ -462,12 +464,12 @@ JX.reg('wave', (root) => {
     const Wd = tw * T32, H = rows.length * RH;
     let svg = `<svg width="${Wd}" height="${H}" viewBox="0 0 ${Wd} ${H}" id="wvSvg">`;
     // 사이클 배경 줄
-    for (let k = 0; k < 16; k++) svg += `<rect x="${k * 2 * tw}" y="0" width="${2 * tw}" height="${H}" fill="${k % 2 ? 'rgba(255,255,255,.025)' : 'transparent'}"/>`;
-    if (W.rev) svg += `<rect x="${c.bug * 2 * tw}" y="0" width="${2 * tw}" height="${H}" fill="#ef4444" fill-opacity=".2"/>`;
-    ['A', 'B'].forEach((m) => { if (W[m] != null) svg += `<rect x="${W[m] * 2 * tw}" y="0" width="${2 * tw}" height="${H}" fill="${m === 'A' ? '#fbbf24' : '#a78bfa'}" fill-opacity=".22"/>`; });
+    for (let k = 0; k < 16; k++) svg += `<rect x="${k * 2 * tw}" y="0" width="${2 * tw}" height="${H}" fill="${k % 2 ? 'var(--jx-hov)' : 'transparent'}"/>`;
+    if (W.rev) svg += `<rect x="${c.bug * 2 * tw}" y="0" width="${2 * tw}" height="${H}" fill="var(--jx-bd)" fill-opacity=".2"/>`;
+    ['A', 'B'].forEach((m) => { if (W[m] != null) svg += `<rect x="${W[m] * 2 * tw}" y="0" width="${2 * tw}" height="${H}" fill="${m === 'A' ? 'var(--jx-wn)' : 'var(--jx-pu)'}" fill-opacity=".22"/>`; });
     rows.forEach((r, ri) => {
-      const y0 = ri * RH, s = r.s, v = r.g ? s.gh : s.v, col = r.g ? '#fbbf24' : s.k === 'clk' ? '#94a3b8' : s.k === 'bit' ? '#34d399' : '#38bdf8';
-      svg += `<path d="M0 ${y0 + RH}H${Wd}" stroke="rgba(255,255,255,.07)"/>`;
+      const y0 = ri * RH, s = r.s, v = r.g ? s.gh : s.v, col = r.g ? 'var(--jx-wn)' : s.k === 'clk' ? 'var(--jx-mu)' : s.k === 'bit' ? 'var(--jx-ok)' : 'var(--jx-ac)';
+      svg += `<path d="M0 ${y0 + RH}H${Wd}" stroke="var(--jx-ln)"/>`;
       if (s.k === 'clk' || s.k === 'bit') {
         let d = '', prev = null;
         for (let t = 0; t < T32; t++) { const hi = v[t] === '1' ? y0 + 7 : y0 + 23; if (prev === null) d += `M${t * tw} ${hi}`; else if (prev !== hi) d += `L${t * tw} ${prev}L${t * tw} ${hi}`; prev = hi; d += `L${(t + 1) * tw} ${hi}`; }
@@ -477,21 +479,21 @@ JX.reg('wave', (root) => {
         while (t < T32) {
           let u = t; while (u + 1 < T32 && v[u + 1] === v[t]) u++;
           const x1 = t * tw, x2 = (u + 1) * tw, bad = v[t] === 'x', s2 = 3;
-          svg += `<path d="M${x1 + s2} ${y0 + 6}H${x2 - s2}L${x2} ${y0 + 15}L${x2 - s2} ${y0 + 24}H${x1 + s2}L${x1} ${y0 + 15}Z" fill="${bad ? '#ef4444' : col}" fill-opacity="${bad ? .4 : .13}" stroke="${bad ? '#f87171' : col}" stroke-width="1.4" ${r.g ? 'stroke-dasharray="4 3"' : ''}/>`;
-          if ((x2 - x1) >= 18) svg += `<text x="${(x1 + x2) / 2}" y="${y0 + 19}" font-size="10.5" text-anchor="middle" fill="${bad ? '#fecaca' : '#e2e8f0'}" font-family="ui-monospace,monospace">${esc(hexv(v[t]))}</text>`;
+          svg += `<path d="M${x1 + s2} ${y0 + 6}H${x2 - s2}L${x2} ${y0 + 15}L${x2 - s2} ${y0 + 24}H${x1 + s2}L${x1} ${y0 + 15}Z" fill="${bad ? 'var(--jx-bd)' : col}" fill-opacity="${bad ? .4 : .13}" stroke="${bad ? 'var(--jx-bd)' : col}" stroke-width="1.4" ${r.g ? 'stroke-dasharray="4 3"' : ''}/>`;
+          if ((x2 - x1) >= 18) svg += `<text x="${(x1 + x2) / 2}" y="${y0 + 19}" font-size="10.5" text-anchor="middle" fill="${bad ? 'var(--jx-bdfg)' : 'var(--jx-tx)'}" font-family="ui-monospace,monospace">${esc(hexv(v[t]))}</text>`;
           t = u + 1;
         }
       }
     });
     // 실패 깃발
-    svg += `<path d="M${c.fail * 2 * tw + tw} 0V${H}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 3"/>`;
-    if (W.cur != null) svg += `<path d="M${W.cur * tw + tw / 2} 0V${H}" stroke="#fff" stroke-opacity=".55"/>`;
+    svg += `<path d="M${c.fail * 2 * tw + tw} 0V${H}" stroke="var(--jx-bd)" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    if (W.cur != null) svg += `<path d="M${W.cur * tw + tw / 2} 0V${H}" stroke="var(--jx-tx)" stroke-opacity=".55"/>`;
     svg += '</svg>';
     let nm = `<div class="wv-ax">${e('사이클')}</div>`;
     rows.forEach((r) => { nm += `<div class="wv-n${r.g ? ' gh' : ''}${W.link && W.link === r.s.n && !r.g ? ' on' : ''}" data-n="${esc(r.s.n)}"><span class="jx-mono">${esc(r.s.n)}${r.g ? ' ' + e('(기대)') : ''}</span><em class="jx-mono" data-v="${esc(r.s.n)}${r.g ? '~' : ''}"></em></div>`; });
-    let ax = '<svg width="' + Wd + '" height="24" style="display:block;border-bottom:1px solid rgba(255,255,255,.1)">';
-    for (let k = 0; k < 16; k++) ax += `<text x="${k * 2 * tw + tw}" y="16" font-size="10" fill="${k === c.fail ? '#f87171' : '#94a3b8'}" text-anchor="middle" font-weight="${k === c.fail ? 800 : 500}">${k}</text>`;
-    ax += `<text x="${c.fail * 2 * tw + tw}" y="9" font-size="8" fill="#f87171" text-anchor="middle" font-weight="800">${e('실패')}</text></svg>`;
+    let ax = '<svg width="' + Wd + '" height="24" style="display:block;border-bottom:1px solid var(--jx-ln)">';
+    for (let k = 0; k < 16; k++) ax += `<text x="${k * 2 * tw + tw}" y="16" font-size="10" fill="${k === c.fail ? 'var(--jx-bd)' : 'var(--jx-mu)'}" text-anchor="middle" font-weight="${k === c.fail ? 800 : 500}">${k}</text>`;
+    ax += `<text x="${c.fail * 2 * tw + tw}" y="9" font-size="8" fill="var(--jx-bd)" text-anchor="middle" font-weight="800">${e('실패')}</text></svg>`;
     host.innerHTML = `<div class="wv-bar"><b>${e('파형')}</b><span>${e('눌러서 마커 A, 다시 눌러서 마커 B. 신호 이름을 누르면 코드에서 그 신호를 찾아 줘요.')}</span><span style="flex:1"></span><button class="jx-btn sm" id="wvClr">${e('마커 지우기')}</button></div>
       <div class="wv-body"><div class="wv-nm">${nm}</div><div class="wv-sc">${ax}${svg}</div></div><div class="wv-rd" id="wvRd"></div>`;
     document.getElementById('wvClr').onclick = () => { W.A = W.B = null; viewer(); };
@@ -511,7 +513,7 @@ JX.reg('wave', (root) => {
     if (!W) return; const c = W.c, t = W.cur;
     document.querySelectorAll('#wvStage [data-v]').forEach((el) => { const g = el.dataset.v.endsWith('~'), nm = el.dataset.v.replace('~', ''), s = c.sg.find((x) => x.n === nm); el.textContent = t == null ? '' : hexv(String(valAt(s, t, g))); });
     const old = document.querySelector('#wvSvg .wv-cur'); if (old) old.remove();
-    const sv = document.getElementById('wvSvg'); if (sv && t != null) { const l = document.createElementNS('http://www.w3.org/2000/svg', 'path'); l.setAttribute('class', 'wv-cur'); l.setAttribute('d', `M${t * W.tw + W.tw / 2} 0V${sv.getAttribute('height')}`); l.setAttribute('stroke', 'rgba(255,255,255,.55)'); sv.appendChild(l); }
+    const sv = document.getElementById('wvSvg'); if (sv && t != null) { const l = document.createElementNS('http://www.w3.org/2000/svg', 'path'); l.setAttribute('class', 'wv-cur'); l.setAttribute('d', `M${t * W.tw + W.tw / 2} 0V${sv.getAttribute('height')}`); l.setAttribute('stroke', 'var(--jx-tx)'); l.setAttribute('stroke-opacity', '.55'); sv.appendChild(l); }
     const rd = document.getElementById('wvRd'); if (!rd) return;
     let h = `<span>${e('커서')}: <b class="jx-mono">${t == null ? '-' : Math.floor(t / 2)}</b> ${e('사이클')}</span>`;
     h += `<span>A: <b class="jx-mono">${W.A == null ? '-' : W.A}</b></span><span>B: <b class="jx-mono">${W.B == null ? '-' : W.B}</b></span>`;
