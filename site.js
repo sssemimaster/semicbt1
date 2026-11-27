@@ -17382,7 +17382,7 @@
     }
     idle(acctInit, 3000);
     function updateNav() {
-      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'home', 'view-equip': 'home', 'view-jx-field': 'home', 'view-jx-design': 'home', 'view-jx-run': 'home', 'view-fab': 'home', 'view-lab': 'home', 'view-glossary': 'glossary', 'view-path': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
+      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'experience', 'view-equip': 'experience', 'view-jx-field': 'experience', 'view-jx-design': 'experience', 'view-jx-run': 'experience', 'view-fab': 'experience', 'view-lab': 'experience', 'view-glossary': 'glossary', 'view-path': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
       document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === map[v] || (v === 'view-glossary' && b.classList.contains('mt-btn') && b.dataset.nav === 'theory')));
       document.body.dataset.view = v; document.body.dataset.lvl = learnState.level;   // 모바일 화면 조정용 (하단 탭 숨김, 이론 머리글 숨김)
     }
@@ -18073,7 +18073,7 @@
       courseData.units.forEach(u => { const items = []; (u.order || []).forEach(id => { const t = byId.get(id); if (t && !used.has(id)) { used.add(id); items.push(t); } }); units.push({ u, items }); });
       allTheories.forEach(t => { if (used.has(t.id)) return; const hit = units.find(x => (x.u.match || []).some(m => m.c === t.category && m.s === t.subject)); if (hit) { hit.items.push(t); used.add(t.id); } });
       const out = units.filter(x => x.items.length).map(x => ({ cat: (x.u.match && x.u.match[0] && x.u.match[0].c) || '', id: x.u.id, icon: x.u.icon || '📘', title: x.u.title, desc: x.u.desc || '', items: x.items }));
-      const rest = allTheories.filter(t => !used.has(t.id));
+      const rest = allTheories.filter(t => !used.has(t.id) && t.category !== ADV_CAT);   // 심화 이론은 토큰으로 여는 글이라 필수 코스에 넣지 않는다
       if (rest.length) out.push({ id: 'new', icon: '🆕', title: '새로 추가된 이론', desc: '코스에 아직 자리를 정하지 않은 이론이에요. 먼저 읽어 보세요.', items: rest });
       return out;
     }
@@ -18174,7 +18174,7 @@
       const rowHtml = (x) => { const read = !!rd[x.t.id]; return `<button type="button" class="pt-row${read ? ' read' : ''}" onclick="openTheory('${jsq(x.t.id)}')"><span class="ck">${read ? '✓' : ''}</span><span class="nm"><b>${escH(x.t.title)}</b><em>${escH(x.u.title)}</em></span><span class="rt">${read ? '다시 보기' : '읽기 →'}</span></button>`; };
       let today;
       if (finished) {
-        today = `<div class="pt-card"><div class="pt-top"><b>🎉 코스를 모두 마쳤어요</b></div><p class="pt-note" style="margin-top:0">이론 ${c.total}개를 모두 읽었어요. 이제 모의고사로 실력을 확인하고, 틀린 문제는 오답 노트로 복습해 보세요.</p><div class="pt-qz"><button type="button" class="pt-btn" onclick="openSetup('quiz', true)">실전 모의고사 →</button><button type="button" class="pt-btn ghost" onclick="navTo('view-note')">오답 노트</button></div></div>`;
+        today = `<div class="pt-card"><div class="pt-top"><b>🎉 코스를 모두 마쳤어요</b></div><p class="pt-note" style="margin-top:0">이론 ${c.total}개를 모두 읽었어요. 이제 모의고사로 실력을 확인하고, 틀린 문제는 오답 노트로 복습해 보세요. 심화 이론과 직무 체험도 열어 볼 수 있어요.</p><div class="pt-qz"><button type="button" class="pt-btn" onclick="openSetup('quiz', true)">실전 모의고사 →</button><button type="button" class="pt-btn ghost" onclick="navTo('view-note')">오답 노트</button></div></div>`;
       } else {
         const doneToday = allRead;
         today = `<div class="pt-card"><div class="pt-top"><b><span class="pt-day">DAY ${c.dayNo}</span>오늘의 학습</b><span>${planRows.filter(x => rd[x.t.id]).length}/${planRows.length}</span></div>
@@ -18194,6 +18194,7 @@
         }).join('')}</ol></section>`;
       }).join('');
       body.innerHTML = `<div class="pt-card"><div class="pt-top"><b>전체 진행</b><span>${c.doneN} / ${c.total} · ${pct}%</span></div><div class="pt-bar${finished ? ' ok' : ''}"><i style="width:${pct}%"></i></div></div>${today}<div class="cm-title"><b>코스 지도</b><span>단원을 눌러 이론을 열어 보세요</span></div>${unitHtml}`;
+      body.insertAdjacentHTML('beforeend', `<div class="pt-card"><div class="pt-top"><b>코스를 마친 뒤에는</b></div><p class="pt-note" style="margin-top:0">현장에서 쓰는 심화 이론과 직무 체험으로 이어가 보세요. 일부는 무료 맛보기고, 나머지는 토큰으로 열어요. 토큰은 매일 학습하고 출석하면 무료로 모을 수 있어요.</p><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem"><button type="button" class="pt-btn" onclick="navTo('view-learning',{level:'category',category:ADV_CAT})">심화 이론 보기</button><button type="button" class="pt-btn ghost" onclick="navTo('view-experience')">직무 체험하기</button></div></div>`);
     }
     function loadGlossary() {
       if (glLoad) return glLoad;

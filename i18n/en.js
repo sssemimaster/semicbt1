@@ -1,5 +1,14 @@
 /* 영어 사전 (한국어 원문 → 영어). 직접 고쳐도 돼요: 키는 화면에 보이는 한국어 그대로, 숫자는 {0} {1} 자리로. */
 window.I18N_EN = {
+"체험": "Experience",
+"알람 대응·SPC·파형 디버깅·타이밍 ECO를 직접 해 보고, 3D 팹과 장비도 조작해요. 일부는 무료 맛보기, 나머지는 토큰으로 열어요": "Run alarm response, SPC, waveform debugging and timing ECO yourself, and operate the 3D fab and tools. Some are free previews; the rest open with tokens",
+"현장·설계 직무를 직접 해 보고, 3D 팹과 장비로 현장을 둘러보세요. 일부는 무료 맛보기고, 나머지는 토큰으로 열어요. 토큰은 매일 학습하고 출석하면 무료로 모을 수 있어요.": "Try field and design jobs yourself, and look around the fab with the 3D view and tools. Some are free previews; the rest open with tokens, which you can earn free by studying and checking in every day.",
+"기초 물리부터 공정, 첨단 기술까지 기본 이론을 순서대로 짜 두었어요. 하루 분량씩 읽고, 코스를 마치면 심화 이론과 직무 체험으로 이어가요.": "The basic theory is laid out in order, from basic physics to processes and advanced tech. Read a day's worth at a time, then continue to advanced theory and job experience once you finish.",
+"이제 모의고사로 실력을 확인하고, 틀린 문제는 오답 노트로 복습해 보세요. 심화 이론과 직무 체험도 열어 볼 수 있어요.": "Now test yourself with a mock exam and review misses in your wrong-answer notes. You can also open advanced theory and job experience.",
+"코스를 마친 뒤에는": "After the course",
+"현장에서 쓰는 심화 이론과 직무 체험으로 이어가 보세요. 일부는 무료 맛보기고, 나머지는 토큰으로 열어요. 토큰은 매일 학습하고 출석하면 무료로 모을 수 있어요.": "Continue with advanced theory used on the job and job experience. Some are free previews; the rest open with tokens, which you can earn free by studying and checking in every day.",
+"심화 이론 보기": "View advanced theory",
+"직무 체험하기": "Try job experience",
 "메뉴": "Menu",
 "반도체 새김 홈": "SemiSaegim home",
 "메뉴 닫기": "Close menu",
