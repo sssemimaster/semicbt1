@@ -1031,10 +1031,9 @@ html.dark #view-path, html.dark #routineBox, html.dark #view-experience, html.da
     .gd-map { padding: clamp(1.1rem, 3vw, 1.8rem); border-radius: 1.4rem; border: 1px solid var(--gd-line); background: var(--gd-card); }
     .gd-grp { display: flex; flex-wrap: wrap; gap: .5rem; } .gd-grp span { font-size: .8rem; font-weight: 700; padding: .4rem .8rem; border-radius: 999px; border: 1px solid var(--gd-line); color: var(--gd-mute); transition: .35s; }
     .gd-grp span.on { color: #fff; background: linear-gradient(135deg, #4f46e5, #7c3aed); border-color: transparent; transform: scale(1.06); } html.dark .gd-grp span.on { color: #0a1020; background: linear-gradient(90deg, #22d3ee, #818cf8); }
-    .gd-mrow { display: grid; grid-template-columns: minmax(0, .8fr) auto minmax(0, 1.6fr); gap: 1.2rem; align-items: center; margin-top: 1.4rem; min-height: 6.5rem; }
-    @media (max-width: 719px) { .gd-mrow { grid-template-columns: 1fr; gap: .9rem; } .gd-mrow .gd-ar { width: 2px; height: 1.6rem; justify-self: start; margin-left: .3rem; } .gd-mrow .gd-ar::after { right: auto; top: auto; bottom: 0; left: -3px; transform: rotate(135deg); } }
+    .gd-mrow { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); gap: 1.6rem; align-items: center; margin-top: 1.4rem; min-height: 6.5rem; } .gd-mrow .gd-jobs { padding-left: 1.6rem; border-left: 2px solid var(--gd-line); }
+    @media (max-width: 719px) { .gd-mrow { grid-template-columns: 1fr; gap: 1rem; } .gd-mrow .gd-jobs { padding-left: 0; border-left: 0; padding-top: 1rem; border-top: 2px solid var(--gd-line); } }
     .gd-mj small, .gd-jobs small { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .08em; color: var(--gd-mute); margin-bottom: .35rem; } .gd-mj b { font-size: clamp(1.3rem, 3vw, 1.8rem); letter-spacing: -.03em; word-break: keep-all; }
-    .gd-ar { width: 2.4rem; height: 2px; background: var(--gd-acc); position: relative; } .gd-ar::after { content: ''; position: absolute; right: 0; top: -4px; width: 8px; height: 8px; border-right: 2px solid var(--gd-acc); border-top: 2px solid var(--gd-acc); transform: rotate(45deg); }
     .gd-jobs span { display: flex; flex-wrap: wrap; gap: .5rem; } .gd-jobs em { font-style: normal; font-size: .86rem; font-weight: 700; padding: .45rem .8rem; border-radius: .8rem; background: var(--gd-soft); border: 1px solid var(--gd-line); color: var(--gd-acc); }
     .gd-mrow.swp .gd-mj b { animation: gd-swap .5s ease both; } .gd-mrow.swp .gd-jobs em { animation: gd-swap .5s ease both; animation-delay: calc(var(--i) * .12s + .1s); }
     /* 4. 직무 지도 스카이라인: 직무 지도 탭의 건물과 회사 유형을 그대로 */
@@ -1063,6 +1062,16 @@ html.dark #view-path, html.dark #routineBox, html.dark #view-experience, html.da
     @keyframes gd-lit { 0%, 100% { opacity: 0; } 40%, 60% { opacity: .85; } }
     @keyframes gd-smk { 0% { opacity: 0; transform: translateY(0) scale(.6); } 25% { opacity: .6; } 100% { opacity: 0; transform: translateY(-46px) scale(1.8); } }
     /* 5. 시작 */
+    /* 가이드 정리: 모바일에서 간격·칩·통계를 가지런히 */
+    @media (max-width: 640px) {
+      .gd-ch { padding: 2.4rem 0; }
+      .gd-hero .gd-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem 1rem; margin-top: 1.6rem; }
+      .gd-tys { flex-wrap: nowrap; overflow-x: auto; margin-right: -1rem; padding: .2rem 1rem .5rem 0; scrollbar-width: none; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; } .gd-tys::-webkit-scrollbar { display: none; }
+      .gd-tyb { flex: none; white-space: nowrap; scroll-snap-align: start; }
+      .gd-grp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+      .gd-grp span { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 2.6rem; line-height: 1.25; padding: .35rem .6rem; word-break: keep-all; }
+      .gd-bar2 { padding: 1rem 1.1rem; } .gd-bar2 .gd-btn { width: 100%; }
+    }
     .gd-end { text-align: center; padding-bottom: clamp(2rem, 6vw, 4rem); } .gd-end .gd-hd { margin: 0 auto 1.8rem; } .gd-cta { display: flex; justify-content: center; gap: .8rem; flex-wrap: wrap; } .gd-note { margin-top: 1.4rem; font-size: .82rem; color: var(--gd-mute); }
     @keyframes gd-shift { to { background-position: 300% 0; } }
     @keyframes gd-float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(24px, 18px); } }
@@ -1287,7 +1296,6 @@ button.fj-chip { cursor:pointer; transition:border-color .15s,color .15s; } butt
 /* ===== 🧪 장비 체험 (식각) ===== */
 #view-lab { --lb-ink:#0f172a; --lb-sub:#475569; --lb-mute:#64748b; --lb-line:#e2e8f0; --lb-card:#ffffff; --lb-soft:#f1f5f9; --lb-acc:#4f46e5; --lb-accbg:#eef2ff; --lb-on:#ffffff; max-width:72rem; margin-inline:auto; }
 html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --lb-line:rgba(255,255,255,.1); --lb-card:#0f1729; --lb-soft:#0a1020; --lb-acc:#67e8f9; --lb-accbg:rgba(103,232,249,.1); --lb-on:#04121f; }
-.lab-beta { display:inline-block; margin-left:.5rem; padding:.1rem .5rem; font-size:.7rem; font-weight:800; border-radius:999px; background:var(--lb-accbg); color:var(--lb-acc); vertical-align:middle; }
 .lab-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:1rem; align-items:start; }
 .lab-stage { position:sticky; top:.75rem; height:min(74vh,660px); min-height:360px; border-radius:1.25rem; overflow:hidden; background:#0b1220; border:1px solid var(--lb-line); }
 .lab-stage canvas { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; }
@@ -1430,78 +1438,6 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
   @media (max-height:700px) { .lab-now p { display:none; } .lab-wzd { display:none; } .lab-gas span { display:none; } .lab-wzsum li { padding:.18rem .5rem; } }
 }
 
-/* ===== 🏭 3D 팹 둘러보기 (시제품) ===== */
-#view-fab { --fb-ink:#0f172a; --fb-sub:#475569; --fb-mute:#64748b; --fb-line:#e2e8f0; --fb-card:#ffffff; --fb-soft:#f1f5f9; --fb-acc:#4f46e5; --fb-accbg:#eef2ff; max-width:72rem; margin-inline:auto; }
-html.dark #view-fab { --fb-ink:#f1f5f9; --fb-sub:#cbd5e1; --fb-mute:#94a3b8; --fb-line:rgba(255,255,255,.1); --fb-card:#0f1729; --fb-soft:#0a1020; --fb-acc:#67e8f9; --fb-accbg:rgba(103,232,249,.1); }
-.fab-beta { display:inline-block; margin-left:.45rem; padding:.1rem .5rem; border-radius:999px; background:var(--fb-accbg); color:var(--fb-acc); font-size:.68rem; font-weight:800; letter-spacing:.04em; vertical-align:middle; }
-.fab-grid { display:grid; gap:14px; }
-@media (min-width:1024px) { .fab-grid { grid-template-columns:minmax(0,1.65fr) minmax(320px,1fr); align-items:start; } }
-.fab-wrap { position:relative; height:clamp(300px,46vh,520px); border-radius:20px; overflow:hidden; background:#dfe7f0; border:1px solid var(--fb-line); touch-action:none; user-select:none; -webkit-user-select:none; cursor:grab; }
-html.dark .fab-wrap { background:#0a1220; }
-@media (min-width:1024px) { .fab-wrap { height:min(70vh,640px); } }
-.fab-wrap:active { cursor:grabbing; }
-#fabCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
-#fabPins { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
-.fab-pin { position:absolute; left:0; top:0; display:flex; align-items:center; gap:6px; pointer-events:auto; border:0; background:none; padding:0; cursor:pointer; will-change:transform; transform:translate(-9999px,-9999px); -webkit-tap-highlight-color:transparent; }
-.fab-pin i { width:28px; height:28px; border-radius:50%; background:#4f46e5; color:#fff; font:800 13px/28px system-ui,sans-serif; text-align:center; font-style:normal; box-shadow:0 0 0 4px rgba(79,70,229,.28),0 2px 8px rgba(0,0,0,.3); animation:fabPulse 1.9s ease-in-out infinite; }
-.fab-pin span { background:rgba(15,23,42,.84); color:#fff; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; white-space:nowrap; box-shadow:0 2px 6px rgba(0,0,0,.25); }
-.fab-pin.on i { background:#06b6d4; box-shadow:0 0 0 5px rgba(6,182,212,.35),0 2px 8px rgba(0,0,0,.3); animation:none; }
-@keyframes fabPulse { 0%,100% { box-shadow:0 0 0 3px rgba(79,70,229,.3),0 2px 8px rgba(0,0,0,.3); } 50% { box-shadow:0 0 0 9px rgba(79,70,229,.05),0 2px 8px rgba(0,0,0,.3); } }
-.fab-tools { position:absolute; right:10px; top:10px; display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; max-width:60%; }
-.fab-tools button { border:0; border-radius:999px; padding:.38rem .75rem; background:rgba(15,23,42,.78); color:#e2e8f0; font-size:.72rem; font-weight:700; cursor:pointer; backdrop-filter:blur(4px); white-space:nowrap; }
-.fab-tools button.on { background:#4f46e5; color:#fff; }
-.fab-legend { position:absolute; left:12px; top:48px; display:flex; flex-wrap:wrap; align-items:center; gap:.2rem .7rem; padding:.3rem .7rem; border-radius:12px; background:rgba(15,23,42,.72); color:#e2e8f0; font-size:.68rem; font-weight:600; pointer-events:none; max-width:60%; }
-.fab-legend span { display:inline-flex; align-items:center; gap:.3rem; } .fab-legend i { width:10px; height:10px; border-radius:50%; display:inline-block; } .fab-legend em { font-style:normal; color:#94a3b8; flex-basis:100%; }
-@media (max-width:639px) { .fab-nav { gap:2px; padding:3px; } .fab-nav button[data-st=prev], .fab-nav button[data-st=next] { display:none; } .fab-nav button { min-width:28px; height:30px; padding:0 .38rem; } .fab-tools { top:46px; left:12px; right:auto; justify-content:flex-start; max-width:calc(100% - 24px); } .fab-legend { top:86px; max-width:calc(100% - 24px); } }
-.fab-pin.rt { pointer-events:none; } .fab-pin.rt i { background:#06b6d4; border-radius:50%; width:30px; height:30px; line-height:30px; font-size:14px; box-shadow:0 0 0 4px rgba(6,182,212,.3),0 2px 8px rgba(0,0,0,.35); animation:none; } .fab-pin.rt span { background:rgba(8,47,73,.92); }
-.fab-flow { display:flex; flex-wrap:wrap; align-items:center; gap:.35rem .25rem; } .fab-flow em { font-style:normal; color:var(--fb-sub); font-weight:800; } .fab-flow em.rep { font-size:.78rem; color:#ec4899; margin-left:.3rem; }
-.fab-flow .fab-eq small { font-size:.68rem; opacity:.75; margin-left:.25rem; font-weight:500; }
-.fab-pin.bay i { background:#0f766e; border-radius:8px; box-shadow:0 0 0 3px rgba(15,118,110,.25),0 2px 8px rgba(0,0,0,.3); animation:none; }
-.fab-pin.bay span { background:rgba(15,118,110,.92); }
-.fab-pin.bay.soon { cursor:default; opacity:.7; } .fab-pin.bay.soon i, .fab-pin.bay.soon span { background:rgba(71,85,105,.9); box-shadow:none; }
-.fab-eq.soon { opacity:.55; cursor:default; }
-.fab-hud { position:absolute; left:12px; top:12px; padding:.35rem .7rem; border-radius:999px; background:rgba(15,23,42,.78); color:#e2e8f0; font-size:.74rem; font-weight:600; pointer-events:none; backdrop-filter:blur(4px); }
-.fab-hud b { color:#fff; letter-spacing:.04em; }
-.fab-hint { position:absolute; left:50%; bottom:64px; transform:translateX(-50%); padding:.4rem .85rem; border-radius:999px; background:rgba(15,23,42,.74); color:#fff; font-size:.76rem; font-weight:600; white-space:nowrap; pointer-events:none; transition:opacity .5s; }
-.fab-hint.off { opacity:0; }
-.fab-note { position:absolute; right:10px; top:12px; font-size:.64rem; color:rgba(15,23,42,.55); pointer-events:none; }
-html.dark .fab-note { color:rgba(226,232,240,.5); }
-.fab-nav { position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:flex; align-items:center; gap:4px; padding:4px; border-radius:999px; background:rgba(15,23,42,.8); backdrop-filter:blur(4px); max-width:calc(100% - 16px); }
-.fab-nav button { flex:none; white-space:nowrap; border:0; background:none; color:#cbd5e1; border-radius:999px; height:34px; min-width:34px; padding:0 .55rem; font-size:.78rem; font-weight:700; display:flex; align-items:center; gap:.35rem; cursor:pointer; }
-.fab-nav button:disabled { opacity:.3; cursor:default; }
-.fab-nav button i { font-style:normal; width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,.14); font-size:.7rem; line-height:20px; text-align:center; }
-.fab-nav button span { display:none; }
-.fab-nav button.on { background:#4f46e5; color:#fff; }
-.fab-nav button.on span { display:inline; }
-.fab-load, .fab-nogl { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; padding:1.5rem; color:#475569; font-size:.9rem; font-weight:600; line-height:1.6; background:rgba(223,231,240,.92); }
-html.dark .fab-load, html.dark .fab-nogl { background:rgba(10,18,32,.92); color:#cbd5e1; }
-.fab-info { background:var(--fb-card); border:1px solid var(--fb-line); border-radius:20px; padding:1.1rem 1.15rem 1.2rem; color:var(--fb-ink); min-width:0; }
-.fab-sthead { display:flex; flex-wrap:wrap; align-items:baseline; gap:.45rem; margin-bottom:.7rem; }
-.fab-sthead .no { font-size:.68rem; font-weight:800; letter-spacing:.06em; color:var(--fb-acc); }
-.fab-sthead b { font-size:1.05rem; letter-spacing:-.02em; }
-.fab-sthead .tag { font-size:.78rem; color:var(--fb-mute); }
-.fab-eqs { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.9rem; }
-.fab-eq { display:inline-flex; align-items:center; gap:.4rem; padding:.38rem .75rem .38rem .4rem; border-radius:999px; border:1px solid var(--fb-line); background:var(--fb-soft); color:var(--fb-sub); font-size:.8rem; font-weight:700; cursor:pointer; }
-.fab-eq i { font-style:normal; width:20px; height:20px; border-radius:50%; background:#cbd5e1; color:#0f172a; font-size:.7rem; line-height:20px; text-align:center; }
-.fab-eq.on { background:var(--fb-accbg); border-color:var(--fb-acc); color:var(--fb-acc); }
-.fab-eq.on i { background:var(--fb-acc); color:#fff; }
-html.dark .fab-eq.on i { color:#0a1020; }
-.fab-intro { font-size:.9rem; line-height:1.7; color:var(--fb-sub); word-break:keep-all; }
-.fab-tipline { margin-top:.7rem; font-size:.8rem; color:var(--fb-mute); }
-.fab-name { font-size:1.25rem; font-weight:800; letter-spacing:-.02em; color:var(--fb-ink); }
-.fab-en { font-size:.74rem; color:var(--fb-mute); margin-top:.1rem; }
-.fab-one { margin-top:.5rem; font-weight:700; color:var(--fb-acc); font-size:.92rem; word-break:keep-all; }
-.fab-info h4 { margin-top:.95rem; font-size:.76rem; font-weight:800; letter-spacing:.03em; color:var(--fb-mute); }
-.fab-info h4 + p { margin-top:.25rem; font-size:.9rem; line-height:1.7; color:var(--fb-sub); word-break:keep-all; }
-.fab-chips { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.9rem; }
-.fab-chips span { padding:.25rem .65rem; border-radius:999px; background:var(--fb-accbg); color:var(--fb-acc); font-size:.74rem; font-weight:700; }
-.fab-ctl { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.1rem; }
-.fab-btn { padding:.55rem 1rem; border-radius:12px; border:1px solid var(--fb-line); background:var(--fb-soft); color:var(--fb-ink); font-size:.84rem; font-weight:700; cursor:pointer; }
-.fab-btn.main { background:#4f46e5; border-color:#4f46e5; color:#fff; }
-html.dark .fab-btn.main { background:#67e8f9; border-color:#67e8f9; color:#0a1020; }
-html.dark .fab-btn.ghost { color:#cbd5e1; background:transparent; }
-.fab-entry-tag { font-size:.62rem; font-weight:800; padding:.05rem .4rem; border-radius:999px; background:#eef2ff; color:#4f46e5; margin-left:.35rem; vertical-align:middle; }
-html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
 </style>
 <style id="mobileCss">
 /* ===== 📱 모바일 전용 (767px 이하) =====
@@ -1966,7 +1902,7 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
       <section>
         <button onclick="navTo('view-experience')" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
           <span class="w-11 h-11 shrink-0 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 flex items-center justify-center text-xl" aria-hidden="true">🥽</span>
-          <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">직무 체험<span class="fab-entry-tag">시제품</span></span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5">알람 대응·SPC·파형 디버깅·타이밍 ECO를 직접 해 보고, 3D 팹과 장비도 조작해요. 일부는 무료 맛보기, 나머지는 토큰으로 열어요</span></span>
+          <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">직무 체험</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5">알람 대응·SPC·파형 디버깅·타이밍 ECO를 직접 해 보고, 공정 장비도 조작해요. 일부는 무료 맛보기, 나머지는 토큰으로 열어요</span></span>
           <span class="ml-auto shrink-0 text-sm font-bold text-violet-700 dark:text-violet-300">체험하기 →</span>
         </button>
       </section>
@@ -2215,20 +2151,15 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
     </div>
 
 
-    <!-- 🥽 직무 체험: 3D 팹·장비 체험으로 들어가는 목록 -->
+    <!-- 🥽 직무 체험: 현장·설계 직무와 장비 체험으로 들어가는 목록 -->
     <div id="view-experience" class="hidden w-full flex flex-col max-w-4xl mx-auto">
       <button onclick="goBack()" class="back-link mb-5">← 돌아가기</button>
       <div class="mb-5">
         <p class="eyebrow mb-1.5">JOB EXPERIENCE</p>
-        <h2 class="page-title text-slate-900 dark:text-white">직무 체험<span class="fab-entry-tag">시제품</span></h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">현장·설계 직무를 직접 해 보고, 3D 팹과 장비로 현장을 둘러보세요. 일부는 무료 맛보기고, 나머지는 토큰으로 열어요. 토큰은 매일 학습하고 출석하면 무료로 모을 수 있어요.</p>
+        <h2 class="page-title text-slate-900 dark:text-white">직무 체험</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">현장·설계 직무를 직접 해 보고, 공정 장비를 조작해 현장을 경험해 보세요. 일부는 무료 맛보기고, 나머지는 토큰으로 열어요. 토큰은 매일 학습하고 출석하면 무료로 모을 수 있어요.</p>
       </div>
       <div class="grid grid-cols-1 gap-3">
-        <button onclick="fabOpen()" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
-          <span class="w-11 h-11 shrink-0 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center lab-mono" aria-hidden="true">3D</span>
-          <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">3D 팹 둘러보기</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5">클린룸을 걸어 다니며 장비를 눌러 알아봐요</span></span>
-          <span class="ml-auto shrink-0 text-sm font-bold text-indigo-700 dark:text-indigo-300">입장 →</span>
-        </button>
         <button onclick="navTo('view-equip')" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
           <span class="w-11 h-11 shrink-0 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-100 dark:border-cyan-500/20 flex items-center justify-center lab-mono" aria-hidden="true">LAB</span>
           <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">공정 장비 체험</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5">반도체가 만들어지는 순서대로 장비 11대를 직접 조작해 봐요</span></span>
@@ -2251,7 +2182,7 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
       <button onclick="goBack()" class="back-link mb-5">← 돌아가기</button>
       <div class="mb-5">
         <p class="eyebrow mb-1.5">FIELD JOB EXPERIENCE</p>
-        <h2 class="page-title text-slate-900 dark:text-white">현장 직무 체험<span class="fab-entry-tag">시제품</span></h2>
+        <h2 class="page-title text-slate-900 dark:text-white">현장 직무 체험</h2>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">설비 앞의 상황을 직접 겪으며 판단해 봐요.</p>
       </div>
       <div class="grid grid-cols-1 gap-3">
@@ -2272,7 +2203,7 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
       <button onclick="goBack()" class="back-link mb-5">← 돌아가기</button>
       <div class="mb-5">
         <p class="eyebrow mb-1.5">DESIGN JOB EXPERIENCE</p>
-        <h2 class="page-title text-slate-900 dark:text-white">설계 직무 체험<span class="fab-entry-tag">시제품</span></h2>
+        <h2 class="page-title text-slate-900 dark:text-white">설계 직무 체험</h2>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">설계 엔지니어의 하루 일을 직접 해 봐요.</p>
       </div>
       <div class="grid grid-cols-1 gap-3">
@@ -2294,7 +2225,7 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
       <button onclick="goBack()" class="back-link mb-5">← 돌아가기</button>
       <div class="mb-5">
         <p class="eyebrow mb-1.5">PROCESS EQUIPMENT</p>
-        <h2 class="page-title text-slate-900 dark:text-white">공정 장비 체험<span class="fab-entry-tag">시제품</span></h2>
+        <h2 class="page-title text-slate-900 dark:text-white">공정 장비 체험</h2>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">장비를 직접 조작해 레시피를 정하고, 결과가 어떻게 달라지는지 확인해 보세요.</p>
       </div>
       <div class="ex-map">
@@ -2323,35 +2254,13 @@ html.dark .fab-entry-tag { background:rgba(103,232,249,.12); color:#67e8f9; }
       <div id="jxRoot" class="jx-root"><div class="jx-load">체험을 불러오는 중…</div></div>
     </div>
 
-    <!-- 🏭 3D 팹 둘러보기 (시제품): three.js 와 fab3d.js 는 이 화면을 처음 열 때만 불러온다 -->
-    <div id="view-fab" class="hidden w-full flex flex-col">
-      <button onclick="goBack()" class="back-link mb-5">← 돌아가기</button>
-      <div class="mb-4">
-        <p class="eyebrow mb-1.5">FAB TOUR</p>
-        <h2 class="page-title text-slate-900 dark:text-white">3D 팹 둘러보기<span class="fab-beta">시제품</span></h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2" style="word-break:keep-all">실제 팹처럼 복도와 베이로 이어진 공간을 둘러보세요. 화면을 끌어서 보고, 번호 핀이나 장비를 눌러 설명을 들어요. 🗺 구조 보기로 위에서 내려다볼 수도 있어요.</p>
-      </div>
-      <div class="fab-grid">
-        <div class="fab-wrap" id="fabWrap">
-          <canvas id="fabCanvas" aria-label="3D 팹 화면"></canvas>
-          <div id="fabPins"></div>
-          <div class="fab-hud" id="fabHud"></div>
-          <div class="fab-hint" id="fabHint">끌어서 둘러보기 · 번호 핀을 눌러 보세요</div>
-          <div class="fab-tools" id="fabTools"></div>
-          <div class="fab-legend" id="fabLegend"></div>
-          <div class="fab-nav" id="fabNav"></div>
-          <div class="fab-load" id="fabLoading">3D 팹을 불러오는 중…</div>
-        </div>
-        <div class="fab-info" id="fabInfo" aria-live="polite"></div>
-      </div>
-    </div>
 
     <!-- 🧪 장비 체험 (식각 시제품): three.js 와 lab3d.js 는 이 화면을 처음 열 때만 불러온다 -->
     <div id="view-lab" class="hidden w-full flex flex-col">
       <button onclick="goBack()" class="back-link mb-5">← 돌아가기</button>
       <div class="mb-4">
         <p class="eyebrow mb-1.5">EQUIPMENT LAB</p>
-        <h2 class="page-title text-slate-900 dark:text-white"><span id="labTitle">플라즈마 식각(RIE) 장비 체험</span><span class="lab-beta">시제품</span></h2>
+        <h2 class="page-title text-slate-900 dark:text-white"><span id="labTitle">플라즈마 식각(RIE) 장비 체험</span></h2>
         <button type="button" id="labGuideBtn" class="lab-guide hidden" onclick="labGuide()">📘 장비 사용 가이드 읽기 · 심화 이론</button>
         <p id="labDesc" class="text-sm text-slate-500 dark:text-slate-400 mt-2" style="word-break:keep-all">식각 장비를 직접 조작해 보세요. 가스·압력·파워·시간을 정하고, 장비를 단계대로 켜면서 단면이 깎이는 모습과 결과 수치를 확인해요. 수치는 원리를 이해하기 위해 단순화한 값이에요.</p>
       </div>

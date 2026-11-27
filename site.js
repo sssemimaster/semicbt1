@@ -793,7 +793,7 @@
       const c = returnCtx; if (!c) return;
       const p = prevNav(); if (p && p.v === c.view) history.back(); else navTo(c.view);
     }
-    const RETURN_LABEL = { 'view-quiz': '풀던 문제로 돌아가기', 'view-interview': '풀던 면접으로 돌아가기', 'view-result': '결과로 돌아가기', 'view-exam': '시험으로 돌아가기', 'view-note': '오답 노트로 돌아가기', 'view-search': '검색 결과로 돌아가기', 'view-careers': '직무 지도로 돌아가기', 'view-flow': '한눈에 보기로 돌아가기', 'view-fab': '3D 팹으로 돌아가기', 'view-lab': '체험으로 돌아가기', 'view-glossary': '단어장으로 돌아가기', 'view-path': '학습 코스로 돌아가기' };
+    const RETURN_LABEL = { 'view-quiz': '풀던 문제로 돌아가기', 'view-interview': '풀던 면접으로 돌아가기', 'view-result': '결과로 돌아가기', 'view-exam': '시험으로 돌아가기', 'view-note': '오답 노트로 돌아가기', 'view-search': '검색 결과로 돌아가기', 'view-careers': '직무 지도로 돌아가기', 'view-flow': '한눈에 보기로 돌아가기', 'view-lab': '체험으로 돌아가기', 'view-glossary': '단어장으로 돌아가기', 'view-path': '학습 코스로 돌아가기' };
     // 이론을 읽을 때 글을 가리지 않게: 아래로 스크롤하면 숨고, 위로 올리면 다시 나타난다. ✕를 누르면 ↩ 아이콘만 남는다(다음에도 기억).
     let retMini = false; try { retMini = localStorage.getItem('semiCbtRetMini') === '1'; } catch (e) {}
     function returnMini(on) { retMini = !!on; try { localStorage.setItem('semiCbtRetMini', on ? '1' : '0'); } catch (e) {} updateReturnBtn(); }
@@ -809,7 +809,7 @@
       ly = y;
     }, { passive: true }); })();
     function applyState(viewId, state) {
-      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-fab', 'view-lab', 'view-experience', 'view-equip', 'view-jx-field', 'view-jx-design', 'view-jx-run', 'view-glossary', 'view-path', 'view-subjects', 'view-guide'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-lab', 'view-experience', 'view-equip', 'view-jx-field', 'view-jx-design', 'view-jx-run', 'view-glossary', 'view-path', 'view-subjects', 'view-guide'].forEach(id => document.getElementById(id).classList.add('hidden'));
       const vEl = document.getElementById(viewId); vEl.classList.remove('hidden'); currentViewId = viewId; vEl.classList.remove('view-enter'); void vEl.offsetWidth; vEl.classList.add('view-enter');
       if (viewId !== 'view-exam') stopExamTimer();
       if (viewId !== 'view-learning') returnCtx = null;
@@ -817,8 +817,6 @@
       updateNav(); window.scrollTo({ top: 0 });
       if (viewId === 'view-careers') enterCareers();
       if (viewId !== 'view-flow') fjStop();
-      if (viewId !== 'view-fab') fabStop();
-      if (viewId === 'view-fab') enterFab();
       if (viewId !== 'view-lab') labStop();
       if (viewId !== 'view-jx-run') jxStop();
       if (viewId === 'view-jx-run') enterJx(state);
@@ -17384,7 +17382,7 @@
     }
     idle(acctInit, 3000);
     function updateNav() {
-      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'experience', 'view-equip': 'experience', 'view-jx-field': 'experience', 'view-jx-design': 'experience', 'view-jx-run': 'experience', 'view-fab': 'experience', 'view-lab': 'experience', 'view-glossary': 'glossary', 'view-path': 'home', 'view-guide': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
+      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'experience', 'view-equip': 'experience', 'view-jx-field': 'experience', 'view-jx-design': 'experience', 'view-jx-run': 'experience', 'view-lab': 'experience', 'view-glossary': 'glossary', 'view-path': 'home', 'view-guide': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
       document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === map[v] || (v === 'view-glossary' && b.classList.contains('mt-btn') && b.dataset.nav === 'theory')));
       document.body.dataset.view = v; document.body.dataset.lvl = learnState.level;   // 모바일 화면 조정용 (하단 탭 숨김, 이론 머리글 숨김)
     }
@@ -17858,18 +17856,8 @@
       const mk = (label, cls, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'fj-btn ' + cls; b.textContent = label; b.onclick = fn; cta.appendChild(b); };
       const intro = (typeof allTheories !== 'undefined' ? allTheories : []).find((t) => t.title === '반도체 제조 공정 한눈에 보기');
       if (intro) mk('입문 이론 보기 →', 'main', () => fjLearn({ level: 'subject', category: intro.category, subject: intro.subject }));
-      mk('🏭 3D 팹 둘러보기', '', () => { returnCtx = null; fabOpen(); });
       mk('이론 백과사전', '', () => fjLearn({ level: 'home' }));
       mk('문제 풀어 보기', '', () => openSetup('quiz'));
-    }
-    // ===== 🏭 3D 팹 둘러보기: 화면을 처음 열 때만 three.js(vendor/)와 fab3d.js 를 불러온다 =====
-    let fabLoading = null;
-    function fabLoad() {
-      if (window.FAB) return Promise.resolve();
-      if (fabLoading) return fabLoading;
-      const ld = (src) => new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = () => no(new Error(src)); document.head.appendChild(sc); });
-      fabLoading = ld('vendor/three.min.js').then(() => ld('fab3d.js')).catch((e) => { fabLoading = null; throw e; });
-      return fabLoading;
     }
     // ===== 🎮 직무 체험(현장·설계): 화면을 처음 열 때만 jx.js 를 불러온다 =====
     // 체험 4가지(알람 콘솔·SPC 운영실·파형 디버거·타이밍 ECO)는 #view-jx-run 한 화면을 함께 쓴다.
@@ -17928,15 +17916,6 @@
         el.style.display = el.textContent ? '' : 'none';
       });
     }
-    function fabOpen() { navTo('view-fab'); }
-    function enterFab() {
-      const el = document.getElementById('fabLoading');
-      if (!window.FAB && el) { el.style.display = 'flex'; el.textContent = '3D 팹을 불러오는 중…'; }
-      fabLoad().then(() => { if (currentViewId === 'view-fab') window.FAB.start(); })
-        .catch(() => { if (el) { el.style.display = 'flex'; el.textContent = '3D 화면을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.'; } });
-    }
-    function fabStop() { if (window.FAB) window.FAB.stop(); }
-    function fabLearn(cat, sub) { returnCtx = { view: 'view-fab', label: RETURN_LABEL['view-fab'] }; navTo('view-learning', { level: 'subject', category: cat, subject: sub }); }
     // ===== 🧪 장비 체험(식각): 화면을 처음 열 때만 three.js(vendor/)와 lab3d.js 를 불러온다 =====
     // 장비 체험은 같은 화면(#view-lab)을 쓰고, 장비마다 모듈 파일이 따로 있다. 열 때 그 장비 모듈만 불러온다.
     const LABS = {
@@ -18197,8 +18176,7 @@
         return `<g class="gd-bd" data-b="${b.id}" data-l="${((b.x + b.w / 2) / 1280 * 100).toFixed(1)}" data-t="${((top + 100) / 570 * 100).toFixed(1)}" onclick="gdSkPick('${b.id}')">${parts}<rect class="gd-bb" x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" rx="3"/><rect x="${b.x + 6}" y="${y + 10}" width="${b.w - 12}" height="${b.h - 16}" fill="url(#gdW-${b.win})"/>${lit}${smoke}</g>`;
       }).join('');
       const tyBtns = CAREER_TYPES.map(t => `<button type="button" class="gd-tyb${t.id === 'all' ? ' on' : ''}" data-t="${t.id}" aria-pressed="${t.id === 'all'}" onclick="gdSkType('${t.id}')">${t.label}</button>`).join('');
-      const skyHTML = `<div class="gd-cm gd-rv" style="--i:1"><div class="gd-stats gd-ms"><div class="gd-st"><b class="gd-num" data-to="${CAREER_BLD.length}">0</b><span>건물</span></div><div class="gd-st" data-k="job"><b class="gd-num" data-to="41">0</b><span>직무</span></div><div class="gd-st"><b class="gd-num" data-to="${CAREER_TYPES.length - 1}">0</b><span>회사 유형</span></div></div>
-<div class="gd-tys" role="group">${tyBtns}</div>
+      const skyHTML = `<div class="gd-cm gd-rv" style="--i:1"><div class="gd-tys" role="group">${tyBtns}</div>
 <div class="gd-sky"><div class="gd-skw"><svg viewBox="0 -100 1280 570" class="gd-skv" aria-hidden="true"><defs>${skyDefs}</defs><rect class="gd-gr" x="0" y="${SG}" width="1280" height="30"/><line class="gd-grl" x1="0" y1="${SG}" x2="1280" y2="${SG}"/>${skyB}</svg><div class="gd-skt" id="gdSkT"><b></b><small></small></div></div>
 <div class="gd-ski"><div class="gd-skl"><small>회사 유형</small><b id="gdTyN">·</b><p id="gdTyD"></p><p class="gd-tye" id="gdTyE"></p></div><div class="gd-skr"><small>건물</small><b id="gdBn">·</b><p id="gdBd"></p><span class="gd-sj" id="gdSj"></span></div></div></div></div>`;
       return `<div class="gd-root">
@@ -18206,8 +18184,7 @@
 <div class="gd-hin"><p class="gd-eb gd-rv">처음이어도 괜찮아요</p>
 <h1 class="gd-h1 gd-rv" style="--i:1"><span>비전공자도</span><span class="gd-grad">이해할 수 있는</span><span>반도체 학습공간</span></h1>
 <p class="gd-lead gd-rv" style="--i:2">어려운 용어는 쉬운 말로, 개념은 그림과 예시로 풀어 드려요. 읽고, 풀고, 직접 해 보며 처음부터 차근차근 따라오세요.</p>
-<ul class="gd-chips gd-rv" style="--i:3"><li>쉬운 말로 풀어 쓴 설명</li><li>그림과 예시로 이해</li><li>문제·면접·직무 체험까지</li></ul>
-<div class="gd-stats gd-rv" style="--i:4"><div class="gd-st" data-k="theory"><b class="gd-num">0</b><span>이론 글</span></div><div class="gd-st" data-k="quiz"><b class="gd-num">0</b><span>문항</span></div><div class="gd-st" data-k="iv"><b class="gd-num">0</b><span>면접 질문</span></div><div class="gd-st" data-k="job"><b class="gd-num">0</b><span>직무 정보</span></div><div class="gd-st" data-k="jx"><b class="gd-num" data-to="4">0</b><span>직무 체험</span></div></div>
+<div class="gd-stats gd-rv" style="--i:4"><div class="gd-st" data-k="theory"><b class="gd-num">0</b><span>이론 글</span></div><div class="gd-st" data-k="quiz"><b class="gd-num">0</b><span>문항</span></div><div class="gd-st" data-k="iv"><b class="gd-num">0</b><span>면접 질문</span></div><div class="gd-st" data-k="job"><b class="gd-num">0</b><span>직무 정보</span></div></div>
 <p class="gd-cue gd-rv" style="--i:5" aria-hidden="true"><span>아래로 스크롤</span><i></i></p></div></section>
 
 <section class="gd-ch" id="gd-c1"><div class="gd-hd"><p class="gd-k gd-rv">01</p><h2 class="gd-h gd-rv" style="--i:1">배우고, 바로 확인해요</h2><p class="gd-p gd-rv" style="--i:2">이론을 읽고 용어를 익힌 뒤, 문제와 면접으로 내 것이 됐는지 검증해요. 틀린 문제는 오답 노트에 차곡차곡 쌓여요.</p></div>
@@ -18225,13 +18202,13 @@
 ${eqHTML}
 <p class="gd-lb gd-rv">직무 체험 4가지</p>
 <div class="gd-jxg">${jx('alarm', '현장 직무', true, '알람 대응 콘솔', '알람을 읽고 지금 할 행동을 골라요', mockAlm)}${jx('spc', '현장 직무', false, 'SPC 관리도 운영실', '관리도에서 이상한 점을 잡아 장비를 멈춰요', mockSpc)}${jx('wave', '설계 직무', true, '파형 디버거', '파형에서 원인이 시작된 사이클을 찾아요', mockWav)}${jx('eco', '설계 직무', false, '타이밍 ECO 작업대', '타이밍 위반을 예산 안에서 고쳐요', mockEco)}</div>
-<div class="gd-mini gd-rv" style="--i:2"><button type="button" onclick="gdDo('fab')"><b>3D</b><span>3D 팹 둘러보기</span></button><button type="button" onclick="gdDo('equip')"><b>LAB</b><span>공정 장비 체험</span></button></div></section>
+<div class="gd-bar2 gd-rv" style="--i:2"><div><b>장비를 직접 조작해 봐요</b><span>반도체가 만들어지는 순서대로 장비 11대를 직접 조작해 봐요</span></div><button type="button" class="gd-btn ghost" onclick="gdDo('equip')">공정 장비 체험</button></div></section>
 
 <section class="gd-ch" id="gd-c4"><div class="gd-hd"><p class="gd-k gd-rv">04</p><h2 class="gd-h gd-rv" style="--i:1">내 전공에서 시작하는 직무 지도</h2><p class="gd-p gd-rv" style="--i:2">반도체 직무는 이름만 봐서는 무슨 일인지 알기 어려워요. 일하는 건물과 회사 유형으로 나눠 보고, 내 전공에 맞는 직무도 찾아봐요.</p></div>
 <p class="gd-lb gd-rv">건물과 회사 유형으로 보기</p>
 ${skyHTML}
 <p class="gd-lb gd-rv">내 전공으로 보기</p>
-<div class="gd-map gd-rv" style="--i:2"><div class="gd-grp" id="gdGrp"></div><div class="gd-mrow"><div class="gd-mj"><small>전공</small><b id="gdMj">·&nbsp;·&nbsp;·</b></div><i class="gd-ar" aria-hidden="true"></i><div class="gd-jobs"><small>잘 맞는 직무</small><span id="gdJobs"></span></div></div></div>
+<div class="gd-map gd-rv" style="--i:2"><div class="gd-grp" id="gdGrp"></div><div class="gd-mrow"><div class="gd-mj"><small>전공</small><b id="gdMj">·&nbsp;·&nbsp;·</b></div><div class="gd-jobs"><small>잘 맞는 직무</small><span id="gdJobs"></span></div></div></div>
 <p class="gd-link gd-rv" style="--i:3"><button type="button" onclick="gdDo('careers')">내 전공으로 직무 찾기 →</button></p></section>
 
 <section class="gd-ch gd-end" id="gd-c5"><div class="gd-hd"><p class="gd-k gd-rv">READY</p><h2 class="gd-h gd-rv" style="--i:1">이제 새겨 볼까요?</h2><p class="gd-p gd-rv" style="--i:2">오늘 5분만 해 봐도 웨이퍼 한 칸이 새겨져요.</p></div>
@@ -18274,7 +18251,7 @@ ${skyHTML}
       if (!cmData || !careersData || !careersData.length) return;
       const list = []; (cmData.groups || []).forEach(g => cmData.majors.filter(m => m.g === g.id).slice(0, 2).forEach(m => list.push(m)));
       ctx.mjs = list.slice(0, 10);
-      const gp = ctx.root.querySelector('#gdGrp'); if (gp) gp.innerHTML = (cmData.groups || []).map(g => `<span data-g="${escH(g.id)}">${escH(g.icon || '')}&nbsp;${escH(g.name)}</span>`).join('');
+      const gp = ctx.root.querySelector('#gdGrp'); if (gp) gp.innerHTML = (cmData.groups || []).map(g => `<span data-g="${escH(g.id)}">${escH(g.name)}</span>`).join('');
       ctx.mi = 0; gdMapShow(ctx);
       const ch = ctx.root.querySelector('#gd-c4'); if (ch && ch.classList.contains('on')) gdMapStart(ctx);
     }
@@ -18393,7 +18370,7 @@ ${skyHTML}
       const c = gdCtx; if (c && c.onLeave) { c.onLeave(); const m = document.getElementById('onbM'); if (m) { m.style.display = 'none'; document.body.style.overflow = ''; } }
       if (a.indexOf('jx:') === 0) return jxOpen(a.slice(3));
       if (a.indexOf('lab:') === 0) return labOpen(a.slice(4));
-      ({ theory: () => navTo('view-learning', { level: 'home' }), glossary: () => glOpenView(), quiz: () => openSetup('quiz'), interview: () => openSetup('interview'), note: () => navTo('view-note'), course: () => ptOpen(), flow: () => fjOpen(), earn: () => earnOpen(), fab: () => fabOpen(), equip: () => navTo('view-equip'), careers: () => navTo('view-careers'), experience: () => navTo('view-experience'), home: () => navTo('view-lobby') }[a] || (() => { }))();
+      ({ theory: () => navTo('view-learning', { level: 'home' }), glossary: () => glOpenView(), quiz: () => openSetup('quiz'), interview: () => openSetup('interview'), note: () => navTo('view-note'), course: () => ptOpen(), flow: () => fjOpen(), earn: () => earnOpen(), equip: () => navTo('view-equip'), careers: () => navTo('view-careers'), experience: () => navTo('view-experience'), home: () => navTo('view-lobby') }[a] || (() => { }))();
     }
 
     // =====================================================
