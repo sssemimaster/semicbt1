@@ -37,6 +37,9 @@
   };
   // 머리줄: 태그·제목·보조 버튼
   J.head = (tag, title, right) => `<div class="jx-hd"><span class="jx-tag">${e(tag)}</span><h2 class="jx-ttl">${e(title)}</h2><span class="jx-sp"></span>${right || ''}</div>`;
+  // 선택 화면: 한 줄 안내 + 완료 수, 그리고 번호 타일
+  J.sub = (txt, done, total) => `<p class="jx-sub"><span>${e(txt)}</span><span class="jx-cnt">${done} / ${total}</span></p>`;
+  J.tiles = (items) => `<div class="jx-tiles">${items.map((x) => `<button class="jx-tile${x.sc != null ? ' done' : ''}" data-i="${x.i == null ? '' : x.i}" data-k="${x.k || ''}"><span class="jx-tn">${J.pad(x.n)}</span><span class="jx-tt"><b>${e(x.t)}</b><small>${x.tag}</small></span><span class="jx-ts">${x.sc != null ? `<i class="g${J.grade(x.sc)}">${J.grade(x.sc)}</i>` : '<u></u>'}</span></button>`).join('')}</div>`;
   // 결과 화면의 공통 모양
   J.score = (pct, label) => `<div class="jx-grade g${J.grade(pct)}"><b>${J.grade(pct)}</b><span>${pct}${label || '%'}</span></div>`;
   J.css('jx-core', `
@@ -48,6 +51,15 @@
 .jx-btn:hover{border-color:var(--pt-acc,#4f46e5)}.jx-btn:active{transform:translateY(1px)}.jx-btn[disabled]{opacity:.4;cursor:default}
 .jx-btn.pri{background:var(--pt-acc,#4f46e5);border-color:var(--pt-acc,#4f46e5);color:#fff}.jx-btn.sm{font-size:.74rem;padding:.35rem .65rem}
 .jx-card{border:1px solid var(--pt-line,#e2e8f0);background:var(--pt-card,#fff);border-radius:1rem;padding:1rem}
+.jx-sub{display:flex;align-items:center;gap:.6rem;margin:-.3rem 0 1rem;font-size:.88rem;font-weight:600;color:var(--pt-sub,#475569)}.jx-cnt{margin-left:auto;flex:none;font-size:.72rem;font-weight:800;padding:.22rem .65rem;border-radius:999px;background:var(--pt-soft,#f1f5f9);color:var(--pt-mute,#64748b);font-variant-numeric:tabular-nums}
+.jx-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(18rem,1fr));gap:.65rem}
+.jx-tile{display:flex;align-items:center;gap:.85rem;padding:.8rem .9rem;border-radius:1rem;border:1px solid var(--pt-line,#e2e8f0);background:var(--pt-card,#fff);cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s,transform .12s,box-shadow .15s}
+.jx-tile:hover{border-color:var(--pt-acc,#4f46e5);transform:translateY(-2px);box-shadow:0 8px 20px -10px rgba(79,70,229,.45)}.jx-tile:active{transform:none}
+.jx-tn{flex:none;width:2.6rem;height:2.6rem;border-radius:.85rem;display:grid;place-items:center;background:var(--pt-accbg,#eef2ff);color:var(--pt-acc,#4f46e5);font-weight:900;font-size:.95rem;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.jx-tile.done .jx-tn{background:var(--pt-soft,#f1f5f9);color:var(--pt-mute,#64748b)}
+.jx-tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem}.jx-tt b{font-size:.95rem;font-weight:800;color:var(--pt-ink,#0f172a);line-height:1.3}.jx-tt small{font-size:.72rem;font-weight:700;color:var(--pt-mute,#64748b)}
+.jx-ts{flex:none;display:grid;place-items:center;width:2rem;height:2rem}.jx-ts i{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:.85rem;color:#fff}.jx-ts i.gS{background:#f59e0b}.jx-ts i.gA{background:#10b981}.jx-ts i.gB{background:#3b82f6}.jx-ts i.gC{background:#94a3b8}
+.jx-ts u{width:.55rem;height:.55rem;border-right:2px solid var(--pt-mute,#94a3b8);border-top:2px solid var(--pt-mute,#94a3b8);transform:rotate(45deg);display:block;transition:transform .15s}.jx-tile:hover .jx-ts u{transform:rotate(45deg) translate(2px,-2px);border-color:var(--pt-acc,#4f46e5)}
 .jx-menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));gap:.7rem;margin-top:.6rem}
 .jx-pick{text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:.3rem;font:inherit;color:inherit}.jx-pick:hover{border-color:var(--pt-acc,#4f46e5)}
 .jx-pick b{font-size:.95rem;color:var(--pt-ink,#0f172a)}.jx-pick span{font-size:.78rem;color:var(--pt-sub,#475569);line-height:1.5}.jx-pick em{font-style:normal;font-size:.7rem;font-weight:800;color:var(--pt-mute,#64748b)}
@@ -198,14 +210,10 @@ html.dark .al-a.bad{background:#3b1217}
   function menu() {
     A = null; J.timers.forEach((h) => { clearTimeout(h); clearInterval(h); }); J.timers = [];
     const done = Object.keys((J.load('alarm').sc) || {}).length;
-    let h = J.head('현장 직무', '알람 대응 콘솔') + `<p class="jx-note">${e('야간 근무 중 식각 장비 콘솔 앞에 앉아 있어요. 알람과 센서 값을 읽고, 아래 아홉 가지 행동 중 지금 해야 할 것을 골라요. 눌러서는 안 되는 버튼도 있어요. 시간이 정해진 상황도 있고, 마지막에 내가 한 행동을 순서대로 복기해요.')}</p><div class="jx-menu">`;
-    SC.forEach((s, i) => {
-      const sc = (J.load('alarm').sc || {})[s.id];
-      h += `<button class="jx-card jx-pick" data-i="${i}"><em>${e(s.k)} · ${s.steps.length} ${e('단계')}</em><b>${e(s.t)}</b><span>${e(s.brief)}</span><span class="jx-st">${sc != null ? J.grade(sc) + ' · ' + sc + '%' : e('아직 안 해 봤어요')}</span></button>`;
-    });
-    h += `</div><p class="jx-note" style="margin-top:.8rem">${done ? e('진행') + ' ' + done + ' / ' + SC.length : ''}</p>`;
+    const sc0 = J.load('alarm').sc || {};
+    let h = J.head('현장 직무', '알람 대응 콘솔') + J.sub('알람을 읽고 지금 할 행동을 골라요', done, SC.length) + J.tiles(SC.map((s, i) => ({ i, n: i + 1, t: s.t, tag: `${e(s.k)} · ${e(s.steps.length + '장면')}`, sc: sc0[s.id] })));
     root.innerHTML = h;
-    root.querySelectorAll('.jx-pick').forEach((b) => b.addEventListener('click', () => brief(+b.dataset.i)));
+    root.querySelectorAll('.jx-tile').forEach((b) => b.addEventListener('click', () => brief(+b.dataset.i)));
   }
   function brief(i) {
     const s = SC[i];
@@ -363,336 +371,6 @@ html.dark .al-a.bad{background:#3b1217}
   }
   menu();
 });
-/* ===== 설계 직무 체험 2: 타이밍 ECO 작업대 ===== */
-JX.reg('eco', (root) => {
-  const J = window.JX, e = J.e, T = J.T, esc = J.esc;
-  J.css('jx-eco', `
-.ec-top{display:flex;gap:.6rem;align-items:center;padding:.55rem .8rem;background:var(--jx-p1);border-bottom:1px solid var(--jx-ln);flex-wrap:wrap;font-size:.76rem;color:var(--jx-mu)}.ec-top b{color:var(--jx-tx)}
-.ec-p{padding:.7rem .8rem;border-bottom:1px solid var(--jx-ln)}.ec-p:last-child{border-bottom:0}
-.ec-ph{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap}.ec-ph b{font-size:.84rem}.ec-ph small{color:var(--jx-mu);font-size:.7rem}
-.ec-sl{margin-left:auto;font-weight:900;font-size:.95rem;padding:.2rem .6rem;border-radius:.5rem;border:1px solid;font-variant-numeric:tabular-nums}.ec-sl.ok{color:#34d399;border-color:#065f46;background:#052e22}.ec-sl.ng{color:#fca5a5;border-color:#7f1d1d;background:#3b1217}
-.ec-row{display:flex;align-items:stretch;gap:.25rem;flex-wrap:wrap}
-.ec-ff{flex:none;display:flex;align-items:center;justify-content:center;padding:0 .5rem;min-height:3.4rem;border-radius:.55rem;background:#1e293b;border:1px solid #334155;font-size:.66rem;font-weight:800;color:#94a3b8;text-align:center;line-height:1.3}
-.ec-w{flex:none;display:flex;align-items:center;font-size:.6rem;color:#64748b;min-width:.6rem;justify-content:center}.ec-w.lg{color:#fbbf24;font-weight:800}.ec-w.bf{color:#34d399;font-weight:800}
-.ec-g{flex:1;min-width:4.3rem;max-width:7rem;text-align:center;padding:.35rem .25rem;border-radius:.6rem;background:var(--jx-p2);border:1.5px solid var(--jx-ln);color:var(--jx-tx);cursor:pointer;font:inherit;line-height:1.3}
-.ec-g:hover{border-color:#60a5fa}.ec-g.sel{border-color:#60a5fa;background:#1e3a6e;box-shadow:0 0 0 2px rgba(96,165,250,.3)}.ec-g.chg{border-color:#fbbf24}
-.ec-g b{display:block;font-size:.76rem}.ec-g i{display:block;font-style:normal;font-size:.62rem;color:#94a3b8}.ec-g u{display:block;text-decoration:none;font-size:.82rem;font-weight:800;color:#7dd3fc;font-variant-numeric:tabular-nums}
-.ec-bar{display:flex;height:1.35rem;margin-top:.55rem;border-radius:.35rem;overflow:hidden;position:relative;background:#0f172a;border:1px solid var(--jx-ln)}.ec-bar span{display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;color:#0b1220;overflow:hidden;white-space:nowrap;border-right:1px solid rgba(0,0,0,.25)}
-.ec-bar .rq{position:absolute;top:-2px;bottom:-2px;width:2px;background:#f87171;box-shadow:0 0 6px #f87171}.ec-bt{display:flex;justify-content:space-between;font-size:.62rem;color:var(--jx-mu);margin-top:.2rem}
-.ec-ins{margin-top:.2rem}.ec-ins h5{margin:0 0 .35rem;font-size:.88rem;font-weight:800}.ec-g2{display:flex;gap:.35rem;flex-wrap:wrap;margin:.25rem 0 .5rem}
-.ec-o{font:inherit;font-size:.78rem;font-weight:800;padding:.4rem .75rem;border-radius:.65rem;border:1.5px solid var(--pt-line);background:var(--pt-card);color:inherit;cursor:pointer;line-height:1.2}.ec-o:hover{border-color:var(--pt-acc)}.ec-o.on{border-color:var(--pt-acc);background:var(--pt-accbg);color:var(--pt-acc)}.ec-o[disabled]{opacity:.4;cursor:default}
-.ec-lb{font-size:.72rem;font-weight:800;color:var(--pt-mute);margin-top:.35rem}.ec-ex{font-size:.76rem;line-height:1.6;color:var(--pt-sub);margin:.3rem 0}
-.ec-mt{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.6rem 0}.ec-m{border:1px solid var(--pt-line);background:var(--pt-card);border-radius:.8rem;padding:.45rem .65rem}.ec-m span{display:block;font-size:.66rem;font-weight:700;color:var(--pt-mute)}.ec-m b{font-size:.88rem;font-variant-numeric:tabular-nums}
-.ec-m i{display:block;height:.4rem;border-radius:.25rem;background:var(--pt-soft);margin-top:.3rem;position:relative;overflow:hidden}.ec-m i s{position:absolute;left:0;top:0;bottom:0;background:var(--pt-acc);text-decoration:none}.ec-m.bad i s{background:#ef4444}
-.ec-lg{font-size:.76rem;color:var(--pt-sub);margin:.4rem 0;display:flex;flex-direction:column;gap:.2rem}.ec-lg div{display:flex;gap:.4rem}.ec-lg em{font-style:normal;color:var(--pt-mute)}
-.ec-fb{margin:.5rem 0;padding:.65rem .8rem;border-radius:.75rem;background:var(--pt-soft);font-size:.8rem;line-height:1.65}.ec-fb.ng{background:#fef2f2;color:#7f1d1d}html.dark .ec-fb.ng{background:#3b1217;color:#fecaca}.ec-fb.ok{background:#ecfdf5;color:#064e3b}html.dark .ec-fb.ok{background:#052e22;color:#a7f3d0}
-`);
-  const VT = [1.28, 1, 0.8], LK = [0.35, 1, 2.8], VN = ['HVT', 'SVT', 'LVT'], SZ = [1, 2, 4], DLY = 24, MINF = 0.88;
-  const mk = (gs, w0, capCin, setup, hold) => ({ l: { p: 52, g: 3.2, s: 2 }, w0, capCin, setup: setup || 32, hold: hold || 16, g: gs.map(([n, p, g, cin, w]) => ({ n, p, g, cin, w })) });
-  const gA = () => mk([['INV', 10, 2.2, 1.5, 4], ['NAND2', 16, 3, 2, 6], ['NOR2', 20, 3.8, 2, 6], ['NAND3', 24, 4.2, 2.4, 8], ['INV', 10, 2.2, 1.5, 10]], 5, 3);
-  const gB = () => mk([['INV', 10, 2.2, 1.5, 3], ['NAND2', 16, 4, 2, 5], ['NOR2', 20, 3.8, 2, 40], ['NAND2', 16, 3, 2, 6], ['INV', 10, 2.2, 1.5, 8]], 4, 3);
-  const gC = () => mk([['INV', 10, 2.2, 1.5, 5], ['NAND2', 18, 3.2, 2, 7], ['AOI21', 22, 4, 2.2, 9], ['INV', 10, 2.2, 1.5, 9]], 5, 3, 64);
-  const gH = () => mk([['BUF', 10, 2.2, 1.5, 2], ['INV', 12, 2.6, 1.5, 2]], 2, 3, 32, 73);
-  const arrOf = (p, S, minc) => {
-    const f = minc ? MINF : 1, n = p.g.length, cin = (i) => (i < n ? p.g[i].cin * S.s[i] : p.capCin), parts = [];
-    let t = 0; const d0 = f * (p.l.p + p.l.g * (0.3 * p.w0 + cin(0)) / p.l.s); t += d0; parts.push(d0);
-    for (let i = 0; i < n; i++) {
-      const g = p.g[i], nx = cin(i + 1); let C = 0.3 * g.w + nx, bd = 0;
-      if (S.buf[i]) { C = 0.15 * g.w + 3; bd = f * (11 + 2.4 * (0.15 * g.w + nx) / 2); }
-      const wd = f * (S.buf[i] ? 0.0225 : 0.045) * g.w * g.w, d = f * VT[S.vt[i]] * (g.p + g.g * C / S.s[i]) + wd;
-      t += d + bd; parts.push(d + bd);
-    }
-    return { t, parts };
-  };
-  const MS = [
-    { id: 'one', t: '한 경로 고치기', k: '입문', T: 232, brief: '슬랙이 음수인 경로 하나를 고쳐요. 셀을 눌러 크기와 문턱 전압을 바꿔 보고, 어느 셀이 가장 효과적인지 막대에서 찾아요.', paths: [{ k: 'setup', n: '경로 1', a: 'FF_A', b: 'FF_B', p: gA() }], bud: { pw: 9.5, ar: 8 }, opt: 2,
-      tip: '시간이 가장 많이 쓰이는 셀을 먼저 보세요. 셀을 키우면 그 셀은 빨라지지만, 앞에서 구동하는 셀의 부하가 늘어요.', why: '지연이 큰 셀 몇 개의 문턱 전압을 낮추는 것이 전체를 키우는 것보다 면적과 전력에 유리해요. 몇 군데만 고치는 것이 ECO의 기본이에요.' },
-    { id: 'wire', t: '긴 배선 때문에 느린 경로', k: '보통', T: 304, brief: '가운데 셀이 아주 긴 배선을 구동해요. 크기만 키우면 어디까지 되는지 직접 확인하고, 버퍼를 넣는 방법과 비교해요.', paths: [{ k: 'setup', n: '경로 1', a: 'FF_C', b: 'FF_D', p: gB() }], bud: { pw: 11, ar: 9 }, opt: 1,
-      tip: '배선이 길면 저항과 용량 때문에 셀을 키워도 줄어들지 않는 지연이 남아요. 배선 가운데에 버퍼를 넣으면 배선이 반으로 나뉘어요.', why: '긴 배선의 지연은 배선 길이의 제곱에 가깝게 늘어요. 중간에 버퍼를 넣으면 절반씩 두 번 지나가므로 훨씬 줄어요. 크기만 키우면 여러 군데를 바꿔야 해요.' },
-    { id: 'pwr', t: '전력 예산 안에서 두 경로 고치기', k: '보통', T: 232, brief: '경로 두 개가 모두 위반이에요. 문턱 전압을 낮추면 빨라지지만 누설 전력이 크게 늘어요. 예산 안에서 필요한 곳만 골라요.', paths: [{ k: 'setup', n: '경로 1', a: 'FF_A', b: 'FF_B', p: gA() }, { k: 'setup', n: '경로 2', a: 'FF_E', b: 'FF_F', p: gC() }], bud: { pw: 15.6, ar: 12 }, opt: 4,
-      tip: '모든 셀을 LVT로 바꾸면 타이밍은 맞지만 전력 예산을 넘어요. 위반한 만큼만, 효과가 큰 셀에만 써요.', why: '전력과 면적은 한정된 예산이에요. 위반을 고치는 데 필요한 최소한의 셀만 바꾸는 것이 좋은 ECO예요.' },
-    { id: 'hold', t: '클록 스큐와 홀드', k: '어려움', T: 230, skew: true, brief: '셋업 위반 경로를 클록 지연(유용한 스큐)으로 고쳐요. 같은 캡처 플립플롭에 닿는 짧은 경로는 홀드가 깨지고, 그 플립플롭에서 출발하는 다음 경로의 여유도 줄어요.', paths: [{ k: 'setup', n: '경로 1 (셋업)', a: 'FF_A', b: 'FF_B', p: gA() }, { k: 'hold', n: '경로 2 (홀드)', a: 'FF_G', b: 'FF_B', p: gH() }], bud: { pw: 10.2, ar: 9 }, next: 28, opt: 2,
-      tip: '캡처 클록을 늦추면 셋업이 좋아지는 만큼 같은 FF의 홀드가 나빠져요. 홀드는 지연 셀을 넣어 고쳐요.', why: '스큐는 여유를 한쪽에서 다른 쪽으로 옮길 뿐이에요. 옮겨 간 곳(홀드 경로, 다음 단계 경로)이 괜찮은지 같이 확인해야 해요.' },
-  ];
-  let M = null;
-  const slackOf = (pi) => {
-    const p = M.m.paths[pi], S = M.st[pi]; if (p.k === 'setup') { const a = arrOf(p.p, S).t; return M.m.T + M.skew - p.p.setup - a; }
-    const a = arrOf(p.p, S, true).t + M.dly * DLY * MINF; return a - p.p.hold - M.skew;
-  };
-  const costs = () => {
-    let pw = 0, ar = 0; M.st.forEach((S) => S.s.forEach((s, i) => { pw += s * (0.8 + 0.5 * LK[S.vt[i]]); ar += s; if (S.buf[i]) { pw += 1.2; ar += 2; } }));
-    pw += M.dly * .8; ar += M.dly * 1.5; return { pw, ar };
-  };
-  const changes = () => {
-    let c = 0; M.st.forEach((S, k) => S.s.forEach((s, i) => { const o = M.st0[k]; c += (s !== o.s[i]) + (S.vt[i] !== o.vt[i]) + (S.buf[i] !== o.buf[i]); })); return c + (M.skew ? 1 : 0) + M.dly;
-  };
-  function menu() {
-    M = null; J.timers.forEach((h) => { clearTimeout(h); clearInterval(h); }); J.timers = [];
-    const sc = J.load('eco').sc || {};
-    let h = J.head('설계 직무', '타이밍 ECO 작업대') + `<p class="jx-note">${e('합성과 배치를 마친 설계에서 타이밍 리포트를 열었어요. 슬랙이 음수인 경로가 있어요. 셀 크기, 문턱 전압, 버퍼, 클록 지연을 바꿔서 위반을 고치되, 전력과 면적 예산, 다른 경로의 홀드를 지켜요. 변경은 적을수록 좋아요. ECO가 많을수록 다시 검증할 것도 늘어나요.')}</p><div class="jx-menu">`;
-    MS.forEach((m, i) => { h += `<button class="jx-card jx-pick" data-i="${i}"><em>${e(m.k)} · ${e(m.paths.length + '개 경로')}</em><b>${e(m.t)}</b><span>${e(m.brief)}</span><span class="jx-st">${sc[m.id] != null ? J.grade(sc[m.id]) + ' · ' + sc[m.id] + '점' : e('아직 안 해 봤어요')}</span></button>`; });
-    root.innerHTML = h + '</div>';
-    root.querySelectorAll('.jx-pick').forEach((b) => b.addEventListener('click', () => play(+b.dataset.i)));
-  }
-  function play(i) {
-    const m = MS[i], st = m.paths.map((p) => ({ s: p.p.g.map(() => 1), vt: p.p.g.map(() => 1), buf: p.p.g.map(() => 0) }));
-    M = { i, m, st, st0: JSON.parse(JSON.stringify(st)), skew: 0, dly: 0, sel: [0, 0], hist: [], tries: 0, fb: '', tip: false };
-    M.sel = [0, 0];
-    root.innerHTML = J.head('설계 직무', m.t, `<button class="jx-btn sm" id="ecMenu">${e('미션 목록')}</button>`) + `<div class="jx-two"><div class="jx-stage" id="ecStage"></div><div class="jx-card" id="ecSide"></div></div>`;
-    document.getElementById('ecMenu').onclick = menu; draw();
-  }
-  const COL = ['#7dd3fc', '#a5b4fc', '#86efac', '#fcd34d', '#fda4af', '#c4b5fd', '#67e8f9'];
-  function draw() {
-    const m = M.m; let h = `<div class="ec-top"><span>${e('클록 주기')} <b class="jx-mono">${m.T} ps</b></span><span>${e('셋업')} <b class="jx-mono">${m.paths[0].p.setup} ps</b></span>${M.skew ? `<span>${e('캡처 클록 지연')} <b class="jx-mono">+${M.skew} ps</b></span>` : ''}<span style="margin-left:auto">${e('변경')} <b>${changes()}</b></span></div>`;
-    m.paths.forEach((p, pi) => {
-      const S = M.st[pi], sl = slackOf(pi), ok = sl >= 0, isH = p.k === 'hold', ar = arrOf(p.p, S, isH);
-      h += `<div class="ec-p"><div class="ec-ph"><b>${e(p.n)}</b><small class="jx-mono">${esc(p.a)} → ${esc(p.b)}</small><span class="ec-sl ${ok ? 'ok' : 'ng'}">${isH ? e('홀드') : e('셋업')} ${sl >= 0 ? '+' : ''}${sl.toFixed(1)} ps</span></div><div class="ec-row"><div class="ec-ff">${esc(p.a)}<br>CK→Q<br><span class="jx-mono" style="color:#7dd3fc">${ar.parts[0].toFixed(0)}</span></div>`;
-      p.p.g.forEach((g, i) => {
-        const o = M.st0[pi], chg = S.s[i] !== o.s[i] || S.vt[i] !== o.vt[i] || S.buf[i] !== o.buf[i], sel = M.sel[0] === pi && M.sel[1] === i;
-        const pw_ = i ? p.p.g[i - 1].w : p.p.w0, lg = pw_ >= 20, bf = i && S.buf[i - 1];
-        h += `<div class="ec-w ${lg ? (bf ? 'bf' : 'lg') : ''}">${lg ? (bf ? 'BUF' : T('긴 배선')) : '›'}</div><button class="ec-g${sel ? ' sel' : ''}${chg ? ' chg' : ''}" data-p="${pi}" data-i="${i}"><b>${esc(g.n)}</b><i>X${S.s[i]} · ${VN[S.vt[i]]}</i><u>${ar.parts[i + 1].toFixed(0)} ps</u></button>`;
-      });
-      const lw = p.p.g[p.p.g.length - 1].w;
-      h += `<div class="ec-w ${lw >= 20 ? 'lg' : ''}">${lw >= 20 ? T('긴 배선') : '›'}</div><div class="ec-ff">${esc(p.b)}<br>${isH ? e('홀드') : e('셋업')}<br><span class="jx-mono" style="color:#7dd3fc">${isH ? p.p.hold : p.p.setup}</span></div></div>`;
-      // 시간 막대
-      const reqT = isH ? p.p.hold + M.skew : m.T + M.skew - p.p.setup, scale = Math.max(reqT, ar.t + (isH ? M.dly * DLY * MINF : 0)) * 1.04;
-      h += `<div class="ec-bar">${ar.parts.map((d, k) => `<span style="width:${(d / scale * 100).toFixed(2)}%;background:${COL[k % COL.length]}">${d / scale > .06 ? Math.round(d) : ''}</span>`).join('')}${isH && M.dly ? `<span style="width:${(M.dly * DLY * MINF / scale * 100).toFixed(2)}%;background:#fde68a">${M.dly}×</span>` : ''}<i class="rq" style="left:${(reqT / scale * 100).toFixed(2)}%"></i></div><div class="ec-bt"><span>0</span><span>${isH ? e('홀드 요구') : e('요구 도착 시각')} ${reqT.toFixed(0)} ps (${e('빨간 선')}) · ${e('실제 도착')} ${(ar.t + (isH ? M.dly * DLY * MINF : 0)).toFixed(0)} ps</span></div></div>`;
-    });
-    document.getElementById('ecStage').innerHTML = h;
-    document.getElementById('ecStage').querySelectorAll('.ec-g').forEach((b) => b.addEventListener('click', () => { M.sel = [+b.dataset.p, +b.dataset.i]; draw(); }));
-    side();
-  }
-  function snap() { M.hist.push(JSON.stringify({ st: M.st, skew: M.skew, dly: M.dly })); }
-  function setS(k, v) { const [pi, i] = M.sel; snap(); M.st[pi][k][i] = v; M.fb = ''; draw(); }
-  function side() {
-    const m = M.m, [pi, i] = M.sel, p = m.paths[pi], g = p.p.g[i], S = M.st[pi], cs = costs();
-    const row = (k, vals, cur, lab, dis) => `<div class="ec-g2">${vals.map((v, j) => `<button class="ec-o${cur === j ? ' on' : ''}" data-k="${k}" data-v="${j}" ${dis && dis(j) ? 'disabled' : ''}>${lab(j)}</button>`).join('')}</div>`;
-    let h = `<p class="jx-note" style="margin:0">${e('미션')} ${M.i + 1} / ${MS.length} · ${e(m.k)}</p><p class="jx-note">${e(m.brief)}</p>`;
-    h += `<div class="ec-ins"><h5>${e(p.n)} · ${esc(g.n)} · ${e('셀')} ${i + 1}</h5><div class="ec-lb">${e('크기')}</div>${row('s', SZ, SZ.indexOf(S.s[i]), (j) => 'X' + SZ[j])}<div class="ec-ex">${e('크기를 키우면 이 셀은 빨라져요. 대신 앞 셀의 부하가 늘고 면적과 전력이 커져요.')}</div>`;
-    h += `<div class="ec-lb">${e('문턱 전압')}</div>${row('vt', VN, S.vt[i], (j) => VN[j])}<div class="ec-ex">${e('LVT는 빠르지만 누설 전력이 크고, HVT는 느리지만 아껴요.')}</div>`;
-    if (g.w >= 12) h += `<div class="ec-lb">${e('긴 배선에 버퍼')}</div><div class="ec-g2"><button class="ec-o${S.buf[i] ? ' on' : ''}" data-k="buf" data-v="${S.buf[i] ? 0 : 1}">${S.buf[i] ? e('버퍼 넣음') : e('배선 중간에 버퍼 넣기')}</button></div>`;
-    h += '</div>';
-    if (m.skew) {
-      h += `<div class="ec-lb">${e('캡처 클록 지연(스큐)')}</div><div class="ec-g2">${[0, 20, 40].map((v) => `<button class="ec-o${M.skew === v ? ' on' : ''}" data-k="skew" data-v="${v}">${v ? '+' + v + ' ps' : e('없음')}</button>`).join('')}</div>`;
-      h += `<div class="ec-lb">${e('홀드 경로에 지연 셀')}</div><div class="ec-g2">${[0, 1, 2].map((v) => `<button class="ec-o${M.dly === v ? ' on' : ''}" data-k="dly" data-v="${v}">${e(v + '개')}</button>`).join('')}</div>`;
-    }
-    const pwc = cs.pw > m.bud.pw, arc = cs.ar > m.bud.ar;
-    h += `<div class="ec-mt"><div class="ec-m ${pwc ? 'bad' : ''}"><span>${e('전력')}</span><b>${cs.pw.toFixed(1)} / ${m.bud.pw}</b><i><s style="width:${Math.min(100, cs.pw / m.bud.pw * 100)}%"></s></i></div><div class="ec-m ${arc ? 'bad' : ''}"><span>${e('면적')}</span><b>${cs.ar.toFixed(1)} / ${m.bud.ar}</b><i><s style="width:${Math.min(100, cs.ar / m.bud.ar * 100)}%"></s></i></div></div>`;
-    if (m.next != null) { const ns = m.next - M.skew; h += `<div class="ec-m ${ns < 0 ? 'bad' : ''}" style="margin-bottom:.5rem"><span>${e('다음 단계 경로 여유 (FF_B에서 출발)')}</span><b>${ns >= 0 ? '+' : ''}${ns} ps</b></div>`; }
-    h += `<div style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="jx-btn pri" id="ecGo">${e('ECO 제출')}</button><button class="jx-btn" id="ecUndo" ${M.hist.length ? '' : 'disabled'}>${e('되돌리기')}</button><button class="jx-btn" id="ecRst">${e('처음으로')}</button><button class="jx-btn" id="ecTip">${e('힌트')}</button></div>`;
-    if (M.tip) h += `<div class="ec-fb">💡 ${e(m.tip)}</div>`;
-    if (M.fb) h += M.fb;
-    const el = document.getElementById('ecSide'); el.innerHTML = h;
-    el.querySelectorAll('.ec-o').forEach((b) => b.addEventListener('click', () => {
-      const k = b.dataset.k, v = +b.dataset.v;
-      if (k === 's') setS('s', SZ[v]); else if (k === 'vt') setS('vt', v); else if (k === 'buf') setS('buf', v);
-      else { snap(); if (k === 'skew') M.skew = v; else M.dly = v; M.fb = ''; draw(); }
-    }));
-    document.getElementById('ecGo').onclick = submit; document.getElementById('ecTip').onclick = () => { M.tip = !M.tip; side(); };
-    document.getElementById('ecUndo').onclick = () => { const s = M.hist.pop(); if (!s) return; const o = JSON.parse(s); M.st = o.st; M.skew = o.skew; M.dly = o.dly; M.fb = ''; draw(); };
-    document.getElementById('ecRst').onclick = () => { M.st = JSON.parse(JSON.stringify(M.st0)); M.skew = 0; M.dly = 0; M.hist = []; M.fb = ''; draw(); };
-  }
-  function submit() {
-    const m = M.m, cs = costs(), prob = [];
-    m.paths.forEach((p, pi) => { const sl = slackOf(pi); if (sl < 0) prob.push(`${e(p.n)}: ${p.k === 'hold' ? e('홀드') : e('셋업')} ${sl.toFixed(1)} ps ${e('위반')}`); });
-    if (m.next != null && m.next - M.skew < 0) prob.push(`${e('다음 단계 경로')}: ${m.next - M.skew} ps ${e('위반')}`);
-    if (cs.pw > m.bud.pw) prob.push(`${e('전력 예산 초과')} (${cs.pw.toFixed(1)} > ${m.bud.pw})`);
-    if (cs.ar > m.bud.ar) prob.push(`${e('면적 예산 초과')} (${cs.ar.toFixed(1)} > ${m.bud.ar})`);
-    M.tries++;
-    if (prob.length) { M.fb = `<div class="ec-fb ng"><b>${e('아직 통과하지 못했어요')}</b><br>${prob.join('<br>')}</div>`; side(); return; }
-    const c = changes(), pct = Math.max(40, 100 - 12 * Math.max(0, c - m.opt) - 5 * (M.tries - 1)), pr = J.load('eco'), sc = Object.assign({}, pr.sc); sc[m.id] = Math.max(sc[m.id] || 0, pct);
-    J.save('eco', { sc, best: Math.round(Object.values(sc).reduce((a, b) => a + b, 0) / MS.length), unit: '점' });
-    const next = MS[M.i + 1];
-    document.getElementById('ecSide').innerHTML = `<p class="jx-note" style="margin:0">${e('미션')} ${M.i + 1} / ${MS.length}</p><div style="display:flex;align-items:center;gap:1rem;margin:.5rem 0">${J.score(pct, '점')}<span class="jx-note">${e('변경')} ${e(c + '개')} · ${e('가장 적게 고친 방법')} ${e(m.opt + '개')}${M.tries > 1 ? ' · ' + e('제출 ' + M.tries + '번') : ''}</span></div>
-      <div class="ec-fb ok"><b>${e('타이밍과 예산을 모두 지켰어요.')}</b><br>${e(m.why)}</div>
-      <div style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="jx-btn" id="ecAgain">${e('다시 하기')}</button>${next ? `<button class="jx-btn pri" id="ecNx">${e('다음 미션')}</button>` : ''}<button class="jx-btn" id="ecMn">${e('미션 목록')}</button></div>`;
-    document.getElementById('ecAgain').onclick = () => play(M.i); document.getElementById('ecMn').onclick = menu; const nx = document.getElementById('ecNx'); if (nx) nx.onclick = () => play(M.i + 1);
-  }
-  menu();
-});
-/* ===== 현장 직무 체험 2: SPC 관리도 운영실 ===== */
-JX.reg('spc', (root) => {
-  const J = window.JX, e = J.e, T = J.T, esc = J.esc;
-  J.css('jx-spc', `
-.sp-bar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem}
-.sp-seg{display:inline-flex;border:1px solid var(--pt-line);border-radius:.7rem;overflow:hidden}.sp-seg button{font:inherit;font-size:.78rem;font-weight:700;padding:.4rem .75rem;border:0;background:var(--pt-card);color:var(--pt-sub);cursor:pointer;border-right:1px solid var(--pt-line)}.sp-seg button:last-child{border-right:0}.sp-seg button.on{background:var(--pt-acc);color:#fff}
-.sp-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem;margin-bottom:.6rem}
-@media(max-width:560px){.sp-hud{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.sp-hud div{border:1px solid var(--pt-line);background:var(--pt-card);border-radius:.8rem;padding:.4rem .6rem}.sp-hud span{display:block;font-size:.66rem;font-weight:700;color:var(--pt-mute)}.sp-hud b{font-size:1.1rem;font-weight:800;font-variant-numeric:tabular-nums}.sp-hud b.bad{color:#ef4444}
-.sp-prog{height:.28rem;border-radius:.2rem;background:var(--pt-soft);overflow:hidden;margin-bottom:.6rem}.sp-prog i{display:block;height:100%;background:var(--pt-acc);transition:width .3s linear}
-.sp-ch{margin-bottom:.6rem}.sp-chh{display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:var(--jx-p1);border-bottom:1px solid var(--jx-ln);flex-wrap:wrap}
-.sp-chh b{font-size:.84rem}.sp-chh small{font-size:.7rem;color:var(--jx-mu)}.sp-chh .jx-btn{margin-left:auto;background:#3b1217;border-color:#7f1d1d;color:#fecaca}.sp-chh .jx-btn:hover{background:#4a1a21}
-.sp-st{font-size:.64rem;font-weight:900;letter-spacing:.05em;padding:.14rem .45rem;border-radius:.35rem;border:1px solid}.sp-st.run{color:#34d399;border-color:#065f46;background:#052e22}.sp-st.hold{color:#fcd34d;border-color:#78350f;background:#3a2a08}
-.sp-ch svg{display:block;width:100%;height:auto}.sp-ch svg text{font-family:inherit}
-.sp-lg{display:flex;flex-wrap:wrap;gap:.3rem .9rem;font-size:.74rem;color:var(--pt-sub);margin:.4rem 0}
-.sp-rl{margin:.5rem 0;padding:.7rem .9rem;border-radius:.8rem;background:var(--pt-soft);font-size:.8rem;line-height:1.7}.sp-rl b{color:var(--pt-acc)}
-.sp-rs{display:flex;flex-direction:column;gap:.4rem;margin:.6rem 0}.sp-rr{padding:.65rem .8rem;border-radius:.8rem;border:1px solid var(--pt-line);background:var(--pt-card);font-size:.8rem;line-height:1.65}.sp-rr b{display:block;font-size:.86rem;margin-bottom:.15rem}
-.sp-rr.g{border-color:#10b981}.sp-rr.x{border-color:#f87171}.sp-rr.l{border-color:#f59e0b}
-`);
-  const N = 60, RN = ['', '점 하나가 3σ 밖', '3점 중 2점이 같은 쪽 2σ 밖', '5점 중 4점이 같은 쪽 1σ 밖', '연속 8점이 중심선 한쪽', '연속 6점이 계속 오르거나 내림'];
-  const EQ = [{ n: 'ETCH-01', p: '식각 깊이', u: 'nm', cl: 300, sg: 4, d: 0 }, { n: 'CVD-02', p: '산화막 두께', u: 'nm', cl: 100, sg: 1.2, d: 1 }, { n: 'PHOTO-03', p: '선폭(CD)', u: 'nm', cl: 45, sg: .6, d: 2 }];
-  const TY = { shift: '평균이 한쪽으로 옮겨감', trend: '서서히 한쪽으로 흐름', out: '점 하나가 튐' };
-  const DIFF = {
-    easy: { n: '입문', ms: 1100, hint: true, nz: .9, pl: [{ ty: 'shift', mag: 2.1 }, { ty: 'out', mag: 4 }, null], dec: 0, note: '규칙 표시가 켜진 채로 시작해요. 이상이 뚜렷하고 헷갈리는 점이 없어요.' },
-    norm: { n: '보통', ms: 900, hint: false, nz: 1, pl: [{ ty: 'shift', mag: 1.6 }, { ty: 'trend', mag: .26 }, { ty: 'out', mag: 4 }], dec: 2, note: '규칙 표시가 꺼져 있어요. 3σ 안쪽에서 튀는 점이 섞여 있고, 이상이 없는 차트도 있어요.' },
-    hard: { n: '어려움', ms: 750, hint: false, nz: 1.05, pl: [{ ty: 'shift', mag: 1.25 }, { ty: 'trend', mag: .19 }, null], dec: 3, note: '이상이 작고 느려요. 튀는 점이 많아서 멈추지 말아야 할 때를 알아야 해요.' },
-  };
-  let S = null;
-  const rule = (z, i, from) => {
-    const h = [], v = z[i], g = (k) => i - k >= from;
-    if (Math.abs(v) > 3) h.push(1);
-    if (g(2)) { const w = [z[i - 2], z[i - 1], v]; if ((v > 2 && w.filter((x) => x > 2).length >= 2) || (v < -2 && w.filter((x) => x < -2).length >= 2)) h.push(2); }
-    if (g(4)) { const w = z.slice(i - 4, i + 1); if ((v > 1 && w.filter((x) => x > 1).length >= 4) || (v < -1 && w.filter((x) => x < -1).length >= 4)) h.push(3); }
-    if (g(7)) { const w = z.slice(i - 7, i + 1); if (w.every((x) => x > 0) || w.every((x) => x < 0)) h.push(4); }
-    if (g(5)) { const w = z.slice(i - 5, i + 1); let up = true, dn = true; for (let k = 1; k < 6; k++) { if (w[k] <= w[k - 1]) up = false; if (w[k] >= w[k - 1]) dn = false; } if (up || dn) h.push(5); }
-    return h;
-  };
-  function build(df, seed) {
-    for (let tr = 0; tr < 600; tr++) {
-      const r = J.rng(seed + tr * 7919), cs = [], order = [0, 1, 2].sort(() => r() - .5);
-      let ok = true;
-      for (let q = 0; q < 3 && ok; q++) {
-        const eq = EQ[q], pl0 = df.pl[order[q]], c = { eq, base: [], add: Array(N).fill(0), z: [], plan: null, hits: [], i: -1, status: 'run', hold: 0, from: 0, pend: null };
-        for (let i = 0; i < N; i++) c.base.push(J.gauss(r) * df.nz * .95);
-        const sgn = r() < .5 ? -1 : 1;
-        if (pl0) { const k = 20 + Math.floor(r() * 18); c.plan = { ty: pl0.ty, k, sgn, mag: pl0.mag, done: false }; for (let i = k; i < N; i++) c.add[i] = pl0.ty === 'shift' ? sgn * pl0.mag : pl0.ty === 'trend' ? sgn * Math.min(3.2, pl0.mag * (i - k + 1)) : (i === k ? sgn * pl0.mag : 0); }
-        c.z = c.base.map((v, i) => v + c.add[i]);
-        c.sgn = sgn; cs.push(c);
-      }
-      // 이상 없는 차트에 튀는 점(정상 범위) 넣기
-      const decN = df.dec; let placed = 0;
-      cs.forEach((c, q) => { const n = c.plan ? (decN > 2 ? 1 : 0) : decN; for (let t = 0; t < n; t++) { const i = 6 + Math.floor(r() * (N - 12)); if (c.plan && Math.abs(i - c.plan.k) < 8) continue; const s = r() < .5 ? -1 : 1; c.base[i] = s * (2.3 + r() * .3); c.z[i] = c.base[i] + c.add[i]; placed++; } });
-      // 검증: 이상 전에는 규칙이 걸리면 안 되고, 이상 뒤 10점 안에는 걸려야 한다
-      cs.forEach((c) => {
-        const k = c.plan ? c.plan.k : N;
-        for (let i = 0; i < N; i++) { const h = rule(c.z, i, 0); if (h.length && i < k) ok = false; if (h.length && i >= k && c.fire == null) { c.fire = i; c.fireR = h; } }
-        if (c.plan) { if (c.fire == null || c.fire - k > (c.plan.ty === 'trend' ? 14 : 8)) ok = false; } else if (c.fire != null) ok = false;
-      });
-      if (ok) return cs;
-    }
-    return null;
-  }
-  // ---------- 화면 ----------
-  function menu() {
-    S = null; J.timers.forEach((h) => { clearTimeout(h); clearInterval(h); }); J.timers = [];
-    const pr = J.load('spc'), sc = pr.sc || {};
-    let h = J.head('현장 직무', 'SPC 관리도 운영실') + `<p class="jx-note">${e('관리도 세 장이 실시간으로 자라요. 새 점이 찍힐 때마다 규칙에 걸리는지 읽고, 이상이면 그 차트의 장비를 멈춰요. 이상이 아닌데 멈추면 생산이 끊기고, 이상인데 놓치면 불량 로트가 계속 쌓여요. 규칙 다섯 가지는 아래에서 볼 수 있어요.')}</p>`;
-    h += `<div class="sp-rl"><b>${e('판정 규칙')}</b><br>${[1, 2, 3, 4, 5].map((k) => `${k}. ${e(RN[k])}`).join('<br>')}</div><div class="jx-menu">`;
-    Object.keys(DIFF).forEach((k) => { const d = DIFF[k]; h += `<button class="jx-card jx-pick" data-k="${k}"><em>${e('난이도')}</em><b>${e(d.n)}</b><span>${e(d.note)}</span><span class="jx-st">${sc[k] != null ? J.grade(sc[k]) + ' · ' + sc[k] + '점' : e('아직 안 해 봤어요')}</span></button>`; });
-    root.innerHTML = h + '</div>';
-    root.querySelectorAll('.jx-pick').forEach((b) => b.addEventListener('click', () => play(b.dataset.k)));
-  }
-  function svg(c, last, full) {
-    const W = 600, H = 150, L = 34, R = 10, Tp = 8, B = 18, n = full ? N : 40, st = full ? 0 : Math.max(0, last - n + 1);
-    const x = (i) => L + (i - st) * (W - L - R) / (n - 1), y = (z) => Tp + (3.8 - Math.max(-3.8, Math.min(3.8, z))) / 7.6 * (H - Tp - B);
-    let o = `<svg viewBox="0 0 ${W} ${H}">`;
-    const band = (a, b, col, op) => `<rect x="${L}" y="${y(b)}" width="${W - L - R}" height="${y(a) - y(b)}" fill="${col}" fill-opacity="${op}"/>`;
-    o += band(-1, 1, '#34d399', .09) + band(1, 2, '#fbbf24', .07) + band(-2, -1, '#fbbf24', .07) + band(2, 3, '#fb923c', .09) + band(-3, -2, '#fb923c', .09) + band(3, 3.8, '#ef4444', .1) + band(-3.8, -3, '#ef4444', .1);
-    [-2, -1, 1, 2].forEach((v) => { o += `<path d="M${L} ${y(v)}H${W - R}" stroke="#94a3b8" stroke-opacity=".3" stroke-dasharray="3 4"/>`; });
-    [-3, 3].forEach((v) => { o += `<path d="M${L} ${y(v)}H${W - R}" stroke="#f87171" stroke-width="1.4"/><text x="${L - 4}" y="${y(v) + 3}" text-anchor="end" font-size="9" fill="#f87171" font-weight="800">${v > 0 ? '+' : '−'}3σ</text>`; });
-    o += `<path d="M${L} ${y(0)}H${W - R}" stroke="#34d399" stroke-width="1.4"/><text x="${L - 4}" y="${y(0) + 3}" text-anchor="end" font-size="9" fill="#34d399" font-weight="800">CL</text>`;
-    if (full && c.plan) {
-      const k = c.plan.k; o += `<path d="M${x(k)} ${Tp}V${H - B}" stroke="#fbbf24" stroke-dasharray="4 3"/><text x="${x(k) + 3}" y="${Tp + 9}" font-size="9" fill="#fbbf24" font-weight="800">${e('이상 시작')}</text>`;
-      if (c.fire != null) o += `<path d="M${x(c.fire)} ${Tp}V${H - B}" stroke="#f87171" stroke-dasharray="2 3"/><text x="${x(c.fire) + 3}" y="${Tp + 20}" font-size="9" fill="#f87171" font-weight="800">${e('규칙이 걸림')}</text>`;
-    }
-    if (full && c.stops) c.stops.forEach((q) => { o += `<path d="M${x(q.i)} ${Tp}V${H - B}" stroke="#34d399" stroke-width="2"/><text x="${x(q.i) + 3}" y="${H - B - 4}" font-size="9" fill="#34d399" font-weight="800">${e('멈춤')}</text>`; });
-    let pts = '';
-    for (let i = st; i <= last; i++) pts += x(i).toFixed(1) + ',' + y(c.z[i]).toFixed(1) + ' ';
-    o += `<polyline points="${pts}" fill="none" stroke="#60a5fa" stroke-width="1.6" stroke-opacity=".85"/>`;
-    for (let i = st; i <= last; i++) {
-      const v = c.z[i], hit = c.hits[i] && c.hits[i].length, hl = (S.hint || full) && hit;
-      o += `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${hl ? 4.2 : 3}" fill="${Math.abs(v) > 3 ? '#f87171' : hl ? '#fbbf24' : '#93c5fd'}" ${hl ? 'stroke="#fff" stroke-width="1.2"' : ''}/>`;
-    }
-    if (!full) for (let i = st; i <= last; i += 10) o += `<text x="${x(i)}" y="${H - 4}" font-size="8.5" fill="#64748b" text-anchor="middle">${i + 1}</text>`;
-    return o + '</svg>';
-  }
-  function play(dk) {
-    const df = DIFF[dk]; let cs = null, seed = Date.now() & 0xffffff;
-    cs = build(df, seed); if (!cs) return menu();
-    S = { dk, df, cs, t: -1, hint: df.hint, hintUsed: df.hint, run: true, spd: 1, falseStops: 0, early: 0, bad: 0, log: [] };
-    root.innerHTML = J.head('현장 직무', 'SPC 관리도 운영실 · ' + T(df.n), `<button class="jx-btn sm" id="spMenu">${e('난이도 선택')}</button>`) +
-      `<div class="sp-bar"><button class="jx-btn sm" id="spPlay">${e('일시정지')}</button><span class="sp-seg" id="spSp"><button data-s="1" class="on">×1</button><button data-s="2">×2</button></span><button class="jx-btn sm" id="spHint">${e('규칙 표시')} ${df.hint ? 'ON' : 'OFF'}</button><span class="jx-note" style="margin-left:auto" id="spMsg"></span></div>
-      <div class="sp-hud"><div><span>${e('진행')}</span><b id="spT">0 / ${N}</b></div><div><span>${e('나쁜 상태로 도는 로트')}</span><b id="spB">0</b></div><div><span>${e('멈춘 횟수')}</span><b id="spS">0</b></div><div><span>${e('헛멈춤')}</span><b id="spF">0</b></div></div>
-      <div class="sp-prog"><i id="spPg" style="width:0"></i></div><div id="spCh"></div><div class="sp-lg"><span>🟦 ${e('측정 점')}</span><span>🟨 ${e('규칙에 걸린 점(표시 ON)')}</span><span>🟥 ${e('3σ 밖')}</span></div>`;
-    document.getElementById('spMenu').onclick = menu;
-    document.getElementById('spCh').innerHTML = cs.map((c, q) => `<div class="jx-stage sp-ch" data-q="${q}"><div class="sp-chh"><b class="jx-mono">${esc(c.eq.n)}</b><small>${e(c.eq.p)} (${esc(c.eq.u)})</small><span class="sp-st run" data-st>RUN</span><small class="jx-mono" data-v></small><button class="jx-btn sm" data-stop="${q}">🛑 ${e('장비 멈추기')}</button></div><div data-svg></div></div>`).join('');
-    document.getElementById('spCh').addEventListener('click', (ev) => { const b = ev.target.closest('[data-stop]'); if (b) stop(+b.dataset.stop); });
-    document.getElementById('spPlay').onclick = () => { S.run = !S.run; document.getElementById('spPlay').textContent = T(S.run ? '일시정지' : '이어서'); };
-    document.getElementById('spSp').onclick = (ev) => { const b = ev.target.closest('button'); if (!b) return; S.spd = +b.dataset.s; document.querySelectorAll('#spSp button').forEach((x) => x.classList.toggle('on', x === b)); clock(); };
-    document.getElementById('spHint').onclick = () => { S.hint = !S.hint; if (S.hint) S.hintUsed = true; document.getElementById('spHint').textContent = T('규칙 표시') + ' ' + (S.hint ? 'ON' : 'OFF'); draw(); };
-    clock(); step();
-  }
-  function clock() { if (S.h) J.clear(S.h); S.h = J.interval(() => { if (S && S.run) step(); }, S.df.ms / S.spd); }
-  function step() {
-    S.t++;
-    S.cs.forEach((c) => {
-      if (c.status === 'hold') { c.hold--; if (c.hold <= 0) { c.status = 'run'; c.from = c.i + 1; } if (c.i < N - 1) { c.i = Math.min(N - 1, c.i + 0); } }
-      else if (c.i < N - 1) {
-        c.i++; const h = rule(c.z, c.i, c.from); c.hits[c.i] = h;
-        if (h.length && c.pend == null) { c.pend = c.i; c.pr = h; }
-      }
-    });
-    // 멈춘 동안에도 시간은 흐른다: 멈춘 차트는 점을 찍지 않고 기다린다
-    draw();
-    if (S.cs.every((c) => c.i >= N - 1 && c.status === 'run') && S.t >= N - 1) finish();
-  }
-  function badNow() {
-    let b = S.bad;
-    S.cs.forEach((c) => { const p = c.plan; if (p && !p.done && c.i >= p.k && c.status === 'run') b += p.ty === 'out' ? 1 : c.i - p.k + 1; });
-    return b;
-  }
-  function draw() {
-    S.cs.forEach((c, q) => {
-      const el = document.querySelector(`.sp-ch[data-q="${q}"]`); if (!el) return;
-      el.querySelector('[data-svg]').innerHTML = svg(c, Math.max(0, c.i));
-      const st = el.querySelector('[data-st]'); st.className = 'sp-st ' + c.status; st.textContent = c.status === 'hold' ? T('점검 중') : 'RUN';
-      el.querySelector('[data-v]').textContent = c.i >= 0 ? (c.eq.cl + c.z[c.i] * c.eq.sg).toFixed(c.eq.d) + ' ' + c.eq.u : '';
-      el.querySelector('[data-stop]').disabled = c.status === 'hold' || c.i < 2;
-    });
-    const pg = Math.min(N, Math.max(...S.cs.map((c) => c.i + 1)));
-    document.getElementById('spT').textContent = pg + ' / ' + N; document.getElementById('spPg').style.width = (pg / N * 100) + '%';
-    const bn = badNow(), b = document.getElementById('spB'); b.textContent = bn; b.className = bn > 3 ? 'bad' : '';
-    document.getElementById('spS').textContent = S.log.length; document.getElementById('spF').textContent = S.falseStops;
-  }
-  function stop(q) {
-    const c = S.cs[q]; if (!c || c.status === 'hold') return;
-    const p = c.plan, i = c.i; let kind, loss = 0, msg;
-    c.stops = c.stops || [];
-    if (c.pend != null) {
-      if (p && !p.done && i >= p.k) { kind = 'real'; loss = p.ty === 'out' ? 1 : i - p.k + 1; msg = '이상을 잡았어요. 점검해서 원인을 고쳤어요.'; }
-      else { kind = 'chk'; msg = '규칙에 걸려서 멈췄어요. 점검해 보니 이상은 없었어요. 규칙을 따랐으니 괜찮아요.'; }
-    } else if (p && !p.done && i >= p.k) { kind = 'early'; loss = p.ty === 'out' ? 1 : i - p.k + 1; S.early++; msg = '이번에는 이상이 있었지만 규칙이 걸리기 전이었어요. 근거 없이 멈추면 정상 공정도 자주 멈추게 돼요.'; }
-    else { kind = 'false'; S.falseStops++; msg = '이상이 없었어요. 규칙에 걸리지 않은 점 하나가 튄 것만으로는 멈추지 않아요.'; }
-    S.bad += loss; if (p && (kind === 'real' || kind === 'early')) { p.done = true; for (let j = i + 1; j < N; j++) c.add[j] = 0; c.z = c.base.map((v, j) => v + c.add[j]); }
-    c.stops.push({ i, kind, loss }); S.log.push({ q, i, kind }); c.pend = null; c.status = 'hold'; c.hold = 3;
-    document.getElementById('spMsg').textContent = T(c.eq.n) + ': ' + T(msg); draw();
-  }
-  function finish() {
-    J.clear(S.h);
-    let missed = 0, bad = S.bad;
-    const rows = S.cs.map((c) => {
-      const p = c.plan, stp = (c.stops || []).filter((x) => x.kind === 'real' || x.kind === 'early')[0];
-      let cls = 'g', tx = '';
-      if (!p) { const f = (c.stops || []).filter((x) => x.kind === 'false').length; cls = f ? 'x' : 'g'; tx = f ? `${e('이상이 없는 차트였는데 ' + f + '번 멈췄어요.')}` : e('이상이 없는 차트였고, 멈추지 않고 잘 지켜봤어요.'); }
-      else {
-        const k = p.k + 1, fr = c.fire + 1, rr = (c.fireR || []).map((x) => e(RN[x])).join(', ');
-        tx = `${e(TY[p.ty])} · ${e('이상 시작')} ${e(k + '번째')} · ${e('규칙이 처음 걸림')} ${e(fr + '번째')} (${rr})`;
-        if (stp) { tx += ` · ${e('멈춘 곳')} ${e((stp.i + 1) + '번째')} · ${e('나쁜 로트')} ${e(stp.loss + '개')}`; cls = stp.kind === 'real' ? (stp.loss <= 5 ? 'g' : 'l') : 'l'; if (stp.kind === 'early') tx += ' · ' + e('규칙이 걸리기 전에 멈춤'); }
-        else { missed++; const l = p.ty === 'out' ? 1 : N - p.k; bad += l; tx += ` · ${e('멈추지 못했어요')} · ${e('나쁜 로트')} ${e(l + '개')}`; cls = 'x'; }
-      }
-      return `<div class="sp-rr ${cls}"><b>${esc(c.eq.n)} · ${e(c.eq.p)}</b>${tx}<div class="jx-stage" style="margin-top:.5rem">${svg(c, N - 1, true)}</div></div>`;
-    }).join('');
-    let pct = Math.max(0, 100 - bad * 2 - S.falseStops * 10 - S.early * 3 - missed * 15); if (S.hintUsed && S.dk !== 'easy') pct = Math.round(pct * .8);
-    const pr = J.load('spc'), sc = Object.assign({}, pr.sc); sc[S.dk] = Math.max(sc[S.dk] || 0, pct);
-    J.save('spc', { sc, best: Math.max(...Object.values(sc)), unit: '점' });
-    root.innerHTML = J.head('현장 직무', 'SPC 관리도 운영실 · ' + T('복기'), `<button class="jx-btn sm" id="spMenu">${e('난이도 선택')}</button>`) +
-      `<div class="jx-card"><div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">${J.score(pct, '점')}<p class="jx-note" style="margin:0;flex:1;min-width:12rem">${e('나쁜 상태로 돈 로트')} ${e(bad + '개')} · ${e('헛멈춤')} ${e(S.falseStops + '번')} · ${e('놓친 이상')} ${e(missed + '개')}${S.hintUsed && S.dk !== 'easy' ? '<br>' + e('규칙 표시를 켠 경우 점수가 줄어요.') : ''}</p></div>
-      <div class="sp-rs">${rows}</div><div class="sp-rl"><b>${e('복기 포인트')}</b><br>${e('점 하나가 2σ를 넘어도 규칙에 걸리지 않으면 멈추지 않아요. 반대로 3σ 안쪽이어도 한쪽으로 계속 쏠리면 규칙 4나 5가 걸려요.')}</div>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="jx-btn pri" id="spAgain">${e('같은 난이도로 다시')}</button><button class="jx-btn" id="spMenu2">${e('난이도 선택')}</button></div></div>`;
-    document.getElementById('spMenu').onclick = menu; document.getElementById('spMenu2').onclick = menu; const dk = S.dk; document.getElementById('spAgain').onclick = () => play(dk);
-  }
-  menu();
-});
 /* ===== 설계 직무 체험 1: 파형 디버거 ===== */
 JX.reg('wave', (root) => {
   const J = window.JX, e = J.e, T = J.T, esc = J.esc;
@@ -765,10 +443,9 @@ JX.reg('wave', (root) => {
   function menu() {
     W = null; J.timers.forEach((h) => { clearTimeout(h); clearInterval(h); }); J.timers = [];
     const sc = J.load('wave').sc || {};
-    let h = J.head('설계 직무', '파형 디버거') + `<p class="jx-note">${e('시뮬레이션이 실패했다는 알림을 받았어요. 파형 뷰어에서 신호를 읽고, 커서와 마커로 시간을 재면서 원인이 시작된 사이클을 찾아요. 눈에 보이는 실패 지점보다 원인은 앞에 있어요. 찾은 뒤에는 왜 그랬는지, 어떻게 고칠지를 골라요.')}</p><div class="jx-menu">`;
-    CASES.forEach((c, i) => { h += `<button class="jx-card jx-pick" data-i="${i}"><em>${e(c.k)}</em><b>${e(c.t)}</b><span>${e(c.brief)}</span><span class="jx-st">${sc[c.id] != null ? J.grade(sc[c.id]) + ' · ' + sc[c.id] + '%' : e('아직 안 해 봤어요')}</span></button>`; });
-    root.innerHTML = h + '</div>';
-    root.querySelectorAll('.jx-pick').forEach((b) => b.addEventListener('click', () => play(+b.dataset.i)));
+    let h = J.head('설계 직무', '파형 디버거') + J.sub('원인이 시작된 사이클을 찾아요', CASES.filter((c) => sc[c.id] != null).length, CASES.length) + J.tiles(CASES.map((c, i) => ({ i, n: i + 1, t: '사례 ' + (i + 1), tag: e(c.k), sc: sc[c.id] })));
+    root.innerHTML = h;
+    root.querySelectorAll('.jx-tile').forEach((b) => b.addEventListener('click', () => play(+b.dataset.i)));
   }
   function play(i) {
     const c = CASES[i];
