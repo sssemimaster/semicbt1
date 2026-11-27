@@ -460,6 +460,7 @@
           const raw = window.i18nOverlay(await tRes.json(), tEn, 'theories');
           allTheories = raw.filter(t => !String(t.content || '').includes('채워질 예정')).map((t, idx) => ({ ...t, id: t.id || "T-" + idx, category: t.category || "기타", subject: t.subject || "일반" }));
         }
+        gdLate();
         // 이론 페이지(theory/<id>/)로 들어왔으면 그 이론을, 이론 목록(theory/)이면 백과사전 첫 화면을 바로 연다. 그 외에는 홈.
         const boot = window.BOOT_THEORY && allTheories.find(x => x.id === window.BOOT_THEORY);
         if (boot || window.BOOT_HUB) {
@@ -827,7 +828,7 @@
       if (viewId === 'view-flow') enterFlow();
       if (viewId === 'view-glossary') enterGlossary();
       if (viewId === 'view-path') enterPath();
-      if (viewId !== 'view-guide') guideStop();
+      if (viewId !== 'view-guide' && !(viewId === 'view-lobby' && document.getElementById('onbM'))) guideStop();   // 홈을 다시 그리는 중에는 떠 있는 첫 방문 안내를 닫지 않는다
       if (viewId === 'view-guide') enterGuide();
       if (viewId === 'view-subjects') renderHomeSubjects();
       if (viewId === 'view-search') { const si = document.getElementById('globalSearchInput'); runGlobalSearch(); setTimeout(() => si.focus(), 50); }
@@ -18222,6 +18223,8 @@ ${skyHTML}
       const f = (t) => { const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(to * e).toLocaleString(); if (p < 1) el._r = requestAnimationFrame(f); };
       el.textContent = '0'; el._r = requestAnimationFrame(f);
     }
+    // 자료(이론·문제·면접)는 온보딩이 뜬 뒤에 도착하므로, 도착하면 통계 숫자를 채우고 올라가는 움직임을 다시 시작한다
+    function gdLate() { try { const c = gdCtx; if (!c || c.dead) return; gdStats(c); const ch = c.root.querySelector('#gd-c0'); if (ch && ch.classList.contains('on')) gdEnter(c, ch); } catch (e) { } }
     function gdStats(ctx) {
       const v = { theory: allTheories.length, quiz: allQuizData.length, iv: allInterviewData.length, job: careersData ? careersData.length : 0 };
       ctx.root.querySelectorAll('.gd-st[data-k]').forEach(s => { const n = v[s.dataset.k]; if (n === 0) s.style.display = 'none'; else if (n) { s.style.display = ''; s.querySelector('.gd-num').dataset.to = n; } });
@@ -18378,19 +18381,20 @@ ${skyHTML}
     //  - 닫은 뒤에는 메뉴·푸터·홈의 '사이트 가이드'에서 언제든 다시 열 수 있다 (guideOpen).
     // =====================================================
     const ONB_KEY = 'semiCbtOnboard', ONB_SES = 'semiCbtOnboardS';
+    function onbPreOff() { document.documentElement.classList.remove('onb-pre'); }   // 첫 방문 때 가려 둔 첫 화면을 다시 보이게
     function onbMaybe() {
       try {
-        if (localStorage.getItem(ONB_KEY) === '1' || sessionStorage.getItem(ONB_SES) === '1') return;
-        if (/bot|crawl|spider|lighthouse|headless/i.test(navigator.userAgent)) return;
+        if (localStorage.getItem(ONB_KEY) === '1' || sessionStorage.getItem(ONB_SES) === '1') return onbPreOff();
+        if (/bot|crawl|spider|lighthouse|headless/i.test(navigator.userAgent)) return onbPreOff();
       } catch (e) { }
-      if (currentViewId !== 'view-lobby' || document.getElementById('onbM') || document.getElementById('payM') || document.getElementById('earnM')) return;
+      if (currentViewId !== 'view-lobby' || document.getElementById('onbM') || document.getElementById('payM') || document.getElementById('earnM')) return onbPreOff();
       onbOpen();
     }
     function onbOpen() {
       if (document.getElementById('onbM')) return;
       const m = document.createElement('div'); m.id = 'onbM'; m.className = 'onb'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', '사이트 가이드');
       m.innerHTML = `<div class="onb-top"><span class="onb-brand"><span>반도체</span> <b>새김</b></span><button type="button" class="onb-x" aria-label="닫기" onclick="onbClose()">✕</button></div><div class="onb-sc" id="onbSc"><div class="onb-in" id="onbRoot"></div></div><div class="onb-ft"><label class="onb-ck"><input type="checkbox" id="onbNo"><i aria-hidden="true"></i><span>다시 보지 않기</span></label><button type="button" class="gd-btn" onclick="onbClose()">시작하기</button></div>`;
-      document.body.appendChild(m); document.body.style.overflow = 'hidden'; m._focus = document.activeElement;
+      document.body.appendChild(m); document.body.style.overflow = 'hidden'; m._focus = document.activeElement; onbPreOff();
       guideMount(document.getElementById('onbRoot'), { scroller: document.getElementById('onbSc'), host: m, onLeave: onbClose, onStop: onbRemove });
       const x = m.querySelector('.onb-x'); if (x) x.focus({ preventScroll: true });
       document.addEventListener('keydown', onbKey);
@@ -18638,5 +18642,5 @@ ${skyHTML}
     document.getElementById('view-subjects').classList.add('max-w-4xl', 'mx-auto');
     renderResumeBanner(); updateHeaderChip();
     initApp();
-    setTimeout(onbMaybe, 1500);   // 첫 화면 온보딩 팝업
+    onbMaybe();   // 첫 화면 온보딩 팝업: 첫 화면이 비친 뒤가 아니라 바로 띄운다 (통계 숫자는 자료가 오면 gdLate 가 채운다)
   
