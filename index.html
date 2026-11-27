@@ -32,6 +32,7 @@
   </script>
 
   
+  <script>(function(){try{var d=document.documentElement;if(location.search||location.hash||/\/theory\//.test(location.pathname)||/bot|crawl|spider|lighthouse|headless/i.test(navigator.userAgent)||localStorage.getItem('semiCbtOnboard')==='1'||sessionStorage.getItem('semiCbtOnboardS')==='1')return;d.classList.add('onb-pre');setTimeout(function(){d.classList.remove('onb-pre')},3500)}catch(e){}})();</script>
   <script defer src="https://cdn.jsdelivr.net/npm/marked@18.2.0/lib/marked.umd.js" integrity="sha384-DDYDxilZ1LlqPSbaRHlrwh12h+3fUewuQj7HjscrZIWt5bGyQ+n0DHtIoZE3i3zU" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js" integrity="sha384-+VfUPEb0PdtChMwmBcBmykRMDd+v6D/oFmB3rZM/puCMDYcIvF968OimRh4KQY9a" crossorigin="anonymous"></script>
   
@@ -303,7 +304,7 @@
     /* 상단 바의 뼈대는 Tailwind CDN 이 느린 환경에서 초반 클래스를 놓쳐도 무너지지 않게 일반 CSS 로도 한 번 더 고정해 둔다 */
     .app-bar { display: flex; align-items: center; justify-content: space-between; gap: .75rem; height: 4rem; max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
     .app-l { display: flex; align-items: center; gap: .75rem; } .app-r { display: flex; align-items: center; gap: .5rem; }
-    @media (max-width: 430px) { .app-bar { gap: .4rem; padding: 0 .75rem; } .app-l { gap: .5rem; } .app-r { gap: .25rem; } #langBtn { width: 1.9rem; } html.lang-en #acctBtn.acct-off { padding: 0 .6rem; } html.lang-en .app-l span[style] { font-size: 18px; } }
+    @media (max-width: 430px) { .app-bar { gap: .3rem; padding: 0 .6rem; } .app-l { gap: .4rem; min-width: 0; } .app-r { gap: .2rem; flex-shrink: 0; } #navTokens, #navAttend { padding-left: .5rem; padding-right: .5rem; gap: .3rem; } #themeToggleBtn { width: 1.75rem; } #acctBtn, #langBtn { width: 2rem; height: 2rem; } .app-l span[style] { font-size: 19px !important; } .app-l svg.w-8 { width: 1.7rem; height: 1.7rem; } #langBtn { width: 1.9rem; } html.lang-en #acctBtn.acct-off { padding: 0 .6rem; } html.lang-en .app-l span[style] { font-size: 18px; } }
     @media (min-width: 1200px) { html.lang-en .nav-btn { padding: .55rem .62rem; font-size: .875rem; } html.lang-en .app-nav { gap: .2rem; } }
     .app-nav { display: none; } #navAttend { display: none; white-space: nowrap; }
     @media (min-width: 640px) { .app-bar { padding: 0 1.5rem; } #navAttend { display: flex; } }
@@ -1064,7 +1065,7 @@ html.dark #view-path, html.dark #routineBox, html.dark #view-experience, html.da
     /* 5. 시작 */
     /* 가이드 정리: 모바일에서 간격·칩·통계를 가지런히 */
     @media (max-width: 640px) {
-      .gd-ch { padding: 2.4rem 0; }
+      .gd-ch:not(.gd-hero) { padding-top: 2.4rem; padding-bottom: 2.4rem; }
       .gd-hero .gd-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem 1rem; margin-top: 1.6rem; }
       .gd-tys { flex-wrap: nowrap; overflow-x: auto; margin-right: -1rem; padding: .2rem 1rem .5rem 0; scrollbar-width: none; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; } .gd-tys::-webkit-scrollbar { display: none; }
       .gd-tyb { flex: none; white-space: nowrap; scroll-snap-align: start; }
@@ -1093,6 +1094,7 @@ html.dark #view-path, html.dark #routineBox, html.dark #view-experience, html.da
       .gd-die { opacity: .85; } .gd-log > span { opacity: 1; transform: none; animation: none !important; } .gd-spc .ln { stroke-dashoffset: 0; animation: none !important; } .gd-spc .pt { opacity: 1; } .gd-flow::before { transform: none !important; transition: none; } .gd-mrow.swp * { animation: none !important; }
     }
     /* ===== 첫 화면 온보딩 팝업 (가이드 내용을 풀스크린으로) ===== */
+    html.onb-pre main, html.onb-pre footer, html.onb-pre #mTabs { visibility: hidden; }
     .onb { position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; background: #f8fafc; animation: onb-in .45s cubic-bezier(.2,.7,.2,1) both; }
     html.dark .onb { background: #070d1c; }
     .onb.out { animation: onb-out .22s ease both; }
