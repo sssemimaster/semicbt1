@@ -18125,6 +18125,15 @@
     //  - 버튼은 gdDo('동작') 하나로 모아 둔다. 온보딩 팝업에서도 같은 버튼이 팝업을 닫고 움직이도록.
     // =====================================================
     const GD_CH = ['소개', '배우기', '새기기', '직무 체험', '직무 지도', '시작'];
+    // 공정 장비 가동 화면(3종). r 은 오른쪽 계기판: [이름, 진행값(0~1) → 표시 값]. 숫자·단위만 바꾸므로 번역이 필요 없는 값만 쓴다.
+    const GD_EQ = [
+      { t: '식각', n: '플라즈마 식각 (RIE)', d: '플라즈마 속 이온이 웨이퍼를 두드려요. 마스크로 가리지 않은 곳만 깎여서 회로가 지나갈 길이 생겨요.',
+        r: [['RF 전력', p => Math.round(300 * Math.min(1, p * 6)) + ' W'], ['압력', () => '20 mTorr'], ['식각 깊이', p => Math.round(120 * p) + ' nm']] },
+      { t: '증착', n: '원자층 증착 (ALD)', d: '두 가지 가스를 번갈아 흘려요. 원자 한 층씩 얇은 막이 차곡차곡 쌓여요.',
+        r: [['증착 온도', () => '300 °C'], ['반복 횟수', p => Math.round(40 * p)], ['막 두께', p => (2.4 * p).toFixed(1) + ' nm']] },
+      { t: '노광', n: 'EUV 노광 스캐너', d: '마스크에 그려진 회로를 빛으로 웨이퍼에 찍어요. 마스크와 웨이퍼가 서로 반대로 움직이며 훑어 가요.',
+        r: [['파장', () => '13.5 nm'], ['광원 출력', () => '250 W'], ['노광 진행', p => Math.round(100 * p) + ' %']] }
+    ];
     let gdCtx = null;
     const gdReduce = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
     function guideOpen() { try { localStorage.setItem('semiCbtIntroSeen', '1'); } catch (e) { } navTo('view-guide'); }
@@ -18154,29 +18163,74 @@
       const mockSpc = `<svg viewBox="0 0 200 100" preserveAspectRatio="none" class="gd-spc"><line x1="0" y1="20" x2="200" y2="20" class="ucl"/><line x1="0" y1="80" x2="200" y2="80" class="ucl"/><line x1="0" y1="50" x2="200" y2="50" class="cl"/><polyline class="ln" points="0,52 14,48 28,55 42,46 56,53 70,49 84,57 98,47 112,52 126,44 140,50 154,38 168,24 182,14 196,7"/><circle class="pt" cx="196" cy="7" r="4"/></svg>`;
       const mockWav = `<svg viewBox="0 0 200 100" preserveAspectRatio="none" class="gd-wav"><g class="gd-wvs"><path d="${wv(10, clk)}"/><path d="${wv(40, dat)}"/><path class="bad" d="${wv(70, q)}"/></g><line x1="132" y1="2" x2="132" y2="98" class="cur"/></svg>`;
       const mockEco = `<span class="gd-eco"><small>SLACK</small><b class="gd-slack">-0.18</b><small>ns</small><span class="gd-path"><i></i><i></i><i></i><i></i></span></span>`;
+
+      // ---- 공정 장비 가동 화면 3종 (식각 · 증착 · 노광). 움직임은 CSS, 진행 값(--p, --l0~3)은 gdEqPaint 가 넣는다 ----
+      const GAPS = [180, 222, 264, 306];
+      const ions = GAPS.map((g, gi) => [0, 1, 2].map(j => `<circle class="gd-ion" cx="${g + (j - 1) * 3}" cy="72" r="2.2" style="--d:${((gi * 3 + j) * .31).toFixed(2)}s"/>`).join('')).join('') + [160, 201, 243, 285, 327].map((x, i) => `<circle class="gd-ion dm" cx="${x}" cy="72" r="1.8" style="--d:${(i * .27 + .12).toFixed(2)}s"/>`).join('');
+      const byp = GAPS.map((g, i) => `<circle class="gd-by" cx="${g}" cy="186" r="2" style="--d:${(i * .55).toFixed(2)}s"/>`).join('');
+      const resist = [146, 188, 230, 272, 314].map(x => `<rect class="gd-rs" x="${x}" y="179" width="26" height="7" rx="1.5"/>`).join('');
+      const trench = GAPS.map(g => `<rect class="gd-tr" x="${g - 8}" y="186" width="16" height="13"/>`).join('');
+      const scEtch = `<svg viewBox="54 0 372 270" class="gd-sv" aria-hidden="true"><defs><radialGradient id="gdPl" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f0f9ff"/><stop offset=".3" stop-color="#22d3ee" stop-opacity=".85"/><stop offset=".7" stop-color="#a855f7" stop-opacity=".4"/><stop offset="1" stop-color="#a855f7" stop-opacity="0"/></radialGradient><filter id="gdBl" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7"/></filter></defs><rect class="gd-cw" x="70" y="34" width="340" height="206" rx="16"/><path class="gd-pipe" d="M240 6V44"/><circle class="gd-gas" cx="240" cy="12" r="2.2"/><circle class="gd-gas" cx="240" cy="12" r="2.2" style="--d:.5s"/><circle class="gd-gas" cx="240" cy="12" r="2.2" style="--d:1s"/><rect class="gd-el" x="120" y="44" width="240" height="9" rx="3"/><path class="gd-pipe rf" d="M360 48H424"/><ellipse class="gd-pl2" cx="240" cy="124" rx="124" ry="52" fill="url(#gdPl)" filter="url(#gdBl)"/><ellipse class="gd-pl" cx="240" cy="124" rx="112" ry="44" fill="url(#gdPl)"/>${ions}${byp}<rect class="gd-si" x="140" y="186" width="200" height="14"/>${trench}${resist}<rect class="gd-chk" x="120" y="200" width="240" height="28" rx="5"/></svg>`;
+      const molA = [158, 184, 210, 236, 256].map((x, i) => `<circle class="gd-mol a" cx="${x}" cy="62" r="3.2" style="--d:${(i * .2).toFixed(2)}s"/>`).join('');
+      const molB = [224, 250, 276, 302, 326].map((x, i) => `<circle class="gd-mol b" cx="${x}" cy="62" r="3.2" style="--d:${(1.5 + i * .2).toFixed(2)}s"/>`).join('');
+      const scDep = `<svg viewBox="54 0 372 270" class="gd-sv" aria-hidden="true"><defs><filter id="gdBl1" x="-20%" y="-300%" width="140%" height="700%"><feGaussianBlur stdDeviation="4"/></filter></defs><rect class="gd-cw" x="70" y="34" width="340" height="206" rx="16"/><path class="gd-pipe a" d="M190 6V44"/><path class="gd-pipe b" d="M290 6V44"/><rect class="gd-el" x="120" y="44" width="240" height="9" rx="3"/>${molA}${molB}<rect class="gd-si" x="140" y="190" width="200" height="12"/><rect class="gd-ly l0" x="140" y="184" width="200" height="6"/><rect class="gd-ly l1" x="140" y="178" width="200" height="6"/><rect class="gd-ly l2" x="140" y="172" width="200" height="6"/><rect class="gd-ly l3" x="140" y="166" width="200" height="6"/><rect class="gd-chk" x="120" y="202" width="240" height="28" rx="5"/><rect class="gd-heat" x="126" y="234" width="228" height="4" rx="2" filter="url(#gdBl1)"/></svg>`;
+      const scLitho = `<svg viewBox="44 0 392 270" class="gd-sv" aria-hidden="true"><defs><radialGradient id="gdSrc"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></radialGradient><linearGradient id="gdBm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ddd6fe" stop-opacity=".85"/><stop offset="1" stop-color="#67e8f9" stop-opacity=".25"/></linearGradient><pattern id="gdDie" width="20" height="4" patternUnits="userSpaceOnUse"><rect x="3" width="14" height="4" rx="1" fill="#67e8f9"/></pattern><filter id="gdBl2" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="5"/></filter></defs><rect class="gd-cw" x="50" y="6" width="380" height="258" rx="18"/><g class="gd-srg"><circle cx="240" cy="26" r="26" fill="url(#gdSrc)"/><circle cx="240" cy="26" r="6" fill="#fff"/></g><polygon class="gd-bm" points="231,36 249,36 330,84 150,84"/><g class="gd-rt"><rect class="gd-rtb" x="150" y="84" width="180" height="9" rx="2"/>${[162, 186, 206, 232, 254, 278, 302, 318].map(x => `<rect class="gd-rtp" x="${x}" y="84" width="${6 + (x % 3) * 3}" height="9"/>`).join('')}</g><path class="gd-lens" d="M164 108H316L276 154H204Z"/><path class="gd-lensl" d="M184 120H296M200 134H280"/><polygon class="gd-bm" points="226,154 254,154 249,188 231,188"/><ellipse class="gd-spot" cx="240" cy="190" rx="26" ry="5" fill="#e0f2fe" filter="url(#gdBl2)"/><g class="gd-wst"><rect class="gd-si" x="90" y="190" width="300" height="10"/><rect class="gd-exp" x="90" y="186" width="300" height="4" fill="url(#gdDie)"/><rect class="gd-chk" x="80" y="200" width="320" height="26" rx="5"/></g></svg>`;
+      const eqHTML = `<div class="gd-eq gd-rv" style="--i:1"><div class="gd-eqbar"><span class="gd-dots" aria-hidden="true"><i></i><i></i><i></i></span><div class="gd-eqtabs" role="tablist">${GD_EQ.map((e, i) => `<button type="button" role="tab" data-eq="${i}" class="${i ? '' : 'on'}" aria-selected="${i ? 'false' : 'true'}" onclick="gdEqPick(${i})"><span>${e.t}</span><i></i></button>`).join('')}</div></div>
+<div class="gd-eqm"><div class="gd-eqsc">${[scEtch, scDep, scLitho].map((s, i) => `<div class="gd-sc${i ? '' : ' on'}" data-eq="${i}">${s}</div>`).join('')}</div>
+<div class="gd-eqi">${GD_EQ.map((e, i) => `<div class="gd-ip${i ? '' : ' on'}" data-eq="${i}"><span class="gd-live"><i></i>LIVE</span><b class="gd-it">${e.n}</b><p>${e.d}</p><ul class="gd-rd">${e.r.map(x => `<li><span>${x[0]}</span><b data-v>${x[1](0)}</b></li>`).join('')}</ul></div>`).join('')}</div></div></div>`;
+      // ---- 직무 지도 스카이라인: 직무 지도 탭의 건물 · 회사 유형 데이터(CAREER_BLD / CAREER_TYPES)를 그대로 쓴다 ----
+      const SG = CAREER_G, SX = { glass: [12, 10, 2, 2, 8, 6], grid: [16, 18, 4, 4, 8, 10], plain: [30, 20, 8, 6, 14, 8], band: [10, 16, 0, 5, 10, 6], led: [8, 8, 2, 2, 4, 4] };
+      const skyDefs = Object.keys(SX).map(k => { const s = SX[k]; return `<pattern id="gdW-${k}" width="${s[0]}" height="${s[1]}" patternUnits="userSpaceOnUse"><rect class="gd-pw" x="${s[2]}" y="${s[3]}" width="${s[4]}" height="${s[5]}" rx="1"/></pattern>`; }).join('');
+      let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+      const skyB = CAREER_BLD.map((b, bi) => ({ b, bi })).sort((a, c) => a.b.z - c.b.z || a.bi - c.bi).map(({ b }) => {
+        const y = SG - b.h, s = SX[b.win] || SX.grid;
+        const parts = (b.parts || []).map(p => {
+          const px = b.x + p.dx, py = y + p.dy;
+          if (p.k === 'saw') { const n = 6, tw = p.w / n; let d = ''; for (let i = 0; i < n; i++) d += `M${px + i * tw},${py + p.h}V${py}L${px + (i + 1) * tw},${py + p.h}Z`; return `<path class="gd-bp" d="${d}"/>`; }
+          if (p.k === 'dome') return `<path class="gd-bp" d="M${px},${py + p.h}A${p.w / 2},${p.h} 0 0 1 ${px + p.w},${py + p.h}Z"/>`;
+          return `<rect class="gd-bp" x="${px}" y="${py}" width="${p.w}" height="${p.h}" rx="${p.k === 'tower' ? 8 : 1}"/>`;
+        }).join('');
+        const x0 = Math.ceil((b.x + 8) / s[0]), x1 = Math.floor((b.x + b.w - 8) / s[0]) - 1, y0 = Math.ceil((y + 12) / s[1]), y1 = Math.floor((SG - 10) / s[1]) - 1;
+        let lit = ''; for (let i = 0; i < 7 && x1 >= x0 && y1 >= y0; i++) { const cx = x0 + Math.floor(rnd() * (x1 - x0 + 1)), cy = y0 + Math.floor(rnd() * (y1 - y0 + 1)); lit += `<rect class="gd-lit" x="${cx * s[0] + s[2]}" y="${cy * s[1] + s[3]}" width="${s[4]}" height="${s[5]}" style="--d:${(rnd() * 3.6).toFixed(2)}s"/>`; }
+        const top = Math.min(y, ...(b.parts || []).map(p => y + p.dy));
+        const smoke = b.id === 'fab' ? [40, 100, 160].map((dx, i) => `<circle class="gd-smk" cx="${b.x + dx + 8}" cy="${y - 92}" r="5" style="--d:${(i * .9).toFixed(1)}s"/>`).join('') : '';
+        return `<g class="gd-bd" data-b="${b.id}" data-l="${((b.x + b.w / 2) / 1280 * 100).toFixed(1)}" data-t="${(top / 470 * 100).toFixed(1)}" onclick="gdSkPick('${b.id}')">${parts}<rect class="gd-bb" x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" rx="3"/><rect x="${b.x + 6}" y="${y + 10}" width="${b.w - 12}" height="${b.h - 16}" fill="url(#gdW-${b.win})"/>${lit}${smoke}</g>`;
+      }).join('');
+      const tyBtns = CAREER_TYPES.map(t => `<button type="button" class="gd-tyb${t.id === 'all' ? ' on' : ''}" data-t="${t.id}" aria-pressed="${t.id === 'all'}" onclick="gdSkType('${t.id}')">${t.label}</button>`).join('');
+      const skyHTML = `<div class="gd-cm gd-rv" style="--i:1"><div class="gd-stats gd-ms"><div class="gd-st"><b class="gd-num" data-to="${CAREER_BLD.length}">0</b><span>건물</span></div><div class="gd-st" data-k="job"><b class="gd-num" data-to="41">0</b><span>직무</span></div><div class="gd-st"><b class="gd-num" data-to="${CAREER_TYPES.length - 1}">0</b><span>회사 유형</span></div></div>
+<div class="gd-tys" role="group">${tyBtns}</div>
+<div class="gd-sky"><div class="gd-skw"><svg viewBox="0 0 1280 470" class="gd-skv" aria-hidden="true"><defs>${skyDefs}</defs><rect class="gd-gr" x="0" y="${SG}" width="1280" height="30"/><line class="gd-grl" x1="0" y1="${SG}" x2="1280" y2="${SG}"/>${skyB}</svg><div class="gd-skt" id="gdSkT"><b></b><small></small></div></div>
+<div class="gd-ski"><div class="gd-skl"><small>회사 유형</small><b id="gdTyN">·</b><p id="gdTyD"></p><p class="gd-tye" id="gdTyE"></p></div><div class="gd-skr"><small>건물</small><b id="gdBn">·</b><p id="gdBd"></p><span class="gd-sj" id="gdSj"></span></div></div></div></div>`;
       return `<div class="gd-root">
 <section class="gd-ch gd-hero" id="gd-c0"><i class="gd-orb a"></i><i class="gd-orb b"></i><div class="gd-dies" aria-hidden="true"></div>
-<div class="gd-hin"><p class="gd-eb gd-rv">SITE GUIDE</p>
-<h1 class="gd-h1 gd-rv" style="--i:1"><span>읽고, 풀고,</span><span class="gd-grad">직접 해 보며</span><span>새기는 반도체</span></h1>
-<p class="gd-lead gd-rv" style="--i:2">이론과 문제, 면접, 그리고 직접 해 보는 직무 체험까지. 처음이라면 스크롤하며 한 번 둘러보세요.</p>
-<div class="gd-stats gd-rv" style="--i:3"><div class="gd-st" data-k="theory"><b class="gd-num">0</b><span>이론 글</span></div><div class="gd-st" data-k="quiz"><b class="gd-num">0</b><span>문항</span></div><div class="gd-st" data-k="iv"><b class="gd-num">0</b><span>면접 질문</span></div><div class="gd-st" data-k="job"><b class="gd-num">0</b><span>직무 정보</span></div><div class="gd-st" data-k="jx"><b class="gd-num" data-to="4">0</b><span>직무 체험</span></div></div>
-<p class="gd-cue gd-rv" style="--i:4" aria-hidden="true"><span>아래로 스크롤</span><i></i></p></div></section>
+<div class="gd-hin"><p class="gd-eb gd-rv">처음이어도 괜찮아요</p>
+<h1 class="gd-h1 gd-rv" style="--i:1"><span>전공이 달라도</span><span class="gd-grad">술술 읽히는</span><span>반도체 학습 공간</span></h1>
+<p class="gd-lead gd-rv" style="--i:2">어려운 용어는 쉬운 말로 풀고, 개념은 그림과 예시로 보여 드려요. 읽고, 풀고, 직접 해 보며 처음부터 차근차근 따라오세요.</p>
+<ul class="gd-chips gd-rv" style="--i:3"><li>쉬운 말로 풀어 쓴 설명</li><li>그림과 예시로 이해</li><li>문제·면접·직무 체험까지</li></ul>
+<div class="gd-stats gd-rv" style="--i:4"><div class="gd-st" data-k="theory"><b class="gd-num">0</b><span>이론 글</span></div><div class="gd-st" data-k="quiz"><b class="gd-num">0</b><span>문항</span></div><div class="gd-st" data-k="iv"><b class="gd-num">0</b><span>면접 질문</span></div><div class="gd-st" data-k="job"><b class="gd-num">0</b><span>직무 정보</span></div><div class="gd-st" data-k="jx"><b class="gd-num" data-to="4">0</b><span>직무 체험</span></div></div>
+<p class="gd-cue gd-rv" style="--i:5" aria-hidden="true"><span>아래로 스크롤</span><i></i></p></div></section>
 
 <section class="gd-ch" id="gd-c1"><div class="gd-hd"><p class="gd-k gd-rv">01</p><h2 class="gd-h gd-rv" style="--i:1">배우고, 바로 확인해요</h2><p class="gd-p gd-rv" style="--i:2">이론을 읽고 용어를 익힌 뒤, 문제와 면접으로 내 것이 됐는지 검증해요. 틀린 문제는 오답 노트에 차곡차곡 쌓여요.</p></div>
 <ol class="gd-flow">${NODES.map((n, i) => `<li class="gd-node gd-rv" style="--i:${i + 1}"><button type="button" onclick="gdDo('${n[0]}')"><span class="gd-ni" style="--n:${i}">${I(n[1])}</span><b>${n[2]}</b><span>${n[3]}</span></button></li>`).join('')}</ol>
 <div class="gd-bar2 gd-rv" style="--i:2"><div><b>어디서부터 읽을지 막막하다면</b><span>학습 코스가 하루 분량을 순서대로 짜 줘요</span></div><button type="button" class="gd-btn ghost" onclick="gdDo('course')">학습 코스 보기</button></div></section>
 
-<section class="gd-ch" id="gd-c2"><div class="gd-hd"><p class="gd-k gd-rv">02</p><h2 class="gd-h gd-rv" style="--i:1">매일 새기면 웨이퍼가 채워져요</h2><p class="gd-p gd-rv" style="--i:2">하루 학습 점수를 채우고 출석하면 오늘의 회로가 웨이퍼에 새겨지고, 무료 토큰도 받아요.</p></div>
+<section class="gd-ch" id="gd-c2"><div class="gd-hd"><p class="gd-k gd-rv">02</p><h2 class="gd-h gd-rv" style="--i:1">매일 학습한 내용을 웨이퍼에 새겨보세요</h2><p class="gd-p gd-rv" style="--i:2">하루 학습 점수를 채우고 출석하면 오늘의 회로가 웨이퍼에 새겨지고, 무료 토큰도 받아요.</p></div>
 <div class="gd-split"><div class="gd-wf gd-rv" aria-hidden="true"><svg viewBox="0 0 240 240" class="gd-wsvg"><defs><clipPath id="gdWc"><circle cx="120" cy="120" r="104"/></clipPath></defs><circle cx="120" cy="120" r="114" class="gd-wrim"/><circle cx="120" cy="120" r="106" class="gd-wbody"/><g clip-path="url(#gdWc)">${dies}<rect class="gd-scan" x="-40" y="0" width="40" height="240"/></g></svg></div>
 <ul class="gd-tks"><li class="gd-rv" style="--i:1"><span class="gd-tkb">${TK()}<b class="gd-num" data-to="5">0</b></span><span><b>하루 학습 점수를 채우고 출석하면</b><span>매일 무료 토큰 5개를 받아요</span></span></li><li class="gd-rv" style="--i:2"><span class="gd-tkb">${TK()}<b class="gd-num" data-to="10">0</b></span><span><b>가입하고 24시간이 지난 뒤</b><span>환영 토큰 10개를 한 번 받아요</span></span></li><li class="gd-rv" style="--i:3"><span class="gd-tkb">${TK()}<b class="gd-num" data-to="30">0</b></span><span><b>무료 토큰은 최대 30개까지</b><span>모아 뒀다가 필요할 때 써요</span></span></li></ul></div>
 <div class="gd-bar2 gd-unl gd-rv" style="--i:2"><div><b>모은 토큰으로 심화 이론과 장비 체험을 열어요</b><span>한 번 해금하면 내 계정에 영구로 남아요</span></div><button type="button" class="gd-btn ghost" onclick="gdDo('earn')">토큰 획득법</button></div>
 <p class="gd-link gd-rv" style="--i:3"><button type="button" onclick="gdDo('flow')">웨이퍼 한 장의 여정 보기 →</button></p></section>
 
 <section class="gd-ch" id="gd-c3"><div class="gd-hd"><p class="gd-k gd-rv">03</p><h2 class="gd-h gd-rv" style="--i:1">읽는 데서 끝나지 않고, 직접 해 봐요</h2><p class="gd-p gd-rv" style="--i:2">알람에 대응하고, 관리도에서 이상을 잡고, 파형을 디버깅하고, 타이밍을 고쳐요. 실제 직무에서 하는 판단을 그대로 체험해요.</p></div>
+<p class="gd-lb gd-rv">장비가 돌아가는 모습</p>
+${eqHTML}
+<p class="gd-lb gd-rv">직무 체험 4가지</p>
 <div class="gd-jxg">${jx('alarm', '현장 직무', true, '알람 대응 콘솔', '알람을 읽고 지금 할 행동을 골라요', mockAlm)}${jx('spc', '현장 직무', false, 'SPC 관리도 운영실', '관리도에서 이상한 점을 잡아 장비를 멈춰요', mockSpc)}${jx('wave', '설계 직무', true, '파형 디버거', '파형에서 원인이 시작된 사이클을 찾아요', mockWav)}${jx('eco', '설계 직무', false, '타이밍 ECO 작업대', '타이밍 위반을 예산 안에서 고쳐요', mockEco)}</div>
 <div class="gd-mini gd-rv" style="--i:2"><button type="button" onclick="gdDo('fab')"><b>3D</b><span>3D 팹 둘러보기</span></button><button type="button" onclick="gdDo('equip')"><b>LAB</b><span>공정 장비 체험</span></button></div></section>
 
-<section class="gd-ch" id="gd-c4"><div class="gd-hd"><p class="gd-k gd-rv">04</p><h2 class="gd-h gd-rv" style="--i:1">내 전공에서 시작하는 직무 지도</h2><p class="gd-p gd-rv" style="--i:2">반도체 직무는 이름만 봐서는 무슨 일인지 알기 어려워요. 전공을 고르면 잘 맞는 직무와 그곳에서 하는 일을 보여 줘요.</p></div>
+<section class="gd-ch" id="gd-c4"><div class="gd-hd"><p class="gd-k gd-rv">04</p><h2 class="gd-h gd-rv" style="--i:1">내 전공에서 시작하는 직무 지도</h2><p class="gd-p gd-rv" style="--i:2">반도체 직무는 이름만 봐서는 무슨 일인지 알기 어려워요. 일하는 건물과 회사 유형으로 나눠 보고, 내 전공에 맞는 직무도 찾아봐요.</p></div>
+<p class="gd-lb gd-rv">건물과 회사 유형으로 보기</p>
+${skyHTML}
+<p class="gd-lb gd-rv">내 전공으로 보기</p>
 <div class="gd-map gd-rv" style="--i:2"><div class="gd-grp" id="gdGrp"></div><div class="gd-mrow"><div class="gd-mj"><small>전공</small><b id="gdMj">·&nbsp;·&nbsp;·</b></div><i class="gd-ar" aria-hidden="true"></i><div class="gd-jobs"><small>잘 맞는 직무</small><span id="gdJobs"></span></div></div></div>
 <p class="gd-link gd-rv" style="--i:3"><button type="button" onclick="gdDo('careers')">내 전공으로 직무 찾기 →</button></p></section>
 
@@ -18198,13 +18252,14 @@
     }
     function gdEnter(ctx, ch) {
       const id = ch.id;
-      if (id === 'gd-c0' || id === 'gd-c2') ch.querySelectorAll('.gd-num').forEach((n, i) => { const to = +n.dataset.to; if (to) { n.textContent = '0'; ctx.timers.push(setTimeout(() => !ctx.dead && gdNum(n, to, 1300), 250 + i * 160)); } });
-      if (id === 'gd-c3') gdEco(ctx, ch);
-      if (id === 'gd-c4') gdMapStart(ctx);
+      if (id === 'gd-c0' || id === 'gd-c2' || id === 'gd-c4') ch.querySelectorAll('.gd-num').forEach((n, i) => { const to = +n.dataset.to; if (to) { n.textContent = '0'; ctx.timers.push(setTimeout(() => !ctx.dead && gdNum(n, to, 1300), 250 + i * 160)); } });
+      if (id === 'gd-c3') { gdEco(ctx, ch); gdEqStart(ctx); }
+      if (id === 'gd-c4') { gdMapStart(ctx); gdSkStart(ctx); }
     }
     function gdLeave(ctx, ch) {
+      if (ch.id === 'gd-c3') gdEqStop(ctx);
       if (ch.id === 'gd-c3') { const b = ch.querySelector('.gd-slack'); if (b) { b.textContent = '-0.18'; b.classList.remove('ok'); } ch.querySelector('.gd-path') && ch.querySelector('.gd-path').classList.remove('ok'); }
-      if (ch.id === 'gd-c4') gdMapStop(ctx);
+      if (ch.id === 'gd-c4') { gdMapStop(ctx); gdSkStop(ctx); }
     }
     // 타이밍 ECO 미니 화면: 슬랙이 음수에서 양수로 올라가며 초록으로 바뀐다
     function gdEco(ctx, ch) {
@@ -18236,12 +18291,69 @@
       ctx.mapT = setInterval(() => { if (ctx.dead) return; ctx.mi++; gdMapShow(ctx); }, 2800);
     }
     function gdMapStop(ctx) { if (ctx.mapT) { clearInterval(ctx.mapT); ctx.mapT = 0; } }
+    // 공정 장비 가동 화면: 장비를 돌려 가며(식각 → 증착 → 노광) 진행 값을 CSS 변수와 계기판 숫자에 넣는다
+    function gdEqSet(ctx, i) {
+      ctx.eqi = i; ctx.eqT0 = performance.now();
+      ctx.root.querySelectorAll('.gd-eq [data-eq]').forEach(e => { const on = +e.dataset.eq === i; e.classList.toggle('on', on); if (e.getAttribute('role') === 'tab') { e.setAttribute('aria-selected', on); e.style.setProperty('--tp', 0); } });
+      gdEqPaint(ctx, gdReduce() ? 1 : 0, 0);
+    }
+    function gdEqPaint(ctx, p, q) {
+      const sc = ctx.root.querySelector('.gd-sc.on'), ip = ctx.root.querySelector('.gd-ip.on'); if (!sc || !ip) return;
+      const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      sc.style.setProperty('--p', e.toFixed(3));
+      for (let k = 0; k < 4; k++) sc.style.setProperty('--l' + k, Math.min(1, Math.max(0, e * 4 - k)).toFixed(3));
+      const spec = GD_EQ[ctx.eqi || 0]; ip.querySelectorAll('[data-v]').forEach((b, k) => { b.textContent = spec.r[k][1](e); });
+      const tb = ctx.root.querySelector('.gd-eqtabs button.on'); if (tb && !gdReduce()) tb.style.setProperty('--tp', q.toFixed(3));
+    }
+    function gdEqStart(ctx) {
+      if (ctx.eqR) return; ctx.eqT0 = performance.now();
+      if (gdReduce()) { gdEqPaint(ctx, 1, 0); return; }
+      const DUR = 4200, HOLD = 7400;
+      const f = (t) => {
+        const ch = ctx.root.querySelector('#gd-c3'); if (ctx.dead || !ch || !ch.classList.contains('on')) { ctx.eqR = 0; return; }
+        const el = t - ctx.eqT0;
+        if (el > HOLD) gdEqSet(ctx, ((ctx.eqi || 0) + 1) % GD_EQ.length); else gdEqPaint(ctx, Math.min(1, el / DUR), el / HOLD);
+        ctx.eqR = requestAnimationFrame(f);
+      };
+      ctx.eqR = requestAnimationFrame(f);
+    }
+    function gdEqStop(ctx) { if (ctx.eqR) { cancelAnimationFrame(ctx.eqR); ctx.eqR = 0; } }
+    function gdEqPick(i) { const c = gdCtx; if (c) gdEqSet(c, i); }
+    // 직무 지도 스카이라인: 회사 유형에 있는 건물에 파란 테두리, 건물을 하나씩 비추며 그 건물의 직무를 보여 준다
+    function gdSkList(ctx) { const ty = CAREER_TYPES.find(t => t.id === ctx.skType) || CAREER_TYPES[0]; return CAREER_BLD.filter(b => !ty.has || ty.has.indexOf(b.id) >= 0).map(b => b.id); }
+    function gdSkPaint(ctx) {
+      const r = ctx.root, ty = CAREER_TYPES.find(t => t.id === ctx.skType) || CAREER_TYPES[0], has = ty.has, en = window.LANG === 'en';
+      r.querySelectorAll('.gd-bd').forEach(g => { const id = g.dataset.b, inn = !has || has.indexOf(id) >= 0; g.classList.toggle('in', !!has && inn); g.classList.toggle('dim', !inn); g.classList.toggle('sp', id === ctx.skSpot); });
+      r.querySelectorAll('.gd-tyb').forEach(b => { const on = b.dataset.t === ty.id; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+      const set = (id, v) => { const e = r.querySelector('#' + id); if (e) e.textContent = v; };
+      const exL = en && ty.ex_en ? ty.ex_en : ty.ex;
+      set('gdTyN', ty.label); set('gdTyD', ty.blurb); set('gdTyE', exL ? (en ? 'Examples: ' : '국내 예시: ') + exL.slice(0, 4).join(' · ') : '');
+      const b = CAREER_BLD.find(x => x.id === ctx.skSpot) || CAREER_BLD[0];
+      set('gdBn', b.name); set('gdBd', b.one);
+      const jobs = careersData ? careersData.filter(j => j.building === b.id) : [];
+      const sj = r.querySelector('#gdSj'); if (sj) sj.innerHTML = jobs.map((j, i) => `<em style="--i:${i}">${escH(j.name)}</em>`).join('');
+      const g = r.querySelector(`.gd-bd[data-b="${b.id}"]`), tag = r.querySelector('#gdSkT');
+      if (g && tag) { tag.style.left = Math.min(86, Math.max(14, +g.dataset.l)) + '%'; tag.style.top = g.dataset.t + '%'; tag.querySelector('b').textContent = b.short || b.name; tag.querySelector('small').textContent = jobs.length ? (en ? jobs.length + ' jobs' : jobs.length + '개 직무') : ''; }
+      const box = r.querySelector('.gd-skr'); if (box) { box.classList.remove('swp'); void box.offsetWidth; box.classList.add('swp'); }
+    }
+    function gdSkType(id) { const c = gdCtx; if (!c) return; c.skType = id; const l = gdSkList(c); if (l.indexOf(c.skSpot) < 0) c.skSpot = l[0]; c.skN = 0; gdSkPaint(c); }
+    function gdSkPick(id) { const c = gdCtx; if (!c) return; if (gdSkList(c).indexOf(id) < 0) c.skType = 'all'; c.skSpot = id; c.skN = 0; gdSkPaint(c); }
+    function gdSkStart(ctx) {
+      if (ctx.skT || gdReduce()) return;
+      ctx.skT = setInterval(() => {
+        if (ctx.dead) return; ctx.skN++;
+        if (ctx.skN % 4 === 0) { const i = CAREER_TYPES.findIndex(t => t.id === ctx.skType); ctx.skType = CAREER_TYPES[(i + 1) % CAREER_TYPES.length].id; ctx.skSpot = gdSkList(ctx)[0]; }
+        else { const l = gdSkList(ctx), i = l.indexOf(ctx.skSpot); ctx.skSpot = l[(i + 1) % l.length]; }
+        gdSkPaint(ctx);
+      }, 2000);
+    }
+    function gdSkStop(ctx) { if (ctx.skT) { clearInterval(ctx.skT); ctx.skT = 0; } }
     // 가이드를 화면에 붙인다. opt.scroller 가 없으면 창 스크롤을 쓴다 (온보딩 팝업은 팝업 안의 스크롤 영역을 넘긴다)
     function guideMount(root, opt) {
       guideStop(); opt = opt || {};
       root.innerHTML = guideHTML();
       const sc = opt.scroller || null, host = opt.host || document.body;
-      const ctx = gdCtx = { root, sc, host, timers: [], raf: 0, eco: 0, mapT: 0, io: null, dead: false, extra: [], onLeave: opt.onLeave || null, onStop: opt.onStop || null };
+      const ctx = gdCtx = { root, sc, host, timers: [], raf: 0, eco: 0, mapT: 0, eqR: 0, eqi: 0, eqT0: 0, skT: 0, skN: 0, skType: 'all', skSpot: 'fab', io: null, dead: false, extra: [], onLeave: opt.onLeave || null, onStop: opt.onStop || null };
       const bar = document.createElement('div'); bar.className = 'gd-bar'; bar.setAttribute('aria-hidden', 'true');
       const rail = document.createElement('nav'); rail.className = 'gd-rail'; rail.setAttribute('aria-label', '가이드 목차');
       rail.innerHTML = GD_CH.map((n, i) => `<button type="button" onclick="guideGo(${i})" aria-label="${n}"><i></i><span>${n}</span></button>`).join('');
@@ -18266,12 +18378,12 @@
       };
       ctx.h = () => { if (!ctx.raf) ctx.raf = requestAnimationFrame(upd); };
       (sc || window).addEventListener('scroll', ctx.h, { passive: true }); upd();
-      gdStats(ctx);
-      Promise.all([loadCareers(), cmFetch()]).then(() => { if (ctx.dead) return; gdStats(ctx); gdMapInit(ctx); const h0 = root.querySelector('#gd-c0'); if (h0 && h0.classList.contains('on')) gdEnter(ctx, h0); }).catch(() => { });
+      gdStats(ctx); gdEqSet(ctx, 0); gdSkPaint(ctx);
+      Promise.all([loadCareers(), cmFetch()]).then(() => { if (ctx.dead) return; gdStats(ctx); gdMapInit(ctx); gdSkPaint(ctx); const h0 = root.querySelector('#gd-c0'); if (h0 && h0.classList.contains('on')) gdEnter(ctx, h0); }).catch(() => { });
     }
     function guideStop() {
       const c = gdCtx; if (!c) return; gdCtx = null; c.dead = true;
-      if (c.io) c.io.disconnect(); if (c.raf) cancelAnimationFrame(c.raf); if (c.eco) cancelAnimationFrame(c.eco);
+      if (c.io) c.io.disconnect(); if (c.raf) cancelAnimationFrame(c.raf); if (c.eco) cancelAnimationFrame(c.eco); gdEqStop(c); gdSkStop(c);
       c.timers.forEach(clearTimeout); gdMapStop(c); (c.sc || window).removeEventListener('scroll', c.h);
       c.extra.forEach(e => e.remove()); c.root.innerHTML = ''; if (c.onStop) c.onStop();
     }
