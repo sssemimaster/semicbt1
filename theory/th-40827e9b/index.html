@@ -1448,6 +1448,11 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
 /* (공통) 문제·면접 설정의 과목 고르기: 항상 한 줄에 2개, '전체 과목'은 맨 위 한 줄을 다 쓴다 */
 #subjectChips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 #subjectChips > :first-child { grid-column: 1 / -1; }
+/* 사업자 정보: 모바일에서는 접어 두고, 펼치면 한 줄씩 보여 준다. 데스크톱에서는 항상 펼쳐 둔다 */
+.biz-sum { list-style: none; display: inline-flex; align-items: center; gap: .3rem; } .biz-sum::-webkit-details-marker { display: none; }
+.biz-sum::after { content: '▾'; font-size: 10px; transition: transform .2s; } #bizBox[open] .biz-sum::after { transform: rotate(180deg); }
+@media (max-width: 767px) { #bizBox { padding-bottom: .9rem; } #bizInfo span.inline-block { display: block; margin: 0 0 .15rem; } }
+@media (min-width: 768px) { .biz-sum { display: none; } #bizBox > #bizInfo { margin-top: 0; } }
 @media (max-width: 767px) {
   body { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
   body[data-view="view-quiz"], body[data-view="view-interview"], body[data-view="view-exam"] { padding-bottom: 0; }
@@ -1832,9 +1837,8 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
       <!-- 인사 + 오늘 요약 -->
       <section class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <p id="homeDate" class="eyebrow mb-2"></p>
-          <h2 class="text-[26px] sm:text-[30px] font-bold tracking-[-.03em] text-slate-900 dark:text-white leading-tight" style="text-wrap:balance;word-break:keep-all"><span class="text-indigo-600 dark:text-cyan-300">하루 5분,</span> 오늘의 학습을 웨이퍼에 새겨보세요</h2>
-          <p id="homeSummary" class="mt-2 text-sm text-slate-500 dark:text-slate-400">평범한 학생이 공부하려고 만든 반도체 학습 공간</p>
+          <h2 class="text-[26px] sm:text-[30px] font-bold tracking-[-.03em] text-slate-900 dark:text-white leading-tight" style="text-wrap:balance;word-break:keep-all"><span class="text-indigo-600 dark:text-cyan-300">오늘의 학습을</span> 웨이퍼에 새겨보세요</h2>
+          <p id="homeSummary" class="mt-2 text-sm text-slate-500 dark:text-slate-400">우리만의 반도체 학습공간</p>
         </div>
         <button onclick="navTo('view-search')" class="flex items-center gap-2.5 w-full sm:w-72 px-4 h-11 rounded-xl bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 text-sm text-slate-400 hover:border-indigo-400 dark:hover:border-cyan-300/60 transition text-left">🔍 <span>이론 · 문제 · 면접 검색</span></button>
       </section>
@@ -2413,7 +2417,7 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
       <div><div class="font-bold text-slate-800 dark:text-white">반도체 <span class="text-indigo-600 dark:text-cyan-300">새김</span></div><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">오늘의 배움을 새기다 · LEARN · RECORD · EVOLVE</p><button type="button" onclick="guideOpen()" class="mt-2 text-xs font-bold text-indigo-600 dark:text-cyan-300 hover:underline">사이트 가이드</button></div>
       <p class="text-xs text-slate-400 dark:text-slate-500 sm:max-w-sm sm:text-right leading-relaxed">AI가 생성한 문제와 이론은 검수 후 게시돼요. 오류를 발견하면 문제 풀이 중 🚨 제보를 눌러 알려 주세요.<br><a id="theoryHubLink" href="../../theory/" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">이론 전체 목록 보기</a> · <a id="privacyFooterLink" href="../../privacy.html" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">개인정보 처리방침</a> · <a id="termsFooterLink" href="terms.html" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">이용약관</a> · <a id="refundFooterLink" href="refund.html" class="underline underline-offset-2 hover:text-slate-600 dark:hover:text-slate-300">환불정책</a></p>
     </div>
-    <div id="bizInfo" class="max-w-6xl mx-auto px-4 sm:px-6 pb-8 -mt-3 text-[11px] leading-relaxed text-slate-400 dark:text-slate-500"></div>
+    <details id="bizBox" class="max-w-6xl mx-auto px-4 sm:px-6 pb-8 -mt-3 text-[11px] leading-relaxed text-slate-400 dark:text-slate-500"><summary class="biz-sum cursor-pointer select-none font-bold">사업자 정보</summary><div id="bizInfo" class="mt-1.5"></div></details>
   </footer>
 
   <!-- 📱 모바일 하단 탭 바 (767px 이하에서만 보임) -->
