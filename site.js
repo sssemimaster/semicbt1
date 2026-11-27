@@ -436,6 +436,7 @@
       sc.onload = () => {
         const B = window.BIZ, box = document.getElementById('bizInfo'); if (!B || !box) return;
         const it = (k, v) => v ? `<span class="inline-block mr-3"><span>${k}</span> <span data-noi18n>${escH(v)}</span></span>` : '';
+        const bb = document.getElementById('bizBox'); if (bb && matchMedia('(min-width:768px)').matches) bb.open = true;
         box.innerHTML = it('상호', B.name) + it('대표', B.rep) + it('사업자등록번호', B.regNo) + it('통신판매업 신고', B.mailOrderNo) + it('주소', B.address) + it('전화', B.tel) + it('문의', B.email) + it('호스팅', B.host);
       };
       document.head.appendChild(sc);
@@ -17388,8 +17389,6 @@
     }
     function renderHome() {
       const el = (id) => document.getElementById(id); if (!el('homeSubjects')) return;
-      const now = new Date(), wd = ['일', '월', '화', '수', '목', '금', '토'][now.getDay()];
-      el('homeDate').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${wd}요일`;
       const T = stats.total, pct = T.t ? Math.round(T.r / T.t * 100) : 0, wc = allQuizData.filter(q => wrongNotes[q.id]).length, t = todayData();
       const nd = el('homeNoteDesc'); if (nd && !nd.dataset.def) nd.dataset.def = nd.textContent;
       if (nd) nd.textContent = wc ? `복습할 오답 ${wc}문제가 기다리고 있어요` : nd.dataset.def;
