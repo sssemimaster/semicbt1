@@ -18241,7 +18241,7 @@
       guideStop(); opt = opt || {};
       root.innerHTML = guideHTML();
       const sc = opt.scroller || null, host = opt.host || document.body;
-      const ctx = gdCtx = { root, sc, host, timers: [], raf: 0, eco: 0, mapT: 0, io: null, dead: false, extra: [], onLeave: opt.onLeave || null };
+      const ctx = gdCtx = { root, sc, host, timers: [], raf: 0, eco: 0, mapT: 0, io: null, dead: false, extra: [], onLeave: opt.onLeave || null, onStop: opt.onStop || null };
       const bar = document.createElement('div'); bar.className = 'gd-bar'; bar.setAttribute('aria-hidden', 'true');
       const rail = document.createElement('nav'); rail.className = 'gd-rail'; rail.setAttribute('aria-label', '가이드 목차');
       rail.innerHTML = GD_CH.map((n, i) => `<button type="button" onclick="guideGo(${i})" aria-label="${n}"><i></i><span>${n}</span></button>`).join('');
@@ -18273,14 +18273,49 @@
       const c = gdCtx; if (!c) return; gdCtx = null; c.dead = true;
       if (c.io) c.io.disconnect(); if (c.raf) cancelAnimationFrame(c.raf); if (c.eco) cancelAnimationFrame(c.eco);
       c.timers.forEach(clearTimeout); gdMapStop(c); (c.sc || window).removeEventListener('scroll', c.h);
-      c.extra.forEach(e => e.remove()); c.root.innerHTML = '';
+      c.extra.forEach(e => e.remove()); c.root.innerHTML = ''; if (c.onStop) c.onStop();
     }
     function guideGo(i) { const ch = document.getElementById('gd-c' + i); if (ch) ch.scrollIntoView({ behavior: gdReduce() ? 'auto' : 'smooth', block: 'start' }); }
     // 가이드 안의 모든 버튼이 지나가는 곳. 온보딩 팝업이면 먼저 팝업을 닫는다.
     function gdDo(a) {
-      const c = gdCtx; if (c && c.onLeave) c.onLeave();
+      const c = gdCtx; if (c && c.onLeave) { c.onLeave(); const m = document.getElementById('onbM'); if (m) { m.style.display = 'none'; document.body.style.overflow = ''; } }
       if (a.indexOf('jx:') === 0) return jxOpen(a.slice(3));
       ({ theory: () => navTo('view-learning', { level: 'home' }), glossary: () => glOpenView(), quiz: () => openSetup('quiz'), interview: () => openSetup('interview'), note: () => navTo('view-note'), course: () => ptOpen(), flow: () => fjOpen(), earn: () => earnOpen(), fab: () => fabOpen(), equip: () => navTo('view-equip'), careers: () => navTo('view-careers'), experience: () => navTo('view-experience'), home: () => navTo('view-lobby') }[a] || (() => { }))();
+    }
+
+    // =====================================================
+    // 🚪 첫 화면 온보딩: 가이드와 같은 내용을 풀스크린 팝업으로 보여 준다.
+    //  - 홈에서만, 한 번 닫으면 그 탭(세션)에서는 다시 안 뜬다. '다시 보지 않기'를 체크하고 닫으면 이 기기에서 더 안 뜬다.
+    //  - 닫은 뒤에는 메뉴·푸터·홈의 '사이트 가이드'에서 언제든 다시 열 수 있다 (guideOpen).
+    // =====================================================
+    const ONB_KEY = 'semiCbtOnboard', ONB_SES = 'semiCbtOnboardS';
+    function onbMaybe() {
+      try {
+        if (localStorage.getItem(ONB_KEY) === '1' || sessionStorage.getItem(ONB_SES) === '1') return;
+        if (/bot|crawl|spider|lighthouse|headless/i.test(navigator.userAgent)) return;
+      } catch (e) { }
+      if (currentViewId !== 'view-lobby' || document.getElementById('onbM') || document.getElementById('payM') || document.getElementById('earnM')) return;
+      onbOpen();
+    }
+    function onbOpen() {
+      if (document.getElementById('onbM')) return;
+      const m = document.createElement('div'); m.id = 'onbM'; m.className = 'onb'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', '사이트 가이드');
+      m.innerHTML = `<div class="onb-top"><span class="onb-brand"><span>반도체</span> <b>새김</b></span><button type="button" class="onb-x" aria-label="닫기" onclick="onbClose()">✕</button></div><div class="onb-sc" id="onbSc"><div class="onb-in" id="onbRoot"></div></div><div class="onb-ft"><label class="onb-ck"><input type="checkbox" id="onbNo"><i aria-hidden="true"></i><span>다시 보지 않기</span></label><button type="button" class="gd-btn" onclick="onbClose()">시작하기</button></div>`;
+      document.body.appendChild(m); document.body.style.overflow = 'hidden'; m._focus = document.activeElement;
+      guideMount(document.getElementById('onbRoot'), { scroller: document.getElementById('onbSc'), host: m, onLeave: onbClose, onStop: onbRemove });
+      const x = m.querySelector('.onb-x'); if (x) x.focus({ preventScroll: true });
+      document.addEventListener('keydown', onbKey);
+    }
+    function onbKey(e) { if (e.key === 'Escape' && document.getElementById('onbM')) { e.stopPropagation(); onbClose(); } }
+    function onbRemove() {
+      const m = document.getElementById('onbM'); document.removeEventListener('keydown', onbKey); if (!m) return;
+      document.body.style.overflow = ''; const f = m._focus; m.remove(); try { f && f.focus && f.focus({ preventScroll: true }); } catch (e) { }
+    }
+    function onbClose() {
+      const m = document.getElementById('onbM'); if (!m) return;
+      const no = document.getElementById('onbNo');
+      try { if (no && no.checked) localStorage.setItem(ONB_KEY, '1'); sessionStorage.setItem(ONB_SES, '1'); localStorage.setItem('semiCbtIntroSeen', '1'); } catch (e) { }
+      m.classList.add('out'); setTimeout(() => { if (gdCtx && gdCtx.root && gdCtx.root.id === 'onbRoot') guideStop(); else onbRemove(); }, gdReduce() ? 0 : 220);
     }
     function ptOpen() { navTo('view-path'); }
     function enterPath() {
@@ -18514,4 +18549,5 @@
     document.getElementById('view-subjects').classList.add('max-w-4xl', 'mx-auto');
     renderResumeBanner(); updateHeaderChip();
     initApp();
+    setTimeout(onbMaybe, 1500);   // 첫 화면 온보딩 팝업
   
