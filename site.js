@@ -809,7 +809,7 @@
       ly = y;
     }, { passive: true }); })();
     function applyState(viewId, state) {
-      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-fab', 'view-lab', 'view-experience', 'view-equip', 'view-glossary', 'view-path', 'view-subjects'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-fab', 'view-lab', 'view-experience', 'view-equip', 'view-jx-field', 'view-jx-design', 'view-jx-run', 'view-glossary', 'view-path', 'view-subjects'].forEach(id => document.getElementById(id).classList.add('hidden'));
       const vEl = document.getElementById(viewId); vEl.classList.remove('hidden'); currentViewId = viewId; vEl.classList.remove('view-enter'); void vEl.offsetWidth; vEl.classList.add('view-enter');
       if (viewId !== 'view-exam') stopExamTimer();
       if (viewId !== 'view-learning') returnCtx = null;
@@ -820,6 +820,9 @@
       if (viewId !== 'view-fab') fabStop();
       if (viewId === 'view-fab') enterFab();
       if (viewId !== 'view-lab') labStop();
+      if (viewId !== 'view-jx-run') jxStop();
+      if (viewId === 'view-jx-run') enterJx(state);
+      if (viewId === 'view-jx-field' || viewId === 'view-jx-design') jxMarkProgress();
       if (!(viewId === 'view-lab' || (viewId === 'view-learning' && state && state.level === 'detail'))) { pmGateId = null; pmGateClose(); }   // 유료 화면을 떠나면 해금 팝업도 닫는다
       if (viewId === 'view-lab') enterLab();
       if (viewId === 'view-flow') enterFlow();
@@ -17373,7 +17376,7 @@
     }
     idle(acctInit, 3000);
     function updateNav() {
-      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'home', 'view-equip': 'home', 'view-fab': 'home', 'view-lab': 'home', 'view-glossary': 'glossary', 'view-path': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
+      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'home', 'view-equip': 'home', 'view-jx-field': 'home', 'view-jx-design': 'home', 'view-jx-run': 'home', 'view-fab': 'home', 'view-lab': 'home', 'view-glossary': 'glossary', 'view-path': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
       document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === map[v] || (v === 'view-glossary' && b.classList.contains('mt-btn') && b.dataset.nav === 'theory')));
       document.body.dataset.view = v; document.body.dataset.lvl = learnState.level;   // 모바일 화면 조정용 (하단 탭 숨김, 이론 머리글 숨김)
     }
@@ -17859,6 +17862,32 @@
       const ld = (src) => new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = () => no(new Error(src)); document.head.appendChild(sc); });
       fabLoading = ld('vendor/three.min.js').then(() => ld('fab3d.js')).catch((e) => { fabLoading = null; throw e; });
       return fabLoading;
+    }
+    // ===== 🎮 직무 체험(현장·설계): 화면을 처음 열 때만 jx.js 를 불러온다 =====
+    // 체험 4가지(알람 콘솔·SPC 운영실·파형 디버거·타이밍 ECO)는 #view-jx-run 한 화면을 함께 쓴다.
+    const JX_FIELD = ['alarm', 'spc'], JX_DESIGN = ['wave', 'eco'];
+    let jxLoading = null;
+    function jxLoad() {
+      if (window.JX) return Promise.resolve();
+      if (jxLoading) return jxLoading;
+      jxLoading = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'jx.js?v=1'; sc.onload = ok; sc.onerror = () => no(new Error('jx.js')); document.head.appendChild(sc); }).catch((e) => { jxLoading = null; throw e; });
+      return jxLoading;
+    }
+    function jxOpen(id) { navTo('view-jx-run', { jx: id }); }
+    function enterJx(state) {
+      const root = document.getElementById('jxRoot'), id = (state && state.jx) || learnState.jx;
+      if (!window.JX) root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오는 중…')) + '</div>';
+      jxLoad().then(() => { if (currentViewId === 'view-jx-run') window.JX.start(id, root, { T, esc: escH, back: () => goBack(), open: jxOpen, field: JX_FIELD, design: JX_DESIGN }); })
+        .catch(() => { root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.')) + '</div>'; });
+    }
+    function jxStop() { if (window.JX) window.JX.stop(); }
+    // 목록 카드에 마지막 점수 표시 (기록은 이 기기에만 저장돼요)
+    function jxMarkProgress() {
+      document.querySelectorAll('.jx-prog').forEach((el) => {
+        let r = null; try { r = JSON.parse(localStorage.getItem('semiJx_' + el.dataset.jx) || 'null'); } catch (e) {}
+        el.textContent = r && r.best != null ? T('최고 기록 ' + r.best + (r.unit || '')) : '';
+        el.style.display = el.textContent ? '' : 'none';
+      });
     }
     function fabOpen() { navTo('view-fab'); }
     function enterFab() {
