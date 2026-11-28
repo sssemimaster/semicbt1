@@ -59,7 +59,7 @@
       "반도체 소자": ["트랜지스터 소자", "메모리 반도체"],
       "반도체 8대 공정": ["1. 웨이퍼 제조 공정", "2. 산화 공정 (Oxidation)", "3. 포토 공정 (Photo)", "4. 식각 공정 (Etching)", "5. 박막 증착 공정 (Deposition)", "6. 금속 배선 공정 (Metallization)", "7. EDS 공정 (Testing)", "8. 패키징 공정 (Packaging)", "9. 공정 통합 (Integration)"],
       "차세대 첨단 기술": ["차세대 소자 기술", "어드밴스드 패키징"],
-      [ADV_CAT]: ["장비 사용", "현장 직무", "설계 직무"]
+      [ADV_CAT]: ["장비 사용", "현장 직무", "분석·품질 직무", "설계 직무"]
     };
     const FIXED_SUBJECTS = Object.values(CATEGORY_TREE).flat().concat(["일반"]);
     
@@ -540,7 +540,7 @@
           <button type="button" class="pay-open" onclick="payOpen()">${TK()} 토큰 충전하기</button></div>
         <p class="earn-free">${ico('unlock')}<span><b>무료 맛보기</b> · 플라즈마 식각(RIE) 이론과 식각 장비 체험은 토큰 없이, 로그인만 하면 바로 볼 수 있어요</span></p>
         <div class="pay-sec"><span class="pmg-tick"><i></i>PRICE</span></div>
-        <ul class="earn-price"><li><span>심화 이론 1편</span><b>${TK()}${PRICE_HINT.theory}</b></li><li><span>장비 체험 1개</span><b>${TK()}${PRICE_HINT.lab}</b></li><li><span>이론 + 장비 묶음</span><b>${TK()}${PRICE_HINT.bundle}</b></li></ul>
+        <ul class="earn-price"><li><span>심화 이론 1편</span><b>${TK()}${PRICE_HINT.theory}</b></li><li><span>장비 체험 1개</span><b>${TK()}${PRICE_HINT.lab}</b></li><li><span>직무 체험 1개</span><b>${TK()}${PRICE_HINT.jx}</b></li><li><span>이론 + 체험 묶음</span><b>${TK()}${PRICE_HINT.bundle}</b></li></ul>
         <div class="pay-sec"><span class="pmg-tick"><i></i>GOOD TO KNOW</span></div>
         <ul class="pmg-pts pay-pts"><li>해금은 한 번이면 <b>계정에 영구</b> 적용돼요</li><li>무료 토큰은 <b>최대 30개</b>까지 모을 수 있어요. 가득 차면 출석 보상이 그만큼만 들어와요</li><li>토큰을 쓸 때는 <b>무료 토큰이 먼저</b> 쓰여요</li><li>무료 토큰은 환불 대상이 아니고, <b>해금에 쓴 토큰은 환불되지 않아요</b></li></ul>
         ${in_ ? '' : '<button type="button" class="pmg-cta" onclick="earnClose();openAcct()">구글 로그인하고 시작하기</button>'}</div>`;
@@ -811,7 +811,7 @@
       ly = y;
     }, { passive: true }); })();
     function applyState(viewId, state) {
-      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-lab', 'view-experience', 'view-equip', 'view-jx-field', 'view-jx-design', 'view-jx-run', 'view-glossary', 'view-path', 'view-subjects', 'view-guide'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['view-lobby', 'view-setup', 'view-quiz', 'view-interview', 'view-learning', 'view-note', 'view-result', 'view-exam', 'view-search', 'view-careers', 'view-flow', 'view-lab', 'view-experience', 'view-equip', 'view-jx-field', 'view-jx-quality', 'view-jx-design', 'view-jx-run', 'view-glossary', 'view-path', 'view-subjects', 'view-guide'].forEach(id => document.getElementById(id).classList.add('hidden'));
       const vEl = document.getElementById(viewId); vEl.classList.remove('hidden'); currentViewId = viewId; vEl.classList.remove('view-enter'); void vEl.offsetWidth; vEl.classList.add('view-enter');
       if (viewId !== 'view-exam') stopExamTimer();
       if (viewId !== 'view-learning') returnCtx = null;
@@ -822,7 +822,7 @@
       if (viewId !== 'view-lab') labStop();
       if (viewId !== 'view-jx-run') jxStop();
       if (viewId === 'view-jx-run') enterJx(state);
-      if (viewId === 'view-jx-field' || viewId === 'view-jx-design') jxMarkProgress();
+      if (viewId === 'view-jx-field' || viewId === 'view-jx-quality' || viewId === 'view-jx-design') jxMarkProgress();
       if (!(viewId === 'view-lab' || (viewId === 'view-learning' && state && state.level === 'detail'))) { pmGateId = null; pmGateClose(); }   // 유료 화면을 떠나면 해금 팝업도 닫는다
       if (viewId === 'view-lab') enterLab();
       if (viewId === 'view-flow') enterFlow();
@@ -848,7 +848,7 @@
       if (CATEGORY_TREE[ADV_CAT] || nAdv) {   // 심화 이론: 어두운 기술 문서 테마의 넓은 카드
         const btn = document.createElement('button');
         btn.className = 'adv-folder'; btn.onclick = () => navTo('view-learning', { level: 'category', category: ADV_CAT });
-        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(ADV_CAT)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅 · 현장 직무 · 설계 직무. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${nAdv}편 →</span>`;
+        btn.innerHTML = `<span class="adv-folder-ic" aria-hidden="true">⚙</span><div class="min-w-0 flex-1"><span class="adv-tick"><i></i>ADVANCED<span class="pm-lk">${ico('lock')} 토큰 해금</span></span><h3>${escH(ADV_CAT)}</h3><p>장비 사용 · 레시피 설정 · 트러블슈팅 · 현장 직무 · 분석·품질 직무 · 설계 직무. 장비 체험에 들어가기 전에 읽는 현장 가이드예요.</p></div><span class="adv-folder-n">${nAdv}편 →</span>`;
         container.appendChild(btn);
       }
       container.insertAdjacentHTML('beforeend', `<button onclick="fjOpen()" class="col-span-full group bg-white dark:bg-[#0f1729] border border-dashed border-slate-300 dark:border-white/15 hover:border-indigo-400 dark:hover:border-[#67e8f9] px-5 py-4 rounded-2xl text-left transition flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400"><span class="text-xl">🧭</span><span class="min-w-0"><b class="text-slate-800 dark:text-slate-100">처음이세요?</b> 모래에서 칩이 되기까지 8단계 여정을 따라가 봐요</span><span class="ml-auto font-bold text-indigo-600 dark:text-cyan-300 shrink-0">여정 보기 →</span></button>`);
@@ -947,13 +947,9 @@
         ['m', '진공과 펌프 기초', '저진공에서 고진공까지 펌프가 맡는 구간'],
         ['m', '가스 · 유량(MFC) · RF 파워 기초', '공정 조건을 만드는 세 가지 손잡이'],
         ['m', '예방정비(PM)와 누설 점검', 'PM이 하는 일과 누설을 찾는 순서']] },
-      { t: '품질과 수율', d: '이상을 알아채고 원인을 좁히는 방법', items: [
-        ['d', 'SPC 관리도 읽기', '관리 한계와 쏠림 판정, 직접 판단해 보는 연습'],
-        ['m', 'FDC와 OCAP', '설비 데이터가 경고하는 방식과 대응 절차'],
-        ['d', '알람 대응 시나리오', '알람이 뜬 상황에서 확인 순서를 고르는 연습'],
-        ['m', '5-Why와 불량 보고서', '원인을 파고드는 질문법과 보고서 구성'],
-        ['d', '수율과 결함 밀도', '수율 모델과 결함이 수율을 깎는 방식']] }];
-    const FLD_PARTS = [{ t: '현장 기본기', from: 0, to: 3 }, { t: '설비와 품질', from: 3, to: 5 }];
+      { t: '이상 대응하기', d: '알람이 울린 순간의 확인 순서와 알리는 방법', items: [
+        ['d', '알람 대응 시나리오', '알람이 뜬 상황에서 확인 순서를 고르는 연습']] }];
+    const FLD_PARTS = [{ t: '현장 기본기', from: 0, to: 3 }, { t: '설비와 대응', from: 3, to: 5 }];
     // 심화 이론 > 설계 직무: 현장 직무와 같은 구조·같은 디자인에 보라색 테마(.fd-v)만 입혔다. 칩이 스펙에서 웨이퍼로 가는 순서대로 묶는다
     const DSN_SUB = '설계 직무';
     const DSN_MAP = [
@@ -990,9 +986,27 @@
       { t: '양산으로 넘기기', d: '테이프아웃 뒤에 일어나는 일', items: [
         ['m', '테이프아웃에서 포스트 실리콘 디버그까지', '칩이 돌아온 뒤 확인하고 고치는 순서']] }];
     const DSN_PARTS = [{ t: '설계 기본기', from: 0, to: 2 }, { t: '디지털 설계와 검증', from: 2, to: 4 }, { t: '물리설계와 공정 접점', from: 4, to: 7 }, { t: '아날로그와 메모리', from: 7, to: 9 }, { t: '테스트와 출하', from: 9, to: 11 }];
+    // 심화 이론 > 분석·품질 직무: 이상을 알아채고(SPC·FDC) 수율에서 확인하고 원인을 밝혀(불량 분석) 재발을 막는(5-Why) 순서로 묶었다. 청록 테마(.fd-t)
+    const QA_SUB = '분석·품질 직무';
+    const QA_MAP = [
+      { t: '분석·품질 들어서기', d: '분석·품질 직무가 하는 일과 쓰는 말', items: [
+        ['l', '반도체 분석·품질 직무 한눈에 보기', '수율 · 품질 · 불량 분석 · 신뢰성이 각각 하는 일'],
+        ['l', '품질 용어와 지표 (Cpk · DPPM · Excursion)', '품질 대화에 나오는 말을 한 번에 정리']] },
+      { t: '이상 알아채기', d: '평소와 다른 점을 숫자로 먼저 잡는 방법', items: [
+        ['d', 'SPC 관리도 읽기', '관리 한계와 쏠림 판정, 직접 판단해 보는 연습'],
+        ['m', 'FDC와 OCAP', '설비 데이터가 경고하는 방식과 대응 절차']] },
+      { t: '수율 읽기', d: '어디서 얼마나 잃었는지 숫자와 맵으로 보는 방법', items: [
+        ['d', '수율과 결함 밀도', '수율 모델과 결함이 수율을 깎는 방식']] },
+      { t: '원인 찾기', d: '불량 칩을 들여다보고 원인을 밝혀 기록하는 방법', items: [
+        ['d', '불량 분석: 맵에서 단면까지', '맵에서 SEM · FIB · EDS로 좁혀 들어가는 순서'],
+        ['m', '5-Why와 불량 보고서', '원인을 파고드는 질문법과 보고서 구성']] },
+      { t: '오래 써도 괜찮은지', d: '시간이 지나면서 생기는 열화를 미리 확인하는 방법', items: [
+        ['m', '신뢰성 시험과 열화 (BTI · HCI · TDDB)', '가속 시험으로 수명을 미리 확인하는 방법']] }];
+    const QA_PARTS = [{ t: '품질 기본기', from: 0, to: 2 }, { t: '수율과 원인 분석', from: 2, to: 4 }, { t: '신뢰성', from: 4, to: 5 }];
     // 직무 폴더마다 다른 것만 모아 둔다 (지도 · 부 구분 · 테마 · 문구). 그리는 코드는 모두 같다
     const JOB_CFG = {
-      [FLD_SUB]: { map: FLD_MAP, parts: FLD_PARTS, cls: 'fd-o', tick: 'ON SITE · FIELD GUIDE', flow: '현장의 하루 흐름 순서대로 읽어 보세요', intro: '생산 · 설비 현장에서 바로 쓰는 지식을 출근부터 퇴근까지의 하루 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 현장 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.', folder: '안전 · 생산 용어 · 설비 · 품질까지, 현장의 하루 흐름 순서로 담았어요.' },
+      [FLD_SUB]: { map: FLD_MAP, parts: FLD_PARTS, cls: 'fd-o', tick: 'ON SITE · FIELD GUIDE', flow: '현장의 하루 흐름 순서대로 읽어 보세요', intro: '생산 · 설비 현장에서 바로 쓰는 지식을 출근부터 퇴근까지의 하루 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 현장 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.', folder: '안전 · 생산 용어 · 설비 · 알람 대응까지, 현장의 하루 흐름 순서로 담았어요.' },
+      [QA_SUB]: { map: QA_MAP, parts: QA_PARTS, cls: 'fd-t', tick: 'QUALITY · ANALYSIS GUIDE', flow: '이상을 알아채고 원인을 밝히는 순서대로 읽어 보세요', intro: '수율 · 품질 · 불량 분석에서 쓰는 지식을 이상 신호에서 재발 방지까지의 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 분석·품질 직무 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.', folder: '이상 신호 · 수율 · 불량 분석 · 재발 방지까지, 원인을 찾는 순서대로 담았어요.' },
       [DSN_SUB]: { map: DSN_MAP, parts: DSN_PARTS, cls: 'fd-v', tick: 'DESIGN · CHIP GUIDE', flow: '칩이 만들어지는 설계 흐름 순서대로 읽어 보세요', intro: '칩 설계에서 쓰는 지식을 스펙에서 테이프아웃까지의 흐름 순서로 묶었어요. 위에서부터 차례대로 읽으면 설계 직무 면접과 입사 첫 달에 필요한 말과 판단 기준이 잡혀요.', folder: '설계 흐름 · 디지털 · 검증 · 물리설계 · 아날로그 · 테스트까지, 설계 순서대로 담았어요.' }
     };
     const jobTotal = (sub) => JOB_CFG[sub].map.reduce((a, g) => a + g.items.length, 0);
@@ -11884,6 +11898,32 @@
           }
         },
 
+        // ---------- 분석·품질 직무의 고리 (분석·품질 직무 한눈에 보기 글) ----------
+        'qa-loop': {
+          title: '분석·품질 직무의 일은 고리처럼 돈다',
+          wide: true,
+          states: [
+            { id: 'all', label: '전체 보기', desc: '이상을 알아채고, 수율로 확인하고, 원인을 밝히고, 재발을 막는다. 마지막 단계가 끝나면 다시 첫 단계로 돌아가 같은 일이 되풀이되지 않는지 지켜본다.' },
+            { id: 'detect', label: '이상 알아채기', focus: ['detect'], desc: '관리도(SPC)와 설비 데이터(FDC)에서 평소와 다른 신호를 먼저 잡는다. 불량이 늘기 전에 알아챌수록 잃는 웨이퍼가 줄어든다.' },
+            { id: 'yield', label: '수율로 확인하기', focus: ['yield'], desc: '이상이 실제 수율 손실로 이어졌는지 웨이퍼 맵과 결함 밀도로 확인한다. 어느 로트, 어느 자리에서 잃었는지 범위를 좁히는 단계다.' },
+            { id: 'cause', label: '원인 밝히기', focus: ['cause'], desc: '불량 칩의 자리를 골라 SEM, FIB, EDS로 안을 들여다본다. 무엇이 어디에서 망가졌는지를 눈으로 확인하는 단계다.' },
+            { id: 'prevent', label: '재발 막기', focus: ['prevent'], desc: '5-Why로 근본 원인까지 내려가 보고서로 남기고, 관리도와 절차를 고쳐 같은 일이 다시 생기지 않게 한다. 고친 뒤에는 첫 단계로 돌아가 지켜본다.' },
+          ],
+          svg(s) {
+            const f = s.focus || null;
+            let o = fdDefs();
+            const N = [['detect', '① 이상 알아채기', 'SPC · FDC', 30, 30, C.eq], ['yield', '② 수율로 확인하기', '수율 · 웨이퍼 맵', 260, 30, C.op], ['cause', '③ 원인 밝히기', 'SEM · FIB · EDS', 260, 176, C.pr], ['prevent', '④ 재발 막기', '5-Why · 보고서', 30, 176, '#a78bfa']];
+            const ah = (x, y, dx, dy) => `<path d="M${x} ${y} l${-dx * 7 - dy * 4.5} ${-dy * 7 + dx * 4.5} M${x} ${y} l${-dx * 7 + dy * 4.5} ${-dy * 7 - dx * 4.5}" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-opacity:.75;stroke-linecap:round"/>`;
+            const ar = (d, x, y, dx, dy, id) => pvdG(f, [id], pvdL(d, { sw: 1.8, so: .75 }) + ah(x, y, dx, dy));
+            o += ar('M182 58 H258', 258, 58, 1, 0, 'detect') + ar('M335 88 V174', 335, 174, 0, 1, 'yield') + ar('M258 204 H182', 182, 204, -1, 0, 'cause') + ar('M105 174 V88', 105, 88, 0, -1, 'prevent');
+            N.forEach(([id, nm, sub, x, y, col]) => {
+              o += pvdG(f, [id], fdRect(x, y, 150, 56, { rx: 9, fill: col + '33', c: col, so: .95, sw: 1.4 }) + fdTxM(x + 75, y + 25, nm, { s: 11.5, w: 800 }) + fdTxM(x + 75, y + 43, sub, { s: 9, c: col, w: 800 }));
+            });
+            o += fdTxM(220, 126, '다시 처음으로', { s: 10, w: 800, c: AC }) + fdTxM(220, 142, '고리처럼 계속 돈다', { s: 9, op: .85 });
+            return dgSvg('분석·품질 직무의 고리: ' + s.label, o, '0 0 440 262');
+          }
+        },
+
         // ---------- 수율 램프 ----------
         'fld-yld-ramp': {
           title: '새 공정의 수율은 몇 분기에 걸쳐 오른다',
@@ -17725,7 +17765,7 @@
       if (PRM.busy || document.getElementById('pmc')) return;
       const bd = (PRM.bundles || []).find((b) => b.id === id), isLab = String(id).indexOf('lab-') === 0, isJx = String(id).indexOf('jx-') === 0;
       const price = bd ? bd.price : pmPrice(id, isLab ? 'lab' : isJx ? 'jx' : 'theory');
-      const name = bd ? '이론 + 장비 체험 번들' : isJx ? ((JX_META[id] || {}).t || '직무 체험') : isLab ? ((LABS[id.slice(4)] || {}).title || '장비 체험') : ((allTheories.find((x) => x.id === id) || {}).title || '이 글');
+      const name = bd ? (bd.items.some((x) => String(x).indexOf('jx-') === 0) ? '이론 + 직무 체험 번들' : '이론 + 장비 체험 번들') : isJx ? ((JX_META[id] || {}).t || '직무 체험') : isLab ? ((LABS[id.slice(4)] || {}).title || '장비 체험') : ((allTheories.find((x) => x.id === id) || {}).title || '이 글');
       if (!(await pmConfirm(name, price))) return;
       return premiumUnlockDo(id);
     }
@@ -17751,12 +17791,12 @@
     function bundleOf(id) {
       const bd = (PRM.bundles || []).find((b) => !b.owned && b.items.includes(id)); if (!bd) return null;
       const rest = bd.items.filter((x) => !PRM.unlocked.has(x)); if (rest.length < 2) return null;
-      const sum = rest.reduce((a, x) => a + (String(x).indexOf('lab-') === 0 ? PRICE_HINT.lab : PRICE_HINT.theory), 0);
-      return { id: bd.id, price: bd.price, sum, save: sum - bd.price };
+      const sum = rest.reduce((a, x) => a + (String(x).indexOf('lab-') === 0 ? PRICE_HINT.lab : String(x).indexOf('jx-') === 0 ? PRICE_HINT.jx : PRICE_HINT.theory), 0);
+      return { id: bd.id, price: bd.price, sum, save: sum - bd.price, jx: bd.items.some((x) => String(x).indexOf('jx-') === 0) };
     }
     function bundleBlock(id, have) {
       const bd = bundleOf(id); if (!bd) return '';
-      return `<div class="pm-bundle"><div class="pmb-h">${ico('pack')}<b>이론 + 장비 체험 번들</b><span>${TK()}${bd.price}</span></div>`
+      return `<div class="pm-bundle"><div class="pmb-h">${ico('pack')}<b>${bd.jx ? '이론 + 직무 체험 번들' : '이론 + 장비 체험 번들'}</b><span>${TK()}${bd.price}</span></div>`
         + (bd.save > 0 ? `<small>따로 사면 ${bd.sum}토큰 · <em>${bd.save}토큰 할인</em></small>` : '')
         + (have >= bd.price ? `<button type="button" class="tkb ghost" onclick="premiumUnlock('${bd.id}')">${TK()} ${bd.price}토큰으로 둘 다 해금하기</button>` : `<small class="pm-sub">번들은 토큰이 ${bd.price - have}개 모자라요</small>`) + `</div>`;
     }
@@ -17828,7 +17868,7 @@
       else {
         const bd = bundleOf(id);
         const mk = (cid, label, note, pr, rec) => `<button type="button" class="pmg-of${rec ? ' rec' : ''}"${have >= pr ? '' : ' disabled'} onclick="pmGateUnlock('${cid}')"><span><b>${label}</b><small>${note}</small></span><span class="pr">${TK()}${pr}</span></button>`;
-        const offers = (bd ? mk(bd.id, '이론 + 장비 체험 번들', `<em>${bd.save}토큰 할인</em> · 따로 사면 ${bd.sum}토큰`, bd.price, true) : '')
+        const offers = (bd ? mk(bd.id, bd.jx ? '이론 + 직무 체험 번들' : '이론 + 장비 체험 번들', `<em>${bd.save}토큰 할인</em> · 따로 사면 ${bd.sum}토큰`, bd.price, true) : '')
           + mk(id, kind === 'jx' ? '이 체험만' : kind === 'lab' ? '장비 체험만' : '이 글만', '이 계정에 영구 해금', price, !bd);
         const min = bd ? Math.min(bd.price, price) : price;
         body = `<div class="pmg-offers">${offers}</div>` + (have < min ? `<p class="pmg-warn">토큰이 ${min - have}개 모자라요 · 오늘의 학습 미션을 채워 출석하면 하루 5개씩 받아요 · <button type="button" class="underline" onclick="earnOpen()">토큰 획득법</button></p>` : '')
@@ -17942,7 +17982,7 @@
     }
     idle(acctInit, 3000);
     function updateNav() {
-      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'experience', 'view-equip': 'experience', 'view-jx-field': 'experience', 'view-jx-design': 'experience', 'view-jx-run': 'experience', 'view-lab': 'experience', 'view-glossary': 'glossary', 'view-path': 'home', 'view-guide': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
+      const v = currentViewId, map = { 'view-lobby': 'home', 'view-flow': 'home', 'view-experience': 'experience', 'view-equip': 'experience', 'view-jx-field': 'experience', 'view-jx-quality': 'experience', 'view-jx-design': 'experience', 'view-jx-run': 'experience', 'view-lab': 'experience', 'view-glossary': 'glossary', 'view-path': 'home', 'view-guide': 'home', 'view-subjects': 'subjects', 'view-learning': 'theory', 'view-quiz': 'quiz', 'view-result': 'quiz', 'view-interview': 'interview', 'view-exam': 'quiz', 'view-note': 'note', 'view-careers': 'careers', 'view-setup': currentMode === 'interview' ? 'interview' : (document.getElementById('examToggle') && document.getElementById('examToggle').checked ? 'exam' : 'quiz') };
       document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === map[v] || (v === 'view-glossary' && b.classList.contains('mt-btn') && b.dataset.nav === 'theory')));
       document.body.dataset.view = v; document.body.dataset.lvl = learnState.level;   // 모바일 화면 조정용 (하단 탭 숨김, 이론 머리글 숨김)
     }
@@ -18419,7 +18459,7 @@
     }
     // ===== 🎮 직무 체험(현장·설계): 화면을 처음 열 때만 jx.js 를 불러온다 =====
     // 체험 4가지(알람 콘솔·SPC 운영실·파형 디버거·타이밍 ECO)는 #view-jx-run 한 화면을 함께 쓴다.
-    const JX_FIELD = ['alarm', 'spc', 'wmap'], JX_DESIGN = ['wave', 'eco'];
+    const JX_FIELD = ['alarm'], JX_QUALITY = ['spc', 'wmap'], JX_DESIGN = ['wave', 'eco'];
     // 탭마다 1개(알람 콘솔·파형 디버거)는 무료 맛보기로 jx.js 에 들어 있고, 나머지는 토큰(10)으로 해금한 뒤 서버에서 코드를 받는다
     const JX_PAID = { spc: 'jx-spc', wmap: 'jx-wmap', eco: 'jx-eco' };
     const JX_META = {
@@ -18460,7 +18500,7 @@
       }
       if (!window.JX || (pid && !window.JX.exp[id])) root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오는 중…')) + '</div>';
       jxLoad().then(() => (pid ? jxLoadPaid(id) : null))
-        .then(() => { if (currentViewId === 'view-jx-run') window.JX.start(id, root, { T, esc: escH, back: () => goBack(), open: jxOpen, field: JX_FIELD, design: JX_DESIGN }); })
+        .then(() => { if (currentViewId === 'view-jx-run') window.JX.start(id, root, { T, esc: escH, back: () => goBack(), open: jxOpen, field: JX_FIELD, quality: JX_QUALITY, design: JX_DESIGN }); })
         .catch(fail);
     }
     function jxStop() { if (window.JX) window.JX.stop(); }
@@ -18470,8 +18510,8 @@
     //   글 중간에 특정 장면과 이어 주고 싶으면 본문에 {{try:lab:장비|버튼 글자|설명}} 또는 {{try:jx:체험|버튼 글자|설명}} 한 줄을 쓴다.
     const EXP_JX = {
       alarm: { t: '알람 대응 콘솔', tag: '현장 직무 체험', d: '알람을 읽고 지금 할 행동을 골라요', view: 'field', main: 'TH-56e74739', th: ['TH-56e74739', 'TH-9d9a8089', 'TH-c7188c38', 'TH-23d511ae'] },
-      wmap: { t: '웨이퍼 맵 읽기', tag: '현장 직무 체험', d: '불량 모양을 읽고 의심할 공정을 골라요', view: 'field', main: 'TH-5a3e7f53', th: ['TH-5a3e7f53', 'TH-a7912602', 'TH-72d11656', 'TH-cc0d3a71'] },
-      spc: { t: 'SPC 관리도 운영실', tag: '현장 직무 체험', d: '관리도에서 이상한 점을 잡아 장비를 멈춰요', view: 'field', main: 'TH-d9bed0e1', th: ['TH-d9bed0e1', 'TH-72d11656', 'TH-a7912602', 'TH-c7188c38'] },
+      wmap: { t: '웨이퍼 맵 읽기', tag: '분석·품질 직무 체험', d: '불량 모양을 읽고 의심할 공정을 골라요', view: 'quality', main: 'TH-5a3e7f53', th: ['TH-5a3e7f53', 'TH-a7912602', 'TH-72d11656', 'TH-cc0d3a71'] },
+      spc: { t: 'SPC 관리도 운영실', tag: '분석·품질 직무 체험', d: '관리도에서 이상한 점을 잡아 장비를 멈춰요', view: 'quality', main: 'TH-d9bed0e1', th: ['TH-d9bed0e1', 'TH-72d11656', 'TH-a7912602', 'TH-c7188c38'] },
       wave: { t: '파형 디버거', tag: '설계 직무 체험', d: '파형에서 원인이 시작된 사이클을 찾아요', view: 'design', main: 'TH-37c9d0c1', th: ['TH-37c9d0c1', 'TH-4b96e006', 'TH-0d974c8b', 'TH-71944c8d'] },
       eco: { t: '타이밍 ECO 작업대', tag: '설계 직무 체험', d: '타이밍 위반을 예산 안에서 고쳐요', view: 'design', main: 'TH-270a97fe', th: ['TH-270a97fe', 'TH-0d974c8b', 'TH-cf1ed26d'] }
     };
@@ -18816,7 +18856,7 @@
 <p class="gd-lb gd-rv">장비가 돌아가는 모습</p>
 ${eqHTML}
 <p class="gd-lb gd-rv">직무 체험 4가지</p>
-<div class="gd-jxg">${jx('alarm', '현장 직무', true, '알람 대응 콘솔', '알람을 읽고 지금 할 행동을 골라요', mockAlm)}${jx('spc', '현장 직무', false, 'SPC 관리도 운영실', '관리도에서 이상한 점을 잡아 장비를 멈춰요', mockSpc)}${jx('wave', '설계 직무', true, '파형 디버거', '파형에서 원인이 시작된 사이클을 찾아요', mockWav)}${jx('eco', '설계 직무', false, '타이밍 ECO 작업대', '타이밍 위반을 예산 안에서 고쳐요', mockEco)}</div>
+<div class="gd-jxg">${jx('alarm', '현장 직무', true, '알람 대응 콘솔', '알람을 읽고 지금 할 행동을 골라요', mockAlm)}${jx('spc', '분석·품질 직무', false, 'SPC 관리도 운영실', '관리도에서 이상한 점을 잡아 장비를 멈춰요', mockSpc)}${jx('wave', '설계 직무', true, '파형 디버거', '파형에서 원인이 시작된 사이클을 찾아요', mockWav)}${jx('eco', '설계 직무', false, '타이밍 ECO 작업대', '타이밍 위반을 예산 안에서 고쳐요', mockEco)}</div>
 <div class="gd-bar2 gd-rv" style="--i:2"><div><b>장비를 직접 조작해 봐요</b><span>반도체가 만들어지는 순서대로 장비 11대를 직접 조작해 봐요</span></div><button type="button" class="gd-btn ghost" onclick="gdDo('equip')">공정 장비 체험</button></div></section>
 
 <section class="gd-ch" id="gd-c4"><div class="gd-hd"><p class="gd-k gd-rv">04</p><h2 class="gd-h gd-rv" style="--i:1">내 전공에서 시작하는 직무 지도</h2><p class="gd-p gd-rv" style="--i:2">반도체 직무는 이름만 봐서는 무슨 일인지 알기 어려워요. 일하는 건물과 회사 유형으로 나눠 보고, 내 전공에 맞는 직무도 찾아봐요.</p></div>

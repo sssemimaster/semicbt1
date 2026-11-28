@@ -682,12 +682,14 @@
     .adv-rm > .tk-key { margin: -.55rem 0 0; }
     .tk-key { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .5rem; margin: .35rem 0 0; font-size: .74rem; color: #64748b; }
     html.dark .tk-key { color: #94a3b8; }
-    /* 심화 이론 > 현장 직무 · 설계 직무: 장비 사용 가이드와 같은 도면 디자인에 테마색만 바꾼다 (.fd-o 주황 · .fd-v 보라). 바탕은 도면의 남색/흰색 그대로 둔다 */
+    /* 심화 이론 > 현장 직무 · 설계 직무: 장비 사용 가이드와 같은 도면 디자인에 테마색만 바꾼다 (.fd-o 주황 · .fd-v 보라 · .fd-t 청록). 바탕은 도면의 남색/흰색 그대로 둔다 */
     .adv-rm.fd-o, .adv-hero.fd-o, .adv-doc.fd-o { --adv-am: #ea580c; --adv-cy: #c2410c; --adv-strong: #9a3412; --adv-amt: rgba(234,88,12,.07); --adv-cyt: rgba(234,88,12,.07); --adv-grid: rgba(100,116,139,.07); }
     html.dark .adv-rm.fd-o, html.dark .adv-hero.fd-o, html.dark .adv-doc.fd-o { --adv-am: #fb923c; --adv-cy: #fdba74; --adv-strong: #fdba74; --adv-amt: rgba(251,146,60,.08); --adv-cyt: rgba(251,146,60,.08); --adv-grid: rgba(148,163,184,.05); }
     .adv-rm.fd-v, .adv-hero.fd-v, .adv-doc.fd-v { --adv-am: #7c3aed; --adv-cy: #6d28d9; --adv-strong: #5b21b6; --adv-amt: rgba(124,58,237,.07); --adv-cyt: rgba(124,58,237,.07); --adv-grid: rgba(100,116,139,.07); }
     html.dark .adv-rm.fd-v, html.dark .adv-hero.fd-v, html.dark .adv-doc.fd-v { --adv-am: #a78bfa; --adv-cy: #c4b5fd; --adv-strong: #c4b5fd; --adv-amt: rgba(167,139,250,.08); --adv-cyt: rgba(167,139,250,.08); --adv-grid: rgba(148,163,184,.05); }
-    .fd-o .adv-it.soon, .fd-v .adv-it.soon { opacity: .82; } .fd-o .adv-st.soon .adv-nd, .fd-v .adv-st.soon .adv-nd { color: var(--adv-am); border-color: var(--adv-am); }
+    .adv-rm.fd-t, .adv-hero.fd-t, .adv-doc.fd-t { --adv-am: #0d9488; --adv-cy: #0f766e; --adv-strong: #115e59; --adv-amt: rgba(13,148,136,.07); --adv-cyt: rgba(13,148,136,.07); --adv-grid: rgba(100,116,139,.07); }
+    html.dark .adv-rm.fd-t, html.dark .adv-hero.fd-t, html.dark .adv-doc.fd-t { --adv-am: #2dd4bf; --adv-cy: #5eead4; --adv-strong: #5eead4; --adv-amt: rgba(45,212,191,.08); --adv-cyt: rgba(45,212,191,.08); --adv-grid: rgba(148,163,184,.05); }
+    .fd-o .adv-it.soon, .fd-v .adv-it.soon, .fd-t .adv-it.soon { opacity: .82; } .fd-o .adv-st.soon .adv-nd, .fd-v .adv-st.soon .adv-nd, .fd-t .adv-st.soon .adv-nd { color: var(--adv-am); border-color: var(--adv-am); }
     .fd-tl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
     .fd-tl > div { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'dp tx pr' 'tm tm tm'; align-items: center; gap: .35rem .7rem; padding: .75rem .9rem .6rem; border: 1px solid var(--adv-line); border-radius: 4px; background: var(--adv-panel); }
     .fd-tl .tk-dp { grid-area: dp; } .fd-tl .fd-tn { grid-area: tx; min-width: 0; } .fd-tl .tk-pr { grid-area: pr; } .fd-tl .fd-tm { grid-area: tm; }
@@ -696,7 +698,7 @@
     .fd-tm { padding-top: .4rem; border-top: 1px dashed var(--adv-line); font: 600 .68rem var(--adv-mono); color: var(--adv-dim); }
     .fd-rt { flex: none; font: 600 .7rem var(--adv-mono); color: var(--adv-dim); white-space: nowrap; }
     .fd-sn { flex: none; font: 700 .68rem var(--adv-mono); color: var(--adv-dim); padding: .15rem .45rem; border: 1px dashed var(--adv-line); border-radius: 3px; white-space: nowrap; }
-    @media (max-width: 640px) { .fd-tl { grid-template-columns: 1fr; } .fd-o .adv-it .fd-rt, .fd-o .adv-it .fd-sn, .fd-v .adv-it .fd-rt, .fd-v .adv-it .fd-sn { margin-left: 4.2rem; } .fd-o .adv-it .fd-sn, .fd-v .adv-it .fd-sn { margin-left: auto; } }
+    @media (max-width: 640px) { .fd-tl { grid-template-columns: 1fr; } .fd-o .adv-it .fd-rt, .fd-o .adv-it .fd-sn, .fd-v .adv-it .fd-rt, .fd-v .adv-it .fd-sn, .fd-t .adv-it .fd-rt, .fd-t .adv-it .fd-sn { margin-left: 4.2rem; } .fd-o .adv-it .fd-sn, .fd-v .adv-it .fd-sn, .fd-t .adv-it .fd-sn { margin-left: auto; } }
     .adv-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.3rem 2rem; border-top: 1px solid var(--adv-line); background: linear-gradient(90deg, var(--adv-amt), transparent 70%); }
     .adv-cta b { color: var(--adv-h); font-size: 1.02rem; }
     .adv-cta p { margin: .25rem 0 0; font-size: .86rem; color: var(--adv-dim); word-break: keep-all; }
@@ -1773,7 +1775,7 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
   .ac-tk{display:inline-flex;align-items:center;gap:.4rem} .ac-tk .ic.tk{font-size:1.15rem} .ac-tk small{font-size:11px;font-weight:600;opacity:.7;margin-left:.2rem}
   .pay-open{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;margin-top:.7rem;padding:.72rem;border:1px solid #d97706;border-radius:.8rem;background:rgba(245,185,66,.12);color:#92400e;font-weight:800;font-size:13px;transition:.15s} .pay-open:hover{background:rgba(245,185,66,.22)} html.dark .pay-open{color:#f5b942;border-color:rgba(245,185,66,.5)} .pay-open .ic.tk{font-size:1.2rem}
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "반도체 현장 직무 한눈에 보기", "description": "반도체 회사에는 칩을 설계하고, 팔고, 관리하는 사람 말고도 공장 안에서 칩을 실제로 만들어 내는 조직이 있다.", "inLanguage": "ko", "articleSection": "심화 이론", "dateModified": "2026-11-21", "publisher": {"@type": "Organization", "name": "반도체 새김"}, "mainEntityOfPage": "https://semicarve.com/theory/th-ffa1f53c/"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "반도체 새김", "item": "https://semicarve.com/"}, {"@type": "ListItem", "position": 2, "name": "이론 백과사전", "item": "https://semicarve.com/theory/"}, {"@type": "ListItem", "position": 3, "name": "반도체 현장 직무 한눈에 보기"}]}</script></head>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "반도체 현장 직무 한눈에 보기", "description": "반도체 회사에는 칩을 설계하고, 팔고, 관리하는 사람 말고도 공장 안에서 칩을 실제로 만들어 내는 조직이 있다.", "inLanguage": "ko", "articleSection": "심화 이론", "dateModified": "2026-11-28", "publisher": {"@type": "Organization", "name": "반도체 새김"}, "mainEntityOfPage": "https://semicarve.com/theory/th-ffa1f53c/"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "반도체 새김", "item": "https://semicarve.com/"}, {"@type": "ListItem", "position": 2, "name": "이론 백과사전", "item": "https://semicarve.com/theory/"}, {"@type": "ListItem", "position": 3, "name": "반도체 현장 직무 한눈에 보기"}]}</script></head>
 <body class="bg-slate-50 dark:bg-[#0a1020] text-slate-800 dark:text-slate-200 antialiased min-h-screen flex flex-col relative transition-colors duration-200">
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="tkg" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fde68a"/><stop offset=".5" stop-color="#f5b942"/><stop offset="1" stop-color="#c2610c"/></linearGradient></defs>
     <symbol id="i-tok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="url(#tkg)"/><circle cx="12" cy="12" r="10.6" fill="none" stroke="#92400e" stroke-opacity=".4" stroke-width=".8"/><circle cx="12" cy="12" r="7.7" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1"/><path d="M12 6.9l5.1 5.1-5.1 5.1L6.9 12z" fill="#92400e" fill-opacity=".88"/><path d="M12 9.3l2.7 2.7-2.7 2.7L9.3 12z" fill="#fde68a"/></symbol>
@@ -2181,7 +2183,7 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
       <div class="mb-5">
         <p class="eyebrow mb-1.5">JOB EXPERIENCE</p>
         <h2 class="page-title text-slate-900 dark:text-white">직무 체험</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">현장·설계 직무를 직접 해 보고, 공정 장비를 조작해 현장을 경험해 보세요. 일부는 무료 맛보기고, 나머지는 토큰으로 열어요. 토큰은 매일 학습하고 출석하면 무료로 모을 수 있어요.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">현장·분석·설계 직무를 직접 해 보고, 공정 장비를 조작해 현장을 경험해 보세요. 일부는 무료 맛보기고, 나머지는 토큰으로 열어요. 토큰은 매일 학습하고 출석하면 무료로 모을 수 있어요.</p>
       </div>
       <div class="grid grid-cols-1 gap-3">
         <button onclick="navTo('view-equip')" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
@@ -2191,8 +2193,13 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
         </button>
         <button onclick="navTo('view-jx-field')" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
           <span class="w-11 h-11 shrink-0 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center lab-mono" aria-hidden="true">FLD</span>
-          <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">현장 직무 체험</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5">알람 대응과 SPC 운영을 직접 해 봐요</span></span>
+          <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">현장 직무 체험</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5">알람 대응을 직접 해 봐요</span></span>
           <span class="ml-auto shrink-0 text-sm font-bold text-emerald-700 dark:text-emerald-300">열기 →</span>
+        </button>
+        <button onclick="navTo('view-jx-quality')" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+          <span class="w-11 h-11 shrink-0 rounded-xl bg-teal-50 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20 flex items-center justify-center lab-mono" aria-hidden="true">QA</span>
+          <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">분석·품질 직무 체험</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5">SPC 관리도와 웨이퍼 맵을 읽고 판단해 봐요</span></span>
+          <span class="ml-auto shrink-0 text-sm font-bold text-teal-700 dark:text-teal-300">열기 →</span>
         </button>
         <button onclick="navTo('view-jx-design')" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
           <span class="w-11 h-11 shrink-0 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 flex items-center justify-center lab-mono" aria-hidden="true">DSN</span>
@@ -2215,6 +2222,17 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
           <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">알람 대응 콘솔</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5" style="word-break:keep-all">알람을 읽고 지금 할 행동을 골라요</span><span class="jx-lk" data-jx="alarm"></span><span class="jx-prog" data-jx="alarm"></span></span>
           <span class="ml-auto shrink-0 text-sm font-bold text-rose-700 dark:text-rose-300">시작 →</span>
         </button>
+      </div>
+    </div>
+
+    <div id="view-jx-quality" class="hidden w-full flex flex-col max-w-4xl mx-auto">
+      <button onclick="goBack()" class="back-link mb-5">← 돌아가기</button>
+      <div class="mb-5">
+        <p class="eyebrow mb-1.5">QUALITY &amp; ANALYSIS JOB EXPERIENCE</p>
+        <h2 class="page-title text-slate-900 dark:text-white">분석·품질 직무 체험</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5" style="word-break:keep-all">숫자와 맵에서 이상을 읽고 원인을 좁혀 봐요.</p>
+      </div>
+      <div class="grid grid-cols-1 gap-3">
         <button onclick="jxOpen('spc')" class="feature-card w-full text-left bg-white dark:bg-[#0f1729] border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm flex items-center gap-4">
           <span class="w-11 h-11 shrink-0 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 flex items-center justify-center lab-mono" aria-hidden="true">SPC</span>
           <span class="min-w-0"><span class="block font-bold text-slate-900 dark:text-white">SPC 관리도 운영실</span><span class="block text-sm text-slate-500 dark:text-slate-400 mt-0.5" style="word-break:keep-all">관리도에서 이상한 점을 잡아 장비를 멈춰요</span><span class="jx-lk" data-jx="spc"></span><span class="jx-prog" data-jx="spc"></span></span>
@@ -2586,12 +2604,8 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
 <td>여러 공정을 이어서 소자가 설계대로 나오게 맞춘다</td>
 </tr>
 <tr>
-<td>수율·불량 분석</td>
-<td>불량 칩과 웨이퍼를 분석해 원인이 된 공정을 찾는다</td>
-</tr>
-<tr>
-<td>품질</td>
-<td>기준과 절차를 세우고 공장이 지키는지 확인한다</td>
+<td>수율·품질·불량 분석</td>
+<td>숫자와 불량 칩을 분석해 원인이 된 공정을 찾는다. 심화 이론의 '분석·품질 직무' 폴더에서 다룬다</td>
 </tr>
 <tr>
 <td>장비 제조사 엔지니어</td>
