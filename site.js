@@ -10964,6 +10964,99 @@
       }
     });
 
+    // ===== '불량 분석: 맵에서 단면까지' 글 전용 그림 =====
+    Object.assign(DIAGRAMS, {
+      // ---------- 점점 좁혀 들어가기 ----------
+      'fld-fa-funnel': {
+        title: '불량 분석은 웨이퍼에서 원자까지 점점 좁혀 들어가는 일',
+        states: [
+          { id: 'f1', n: 1, label: '① 웨이퍼 맵', q: '① 웨이퍼 맵에서 불량 다이를 고른다', desc: 'EDS 웨이퍼 맵에서 불량이 모인 자리와 그 다이를 고른다. 지름 300 mm 웨이퍼 한 장에서 분석할 칩 한 개를 정하는 단계이다.' },
+          { id: 'f2', n: 2, label: '② 다이', q: '② 칩 한 개에서 이상한 자리를 찾는다', desc: '불량 다이를 전기로 다시 동작시키고, 열이나 빛이 새는 곳을 찾아 후보 위치를 수 µm 안팎으로 줄인다.' },
+          { id: 'f3', n: 3, label: '③ 결함 자리', q: '③ 결함 후보를 현미경으로 본다', desc: '후보 자리를 광학 현미경과 SEM으로 위에서 살핀다. 긁힘, 입자, 끊긴 선처럼 겉으로 드러나는 것이 보이면 여기서 원인이 드러나기도 한다.' },
+          { id: 'f4', n: 4, label: '④ 단면', q: '④ FIB로 잘라 단면을 본다', desc: '겉으로 보이지 않으면 FIB로 그 자리를 잘라 단면을 만들고 SEM이나 TEM으로 본다. 막 두께, 구멍(보이드), 선이 끊긴 곳 같은 속 모양이 보인다.' },
+          { id: 'f5', n: 5, label: '⑤ 성분', q: '⑤ 성분을 확인하고 원인을 정한다', desc: '결함이 어떤 원소로 되어 있는지 EDS로 확인한다. 성분이 장비의 어느 부품이나 어느 재료에서 왔는지를 알려 주는 단서가 되어 원인이 정해진다.' }
+        ],
+        svg(s) {
+          const W = [200, 160, 120, 82, 44], N = [['① 웨이퍼 맵', '약 300 mm'], ['② 칩(다이)', '수 mm ~ 10 mm'], ['③ 결함 자리', '수 µm'], ['④ 단면', '수십 nm'], ['⑤ 성분', '원자 크기']], C = [IXC.gr, IXC.sys, IXC.fab, IXC.des, IXC.pkg];
+          let o = '';
+          for (let i = 0; i < 5; i++) {
+            const y = 14 + i * 50, on = i + 1 <= s.n, cur = i + 1 === s.n;
+            o += `<g style="opacity:${on ? 1 : .26}">` + ixR(120 - W[i] / 2, y, W[i], 40, C[i], { fo: cur ? .45 : .22, sw: cur ? 3 : 1.6 }) + ixT(120, y + 25, String(i + 1), 15, { w: 800 }) + ixT(238, y + 18, N[i][0], 12.5, { a: 'start', w: 800, mw: 150 }) + ixT(238, y + 34, N[i][1], 10.5, { a: 'start', op: .85, mw: 150 }) + '</g>';
+            if (i < 4) o += `<g style="opacity:${i + 2 <= s.n ? .9 : .2}">` + ixA(120, y + 42, 120, y + 49, 'currentColor', .6) + '</g>';
+          }
+          return dgSvg('불량 분석 단계: ' + s.label, o + ixQ(s.q, 284), '0 0 400 294');
+        }
+      },
+      // ---------- 도구마다 보이는 크기 ----------
+      'fld-fa-scale': {
+        title: '현미경과 가공 도구가 다루는 크기',
+        states: [
+          { id: 'om', label: '광학 현미경(OM)', q: '광학 현미경: 빠르게 겉모습부터', desc: '가시광으로 보기 때문에 수백 nm보다 작은 것은 구별하지 못한다. 대신 빠르고 값이 싸서 긁힘, 입자, 변색 같은 큰 결함을 먼저 확인하는 데 쓴다.' },
+          { id: 'sem', label: 'SEM', q: 'SEM: 전자로 수 nm까지', desc: '전자빔으로 표면을 훑어 수 nm까지 본다. 표면의 요철, 배선 모양, 단면을 입체감 있게 보여 주어 불량 분석에서 가장 많이 쓰인다.' },
+          { id: 'tem', label: 'TEM', q: 'TEM: 얇은 시편을 투과해 원자까지', desc: '전자가 통과할 만큼 얇게(수십~100 nm) 만든 시편을 투과시켜 원자 층까지 본다. 막 두께, 계면, 결정 결함처럼 가장 작은 것을 보지만 시편 준비가 어렵다.' },
+          { id: 'fib', label: 'FIB', q: 'FIB: 보고 싶은 자리만 자르는 도구', desc: '이온빔으로 깎는 정밀 칼이다. 원하는 자리에 단면을 만들고 TEM 시편을 떼어 낸다. 보는 도구라기보다 보이게 만드는 도구이다.' }
+        ],
+        svg(s) {
+          const lg = (nm) => 24 + (6 - Math.log10(nm)) * (352 / 7);
+          const R = [['om', 'OM', 1e6, 300, IXC.fab], ['sem', 'SEM', 1e5, 1.5, IXC.sys], ['tem', 'TEM', 1e3, .1, IXC.des], ['fib', 'FIB', 1e5, 10, IXC.pkg]];
+          let o = '';
+          [[6, '1 mm'], [4, '10 µm'], [2, '100 nm'], [0, '1 nm'], [-1, '0.1 nm']].forEach((t) => { const x = 24 + (6 - t[0]) * (352 / 7); o += `<path d="M${x} 28 V220" style="stroke:currentColor;stroke-width:1;opacity:.14;stroke-dasharray:3 3"/>` + ixT(x, 238, t[1], 10, { op: .7 }); });
+          o += ixT(30, 18, '← 큰 것', 10, { op: .6, a: 'start' }) + ixT(370, 18, '작은 것 →', 10, { op: .6, a: 'end' });
+          R.forEach((r, i) => {
+            const y = 38 + i * 46, x1 = lg(r[2]), x2 = lg(r[3]), on = r[0] === s.id;
+            o += `<g style="opacity:${on ? 1 : .3}">` + ixR(x1, y, x2 - x1, 34, r[4], { fo: on ? .5 : .22, sw: on ? 3 : 1.6, dash: r[0] === 'fib' }) + ixT(x1 + 10, y + 22, r[1], 13, { a: 'start', w: 800 }) + '</g>';
+          });
+          return dgSvg('도구가 다루는 크기: ' + s.label, o + ixT(200, 254, '범위는 장비마다 다른 대략의 값이다', 10, { op: .65 }) + ixQ(s.q, 276), '0 0 400 286');
+        }
+      },
+      // ---------- SEM이 보는 신호 ----------
+      'fld-fa-sem': {
+        title: 'SEM은 전자빔으로 표면을 훑으며 신호를 모은다',
+        states: [
+          { id: 'beam', label: '전자빔', q: '가늘게 모은 전자빔이 표면을 훑는다', desc: '진공 안에서 전자를 가늘게 모아 표면 위를 한 줄씩 훑는다. 빔이 닿는 자리마다 신호가 나오고, 이를 모아 점을 찍어 이미지를 만든다.' },
+          { id: 'se', label: '2차 전자', q: '2차 전자: 표면의 요철이 보인다', desc: '표면 가까이에서 튀어나온 2차 전자는 튀어나온 곳과 가장자리에서 더 많이 나와 밝게 보인다. 그래서 입자와 요철이 입체감 있게 보인다.' },
+          { id: 'bse', label: '후방산란 전자', q: '후방산란 전자: 재료 차이가 보인다', desc: '시료 안쪽에서 되튀어 나오는 후방산란 전자는 원자 번호가 큰 재료일수록 많이 나와 밝게 보인다. 모양이 비슷해도 다른 재료인 입자를 구분할 수 있다.' },
+          { id: 'xr', label: 'X선(EDS)', q: 'X선: 어떤 원소인지 알려 준다', desc: '전자가 부딪힌 원자는 원소마다 정해진 에너지의 X선을 낸다. 이를 EDS 검출기로 재면 결함이 어떤 원소로 이루어졌는지 알 수 있다.' }
+        ],
+        svg(s) {
+          const id = s.id;
+          let o = ixR(176, 8, 48, 24, IXC.gr, { fo: .2, rx: 5 }) + ixT(200, 24, '전자총', 10.5, { w: 700, mw: 44 }) + `<path d="M200 32 V${id === 'beam' ? 140 : 144}" style="stroke:${IXC.hi};stroke-width:3;opacity:.85"/>`;
+          if (id === 'beam') o += ixA(150, 150, 120, 150, IXC.hi, .8) + ixA(250, 150, 280, 150, IXC.hi, .8) + ixT(188, 66, '진공 속에서 가늘게 모은 빔', 10.5, { op: .85, a: 'end' });
+          o += ixR(40, 150, 320, 76, IXC.gr, { fo: .16, rx: 4 });
+          o += `<path d="M175 150 a25 18 0 0 1 50 0 Z" style="fill:${IXC.fab};fill-opacity:${id === 'se' ? .7 : .4};stroke:${IXC.fab};stroke-width:1.6"/>` + ixT(236, 144, '입자', 10, { op: .9, a: 'start' });
+          o += `<circle cx="285" cy="186" r="15" style="fill:${IXC.des};fill-opacity:${id === 'bse' || id === 'xr' ? .8 : .4};stroke:${IXC.des};stroke-width:1.6"/>` + ixT(285, 190, '중금속', 9.5, { w: 700, mw: 36 }) + ixT(120, 192, '실리콘 기판', 10.5, { op: .75 });
+          o += ixR(318, 64, 66, 26, IXC.pkg, { fo: .25, rx: 5 }) + ixT(351, 81, id === 'xr' ? 'EDS 검출기' : '검출기', 10, { w: 700, mw: 62 });
+          if (id === 'se') o += ixA(214, 138, 316, 80, IXC.pkg, .9) + ixA(186, 138, 120, 110, IXC.pkg, .5) + ixT(120, 104, '튀어나온 곳이 밝다', 10.5, { op: .9 });
+          if (id === 'bse') o += ixA(292, 178, 330, 96, IXC.des, .9) + ixT(188, 116, '무거운 원소일수록 밝다', 10.5, { op: .9, a: 'end' });
+          if (id === 'xr') o += ixA(290, 176, 336, 96, IXC.des, .9) + ixT(188, 116, '원소마다 정해진 X선', 10.5, { op: .9, a: 'end' });
+          return dgSvg('SEM 신호: ' + s.label, o + ixQ(s.q, 256), '0 0 400 266');
+        }
+      },
+      // ---------- FIB 단면 가공 ----------
+      'fld-fa-fib': {
+        title: 'FIB로 결함이 있는 자리만 잘라 내는 과정',
+        states: [
+          { id: 'p1', n: 1, label: '① 보호막', q: '① 자를 자리 위에 보호막을 덮는다', desc: '결함 위치를 정하고 그 위에 보호막(백금 등)을 얇게 덮는다. 이온빔이 표면을 거칠게 갈아 내는 것을 막아 단면이 깨끗하게 남는다.' },
+          { id: 'p2', n: 2, label: '② 양옆 파기', q: '② 양옆을 파서 얇은 벽을 남긴다', desc: '이온빔으로 결함 양옆을 깊이 파고, 가운데에 얇은 벽을 남긴다. 빔이 원자를 때려 날려 보내는 방식이라 원하는 곳만 깎을 수 있다.' },
+          { id: 'p3', n: 3, label: '③ 얇게 다듬기', q: '③ 벽을 더 얇게 다듬는다', desc: '빔 세기를 낮추며 벽을 더 얇게 다듬는다. 이 단계에서 단면 속에 숨은 구멍(보이드)이나 끊긴 곳이 드러난다.' },
+          { id: 'p4', n: 4, label: '④ 떼어 내기', q: '④ 100 nm 이하의 박편을 떼어 TEM으로 본다', desc: '두께 100 nm 이하로 얇아진 박편을 떼어 내 TEM으로 본다. 전자가 통과할 만큼 얇아야 원자 층까지 보인다.' }
+        ],
+        svg(s) {
+          const n = s.n;
+          let o = ixR(40, 150, 320, 70, IXC.gr, { fo: .18, rx: 3 }) + ixT(76, 214, '기판', 10, { op: .7 }) + ixR(40, 126, 320, 12, IXC.mem, { fo: .35, rx: 2 }) + ixR(40, 138, 320, 12, IXC.fab, { fo: .35, rx: 2 });
+          const thin = n >= 3 ? 14 : 30, dx = n >= 4 ? 0 : 0;
+          if (n >= 2) o += ixR(112, 124, 200 - thin - 112, 98, '#64748b', { fo: .6, sw: 1, rx: 2, dash: 1 }) + ixR(200 + thin, 124, 288 - (200 + thin), 98, '#64748b', { fo: .6, sw: 1, rx: 2, dash: 1 });
+          if (n >= 2 && n < 4) o += ixA(150, 70, 150, 118, IXC.hi, .85) + ixA(250, 70, 250, 118, IXC.hi, .85) + ixT(200, 58, 'Ga⁺ 이온빔', 11, { w: 700 });
+          if (n === 4) o += ixR(160, 22, 80, 54, IXC.pkg, { fo: .22, rx: 3, dash: 1 }) + `<circle cx="200" cy="52" r="5" style="fill:var(--jx-bd,#ef4444)"/>` + ixT(200, 18, '박편(100 nm 이하)', 10.5, { w: 700 }) + `<path d="M200 82 V124" style="stroke:currentColor;stroke-width:1.5;stroke-dasharray:3 3;opacity:.6"/>`;
+          if (n < 4) o += `<circle cx="200" cy="138" r="6" style="fill:#ef4444;fill-opacity:.85"/>` + ixT(200, 104, n === 1 ? '결함 위치' : '결함', 10.5, { op: .9 });
+          if (n === 1) o += ixR(170, 112, 60, 12, IXC.sys, { fo: .55, rx: 2 }) + ixT(262, 122, '보호막(Pt)', 10.5, { a: 'start', w: 700 });
+          if (n >= 2 && n < 4) o += ixR(200 - thin / 2 - 0, 124, thin, 26, IXC.sys, { fo: .5, rx: 1, sw: 1 });
+          if (n >= 3 && n < 4) o += ixT(200, 238, '벽 두께 100 nm 이하로', 10.5, { op: .85 });
+          return dgSvg('FIB 단면: ' + s.label, o + ixQ(s.q, 262), '0 0 400 272');
+        }
+      }
+    });
+
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
@@ -18326,18 +18419,19 @@
     }
     // ===== 🎮 직무 체험(현장·설계): 화면을 처음 열 때만 jx.js 를 불러온다 =====
     // 체험 4가지(알람 콘솔·SPC 운영실·파형 디버거·타이밍 ECO)는 #view-jx-run 한 화면을 함께 쓴다.
-    const JX_FIELD = ['alarm', 'spc'], JX_DESIGN = ['wave', 'eco'];
+    const JX_FIELD = ['alarm', 'spc', 'wmap'], JX_DESIGN = ['wave', 'eco'];
     // 탭마다 1개(알람 콘솔·파형 디버거)는 무료 맛보기로 jx.js 에 들어 있고, 나머지는 토큰(10)으로 해금한 뒤 서버에서 코드를 받는다
-    const JX_PAID = { spc: 'jx-spc', eco: 'jx-eco' };
+    const JX_PAID = { spc: 'jx-spc', wmap: 'jx-wmap', eco: 'jx-eco' };
     const JX_META = {
       'jx-spc': { t: 'SPC 관리도 운영실', d: '관리도가 실시간으로 자라요. 이상한 점을 잡아 장비를 멈춰요.' },
+      'jx-wmap': { t: '웨이퍼 맵 읽기', d: '불량 모양을 읽고 의심할 공정을 골라요.' },
       'jx-eco': { t: '타이밍 ECO 작업대', d: '타이밍 위반을 셀 크기, 문턱 전압, 버퍼, 클록 지연으로 고쳐요.' }
     };
     let jxLoading = null; const jxPaidLoads = {};
     function jxLoad() {
       if (window.JX) return Promise.resolve();
       if (jxLoading) return jxLoading;
-      jxLoading = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'jx.js?v=2'; sc.onload = ok; sc.onerror = () => no(new Error('jx.js')); document.head.appendChild(sc); }).catch((e) => { jxLoading = null; throw e; });
+      jxLoading = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'jx.js?v=4'; sc.onload = ok; sc.onerror = () => no(new Error('jx.js')); document.head.appendChild(sc); }).catch((e) => { jxLoading = null; throw e; });
       return jxLoading;
     }
     // 유료 체험 코드는 공개 파일이 아니라 서버(해금 확인 후)에서 받아 실행한다
@@ -18376,6 +18470,7 @@
     //   글 중간에 특정 장면과 이어 주고 싶으면 본문에 {{try:lab:장비|버튼 글자|설명}} 또는 {{try:jx:체험|버튼 글자|설명}} 한 줄을 쓴다.
     const EXP_JX = {
       alarm: { t: '알람 대응 콘솔', tag: '현장 직무 체험', d: '알람을 읽고 지금 할 행동을 골라요', view: 'field', main: 'TH-56e74739', th: ['TH-56e74739', 'TH-9d9a8089', 'TH-c7188c38', 'TH-23d511ae'] },
+      wmap: { t: '웨이퍼 맵 읽기', tag: '현장 직무 체험', d: '불량 모양을 읽고 의심할 공정을 골라요', view: 'field', main: 'TH-5a3e7f53', th: ['TH-5a3e7f53', 'TH-a7912602', 'TH-72d11656', 'TH-cc0d3a71'] },
       spc: { t: 'SPC 관리도 운영실', tag: '현장 직무 체험', d: '관리도에서 이상한 점을 잡아 장비를 멈춰요', view: 'field', main: 'TH-d9bed0e1', th: ['TH-d9bed0e1', 'TH-72d11656', 'TH-a7912602', 'TH-c7188c38'] },
       wave: { t: '파형 디버거', tag: '설계 직무 체험', d: '파형에서 원인이 시작된 사이클을 찾아요', view: 'design', main: 'TH-37c9d0c1', th: ['TH-37c9d0c1', 'TH-4b96e006', 'TH-0d974c8b', 'TH-71944c8d'] },
       eco: { t: '타이밍 ECO 작업대', tag: '설계 직무 체험', d: '타이밍 위반을 예산 안에서 고쳐요', view: 'design', main: 'TH-270a97fe', th: ['TH-270a97fe', 'TH-0d974c8b', 'TH-cf1ed26d'] }
