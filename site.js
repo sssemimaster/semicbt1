@@ -822,7 +822,7 @@
       if (viewId !== 'view-lab') labStop();
       if (viewId !== 'view-jx-run') jxStop();
       if (viewId === 'view-jx-run') enterJx(state);
-      if (viewId === 'view-jx-field' || viewId === 'view-jx-design') { jxMarkProgress(); jxRelList(); }
+      if (viewId === 'view-jx-field' || viewId === 'view-jx-design') jxMarkProgress();
       if (!(viewId === 'view-lab' || (viewId === 'view-learning' && state && state.level === 'detail'))) { pmGateId = null; pmGateClose(); }   // 유료 화면을 떠나면 해금 팝업도 닫는다
       if (viewId === 'view-lab') enterLab();
       if (viewId === 'view-flow') enterFlow();
@@ -18000,7 +18000,7 @@
     function jxOpen(id) { navTo('view-jx-run', { jx: id }); }
     function enterJx(state) {
       const root = document.getElementById('jxRoot'), id = (state && state.jx) || learnState.jx, pid = JX_PAID[id];
-      jxRelRun(id);
+      jxGuideSet(id);
       const fail = () => { root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.')) + '</div>'; };
       if (pid && !(window.JX && window.JX.exp[id]) && !PRM.unlocked.has(pid)) {   // 해금 전: 잠금 화면 + 해금 팝업
         if (window.JX) window.JX.stop();
@@ -18018,10 +18018,10 @@
     // 연결은 아래 표 한 곳에서 관리한다. 새 체험이나 이론을 만들면 여기에 한 줄만 적으면 양쪽 버튼이 함께 생긴다.
     //   글 중간에 특정 장면과 이어 주고 싶으면 본문에 {{try:lab:장비|버튼 글자|설명}} 또는 {{try:jx:체험|버튼 글자|설명}} 한 줄을 쓴다.
     const EXP_JX = {
-      alarm: { t: '알람 대응 콘솔', tag: '현장 직무 체험', d: '알람을 읽고 지금 할 행동을 골라요', view: 'field', th: ['TH-56e74739', 'TH-9d9a8089', 'TH-c7188c38', 'TH-23d511ae', 'TH-c1f0b3a7'] },
-      spc: { t: 'SPC 관리도 운영실', tag: '현장 직무 체험', d: '관리도에서 이상한 점을 잡아 장비를 멈춰요', view: 'field', th: ['TH-d9bed0e1', 'TH-72d11656', 'TH-a7912602', 'TH-c7188c38', 'TH-c1f0b3a7'] },
-      wave: { t: '파형 디버거', tag: '설계 직무 체험', d: '파형에서 원인이 시작된 사이클을 찾아요', view: 'design', th: ['TH-37c9d0c1', 'TH-4b96e006', 'TH-0d974c8b', 'TH-71944c8d'] },
-      eco: { t: '타이밍 ECO 작업대', tag: '설계 직무 체험', d: '타이밍 위반을 예산 안에서 고쳐요', view: 'design', th: ['TH-270a97fe', 'TH-0d974c8b', 'TH-cf1ed26d', 'TH-c1f0b3a7'] }
+      alarm: { t: '알람 대응 콘솔', tag: '현장 직무 체험', d: '알람을 읽고 지금 할 행동을 골라요', view: 'field', main: 'TH-56e74739', th: ['TH-56e74739', 'TH-9d9a8089', 'TH-c7188c38', 'TH-23d511ae'] },
+      spc: { t: 'SPC 관리도 운영실', tag: '현장 직무 체험', d: '관리도에서 이상한 점을 잡아 장비를 멈춰요', view: 'field', main: 'TH-d9bed0e1', th: ['TH-d9bed0e1', 'TH-72d11656', 'TH-a7912602', 'TH-c7188c38'] },
+      wave: { t: '파형 디버거', tag: '설계 직무 체험', d: '파형에서 원인이 시작된 사이클을 찾아요', view: 'design', main: 'TH-37c9d0c1', th: ['TH-37c9d0c1', 'TH-4b96e006', 'TH-0d974c8b', 'TH-71944c8d'] },
+      eco: { t: '타이밍 ECO 작업대', tag: '설계 직무 체험', d: '타이밍 위반을 예산 안에서 고쳐요', view: 'design', main: 'TH-270a97fe', th: ['TH-270a97fe', 'TH-0d974c8b', 'TH-cf1ed26d'] }
     };
     // 장비 체험 ← 기초 이론: 이론 제목에 이 말이 들어 있으면 그 장비 체험을 이어 준다. 맞는 게 없으면 대분류(8대 공정 폴더) 기본값을 쓴다.
     const EXP_LAB_TITLE = [[/이온 주입/, ['ion']], [/CMP|연마/, ['cmp']], [/세정|RCA/, ['wet']], [/ALD|원자층/, ['ald']], [/PECVD|플라즈마 CVD/, ['pecvd']], [/LPCVD|저압/, ['lpcvd']], [/CVD/, ['lpcvd', 'pecvd']], [/PVD|스퍼터|배리어|시드/, ['pvd']], [/다마신/, ['pvd', 'cmp']], [/계측|CD-?SEM/, ['met']], [/식각|에치|etch/i, ['etch']], [/노광|스캐너|감광|해상도|포토/, ['photo']], [/산화|퍼니스|Deal/, ['furn']]];
@@ -18031,6 +18031,8 @@
       const hit = EXP_LAB_TITLE.find(([re]) => re.test(t.title));
       return (hit ? hit[1] : (EXP_LAB_SUBJ[t.subject] || [])).filter(k => LABS[k]);
     };
+    // 글 하나에 특별히 이어 줄 체험이 있으면 여기에 적는다 (글 id → ['lab:장비', 'jx:체험'])
+    const EXP_TH_EXTRA = { 'TH-c1f0b3a7': ['lab:photo', 'lab:etch', 'lab:ion'] };
     const expJxFor = (t) => t ? Object.keys(EXP_JX).filter(k => EXP_JX[k].th.includes(t.id)) : [];
     const expGoBtn = (go, title, sub, cls = 'exp-b') => `<button type="button" class="${cls}" data-go="${escH(go)}"><b>${escH(T(title))}</b><span>${escH(T(sub))}</span></button>`;
     // 이론 글 아래: 이 이론과 이어진 체험 버튼 묶음
@@ -18038,34 +18040,23 @@
       try {
         if (!t || !card || String(t.content || '').includes('{{try:')) return;   // 본문에 장면별 버튼이 이미 있으면 맨 아래 묶음은 생략
         if (t.category === ADV_CAT && t.lab && LABS[t.lab]) return;   // 장비 사용 가이드는 자체 안내가 있다
-        const items = expJxFor(t).map(k => expGoBtn('jx:' + k, EXP_JX[k].t, T(EXP_JX[k].tag) + ' · ' + T(EXP_JX[k].d))).concat(expLabsFor(t).map(k => expGoBtn('lab:' + k, LABS[k].title, T('장비 체험') + ' · ' + T(LABS[k].sub))));
+        const goOf = (g) => { const [k, id] = g.split(':'); return k === 'lab' ? (LABS[id] ? expGoBtn(g, LABS[id].title, T('장비 체험') + ' · ' + T(LABS[id].sub)) : '') : (EXP_JX[id] ? expGoBtn(g, EXP_JX[id].t, T(EXP_JX[id].tag) + ' · ' + T(EXP_JX[id].d)) : ''); };
+        const gos = EXP_TH_EXTRA[t.id] || expJxFor(t).map(k => 'jx:' + k).concat(expLabsFor(t).map(k => 'lab:' + k));
+        const items = gos.slice(0, 3).map(goOf).filter(Boolean);
         if (!items.length) return;
         const box = document.createElement('div'); box.className = 'exp-rel';
-        box.innerHTML = `<p class="exp-h">${escH(T('🎮 이 이론을 직접 해 보기'))}</p><div class="exp-row">${items.join('')}</div>`;
+        box.innerHTML = `<p class="exp-h">${escH(T('🎮 직접 해 보고 싶다면'))}</p><div class="exp-row">${items.join('')}</div>`;
         card.after(box);
       } catch (e) {}
     }
-    // 체험 화면 아래: 이 체험에 쓰이는 이론 버튼 묶음
-    const expTheoryBtns = (ids) => ids.map(id => allTheories.find(x => x.id === id)).filter(Boolean).map(x => expGoBtn('th:' + x.id, x.title, x.subject, 'exp-b exp-th')).join('');
-    function jxRelRun(id) {
-      const box = document.getElementById('jxRel'); if (!box) return;
-      const m = EXP_JX[id], h = m ? expTheoryBtns(m.th) : '';
-      box.innerHTML = h ? `<div class="exp-rel"><p class="exp-h">${escH(T('📖 이 체험과 이어지는 이론'))}</p><div class="exp-row">${h}</div></div>` : '';
+    // 체험 화면 위: 이 체험의 이론 글로 가는 버튼 (장비 체험의 '장비 사용 가이드 읽기'와 같은 자리·방식). 대표 글 하나만 연결한다.
+    function jxGuideSet(id) {
+      const b = document.getElementById('jxGuideBtn'); if (!b) return;
+      const m = EXP_JX[id], t = m && allTheories.find(x => x.id === m.main);
+      b.classList.toggle('hidden', !t); b.dataset.id = t ? t.id : '';
+      b.textContent = t ? T('📘 관련 이론 읽기') + ' · ' + t.title : '';
     }
-    function jxRelList() {
-      [['field', 'jxRelF'], ['design', 'jxRelD']].forEach(([v, bid]) => {
-        const box = document.getElementById(bid); if (!box) return;
-        box.innerHTML = Object.keys(EXP_JX).filter(k => EXP_JX[k].view === v).map(k => {
-          const h = expTheoryBtns(EXP_JX[k].th); return h ? `<div class="exp-rel"><p class="exp-h">${escH(T('📖 ' + EXP_JX[k].t + '과 이어지는 이론'))}</p><div class="exp-row">${h}</div></div>` : '';
-        }).join('');
-      });
-    }
-    function labRelRun(kind) {
-      const box = document.getElementById('labRel'); if (!box) return;
-      const ids = allTheories.filter(t => expLabsFor(t).includes(kind)).map(t => t.id);
-      const h = expTheoryBtns(ids.slice(0, 6));
-      box.innerHTML = h ? `<div class="exp-rel"><p class="exp-h">${escH(T('📖 이 장비와 이어지는 기초 이론'))}</p><div class="exp-row">${h}</div></div>` : '';
-    }
+    function jxGuide() { const b = document.getElementById('jxGuideBtn'); if (b && b.dataset.id) openTheory(b.dataset.id); }
     document.addEventListener('click', (e) => {
       const b = e.target.closest && e.target.closest('[data-go]'); if (!b) return;
       const i = b.dataset.go.indexOf(':'), k = b.dataset.go.slice(0, i), id = b.dataset.go.slice(i + 1); e.preventDefault();
@@ -18122,7 +18113,6 @@
       const xp = document.getElementById('labXs'); if (xp) { xp.classList.remove('big', 'fl', 'min'); xp.style.left = xp.style.top = ''; }   // 단면 팝업은 들어올 때마다 기본 크기·자리로
       const kind = labKind, L = LABS[kind], el = document.getElementById('labLoading');
       const t = document.getElementById('labTitle'), d = document.getElementById('labDesc'); if (t) t.textContent = L.title; if (d) d.textContent = L.desc;
-      labRelRun(kind);
       const gb = document.getElementById('labGuideBtn'), gt = allTheories.find(x => x.category === ADV_CAT && x.lab === kind); if (gb) { gb.classList.toggle('hidden', !gt); gb.dataset.id = gt ? gt.id : ''; }
       Object.keys(LABS).forEach((k) => { if (k !== kind && window[LABS[k].g]) window[LABS[k].g].stop(); });
       if (!window[L.g] && !PRM.unlocked.has('lab-' + kind)) { if (el) { el.style.display = 'flex'; el.innerHTML = ''; el.appendChild(premiumLock('lab-' + kind, 'lab')); } try { pmGateMaybe('lab-' + kind, 'lab'); } catch (e) {} return; }   // 해금 전: 잠금 화면 + 해금 팝업
