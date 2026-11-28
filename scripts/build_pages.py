@@ -86,6 +86,8 @@ def render_markdown(src):
                lambda m: f'\n\n<details class="th-toggle"><summary>{esc(m.group(1).strip())}</summary><div class="th-tg-body">{inline_md(m.group(2))}</div></details>\n\n', t, flags=re.M)
     t = re.sub(r"^[ \t]*\{\{\s*diagram:([a-z0-9-]+)(?:\|([^}\n]*))?\}\}[ \t]*$",
                lambda m: f'\n\n<figure class="dg" data-dg="{m.group(1)}" data-cap="{esc((m.group(2) or "").strip())}"></figure>\n\n', t, flags=re.M)
+    t = re.sub(r"^[ \t]*\{\{\s*try:(lab|jx):([a-z0-9-]+)\|([^|}\n]+)(?:\|([^}\n]*))?\}\}[ \t]*$",
+               lambda m: f'\n\n<div class="th-try"><p><strong>{"직무 체험" if m.group(1) == "jx" else "장비 체험"}</strong>: {esc(m.group(3).strip())}{(" — " + esc(m.group(4).strip())) if m.group(4) else ""}</p></div>\n\n', t, flags=re.M)
     def adv_block(cls, title, rows):   # 심화 이론의 상황별 대처 (앱은 같은 모양을 .adv-case 로 그린다)
         dl = "".join(f'<dt{" class=" + chr(34) + "act" + chr(34) if a else ""}>{k}</dt><dd{" class=" + chr(34) + "act" + chr(34) if a else ""}>{inline_md(v)}</dd>' for k, v, a in rows)
         return f'\n\n<div class="{cls}"><div class="adv-case-h">{inline_md(title)}</div><dl>{dl}</dl></div>\n\n'

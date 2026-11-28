@@ -425,7 +425,7 @@
         const box = document.createElement('div');
         box.className = 'bg-white dark:bg-[#0f1729] rounded-2xl border border-slate-200 dark:border-white/10 p-5';
         box.innerHTML = `<p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-3">💼 이 지식이 쓰이는 직무</p><div class="flex flex-wrap gap-2">${jobs.map(j => `<button type="button" onclick="openCareerJob('${jsq(j.id)}')" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-indigo-300 dark:border-cyan-300/50 text-indigo-700 dark:text-cyan-300 hover:bg-indigo-50 dark:hover:bg-white/5">${escH(j.name)} <span class="opacity-60">· ${escH(careerBld(j.building).name)}</span></button>`).join('')}</div>`;
-        card.after(box);
+        const ex = card.nextElementSibling; (ex && ex.classList.contains('exp-rel') ? ex : card).after(box);   // 체험 버튼 묶음이 있으면 그 뒤에 둔다
       });
     }
 
@@ -822,7 +822,7 @@
       if (viewId !== 'view-lab') labStop();
       if (viewId !== 'view-jx-run') jxStop();
       if (viewId === 'view-jx-run') enterJx(state);
-      if (viewId === 'view-jx-field' || viewId === 'view-jx-design') jxMarkProgress();
+      if (viewId === 'view-jx-field' || viewId === 'view-jx-design') { jxMarkProgress(); jxRelList(); }
       if (!(viewId === 'view-lab' || (viewId === 'view-learning' && state && state.level === 'detail'))) { pmGateId = null; pmGateClose(); }   // 유료 화면을 떠나면 해금 팝업도 닫는다
       if (viewId === 'view-lab') enterLab();
       if (viewId === 'view-flow') enterFlow();
@@ -1103,6 +1103,7 @@
     // 그림은 사람이 만든 SVG 라서 AI 가 쓰는 글과 달리 틀릴 일이 없다. 새 그림은 DIAGRAMS 에 항목을 추가하고, scripts/generate_all.py 의 DIAGRAMS 목록에도 같은 id 를 적는다.
     const DG_RE = /^[ \t]*\{\{\s*diagram:([a-z0-9-]+)(?:\|([^}\n]*))?\}\}[ \t]*$/gm;
     const PR_RE = /^[ \t]*\{\{\s*practice:([a-z0-9-]+)(?:\|([^}\n]*))?\}\}[ \t]*$/gm;   // 집중 연습 글의 체험 칸
+    const TRY_RE = /^[ \t]*\{\{\s*try:(lab|jx):([a-z0-9-]+)\|([^|}\n]+)(?:\|([^}\n]*))?\}\}[ \t]*$/gm;   // 이론 글 속 '직접 해 보기' 버튼 (장비 체험 또는 직무 체험으로 바로가기)
     // 용어 풀이·접는 설명: 비전문가가 모를 말이나 본문에 넣기엔 애매한 곁가지 설명을 눌러서 보게 한다.
     //   문장 속 어디서나  {{term:용어|풀이}}   /   한 줄로  {{toggle:제목|내용}}
     const TERM_RE = /\{\{\s*term:([^|}\n]+)\|([^}\n]+)\}\}/g, TOGGLE_RE = /^[ \t]*\{\{\s*toggle:([^|}\n]+)\|([^}\n]+)\}\}[ \t]*$/gm;
@@ -1854,6 +1855,111 @@
             ${dgT(240, 30, '전원 (VDD)', 'dg-sub', 'start')}${dgT(240, 278, '접지 (0 V)', 'dg-sub', 'start')}
             ${dgT(20, 138, '입력 A', 'dg-sub', 'start')}${dgT(20, 172, '= ' + a, 'dg-volt', 'start')}${dgT(308, 138, '출력 Y', 'dg-sub', 'start')}${dgT(308, 172, '= ' + (1 - a), 'dg-volt', 'start')}
             ${dgT(200, 314, s.q, 'dg-volt')}`, '0 0 400 324');
+        }
+      },
+      // ---------- CMOS 인버터를 8대 공정으로 한 층씩 쌓기 (옆에서 본 단면) ----------
+      'cmos-build': {
+        title: 'CMOS 인버터가 만들어지는 순서',
+        states: [
+          { id: 'wafer', label: '① 웨이퍼', k: 0, used: [0], q: '바탕은 아무것도 없는 p형 실리콘 판',
+            desc: '출발점은 불순물을 조금 섞은 p형 실리콘 웨이퍼다. 표면은 거울처럼 매끈하고 아직 회로는 없다. 여기에 NMOS와 PMOS 한 쌍을 나란히 만들어 인버터 하나를 완성해 볼 것이다.' },
+          { id: 'sti', label: '② 소자 분리', k: 1, used: [1, 2, 3, 4], q: '트랜지스터 사이에 절연 벽(STI)을 세운다',
+            desc: '산화막과 질화막을 입히고, 포토로 틀을 만들고, 식각으로 얕은 홈을 판 뒤, 홈을 절연막으로 채워 평평하게 간다. 이 절연 벽(STI)이 트랜지스터끼리 전기가 새지 않게 막아 준다. 벽 사이의 섬이 트랜지스터가 들어설 자리(활성 영역)다.' },
+          { id: 'well', label: '③ 웰', k: 2, used: [2, 4], q: 'PMOS가 앉을 자리만 n형으로 바꾼다',
+            desc: '기판은 p형이어서 NMOS는 그대로 만들 수 있지만, PMOS는 n형 바닥이 필요하다. 포토로 PMOS 자리만 열어 두고 이온 주입으로 n형 영역(n-well)을 만든다. 열처리로 불순물을 퍼뜨려 깊고 고르게 자리 잡게 한다.' },
+          { id: 'gate', label: '④ 게이트', k: 3, used: [1, 4, 2, 3], q: '얇은 산화막 위에 게이트를 올린다',
+            desc: '먼저 열산화로 아주 얇은 게이트 산화막을 키운다. 그 위에 폴리실리콘을 증착하고, 포토와 식각으로 게이트 모양만 남긴다. 두 트랜지스터의 게이트는 입력(Vin)을 받는 스위치 손잡이가 된다.' },
+          { id: 'sd', label: '⑤ 소스·드레인', k: 4, used: [2, 4], q: '게이트 양옆에 전류가 드나드는 문을 만든다',
+            desc: '포토로 NMOS 쪽만 열고 n형 불순물(인·비소)을 박아 n+ 소스·드레인을 만든다. 다음엔 PMOS 쪽만 열고 p형 불순물(붕소)로 p+ 소스·드레인을 만든다. 게이트가 가린 바로 아래는 불순물이 닿지 않아 채널 자리로 남는다. 이후 열처리로 결정 손상을 고친다.' },
+          { id: 'ct', label: '⑥ 콘택', k: 5, used: [4, 2, 3], q: '절연막을 덮고 구멍을 뚫어 금속 기둥을 세운다',
+            desc: '트랜지스터 전체를 절연막으로 덮은 뒤, 소스·드레인과 게이트 위에 포토와 식각으로 가는 구멍을 뚫는다. 구멍을 텅스텐으로 채우고 CMP로 평평하게 갈면 위쪽 배선과 닿는 금속 기둥(콘택)이 된다.' },
+          { id: 'wire', label: '⑦ 배선', k: 6, used: [5, 2, 3, 4], q: '금속선으로 NMOS와 PMOS를 인버터로 묶는다',
+            desc: '금속 1층에서 NMOS 소스는 접지(GND)로, PMOS 소스는 전원(VDD)으로, 두 드레인은 서로 이어 출력(Vout)으로 묶는다. 두 게이트는 위층(금속 2층)으로 올라가 입력(Vin) 하나로 합친다. 이렇게 이어야 비로소 회로(인버터)가 된다.' },
+          { id: 'test', label: '⑧ 검사·포장', k: 7, used: [6, 7], q: '웨이퍼째 검사한 뒤, 잘라 포장한다',
+            desc: '웨이퍼에는 같은 칩이 수백~수천 개 찍혀 있다. EDS에서 프로브 카드의 바늘을 칩의 패드에 대 전기 신호를 넣고 합격·불량을 가린다. 이후 합격한 칩만 잘라 포장(패키징)해 외부와 연결되는 부품으로 만든다.' }
+        ],
+        svg(s) {
+          const k = s.k, S = 190;
+          const R = (x, y, w, h, c, st, ex = '') => st <= k ? `<rect class="${c}${st === k && k < 7 ? ' dg-new' : ''}" x="${x}" y="${y}" width="${w}" height="${h}" ${ex}/>` : '';
+          const L = (st, x, y, t, c = 'dg-sub') => st === k ? dgT(x, y, t, c) : '';
+          const Lk = (from, x, y, t, c = 'dg-sub') => k >= from ? dgT(x, y, t, c) : '';
+          const NF = 'style="fill:#60a5fa;fill-opacity:.62"', PF = 'style="fill:#f87171;fill-opacity:.55"', WF = 'style="fill:#64748b;fill-opacity:.9"', GF = 'style="fill:#fb923c;fill-opacity:.6"';
+          const ILD = 'style="fill:#a78bfa;fill-opacity:.12"', MF = 'style="fill:#fbbf24;fill-opacity:.8"';
+          const gx = [102, 266], cx = [79, 117, 155, 244, 281, 318];
+          let o = '';
+          o += R(20, S, 360, 62, 'dg-si', 0);
+          o += R(200, S, 162, 48, 'dg-n', 2, 'style="fill-opacity:.3"');
+          o += [22, 188, 350].map(x => R(x, S, 24, 26, 'dg-ox', 1, 'style="fill-opacity:.55"')).join('');
+          o += R(52, S, 54, 14, '', 4, NF) + R(128, S, 54, 14, '', 4, NF) + R(218, S, 52, 14, '', 4, PF) + R(292, S, 52, 14, '', 4, PF);
+          o += gx.map(x => R(x, S - 4, 30, 4, 'dg-ox', 3, 'style="fill-opacity:.95"') + R(x, S - 22, 30, 18, '', 3, GF)).join('');
+          o += R(20, S - 60, 360, 60, '', 5, ILD);
+          o += cx.map((x, i) => (i === 1 || i === 4) ? R(x - 5, S - 60, 10, 38, '', 5, WF) : R(x - 5, S - 60, 10, 60, '', 5, WF)).join('');
+          o += R(20, S - 108, 360, 48, '', 6, ILD);
+          o += R(64, S - 72, 30, 12, '', 6, MF) + R(105, S - 72, 24, 12, '', 6, MF) + R(143, S - 72, 113, 12, '', 6, MF) + R(269, S - 72, 24, 12, '', 6, MF) + R(303, S - 72, 30, 12, '', 6, MF);
+          o += R(112, S - 90, 10, 18, '', 6, WF) + R(276, S - 90, 10, 18, '', 6, WF) + R(105, S - 102, 188, 12, '', 6, MF);
+          if (k < 5) o += `<rect x="20" y="82" width="360" height="${S - 82 - (k >= 3 ? 24 : 2)}" rx="4" fill="none" stroke="currentColor" stroke-opacity=".22" stroke-dasharray="4 5"/>`;   // 앞으로 막과 배선이 쌓일 빈 자리
+          // 이름표
+          o += L(0, 200, S + 34, 'p형 실리콘 웨이퍼');
+          o += Lk(2, 281, S + 36, 'n-well', 'dg-sub') + (k >= 1 ? dgT(110, S + 48, 'p형 기판', 'dg-sub') : '');
+          o += L(1, 34, S - 8, 'STI') + L(1, 200, S - 8, 'STI') + L(1, 362, S - 8, 'STI');
+          o += L(3, 117, S - 28, '게이트') + L(3, 281, S - 28, '게이트');
+          o += (k >= 4 && k < 6 ? dgT(79, S + 11, 'n+', 'dg-sub') + dgT(155, S + 11, 'n+', 'dg-sub') + dgT(244, S + 11, 'p+', 'dg-sub') + dgT(318, S + 11, 'p+', 'dg-sub') : '');
+          o += L(4, 79, S + 30, '소스') + L(4, 155, S + 30, '드레인') + L(4, 244, S + 30, '드레인') + L(4, 318, S + 30, '소스');
+          o += L(4, 117, S - 8, 'NMOS') + L(4, 281, S - 8, 'PMOS');
+          o += L(5, 200, S - 66, '텅스텐 콘택', 'dg-volt');
+          o += (k < 5 ? dgT(200, 130, k < 3 ? '위쪽은 아직 비어 있다' : '이 위에 절연막과 배선이 쌓일 자리', 'dg-sub') : '');
+          o += (k >= 6 ? dgT(79, S - 78, 'GND') + dgT(200, S - 78, 'Vout', 'dg-volt') + dgT(318, S - 78, 'VDD') : '') + (k === 6 ? dgT(199, S - 114, 'Vin', 'dg-volt') : '');
+          if (k === 7) {
+            o += `<rect class="dg-fsub" x="140" y="36" width="120" height="16" rx="3"/>${dgT(200, 48, '프로브 카드', 'dg-sub')}<path class="dg-line" d="M199 52 V${S - 102}"/><path d="M199 ${S - 100} l-4 -8 h8 Z" fill="currentColor"/>${dgT(270, 48, 'EDS', 'dg-volt', 'start')}${dgT(330, 64, '합격', 'dg-on')}`;
+          }
+          // 이 단계에서 쓰인 8대 공정
+          const nm = ['웨이퍼', '산화', '포토', '식각', '증착·주입', '배선', 'EDS', '패키징'], w = [44, 40, 40, 40, 58, 40, 40, 48];
+          let x = (400 - (w.reduce((a, b) => a + b, 0) + 35)) / 2, chips = '';
+          nm.forEach((n, i) => {
+            const on = s.used.includes(i);
+            chips += `<g opacity="${on ? 1 : .42}"><rect x="${x.toFixed(1)}" y="262" width="${w[i]}" height="18" rx="9" style="${on ? 'fill:#22d3ee;fill-opacity:.25;stroke:#22d3ee' : 'fill:currentColor;fill-opacity:.07;stroke:none'}"/>${dgT((x + w[i] / 2).toFixed(1), 274.5, n, '').replace('class="dg-t "', `class="dg-t" style="font-size:10px;${on ? 'font-weight:700' : ''}"`)}</g>`;
+            x += w[i] + 5;
+          });
+          return dgSvg('CMOS 인버터 단면: ' + s.label, o + chips + dgT(200, 296, s.q, 'dg-volt').replace('<text ', '<text data-fit-done="1" style="font-size:12.5px" '), '0 28 400 276');
+        }
+      },
+      // ---------- 같은 인버터를 위에서 본 모습: 마스크 한 장이 층 하나 ----------
+      'cmos-topview': {
+        title: '위에서 본 CMOS 인버터: 마스크 한 장 = 층 하나',
+        states: [
+          { id: 'act', label: '① 활성 영역', k: 0, q: '마스크 1: 트랜지스터가 들어설 섬을 정한다',
+            desc: '위에서 보면 트랜지스터가 놓일 자리는 절연 벽(STI)에 둘러싸인 가로 띠 두 개다. 위쪽이 PMOS 자리, 아래쪽이 NMOS 자리다. 이 모양은 첫 번째 포토 마스크에 그려져 있다.' },
+          { id: 'well', label: '② n-well', k: 1, q: '마스크 2: PMOS 쪽을 n형 바닥으로 지정한다',
+            desc: '위쪽 절반을 열어 n형 웰을 만든다. 마스크의 파란 영역만 이온이 들어가고 나머지는 감광막이 막는다.' },
+          { id: 'poly', label: '③ 게이트', k: 2, q: '마스크 3: 두 띠를 세로로 가로지르는 게이트',
+            desc: '세로로 선 폴리실리콘 한 줄이 두 띠를 가로지른다. 게이트가 활성 영역을 가로지르는 자리가 곧 트랜지스터의 채널 자리다. 이 선의 폭이 채널 길이이고, 미세화는 이 폭을 줄이는 일이다.' },
+          { id: 'sd', label: '④ 소스·드레인', k: 3, q: '마스크 4·5: 게이트 양옆만 불순물이 들어간다',
+            desc: '게이트가 막아 준 덕분에 게이트 양옆의 띠에만 불순물이 들어간다. 위쪽은 p+(빨강), 아래쪽은 n+(파랑)이다. 게이트가 마스크 역할도 하므로 소스·드레인이 게이트에 자동으로 맞춰진다(자기 정렬).' },
+          { id: 'ct', label: '⑤ 콘택', k: 4, q: '마스크 6: 위층과 닿을 구멍의 위치',
+            desc: '소스·드레인 4곳과 게이트 1곳에 작은 사각형 구멍이 뚫린다. 이 구멍이 텅스텐으로 채워져 금속 배선과 닿는다.' },
+          { id: 'm1', label: '⑥ 금속 1', k: 5, q: '마스크 7: 선을 그어 회로로 완성한다',
+            desc: '위쪽 소스는 전원(VDD), 아래쪽 소스는 접지(GND)로, 두 드레인은 세로선으로 이어 출력(Vout)이 된다. 게이트는 입력(Vin) 선과 닿는다. 마스크를 한 장씩 쌓아 올린 결과가 인버터 한 개다.' }
+        ],
+        svg(s) {
+          const k = s.k;
+          const R = (x, y, w, h, c, st, ex = '') => st <= k ? `<rect class="${c}${st === k ? ' dg-new' : ''}" x="${x}" y="${y}" width="${w}" height="${h}" ${ex}/>` : '';
+          const NF = 'style="fill:#60a5fa;fill-opacity:.6"', PF = 'style="fill:#f87171;fill-opacity:.55"', WF = 'style="fill:#64748b;fill-opacity:.95"', GF = 'style="fill:#fb923c;fill-opacity:.65"', MF = 'style="fill:#fbbf24;fill-opacity:.7"';
+          let o = '';
+          o += `<rect class="dg-fsub" x="40" y="30" width="320" height="226" rx="6"/>`;
+          o += R(40, 30, 320, 112, 'dg-n', 1, 'style="fill-opacity:.22"');
+          o += R(70, 62, 260, 40, 'dg-si', 0, 'style="fill-opacity:.55"') + R(70, 176, 260, 40, 'dg-si', 0, 'style="fill-opacity:.55"');
+          o += R(70, 62, 120, 40, '', 3, PF) + R(210, 62, 120, 40, '', 3, PF) + R(70, 176, 120, 40, '', 3, NF) + R(210, 176, 120, 40, '', 3, NF);
+          o += R(190, 44, 20, 186, '', 2, GF);
+          o += [[100, 82], [300, 82], [100, 196], [300, 196]].map(([x, y]) => R(x - 6, y - 6, 12, 12, '', 4, WF)).join('') + R(194, 130, 12, 12, '', 4, WF);
+          o += R(60, 40, 280, 12, '', 5, MF) + R(94, 40, 12, 52, '', 5, MF) + R(60, 222, 280, 12, '', 5, MF) + R(94, 186, 12, 48, '', 5, MF);
+          o += R(294, 76, 12, 126, '', 5, MF) + R(150, 124, 56, 24, '', 5, MF);
+          const t = (st, x, y, a, c) => st <= k ? dgT(x, y, a, c || 'dg-sub') : '';
+          o += t(0, 380, 86, 'PMOS', 'dg-sub').replace('text-anchor="middle"', 'text-anchor="end"') + t(0, 380, 200, 'NMOS', 'dg-sub').replace('text-anchor="middle"', 'text-anchor="end"');
+          o += t(1, 60, 128, 'n-well', 'dg-sub').replace('text-anchor="middle"', 'text-anchor="start"');
+          o += (k >= 2 && k < 5 ? t(2, 200, 244, '게이트', 'dg-volt') : '');
+          o += (k >= 3 ? dgT(130, 90, 'p+', 'dg-sub') + dgT(270, 90, 'p+', 'dg-sub') + dgT(130, 204, 'n+', 'dg-sub') + dgT(270, 204, 'n+', 'dg-sub') : '');
+          o += t(5, 60, 34, 'VDD', 'dg-volt').replace('text-anchor="middle"', 'text-anchor="start"') + t(5, 60, 252, 'GND', 'dg-volt').replace('text-anchor="middle"', 'text-anchor="start"') + t(5, 330, 144, 'Vout', 'dg-volt') + t(5, 128, 142, 'Vin', 'dg-volt');
+          return dgSvg('위에서 본 CMOS 인버터: ' + s.label, o + dgT(200, 276, s.q, 'dg-volt').replace('<text ', '<text data-fit-done="1" style="font-size:12.5px" '), '0 14 400 276');
         }
       },
       'memory-compare': {
@@ -16119,6 +16225,7 @@
       rawMarkdown = rawMarkdown.replace(TOGGLE_RE, (m, ti, body) => `\n\n<details class="th-toggle"><summary>${escH(ti.trim())}</summary><div class="th-tg-body">${safeHtml(marked.parseInline(body.trim()))}</div></details>\n\n`);
       rawMarkdown = rawMarkdown.replace(DG_RE, (m, id, cap) => `\n\n<figure class="dg" data-dg="${id}" data-cap="${escH((cap || '').trim())}"></figure>\n\n`);
       rawMarkdown = rawMarkdown.replace(PR_RE, (m, id, cap) => `\n\n<figure class="dg" data-pr="${id}" data-cap="${escH((cap || '').trim())}"></figure>\n\n`);
+      rawMarkdown = rawMarkdown.replace(TRY_RE, (m, k, id, label, desc) => `\n\n<div class="th-try"><button type="button" class="th-go" data-go="${k}:${id}"><span class="th-go-k">${k === 'jx' ? '직무 체험' : '장비 체험'}</span>${escH(label.trim())}</button>${desc ? `<p>${escH(desc.trim())}</p>` : ''}</div>\n\n`);
       if (adv) {   // 장비 사용 가이드 전용 블록: 상황별 대처(case)
         const adl = (rows) => `<dl>${rows.map(([k, v, a]) => `<dt${a ? ' class="act"' : ''}>${k}</dt><dd${a ? ' class="act"' : ''}>${safeHtml(marked.parseInline(String(v).trim()))}</dd>`).join('')}</dl>`;
         rawMarkdown = rawMarkdown.replace(ADV_CASE_RE, (m, ti, a, b, c, d) => `\n\n<details class="adv-case"><summary class="adv-case-h">${safeHtml(marked.parseInline(ti.trim()))}</summary>${adl([['증상', a], ['원인 후보', b], ['확인 순서', c], ['조치', d, 1]])}</details>\n\n`);
@@ -16147,7 +16254,7 @@
           ${locked ? '' : `<div class="adv-bodywrap"><div class="custom-table-container theory-body adv-body prose prose-slate dark:prose-invert max-w-none">${math.restore(safeHtml(marked.parse(rawMarkdown)))}</div></div>`}
           ${fldK ? `<div class="adv-cta"><div><b>다음 글로 이어 가기</b><p>${t.subject} 로드맵에서 다음 글을 골라 이어서 읽어 보세요.</p></div><button type="button" onclick="navTo('view-learning',{level:'subject',category:'${ADV_CAT}',subject:'${t.subject}'})">${t.subject} 로드맵 보기 →</button></div>` : ''}
           ${labK ? `<div class="adv-cta"><div><b>직접 다뤄 보고 싶다면</b><p>${escH(LABS[labK].title)}에서 이 글의 내용을 직접 조작해 볼 수 있어요.</p></div><button type="button" onclick="labOpen('${labK}')">${escH(LABS[labK].title)} 열기 →</button></div>` : ''}`;
-        container.appendChild(card); hydrateDiagrams(card); advIndex(card); applyMathRendering(); if (locked) container.appendChild(premiumLock(t0.id, 'theory')); return;
+        container.appendChild(card); appendTheoryExp(t, card); hydrateDiagrams(card); advIndex(card); applyMathRendering(); if (locked) container.appendChild(premiumLock(t0.id, 'theory')); return;
       }
       
       card.innerHTML = `
@@ -16172,6 +16279,7 @@
         </div>
       `;
       container.appendChild(card);
+      appendTheoryExp(t, card);
       appendTheoryCareers(t, card);
       hydrateDiagrams(card);
       buildMobileToc(card);
@@ -17892,6 +18000,7 @@
     function jxOpen(id) { navTo('view-jx-run', { jx: id }); }
     function enterJx(state) {
       const root = document.getElementById('jxRoot'), id = (state && state.jx) || learnState.jx, pid = JX_PAID[id];
+      jxRelRun(id);
       const fail = () => { root.innerHTML = '<div class="jx-load">' + escH(T('체험을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.')) + '</div>'; };
       if (pid && !(window.JX && window.JX.exp[id]) && !PRM.unlocked.has(pid)) {   // 해금 전: 잠금 화면 + 해금 팝업
         if (window.JX) window.JX.stop();
@@ -17904,6 +18013,64 @@
         .catch(fail);
     }
     function jxStop() { if (window.JX) window.JX.stop(); }
+    // ===== 이론 ↔ 체험 연결 =====
+    // 이론 글 맨 아래에는 '직접 해 보기'(관련 체험) 버튼이, 체험 화면에는 '관련 이론' 버튼이 자동으로 생긴다.
+    // 연결은 아래 표 한 곳에서 관리한다. 새 체험이나 이론을 만들면 여기에 한 줄만 적으면 양쪽 버튼이 함께 생긴다.
+    //   글 중간에 특정 장면과 이어 주고 싶으면 본문에 {{try:lab:장비|버튼 글자|설명}} 또는 {{try:jx:체험|버튼 글자|설명}} 한 줄을 쓴다.
+    const EXP_JX = {
+      alarm: { t: '알람 대응 콘솔', tag: '현장 직무 체험', d: '알람을 읽고 지금 할 행동을 골라요', view: 'field', th: ['TH-56e74739', 'TH-9d9a8089', 'TH-c7188c38', 'TH-23d511ae', 'TH-c1f0b3a7'] },
+      spc: { t: 'SPC 관리도 운영실', tag: '현장 직무 체험', d: '관리도에서 이상한 점을 잡아 장비를 멈춰요', view: 'field', th: ['TH-d9bed0e1', 'TH-72d11656', 'TH-a7912602', 'TH-c7188c38', 'TH-c1f0b3a7'] },
+      wave: { t: '파형 디버거', tag: '설계 직무 체험', d: '파형에서 원인이 시작된 사이클을 찾아요', view: 'design', th: ['TH-37c9d0c1', 'TH-4b96e006', 'TH-0d974c8b', 'TH-71944c8d'] },
+      eco: { t: '타이밍 ECO 작업대', tag: '설계 직무 체험', d: '타이밍 위반을 예산 안에서 고쳐요', view: 'design', th: ['TH-270a97fe', 'TH-0d974c8b', 'TH-cf1ed26d', 'TH-c1f0b3a7'] }
+    };
+    // 장비 체험 ← 기초 이론: 이론 제목에 이 말이 들어 있으면 그 장비 체험을 이어 준다. 맞는 게 없으면 대분류(8대 공정 폴더) 기본값을 쓴다.
+    const EXP_LAB_TITLE = [[/이온 주입/, ['ion']], [/CMP|연마/, ['cmp']], [/세정|RCA/, ['wet']], [/ALD|원자층/, ['ald']], [/PECVD|플라즈마 CVD/, ['pecvd']], [/LPCVD|저압/, ['lpcvd']], [/CVD/, ['lpcvd', 'pecvd']], [/PVD|스퍼터|배리어|시드/, ['pvd']], [/다마신/, ['pvd', 'cmp']], [/계측|CD-?SEM/, ['met']], [/식각|에치|etch/i, ['etch']], [/노광|스캐너|감광|해상도|포토/, ['photo']], [/산화|퍼니스|Deal/, ['furn']]];
+    const EXP_LAB_SUBJ = { '2. 산화 공정 (Oxidation)': ['furn'], '3. 포토 공정 (Photo)': ['photo'], '4. 식각 공정 (Etching)': ['etch'], '6. 금속 배선 공정 (Metallization)': ['pvd'] };
+    const expLabsFor = (t) => {
+      if (!t || t.category === ADV_CAT) return [];
+      const hit = EXP_LAB_TITLE.find(([re]) => re.test(t.title));
+      return (hit ? hit[1] : (EXP_LAB_SUBJ[t.subject] || [])).filter(k => LABS[k]);
+    };
+    const expJxFor = (t) => t ? Object.keys(EXP_JX).filter(k => EXP_JX[k].th.includes(t.id)) : [];
+    const expGoBtn = (go, title, sub, cls = 'exp-b') => `<button type="button" class="${cls}" data-go="${escH(go)}"><b>${escH(T(title))}</b><span>${escH(T(sub))}</span></button>`;
+    // 이론 글 아래: 이 이론과 이어진 체험 버튼 묶음
+    function appendTheoryExp(t, card) {
+      try {
+        if (!t || !card || String(t.content || '').includes('{{try:')) return;   // 본문에 장면별 버튼이 이미 있으면 맨 아래 묶음은 생략
+        if (t.category === ADV_CAT && t.lab && LABS[t.lab]) return;   // 장비 사용 가이드는 자체 안내가 있다
+        const items = expJxFor(t).map(k => expGoBtn('jx:' + k, EXP_JX[k].t, T(EXP_JX[k].tag) + ' · ' + T(EXP_JX[k].d))).concat(expLabsFor(t).map(k => expGoBtn('lab:' + k, LABS[k].title, T('장비 체험') + ' · ' + T(LABS[k].sub))));
+        if (!items.length) return;
+        const box = document.createElement('div'); box.className = 'exp-rel';
+        box.innerHTML = `<p class="exp-h">${escH(T('🎮 이 이론을 직접 해 보기'))}</p><div class="exp-row">${items.join('')}</div>`;
+        card.after(box);
+      } catch (e) {}
+    }
+    // 체험 화면 아래: 이 체험에 쓰이는 이론 버튼 묶음
+    const expTheoryBtns = (ids) => ids.map(id => allTheories.find(x => x.id === id)).filter(Boolean).map(x => expGoBtn('th:' + x.id, x.title, x.subject, 'exp-b exp-th')).join('');
+    function jxRelRun(id) {
+      const box = document.getElementById('jxRel'); if (!box) return;
+      const m = EXP_JX[id], h = m ? expTheoryBtns(m.th) : '';
+      box.innerHTML = h ? `<div class="exp-rel"><p class="exp-h">${escH(T('📖 이 체험과 이어지는 이론'))}</p><div class="exp-row">${h}</div></div>` : '';
+    }
+    function jxRelList() {
+      [['field', 'jxRelF'], ['design', 'jxRelD']].forEach(([v, bid]) => {
+        const box = document.getElementById(bid); if (!box) return;
+        box.innerHTML = Object.keys(EXP_JX).filter(k => EXP_JX[k].view === v).map(k => {
+          const h = expTheoryBtns(EXP_JX[k].th); return h ? `<div class="exp-rel"><p class="exp-h">${escH(T('📖 ' + EXP_JX[k].t + '과 이어지는 이론'))}</p><div class="exp-row">${h}</div></div>` : '';
+        }).join('');
+      });
+    }
+    function labRelRun(kind) {
+      const box = document.getElementById('labRel'); if (!box) return;
+      const ids = allTheories.filter(t => expLabsFor(t).includes(kind)).map(t => t.id);
+      const h = expTheoryBtns(ids.slice(0, 6));
+      box.innerHTML = h ? `<div class="exp-rel"><p class="exp-h">${escH(T('📖 이 장비와 이어지는 기초 이론'))}</p><div class="exp-row">${h}</div></div>` : '';
+    }
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest && e.target.closest('[data-go]'); if (!b) return;
+      const i = b.dataset.go.indexOf(':'), k = b.dataset.go.slice(0, i), id = b.dataset.go.slice(i + 1); e.preventDefault();
+      if (k === 'lab' && LABS[id]) labOpen(id); else if (k === 'jx' && EXP_JX[id]) jxOpen(id); else if (k === 'th') openTheory(id);
+    });
     // 목록 카드: 무료 맛보기 / 토큰 / 해금됨 표시와 마지막 점수 (기록은 이 기기에만 저장돼요)
     function jxMarkProgress() {
       document.querySelectorAll('.jx-lk').forEach((el) => {
@@ -17955,6 +18122,7 @@
       const xp = document.getElementById('labXs'); if (xp) { xp.classList.remove('big', 'fl', 'min'); xp.style.left = xp.style.top = ''; }   // 단면 팝업은 들어올 때마다 기본 크기·자리로
       const kind = labKind, L = LABS[kind], el = document.getElementById('labLoading');
       const t = document.getElementById('labTitle'), d = document.getElementById('labDesc'); if (t) t.textContent = L.title; if (d) d.textContent = L.desc;
+      labRelRun(kind);
       const gb = document.getElementById('labGuideBtn'), gt = allTheories.find(x => x.category === ADV_CAT && x.lab === kind); if (gb) { gb.classList.toggle('hidden', !gt); gb.dataset.id = gt ? gt.id : ''; }
       Object.keys(LABS).forEach((k) => { if (k !== kind && window[LABS[k].g]) window[LABS[k].g].stop(); });
       if (!window[L.g] && !PRM.unlocked.has('lab-' + kind)) { if (el) { el.style.display = 'flex'; el.innerHTML = ''; el.appendChild(premiumLock('lab-' + kind, 'lab')); } try { pmGateMaybe('lab-' + kind, 'lab'); } catch (e) {} return; }   // 해금 전: 잠금 화면 + 해금 팝업
