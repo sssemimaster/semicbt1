@@ -558,3 +558,153 @@ JX.reg('wave', (root) => {
   }
   menu();
 });
+/* ===== 현장 직무 체험 3: 웨이퍼 맵 불량 패턴 읽기 (수율 엔지니어) ===== */
+JX.reg('wmap', (root) => {
+  const J = window.JX, e = J.e, T = J.T, esc = J.esc;
+  J.css('jx-wmap', `
+.wm-map{padding:.7rem .7rem .4rem;background:var(--jx-p1)}.wm-map svg{display:block;width:100%;max-width:23rem;margin:0 auto}
+.wm-top{display:flex;align-items:center;gap:.6rem;padding:.55rem .8rem;background:var(--jx-p1);border-bottom:1px solid var(--jx-ln);flex-wrap:wrap}.wm-top b{font-size:.88rem}.wm-top span{font-size:.72rem;color:var(--jx-mu)}
+.wm-st{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;padding:.2rem .7rem .5rem;background:var(--jx-p1)}
+.wm-st div{background:var(--jx-p2);border-radius:.6rem;padding:.35rem .5rem;text-align:center}.wm-st span{display:block;font-size:.62rem;font-weight:700;color:var(--jx-mu)}.wm-st b{font-size:1.05rem;font-weight:800}
+.wm-zn{padding:.2rem .8rem .8rem;background:var(--jx-p1);border-top:1px solid var(--jx-ln)}.wm-zn h4{margin:.5rem 0 .3rem;font-size:.66rem;font-weight:800;letter-spacing:.05em;color:var(--jx-mu)}
+.wm-zr{display:flex;align-items:center;gap:.5rem;font-size:.74rem;margin:.22rem 0}.wm-zr span{flex:none;width:3.6rem;color:var(--jx-sub)}.wm-zr i{flex:1;height:.55rem;border-radius:.3rem;background:var(--jx-p2);overflow:hidden}.wm-zr i u{display:block;height:100%;background:var(--jx-bd);text-decoration:none}.wm-zr b{flex:none;width:2.6rem;text-align:right;font-size:.74rem}
+.wm-bar{display:flex;gap:.3rem;margin-bottom:.6rem}.wm-bar i{flex:1;height:.28rem;border-radius:.2rem;background:var(--pt-soft,#f1f5f9)}.wm-bar i.on{background:var(--pt-acc,#4f46e5)}
+.wm-q{font-size:.95rem;font-weight:800;line-height:1.55;margin:.1rem 0 .6rem;color:var(--pt-ink)}
+.wm-o{display:block;width:100%;text-align:left;padding:.62rem .78rem;margin:.3rem 0;border-radius:.75rem;border:1px solid var(--pt-line);background:var(--pt-card);font:inherit;font-size:.84rem;line-height:1.45;color:inherit;cursor:pointer}
+.wm-o:hover:not([disabled]){border-color:var(--pt-acc);background:var(--pt-accbg)}.wm-o.ok{border-color:#10b981;background:#ecfdf5}.wm-o.ng{border-color:#f87171;background:#fef2f2;opacity:.75}html.dark .wm-o.ok{background:#052e22}html.dark .wm-o.ng{background:#3b1217}.wm-o[disabled]{cursor:default}
+.wm-cl{margin:.3rem 0 .6rem;border:1px solid var(--pt-line);border-radius:.8rem;overflow:hidden;background:var(--pt-card)}.wm-cl div{display:flex;gap:.6rem;padding:.45rem .7rem;font-size:.78rem;line-height:1.5;border-top:1px solid var(--pt-line)}.wm-cl div:first-child{border-top:0}.wm-cl b{flex:none;width:4.6rem;font-size:.72rem;color:var(--pt-acc)}
+.wm-fb{margin:.5rem 0;padding:.65rem .8rem;border-radius:.75rem;background:var(--pt-soft);font-size:.8rem;line-height:1.65}.wm-fb b{display:block;font-size:.7rem;color:var(--pt-acc);margin-bottom:.1rem}
+.wm-sum{display:flex;flex-direction:column;gap:.5rem;margin:.6rem 0}.wm-sr{display:flex;gap:.6rem;padding:.65rem .8rem;border-radius:.8rem;border:1px solid var(--pt-line);background:var(--pt-card);font-size:.82rem;line-height:1.55}
+.wm-sr b{flex:none;width:1.4rem;height:1.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.78rem;background:#10b981}.wm-sr.l b{background:#f59e0b}.wm-sr.x b{background:#ef4444}.wm-sr em{display:block;font-style:normal;font-size:.72rem;color:var(--pt-mute);margin-top:.15rem}
+.wm-brief{padding:1.2rem 1.1rem;display:flex;flex-direction:column;gap:.7rem;justify-content:center}.wm-brief h3{margin:0;font-size:1.15rem;font-weight:800}.wm-brief p{margin:0;font-size:.9rem;line-height:1.7;color:var(--jx-sub)}.wm-brief .jx-btn{align-self:flex-start}
+`);
+  const PAT = { edge: '가장자리 쏠림', center: '중앙 군집', scratch: '긁힌 선', repeat: '같은 자리 반복', side: '한쪽 쏠림', rand: '고르게 흩어짐' };
+  const PRC = { photo: '노광(포토)', etch: '식각', dep: '박막 증착', cmp: 'CMP(연마)', ion: '이온 주입', clean: '세정·파티클 관리' };
+  const SC = [
+    { id: 'edge', t: '수율이 떨어진 첫 번째 로트', lot: 'LOT-A1042', seed: 11, pat: 'edge', ans: 'etch', o2: ['photo', 'etch', 'ion', 'clean'],
+      brief: '오늘 EDS를 마친 웨이퍼의 맵이 올라왔어요. 수율이 평소보다 낮아요. 맵 모양을 읽고, 어느 공정부터 의심할지 정해 보세요.',
+      clue: [['노광', '샷 정렬값이 규격 안에 있고 변동이 없어요.'], ['CMP', '연마량이 웨이퍼 평균 기준으로 정상이에요.'], ['식각 챔버', 'ETCH-03의 포커스 링 사용 시간이 1,150시간이에요. 교체 주기는 1,000시간이에요.'], ['이송', '로봇 로그에 이상이 없어요.']],
+      why1: '불량이 바깥 고리 모양으로 몰려 있어요. 가장자리만 따로 달라지는 원인을 찾으면 돼요.',
+      why2: '웨이퍼 가장자리는 플라즈마가 휘어져 식각 속도가 달라지기 쉬운 곳이에요. 이를 바로잡는 포커스 링이 닳으면 가장자리부터 선폭이 틀어져요. 교체 주기를 넘긴 챔버가 단서예요.',
+      next: '같은 챔버를 지난 다른 웨이퍼의 맵도 겹쳐 보고, 포커스 링을 바꾼 뒤 첫 Lot로 확인해요.' },
+    { id: 'center', t: '수율이 떨어진 두 번째 로트', lot: 'LOT-B2210', seed: 23, pat: 'center', ans: 'dep', o2: ['dep', 'photo', 'ion', 'clean'],
+      brief: '이번 Lot는 모든 웨이퍼에서 비슷한 맵이 나왔어요. 한 곳에 몰린 불량이 어떤 공정을 가리키는지 정해 보세요.',
+      clue: [['식각', '선폭이 중앙과 가장자리에서 차이가 없어요.'], ['노광', '포커스 맵이 평평해요.'], ['이온 주입', '빔 균일도가 정상이에요.'], ['증착 챔버', 'CVD-02의 샤워헤드 점검 후 8주가 지났어요. 막 두께가 중앙에서 6% 두꺼워요.']],
+      why1: '불량이 웨이퍼 한곳에 덩어리로 모여 있어요. 한 장 안에서 위치마다 값이 달라지는 공정을 의심해요.',
+      why2: '중앙의 막이 두껍거나 얇으면 뒤 공정의 마진이 한가운데서 먼저 깨져요. 가스가 나오는 샤워헤드가 막히면 중앙 두께가 달라져요.',
+      next: '막 두께 맵을 확인하고, 샤워헤드 점검과 세정 이력을 살펴요.' },
+    { id: 'scratch', t: '수율이 떨어진 세 번째 로트', lot: 'LOT-C3307', seed: 37, pat: 'scratch', ans: 'cmp', o2: ['cmp', 'dep', 'etch', 'clean'],
+      brief: '불량 다이가 한 줄로 이어져 있어요. 우연히 겹친 것 같지 않아요. 무엇이 이런 자국을 남겼는지 찾아보세요.',
+      clue: [['CMP 장비', 'CMP-01의 패드 컨디셔너를 교체한 직후예요. 슬러리 필터 압력이 올랐어요.'], ['이송 로봇', '로그와 진동에 이상이 없어요.'], ['식각', '가장자리와 중앙의 차이가 없어요.'], ['증착', '막 두께가 정상이에요.']],
+      why1: '불량이 줄처럼 이어졌어요. 무작위 먼지라면 이렇게 선으로 이어지지 않아요.',
+      why2: '선으로 이어진 불량은 단단한 입자가 표면을 긁은 흔적이에요. 연마 중에 거친 슬러리 입자나 패드 조각이 끼면 이런 자국이 생겨요.',
+      next: '불량 다이 몇 개를 광학 현미경과 SEM으로 보면 긁힘의 폭과 깊이를 알 수 있어요. 불량 분석 팀에 의뢰해요.' },
+    { id: 'repeat', t: '수율이 떨어진 네 번째 로트', lot: 'LOT-D4119', seed: 41, pat: 'repeat', ans: 'photo', o2: ['etch', 'dep', 'photo', 'cmp'],
+      brief: '불량이 규칙적인 격자 모양으로 찍혀 있어요. 한 장 전체에 같은 간격으로 반복돼요. 이 간격이 무엇을 뜻하는지 생각해 보세요.',
+      clue: [['식각·증착', '장비 변경이 없고 균일도가 정상이에요.'], ['마스크', '마지막 검사 후 42일이 지났어요. 펠리클을 교체한 이력이 있어요.'], ['CMP', '웨이퍼 전체 평탄도가 정상이에요.'], ['노광 샷', '샷(3×3 다이)마다 오른쪽 위 다이가 불량이에요.']],
+      why1: '같은 위치의 다이가 같은 간격으로 반복해서 불량이에요. 샷 단위로 반복되는 공정과 이어져요.',
+      why2: '노광은 같은 마스크 모양을 샷마다 찍어요. 마스크에 결함이나 먼지가 있으면 모든 샷의 같은 자리가 똑같이 불량이 돼요.',
+      next: '마스크를 다시 검사하고, 이전 Lot의 같은 층에서도 같은 자리가 반복되는지 확인해요.' },
+    { id: 'side', t: '수율이 떨어진 다섯 번째 로트', lot: 'LOT-E5088', seed: 53, pat: 'side', ans: 'ion', o2: ['ion', 'clean', 'photo', 'etch'],
+      brief: '왼쪽에서 오른쪽으로 갈수록 불량이 줄어드는 모양이에요. 이번 주에 정비를 받은 장비가 있는지도 같이 살펴보세요.',
+      clue: [['세정', '약액 농도가 정상이에요.'], ['이온 주입기', 'ION-02의 정비 직후예요. 웨이퍼 틸트 각도를 다시 맞췄고 빔 균일도는 확인하지 않았어요.'], ['노광', '샷 정렬이 정상이에요.'], ['식각', '챔버 균일도가 정상이에요.']],
+      why1: '한쪽으로 점점 짙어지는 분포예요. 웨이퍼를 한 방향으로 훑는 장비를 떠올려 보세요.',
+      why2: '기울어진 빔이나 스캔이 고르지 않으면 주입 깊이와 양이 한쪽으로 달라져요. 그쪽 칩의 문턱 전압이 틀어지면서 불량이 몰려요.',
+      next: '빔 균일도와 틸트 각도를 점검하고, 같은 장비를 지난 다른 Lot의 맵도 같은 방향인지 비교해요.' },
+    { id: 'rand', t: '수율이 떨어진 여섯 번째 로트', lot: 'LOT-F6204', seed: 67, pat: 'rand', ans: 'clean', o2: ['photo', 'etch', 'cmp', 'clean'],
+      brief: '특별한 모양이 보이지 않아요. 그런데 최근 몇 주 수율이 조금씩 내려가고 있어요. 모양이 없다는 것도 단서예요.',
+      clue: [['노광', '샷 정렬이 정상이에요.'], ['식각', '챔버 균일도가 정상이에요.'], ['장비 이력', '특정 장비에 불량이 몰리지 않아요. 전 Lot 수율이 조금씩 내려갔어요.'], ['클린룸', 'Bay-3 파티클 카운터가 급증했어요. 출입문이 열린 알람 이력이 있어요.']],
+      why1: '위치에 규칙이 없고 어디에나 흩어져 있어요. 어느 한 장비만의 문제로 보기 어려워요.',
+      why2: '위치 규칙이 없고 한 장비에 몰리지 않으면 공기 중 입자 같은 오염을 먼저 의심해요. 불량이 무작위일수록 칩이 큰 제품의 수율이 더 크게 떨어져요.',
+      next: '파티클 카운터 추이와 Bay 환경을 확인하고, 불량 다이 몇 개를 분석해 입자의 성분을 살펴요.' }
+  ];
+  const prog = J.load('wmap');
+  let W = null;
+  // ---------- 웨이퍼 맵 만들기 (시드 고정) ----------
+  function genMap(c) {
+    const r = J.rng(c.seed), R = 8.2, out = [];
+    for (let j = 0; j < 17; j++) for (let i = 0; i < 17; i++) {
+      const x = i - 8, y = j - 8, d = Math.hypot(x, y); if (d > R) continue;
+      const rr = d / R, nx = x / R; let p = .04;
+      if (c.pat === 'edge') p = rr > .74 ? .82 : rr > .64 ? .2 : p;
+      else if (c.pat === 'center') { const q = Math.hypot(x - .8, y + .6); p = q < 2.5 ? .86 : q < 3.6 ? .26 : p; }
+      else if (c.pat === 'scratch') { const q = Math.abs(Math.hypot(x - 5, y + 8) - 12.5); p = q < .8 ? .94 : q < 1.3 ? .22 : p; }
+      else if (c.pat === 'repeat') p = (i % 3 === 2 && j % 3 === 0) ? .9 : p;
+      else if (c.pat === 'side') p = .04 + Math.max(0, (.15 - nx)) * .95;
+      else p = .2;
+      out.push({ x, y, rr, f: r() < p });
+    }
+    return out;
+  }
+  function mapSvg(d) {
+    const P = 18, C = 170;
+    let s = `<svg viewBox="0 0 340 346" role="img" aria-label="${esc(T('웨이퍼 맵'))}"><circle cx="${C}" cy="${C}" r="158" style="fill:var(--jx-p2);stroke:var(--jx-ln);stroke-width:2"/><path d="M${C - 9} 327 L${C} 316 L${C + 9} 327" style="fill:var(--jx-p1);stroke:var(--jx-ln);stroke-width:1.5"/>`;
+    d.forEach((k) => { s += `<rect x="${(C + k.x * P - 7.5).toFixed(1)}" y="${(C + k.y * P - 7.5).toFixed(1)}" width="15" height="15" rx="2.5" style="fill:${k.f ? 'var(--jx-bd)' : 'var(--jx-ok)'};opacity:${k.f ? .95 : .45}"/>`; });
+    return s + '</svg>';
+  }
+  const zones = (d) => [['중앙', 0, .4], ['중간', .4, .75], ['가장자리', .75, 9]].map((z) => { const g = d.filter((k) => k.rr >= z[1] && k.rr < z[2]); return [z[0], g.length ? Math.round(g.filter((k) => k.f).length / g.length * 100) : 0]; });
+  // ---------- 메뉴 ----------
+  function menu() {
+    W = null;
+    const sc0 = J.load('wmap').sc || {}, done = Object.keys(sc0).length;
+    root.innerHTML = J.head('현장 직무', '웨이퍼 맵 읽기') + J.sub('불량 모양을 읽고 의심할 공정을 골라요', done, SC.length) +
+      J.tiles(SC.map((s, i) => ({ i, n: i + 1, t: s.t, tag: `${esc(s.lot)} · ${e('2단계')}`, sc: sc0[s.id] })));
+    root.querySelectorAll('.jx-tile').forEach((b) => b.addEventListener('click', () => brief(+b.dataset.i)));
+  }
+  function brief(i) {
+    const s = SC[i];
+    root.innerHTML = J.head('현장 직무', '웨이퍼 맵 읽기', `<button class="jx-btn sm" id="wmMenu">${e('사례 목록')}</button>`) +
+      `<div class="jx-stage"><div class="wm-brief"><span class="jx-tag" style="align-self:flex-start">${esc(s.lot)}</span><h3>${e(s.t)}</h3><p>${e(s.brief)}</p><p class="jx-mono" style="font-size:.78rem;color:var(--jx-mu)">${e('수율 엔지니어')} · EDS ${e('웨이퍼 맵')}</p><button class="jx-btn pri" id="wmGo">${e('맵 열기')}</button></div></div>`;
+    document.getElementById('wmMenu').onclick = menu; document.getElementById('wmGo').onclick = () => play(i);
+  }
+  // ---------- 진행 ----------
+  function play(si) {
+    const c = SC[si], d = genMap(c), z = zones(d), fail = d.filter((k) => k.f).length, y = Math.round((1 - fail / d.length) * 1000) / 10;
+    W = { si, c, step: 1, wrong: 0, pts: 0, sum: [] };
+    root.innerHTML = J.head('현장 직무', c.t, `<button class="jx-btn sm" id="wmMenu">${e('사례 목록')}</button>`) +
+      `<div class="jx-two"><div class="jx-stage"><div class="wm-top"><b class="jx-mono">${esc(c.lot)}</b><span>${e('EDS 결과')}</span></div><div class="wm-map">${mapSvg(d)}</div>
+      <div class="wm-st"><div><span>${e('수율')}</span><b class="jx-mono">${y}%</b></div><div><span>${e('불량 다이')}</span><b class="jx-mono">${fail}</b></div><div><span>${e('전체 다이')}</span><b class="jx-mono">${d.length}</b></div></div>
+      <div class="wm-zn"><h4>${e('구역별 불량률')}</h4>${z.map((r) => `<div class="wm-zr"><span>${e(r[0])}</span><i><u style="width:${Math.min(100, r[1])}%"></u></i><b class="jx-mono">${r[1]}%</b></div>`).join('')}</div></div>
+      <div class="jx-card" id="wmSide"></div></div>`;
+    document.getElementById('wmMenu').onclick = menu; ask();
+  }
+  const opts1 = (c) => { const k = Object.keys(PAT), i = k.indexOf(c.pat); return [0, 1, 2, 4].map((n) => k[(i + n) % k.length]).sort((x, y) => k.indexOf(x) - k.indexOf(y)); };
+  function bar() { return `<div class="wm-bar"><i class="on"></i><i class="${W.step >= 2 ? 'on' : ''}"></i></div>`; }
+  function ask() {
+    const c = W.c, side = document.getElementById('wmSide'), one = W.step === 1, list = one ? opts1(c) : c.o2, ans = one ? c.pat : c.ans, names = one ? PAT : PRC;
+    W.wrong = 0;
+    side.innerHTML = bar() + `<div class="wm-q">${e(one ? '이 맵의 불량은 어떤 모양인가요?' : '아래 단서를 읽고, 가장 먼저 의심할 공정을 고르세요.')}</div>` +
+      (one ? '' : `<div class="wm-cl">${c.clue.map((x) => `<div><b>${e(x[0])}</b><span>${e(x[1])}</span></div>`).join('')}</div>`) +
+      `<div id="wmOpts">${list.map((k) => `<button class="wm-o" data-k="${k}">${e(names[k])}</button>`).join('')}</div><div id="wmFb"></div>`;
+    side.querySelectorAll('.wm-o').forEach((b) => b.addEventListener('click', () => pick(b, ans)));
+  }
+  function pick(b, ans) {
+    if (b.disabled) return;
+    const one = W.step === 1;
+    if (b.dataset.k !== ans) {
+      W.wrong++; b.classList.add('ng'); b.disabled = true;
+      document.getElementById('wmFb').innerHTML = `<div class="wm-fb"><b>${e('다시 생각해 봐요')}</b>${e(one ? '구역별 불량률 막대와 맵의 모양을 다시 비교해 보세요.' : '이 선택은 단서와 맞지 않아요. 단서 카드를 다시 읽어 보세요.')}</div>`;
+      return;
+    }
+    b.classList.add('ok'); document.querySelectorAll('#wmOpts .wm-o').forEach((x) => { x.disabled = true; });
+    const p = Math.max(3, 10 - W.wrong * 3); W.pts += p; W.sum.push({ one, p, w: W.wrong });
+    const c = W.c, last = !one;
+    document.getElementById('wmFb').innerHTML = `<div class="wm-fb"><b>${e(one ? '이 모양이에요' : '왜 이 공정인가요?')}</b>${e(one ? c.why1 : c.why2)}${last ? `<br><b style="margin-top:.5rem">${e('다음 확인')}</b>${e(c.next)}` : ''}</div>`;
+    const btn = document.createElement('button'); btn.className = 'jx-btn pri'; btn.style.marginTop = '.4rem'; btn.textContent = T(last ? '결과 보기' : '단서 보고 공정 고르기');
+    btn.onclick = () => { if (last) finish(); else { W.step = 2; ask(); } }; document.getElementById('wmFb').appendChild(btn);
+    if (window.innerWidth < 820) J.timeout(() => btn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 150);
+  }
+  function finish() {
+    const c = W.c, pct = Math.round(W.pts / 20 * 100), pr = J.load('wmap'), sc = Object.assign({}, pr.sc); sc[c.id] = Math.max(sc[c.id] || 0, pct);
+    const best = Math.round(Object.values(sc).reduce((a, b) => a + b, 0) / SC.length); J.save('wmap', { sc, best, unit: '%' });
+    const next = SC[W.si + 1];
+    root.innerHTML = J.head('현장 직무', c.t + ' · ' + T('복기'), `<button class="jx-btn sm" id="wmMenu">${e('사례 목록')}</button>`) +
+      `<div class="jx-card"><div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">${J.score(pct)}<p class="jx-note" style="margin:0;flex:1;min-width:12rem">${e(pct >= 90 ? '모양에서 공정까지 막힘없이 이었어요.' : pct >= 70 ? '큰 흐름은 좋아요. 틀린 단계의 이유를 다시 읽어 보세요.' : '모양과 원인 공정이 짝지어지는 감을 익히는 중이에요. 다시 해 보세요.')}</p></div>
+      <div class="wm-sum">${W.sum.map((r, k) => `<div class="wm-sr ${r.p >= 10 ? '' : 'l'}"><b>${k + 1}</b><div><strong>${e(k === 0 ? PAT[c.pat] : PRC[c.ans])}</strong><em>${e(k === 0 ? '모양 읽기' : '의심 공정')} · ${r.p} / 10${r.w ? ' · ' + e('틀린 시도') + ' ' + r.w : ''}</em></div></div>`).join('')}</div>
+      <p class="jx-note"><b>${e('다음 확인')}</b><br>${e(c.next)}</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem"><button class="jx-btn" id="wmAgain">${e('다시 하기')}</button>${next ? `<button class="jx-btn pri" id="wmNext">${e('다음 사례')}</button>` : ''}</div></div>`;
+    document.getElementById('wmMenu').onclick = menu; document.getElementById('wmAgain').onclick = () => brief(W.si);
+    const nb = document.getElementById('wmNext'); if (nb) nb.onclick = () => brief(W.si + 1);
+  }
+  menu();
+});
