@@ -57,7 +57,7 @@
     const CATEGORY_TREE = {
       "반도체 기초 이론": ["입문 · 한눈에 보기", "반도체 물리"],
       "반도체 소자": ["트랜지스터 소자", "메모리 반도체"],
-      "반도체 8대 공정": ["1. 웨이퍼 제조 공정", "2. 산화 공정 (Oxidation)", "3. 포토 공정 (Photo)", "4. 식각 공정 (Etching)", "5. 박막 증착 공정 (Deposition)", "6. 금속 배선 공정 (Metallization)", "7. EDS 공정 (Testing)", "8. 패키징 공정 (Packaging)"],
+      "반도체 8대 공정": ["1. 웨이퍼 제조 공정", "2. 산화 공정 (Oxidation)", "3. 포토 공정 (Photo)", "4. 식각 공정 (Etching)", "5. 박막 증착 공정 (Deposition)", "6. 금속 배선 공정 (Metallization)", "7. EDS 공정 (Testing)", "8. 패키징 공정 (Packaging)", "9. 공정 통합 (Integration)"],
       "차세대 첨단 기술": ["차세대 소자 기술", "어드밴스드 패키징"],
       [ADV_CAT]: ["장비 사용", "현장 직무", "설계 직무"]
     };
@@ -1863,19 +1863,19 @@
         states: [
           { id: 'wafer', label: '① 웨이퍼', k: 0, used: [0], q: '바탕은 아무것도 없는 p형 실리콘 판',
             desc: '출발점은 불순물을 조금 섞은 p형 실리콘 웨이퍼다. 표면은 거울처럼 매끈하고 아직 회로는 없다. 여기에 NMOS와 PMOS 한 쌍을 나란히 만들어 인버터 하나를 완성해 볼 것이다.' },
-          { id: 'sti', label: '② 소자 분리', k: 1, used: [1, 2, 3, 4], q: '트랜지스터 사이에 절연 벽(STI)을 세운다',
+          { id: 'sti', label: '② 소자 분리', k: 1, used: [1, 2, 3, 4], q: '트랜지스터 사이에 절연 벽(STI) 세우기',
             desc: '산화막과 질화막을 입히고, 포토로 틀을 만들고, 식각으로 얕은 홈을 판 뒤, 홈을 절연막으로 채워 평평하게 간다. 이 절연 벽(STI)이 트랜지스터끼리 전기가 새지 않게 막아 준다. 벽 사이의 섬이 트랜지스터가 들어설 자리(활성 영역)다.' },
-          { id: 'well', label: '③ 웰', k: 2, used: [2, 4], q: 'PMOS가 앉을 자리만 n형으로 바꾼다',
+          { id: 'well', label: '③ 웰', k: 2, used: [2, 4], q: 'PMOS 자리만 n형으로 바꾸기',
             desc: '기판은 p형이어서 NMOS는 그대로 만들 수 있지만, PMOS는 n형 바닥이 필요하다. 포토로 PMOS 자리만 열어 두고 이온 주입으로 n형 영역(n-well)을 만든다. 열처리로 불순물을 퍼뜨려 깊고 고르게 자리 잡게 한다.' },
-          { id: 'gate', label: '④ 게이트', k: 3, used: [1, 4, 2, 3], q: '얇은 산화막 위에 게이트를 올린다',
+          { id: 'gate', label: '④ 게이트', k: 3, used: [1, 4, 2, 3], q: '얇은 산화막 위에 게이트 올리기',
             desc: '먼저 열산화로 아주 얇은 게이트 산화막을 키운다. 그 위에 폴리실리콘을 증착하고, 포토와 식각으로 게이트 모양만 남긴다. 두 트랜지스터의 게이트는 입력(Vin)을 받는 스위치 손잡이가 된다.' },
-          { id: 'sd', label: '⑤ 소스·드레인', k: 4, used: [2, 4], q: '게이트 양옆에 전류가 드나드는 문을 만든다',
+          { id: 'sd', label: '⑤ 소스·드레인', k: 4, used: [2, 4], q: '게이트 양옆에 전류가 드나드는 문 만들기',
             desc: '포토로 NMOS 쪽만 열고 n형 불순물(인·비소)을 박아 n+ 소스·드레인을 만든다. 다음엔 PMOS 쪽만 열고 p형 불순물(붕소)로 p+ 소스·드레인을 만든다. 게이트가 가린 바로 아래는 불순물이 닿지 않아 채널 자리로 남는다. 이후 열처리로 결정 손상을 고친다.' },
-          { id: 'ct', label: '⑥ 콘택', k: 5, used: [4, 2, 3], q: '절연막을 덮고 구멍을 뚫어 금속 기둥을 세운다',
+          { id: 'ct', label: '⑥ 콘택', k: 5, used: [4, 2, 3], q: '절연막을 덮고 구멍을 뚫어 금속 기둥 세우기',
             desc: '트랜지스터 전체를 절연막으로 덮은 뒤, 소스·드레인과 게이트 위에 포토와 식각으로 가는 구멍을 뚫는다. 구멍을 텅스텐으로 채우고 CMP로 평평하게 갈면 위쪽 배선과 닿는 금속 기둥(콘택)이 된다.' },
-          { id: 'wire', label: '⑦ 배선', k: 6, used: [5, 2, 3, 4], q: '금속선으로 NMOS와 PMOS를 인버터로 묶는다',
+          { id: 'wire', label: '⑦ 배선', k: 6, used: [5, 2, 3, 4], q: '금속선으로 NMOS와 PMOS를 인버터로 묶기',
             desc: '금속 1층에서 NMOS 소스는 접지(GND)로, PMOS 소스는 전원(VDD)으로, 두 드레인은 서로 이어 출력(Vout)으로 묶는다. 두 게이트는 위층(금속 2층)으로 올라가 입력(Vin) 하나로 합친다. 이렇게 이어야 비로소 회로(인버터)가 된다.' },
-          { id: 'test', label: '⑧ 검사·포장', k: 7, used: [6, 7], q: '웨이퍼째 검사한 뒤, 잘라 포장한다',
+          { id: 'test', label: '⑧ 검사·포장', k: 7, used: [6, 7], q: '웨이퍼째 검사한 뒤 잘라서 포장',
             desc: '웨이퍼에는 같은 칩이 수백~수천 개 찍혀 있다. EDS에서 프로브 카드의 바늘을 칩의 패드에 대 전기 신호를 넣고 합격·불량을 가린다. 이후 합격한 칩만 잘라 포장(패키징)해 외부와 연결되는 부품으로 만든다.' }
         ],
         svg(s) {
@@ -1927,17 +1927,17 @@
       'cmos-topview': {
         title: '위에서 본 CMOS 인버터: 마스크 한 장 = 층 하나',
         states: [
-          { id: 'act', label: '① 활성 영역', k: 0, q: '마스크 1: 트랜지스터가 들어설 섬을 정한다',
+          { id: 'act', label: '① 활성 영역', k: 0, q: '마스크 1: 트랜지스터가 들어설 섬 정하기',
             desc: '위에서 보면 트랜지스터가 놓일 자리는 절연 벽(STI)에 둘러싸인 가로 띠 두 개다. 위쪽이 PMOS 자리, 아래쪽이 NMOS 자리다. 이 모양은 첫 번째 포토 마스크에 그려져 있다.' },
-          { id: 'well', label: '② n-well', k: 1, q: '마스크 2: PMOS 쪽을 n형 바닥으로 지정한다',
+          { id: 'well', label: '② n-well', k: 1, q: '마스크 2: PMOS 쪽을 n형 바닥으로 지정',
             desc: '위쪽 절반을 열어 n형 웰을 만든다. 마스크의 파란 영역만 이온이 들어가고 나머지는 감광막이 막는다.' },
           { id: 'poly', label: '③ 게이트', k: 2, q: '마스크 3: 두 띠를 세로로 가로지르는 게이트',
             desc: '세로로 선 폴리실리콘 한 줄이 두 띠를 가로지른다. 게이트가 활성 영역을 가로지르는 자리가 곧 트랜지스터의 채널 자리다. 이 선의 폭이 채널 길이이고, 미세화는 이 폭을 줄이는 일이다.' },
-          { id: 'sd', label: '④ 소스·드레인', k: 3, q: '마스크 4·5: 게이트 양옆만 불순물이 들어간다',
+          { id: 'sd', label: '④ 소스·드레인', k: 3, q: '마스크 4·5: 게이트 양옆에만 불순물 주입',
             desc: '게이트가 막아 준 덕분에 게이트 양옆의 띠에만 불순물이 들어간다. 위쪽은 p+(빨강), 아래쪽은 n+(파랑)이다. 게이트가 마스크 역할도 하므로 소스·드레인이 게이트에 자동으로 맞춰진다(자기 정렬).' },
           { id: 'ct', label: '⑤ 콘택', k: 4, q: '마스크 6: 위층과 닿을 구멍의 위치',
             desc: '소스·드레인 4곳과 게이트 1곳에 작은 사각형 구멍이 뚫린다. 이 구멍이 텅스텐으로 채워져 금속 배선과 닿는다.' },
-          { id: 'm1', label: '⑥ 금속 1', k: 5, q: '마스크 7: 선을 그어 회로로 완성한다',
+          { id: 'm1', label: '⑥ 금속 1', k: 5, q: '마스크 7: 선을 그어 회로 완성',
             desc: '위쪽 소스는 전원(VDD), 아래쪽 소스는 접지(GND)로, 두 드레인은 세로선으로 이어 출력(Vout)이 된다. 게이트는 입력(Vin) 선과 닿는다. 마스크를 한 장씩 쌓아 올린 결과가 인버터 한 개다.' }
         ],
         svg(s) {
@@ -10607,6 +10607,203 @@
       },
     });
 
+    // ===== 'CMOS 인버터를 8대 공정으로 만들어 보기' 글 전용 그림: 장면마다 그 장면의 단면을 보여 준다 =====
+    const CXS = 190, CXC = { si: 'fill:#94a3b8;fill-opacity:.35', ox: 'fill:#a78bfa;fill-opacity:.55', ni: 'fill:#334155;fill-opacity:.7', pr: 'fill:#f472b6;fill-opacity:.5', nw: 'fill:#60a5fa;fill-opacity:.3', n: 'fill:#60a5fa;fill-opacity:.62', p: 'fill:#f87171;fill-opacity:.55', poly: 'fill:#fb923c;fill-opacity:.65', w: 'fill:#64748b;fill-opacity:.9', cu: 'fill:#f59e0b;fill-opacity:.85', ild: 'fill:#a78bfa;fill-opacity:.14', film: 'fill:#34d399;fill-opacity:.45', hole: 'fill:var(--tbl-bg)' };
+    const cxr = (x, y, w, h, c, ex = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" style="${CXC[c]}" ${ex}/>`;
+    const cxQ = (txt) => dgT(200, 290, txt, 'dg-volt').replace('<text ', '<text data-fit-done="1" style="font-size:12.5px" ');
+    const cxL = (x, y, t, c = 'dg-sub', a = 'middle') => dgT(x, y, t, c, a);
+    const cxN = (x, y, t, c = 'dg-sub') => dgT(x, y, t, c).replace('<text ', '<text data-fit-done="1" style="font-size:11.5px" ');   // 긴 설명 줄: 자동 축소를 끈다
+    const cxIons = (xs, y0, y1, col = '#22d3ee') => xs.map(x => `<path d="M${x} ${y0} V${y1}" fill="none" stroke-width="2" stroke-dasharray="3 4" class="dg-flow" style="stroke:${col}"/><path d="M${x} ${y1 + 5} l-4 -8 h8 Z" fill="${col}"/>`).join('');
+    const CX_STI = [22, 188, 350], CX_G = [102, 266], CX_C = [79, 117, 155, 244, 281, 318];
+    const cxBase = (o = {}) => cxr(20, CXS, 360, 62, 'si') + (o.well ? cxr(200, CXS, 162, 48, 'nw') : '') + (o.sti ? CX_STI.map(x => cxr(x, CXS, 24, 26, 'ox')).join('') : '');
+    const cxGates = (poly = true) => CX_G.map(x => cxr(x, CXS - 4, 30, 4, 'ox') + (poly ? cxr(x, CXS - 22, 30, 18, 'poly') : '')).join('');
+    const cxSD = (n, p) => (n ? cxr(52, CXS, 54, 14, 'n') + cxr(128, CXS, 54, 14, 'n') : '') + (p ? cxr(218, CXS, 52, 14, 'p') + cxr(292, CXS, 52, 14, 'p') : '');
+    const cxSvg = (label, body, q, vb = '0 64 400 236') => dgSvg(label, body + cxQ(q), vb);
+    Object.assign(DIAGRAMS, {
+      // ---------- 3박자: 막 → 틀 → 가공 → 틀 제거 ----------
+      'cmos-3beat': {
+        title: '어디를 만들든 되풀이되는 3박자',
+        states: [
+          { id: 'film', label: '① 막 깔기', q: '막 깔기: 산화 또는 증착', desc: '웨이퍼 위에 덮개가 될 막을 한 겹 입힌다. 실리콘 표면을 산화시키거나 막을 쌓아 올리는 증착으로 만든다.' },
+          { id: 'mask', label: '② 틀 만들기', q: '틀 만들기: 포토', desc: '막 위에 감광막을 바르고 빛으로 구멍 모양을 찍어, 가릴 곳과 열 곳을 정한다. 이 감광막이 스텐실(틀) 역할을 한다.' },
+          { id: 'etch', label: '③ 구멍만 깎기', q: '구멍 가공 ①: 식각', desc: '틀의 구멍으로 드러난 곳만 깎아 낸다. 감광막이 덮은 곳은 그대로 남아, 평면에 그린 모양이 막에 새겨진다.' },
+          { id: 'imp', label: '③′ 구멍만 주입', q: '구멍 가공 ②: 이온 주입', desc: '깎는 대신 틀의 구멍으로 불순물 이온을 쏘아 넣기도 한다. 구멍 아래 실리콘만 전기적 성질이 바뀌고, 겉모양은 그대로다.' },
+          { id: 'strip', label: '④ 틀 벗기기', q: '틀 제거 후 다음 장면으로', desc: '다 쓴 감광막을 벗겨 내면 한 장면이 끝난다. 다음 장면은 다시 막 깔기부터 같은 3박자로 시작한다.' }
+        ],
+        svg(s) {
+          const id = s.id, SY = 190;
+          let o = cxr(60, SY, 280, 50, 'si') + cxL(200, SY + 32, '실리콘 웨이퍼');
+          const hole = [[130, 40], [230, 40]];
+          if (id === 'film') o += cxr(60, SY - 24, 280, 24, 'film') + cxL(200, SY - 8, '막 (산화막·증착막)');
+          if (id === 'mask') o += cxr(60, SY - 24, 280, 24, 'film') + [[60, 70], [170, 60], [270, 70]].map(([x, w]) => cxr(x, SY - 52, w, 28, 'pr')).join('') + cxL(95, SY - 36, '감광막', 'dg-sub') + cxL(150, SY - 64, '구멍 = 열 곳', 'dg-volt');
+          if (id === 'etch') o += [[60, 70], [170, 60], [270, 70]].map(([x, w]) => cxr(x, SY - 24, w, 24, 'film') + cxr(x, SY - 52, w, 28, 'pr')).join('') + cxIons([150, 250], SY - 70, SY - 10, '#38bdf8') + cxN(200, SY - 80, '이온이 구멍으로만 내려와 막을 깎는다');
+          if (id === 'imp') o += [[60, 70], [170, 60], [270, 70]].map(([x, w]) => cxr(x, SY - 28, w, 28, 'pr')).join('') + hole.map(([x, w]) => cxr(x, SY, w, 14, 'n')).join('') + cxIons([140, 160, 240, 260], SY - 62, SY - 12) + cxN(200, SY - 74, '불순물 이온이 구멍으로만 들어간다');
+          if (id === 'strip') o += [[60, 70], [170, 60], [270, 70]].map(([x, w]) => cxr(x, SY - 24, w, 24, 'film')).join('') + cxL(150, SY - 36, '구멍이 남은 막', 'dg-volt');
+          return cxSvg('3박자: ' + s.label, o, s.q);
+        }
+      },
+      // ---------- 장면 2: 소자 분리(STI) ----------
+      'cmos-sti': {
+        title: '소자 분리(STI) 만들기',
+        states: [
+          { id: 'film', label: '① 덮개 막', q: '덮개 막: 산화막 + 질화막', desc: '실리콘 위에 얇은 산화막과 단단한 질화막을 차례로 깐다. 질화막은 활성 영역을 지키는 덮개이자, 나중에 연마를 멈추는 기준선이 된다.' },
+          { id: 'mask', label: '② 틀', q: '틀: 벽 자리만 열기', desc: '포토로 감광막을 만들어 트랜지스터가 들어설 섬은 가리고, 벽이 설 자리만 연다.' },
+          { id: 'trench', label: '③ 홈 식각', q: '홈 식각: 질화막·산화막·실리콘', desc: '열린 자리의 질화막, 산화막, 실리콘을 차례로 수직으로 깎아 얕은 홈을 판다. 식각이 끝나면 감광막은 벗겨 낸다.' },
+          { id: 'fill', label: '④ 절연막 채움', q: '채움: 홈과 그 위를 절연막으로', desc: '증착으로 홈을 절연막(산화막)으로 가득 채운다. 홈 위와 섬 위까지 넘치게 쌓인다.' },
+          { id: 'cmp', label: '⑤ CMP', q: 'CMP: 넘친 막을 갈아 평평하게', desc: '넘친 절연막을 CMP로 갈아 질화막 높이에서 멈춘다. 홈 안의 절연막만 남고 표면이 평평해진다.' },
+          { id: 'done', label: '⑥ 완성', q: '완성: 절연 벽 사이의 섬 = 활성 영역', desc: '덮개 역할을 한 질화막과 산화막을 벗기면 절연 벽(STI) 사이에 실리콘 섬이 드러난다. 트랜지스터는 이 섬에만 만들어진다.' }
+        ],
+        svg(s) {
+          const id = s.id, S = CXS, isl = [[46, 142], [212, 138]];
+          let o = '';
+          if (['film', 'mask'].includes(id)) o += cxr(20, S, 360, 62, 'si') + cxr(20, S - 3, 360, 3, 'ox') + cxr(20, S - 18, 360, 15, 'ni') + cxL(200, S + 34, '실리콘');
+          if (id === 'mask') o += isl.map(([x, w]) => cxr(x, S - 38, w, 20, 'pr')).join('') + cxL(117, S - 44, '감광막(섬을 가림)', 'dg-sub') + CX_STI.map(x => cxL(x + 12, S - 24, '열림', 'dg-volt')).join('');
+          if (id === 'film') o += cxL(200, S - 24, '질화막 · 얇은 산화막', 'dg-volt');
+          const sub = cxr(20, S + 26, 360, 36, 'si') + isl.map(([x, w]) => cxr(x, S, w, 26, 'si')).join('') + cxr(20, S, 2, 26, 'si') + cxr(374, S, 6, 26, 'si');
+          const caps = isl.map(([x, w]) => cxr(x, S - 3, w, 3, 'ox') + cxr(x, S - 18, w, 15, 'ni')).join('');
+          if (id === 'trench') o += sub + caps + CX_STI.map(x => cxL(x + 12, S + 18, '홈', 'dg-volt')).join('');
+          if (id === 'fill') o += sub + caps + CX_STI.map(x => cxr(x, S, 24, 26, 'ox')).join('') + cxr(20, S - 34, 360, 16, 'ox') + cxL(200, S - 40, '넘친 절연막', 'dg-volt');
+          if (id === 'cmp') o += sub + caps + CX_STI.map(x => cxr(x, S - 18, 24, 44, 'ox')).join('') + cxL(200, S - 28, '질화막 높이에서 멈춤', 'dg-volt') + `<path class="dg-line" d="M26 ${S - 20} H374" style="stroke-dasharray:4 4;opacity:.6"/>`;
+          if (id === 'done') o += cxBase({ sti: true }) + cxL(117, S + 36, '활성 영역', 'dg-volt') + cxL(281, S + 36, '활성 영역', 'dg-volt') + CX_STI.map(x => cxL(x + 12, S - 8, 'STI')).join('');
+          return cxSvg('소자 분리: ' + s.label, o, s.q);
+        }
+      },
+      // ---------- 장면 3: n-well ----------
+      'cmos-well': {
+        title: 'n-well 만들기',
+        states: [
+          { id: 'mask', label: '① 틀', q: '틀: PMOS 자리만 열기', desc: '포토로 NMOS 쪽은 감광막으로 가리고, PMOS가 앉을 자리만 연다.' },
+          { id: 'imp', label: '② 이온 주입', q: '이온 주입: 열린 곳에만 n형 불순물', desc: '인 같은 n형 불순물 이온을 가속해 쏘면, 열린 곳에서만 실리콘에 박힌다. 감광막 아래로는 이온이 들어가지 못한다.' },
+          { id: 'anneal', label: '③ 열처리', q: '열처리: 불순물이 퍼져 n-well 완성', desc: '열처리로 결정을 정돈하고 불순물을 깊고 고르게 퍼뜨리면 n형 영역(n-well)이 완성된다. 감광막도 이때 벗겨 낸다.' }
+        ],
+        svg(s) {
+          const id = s.id, S = CXS;
+          let o = cxBase({ sti: true });
+          if (id !== 'anneal') o += cxr(20, S - 26, 180, 26, 'pr') + cxL(110, S - 10, '감광막(NMOS 가림)', 'dg-sub') + (id === 'mask' ? cxL(281, S - 10, '열린 자리', 'dg-volt') : '');
+          if (id === 'imp') o += cxIons([230, 262, 296, 330], S - 62, S - 8) + cxIons([60, 110, 160], S - 62, S - 30, '#94a3b8') + [[225, 8], [250, 12], [270, 7], [292, 11], [315, 8], [338, 12], [236, 16], [305, 15]].map(([x, y]) => `<circle cx="${x}" cy="${S + y}" r="2.6" fill="#38bdf8"/>`).join('') + cxL(281, S - 70, 'n형 이온(인)', 'dg-volt') + cxL(110, S - 70, '막힘', 'dg-sub');
+          if (id === 'anneal') o += cxr(200, S, 162, 48, 'nw') + cxL(281, S + 36, 'n-well', 'dg-volt') + cxL(110, S + 36, 'p형 기판', 'dg-sub') + `<path class="dg-line" d="M230 ${S + 54} q10 -8 20 0 t20 0 t20 0 t20 0 t20 0" style="stroke:#f87171;opacity:.8"/>` + cxL(305, S + 70, '열처리', 'dg-sub');
+          return cxSvg('n-well: ' + s.label, o, s.q);
+        }
+      },
+      // ---------- 장면 4: 게이트 ----------
+      'cmos-gate': {
+        title: '게이트 만들기',
+        states: [
+          { id: 'ox', label: '① 게이트 산화막', q: '산화: 아주 얇은 게이트 산화막', desc: '노출된 실리콘 표면을 열산화해 두께 수 nm의 얇은 산화막을 키운다. 이 막의 품질이 트랜지스터의 수명과 누설을 좌우한다.' },
+          { id: 'poly', label: '② 폴리 증착', q: '증착: 게이트 재료(폴리실리콘)', desc: '그 위에 게이트가 될 폴리실리콘을 전체에 증착해 덮는다.' },
+          { id: 'mask', label: '③ 틀', q: '포토: 게이트 자리만 가리는 틀', desc: '게이트가 설 자리만 감광막으로 가린다. 이 줄의 폭이 곧 채널 길이다.' },
+          { id: 'etch', label: '④ 식각', q: '식각: 틀 밖의 폴리를 수직으로', desc: '틀 밖의 폴리실리콘을 수직으로 깎아 내면 게이트 줄만 남는다.' },
+          { id: 'cd', label: '⑤ 선폭 확인', q: '틀 제거 후 선폭(CD) 측정', desc: '감광막을 벗기고 게이트 줄의 폭(CD)을 잰다. 몇 nm만 틀어져도 속도와 누설이 달라지므로 이 값은 관리도(SPC)로 계속 감시한다.' }
+        ],
+        svg(s) {
+          const id = s.id, S = CXS, isl = [[46, 142], [212, 138]];
+          let o = cxBase({ sti: true, well: true });
+          if (id === 'ox' || id === 'poly') o += isl.map(([x, w]) => cxr(x, S - 4, w, 4, 'ox')).join('');
+          if (id === 'ox') o += cxL(117, S - 12, '게이트 산화막', 'dg-volt') + cxL(281, S - 12, '(수 nm)', 'dg-sub');
+          if (id === 'poly') o += cxr(20, S - 26, 360, 22, 'poly') + cxL(200, S - 12, '폴리실리콘', 'dg-volt');
+          if (['mask', 'etch'].includes(id)) o += cxGates(false);
+          if (id === 'mask') o += cxr(20, S - 26, 360, 22, 'poly') + CX_G.map(x => cxr(x, S - 48, 30, 22, 'pr')).join('') + cxL(117, S - 54, '감광막', 'dg-sub') + cxL(281, S - 54, '감광막', 'dg-sub');
+          if (id === 'etch') o += CX_G.map(x => cxr(x, S - 22, 30, 18, 'poly') + cxr(x, S - 44, 30, 22, 'pr')).join('') + cxIons([60, 160, 220, 340], S - 64, S - 24, '#38bdf8') + cxL(200, S - 74, '틀 밖만 깎인다', 'dg-volt');
+          if (id === 'cd') o += cxGates(true) + CX_G.map(x => `<path class="dg-line" d="M${x} ${S - 34} H${x + 30}" style="stroke-width:1.6"/><path d="M${x} ${S - 34} l7 -4 v8 Z M${x + 30} ${S - 34} l-7 -4 v8 Z" fill="currentColor"/>`).join('') + cxL(117, S - 42, '선폭', 'dg-volt') + cxL(281, S - 42, '선폭 = 채널 길이', 'dg-volt');
+          return cxSvg('게이트: ' + s.label, o, s.q);
+        }
+      },
+      // ---------- 장면 5: 소스·드레인 ----------
+      'cmos-sd': {
+        title: '소스·드레인 만들기',
+        states: [
+          { id: 'n1', label: '① NMOS 주입', q: 'PMOS는 가리고 NMOS 쪽에 n형 주입', desc: '포토로 PMOS 쪽을 감광막으로 가리고, NMOS 쪽에 비소나 인 같은 n형 불순물을 아주 진하게 쏜다. 게이트는 이온을 막아 주므로 그 아래로는 들어가지 못한다.' },
+          { id: 'n2', label: '② n+ 완성', q: 'n+ 소스·드레인 생성', desc: '게이트 양옆에 n+ 영역이 생겼다. 게이트가 가린 바로 아래는 불순물이 닿지 않아 채널 자리로 남는다.' },
+          { id: 'p1', label: '③ PMOS 주입', q: '이번엔 NMOS를 가리고 PMOS에 p형 주입', desc: '감광막을 벗기고 반대로 NMOS 쪽을 가린 뒤, PMOS 쪽에 붕소 같은 p형 불순물을 쏜다.' },
+          { id: 'done', label: '④ 열처리', q: '열처리: 불순물 활성화, 결정 복구', desc: '열처리로 주입 때 흐트러진 결정을 복구하고 불순물을 제 자리에서 작동하게 한다. 게이트가 마스크 역할을 한 덕분에 소스·드레인은 게이트에 자동으로 맞춰진다(자기 정렬).' }
+        ],
+        svg(s) {
+          const id = s.id, S = CXS;
+          let o = cxBase({ sti: true, well: true }) + cxGates(true);
+          if (id !== 'n1') o += cxSD(true, false);
+          if (id === 'done') o += cxSD(false, true);
+          if (id === 'n1') o += cxr(200, S - 46, 180, 46, 'pr') + cxL(290, S - 52, '감광막(PMOS 가림)', 'dg-sub') + cxIons([70, 92, 150, 170], S - 64, S - 8) + cxIons([117], S - 64, S - 30, '#94a3b8') + cxL(117, S - 72, 'n형 이온', 'dg-volt');
+          if (id === 'n2') o += cxr(200, S - 46, 180, 46, 'pr') + cxL(290, S - 52, '감광막(PMOS 가림)', 'dg-sub') + cxL(79, S + 11, 'n+') + cxL(155, S + 11, 'n+') + cxL(66, S + 30, '소스', 'dg-volt') + cxL(117, S + 30, '채널', 'dg-volt') + cxL(168, S + 30, '드레인', 'dg-volt');
+          if (id === 'p1') o += cxr(20, S - 46, 180, 46, 'pr') + cxL(110, S - 52, '감광막(NMOS 가림)', 'dg-sub') + cxIons([232, 255, 310, 332], S - 64, S - 8, '#f87171') + cxIons([281], S - 64, S - 30, '#94a3b8') + cxL(281, S - 72, 'p형 이온', 'dg-volt');
+          if (id === 'done') o += cxL(117, S + 30, '채널', 'dg-volt') + cxL(281, S + 30, '채널', 'dg-volt') + cxL(79, S + 11, 'n+') + cxL(155, S + 11, 'n+') + cxL(244, S + 11, 'p+') + cxL(318, S + 11, 'p+') + cxL(200, S - 40, '자기 정렬', 'dg-volt');
+          return cxSvg('소스·드레인: ' + s.label, o, s.q);
+        }
+      },
+      // ---------- 장면 6: 콘택 ----------
+      'cmos-contact': {
+        title: '콘택(금속 기둥) 만들기',
+        states: [
+          { id: 'ild', label: '① 절연막', q: '증착: 절연막으로 덮고 평탄화', desc: '트랜지스터 전체를 두꺼운 절연막으로 덮고, 울퉁불퉁한 표면은 CMP로 평평하게 간다.' },
+          { id: 'hole', label: '② 구멍', q: '포토·식각: 깊고 좁은 구멍', desc: '소스, 드레인, 게이트 위에 포토로 구멍 자리를 열고 절연막을 곧게 파 내려간다. 폭에 비해 깊이가 훨씬 큰 구멍이다.' },
+          { id: 'fill', label: '③ 텅스텐 채움', q: '증착: 텅스텐으로 구멍을 채움', desc: '구멍 안쪽 벽에 접착·배리어 막을 입힌 뒤 텅스텐으로 구멍을 가득 채운다. 위로도 넘치게 쌓인다. 좁고 깊은 구멍 바닥까지 막이 고르게 덮이는 것이 관건이다.' },
+          { id: 'cmp', label: '④ CMP', q: 'CMP: 넘친 금속을 갈아 기둥만 남김', desc: '넘친 텅스텐을 CMP로 갈아 내면 구멍 속에만 금속이 남아 위쪽 배선과 닿을 기둥(콘택)이 된다.' }
+        ],
+        svg(s) {
+          const id = s.id, S = CXS;
+          let o = cxBase({ sti: true, well: true }) + cxGates(true) + cxSD(true, true) + cxr(20, S - 60, 360, 60, 'ild');
+          const hh = (i) => (i === 1 || i === 4) ? 38 : 60;
+          if (id === 'hole') o += CX_C.map((x, i) => cxr(x - 5, S - 60, 10, hh(i), 'hole')).join('') + cxr(20, S - 72, 360, 12, 'pr') + CX_C.map(x => cxr(x - 5, S - 72, 10, 12, 'hole')).join('') + cxL(200, S - 80, '감광막 틀', 'dg-sub');
+          if (id === 'fill') o += CX_C.map((x, i) => cxr(x - 5, S - 60, 10, hh(i), 'w')).join('') + cxr(20, S - 68, 360, 8, 'w') + cxL(200, S - 76, '넘친 텅스텐', 'dg-volt');
+          if (id === 'cmp') o += CX_C.map((x, i) => cxr(x - 5, S - 60, 10, hh(i), 'w')).join('') + cxL(200, S - 68, '텅스텐 콘택', 'dg-volt');
+          if (id === 'ild') o += cxL(200, S - 68, '층간 절연막', 'dg-volt');
+          return cxSvg('콘택: ' + s.label, o, s.q);
+        }
+      },
+      // ---------- 장면 7: 배선(구리 다마신) ----------
+      'cmos-wire': {
+        title: '배선 만들기 (다마신)',
+        states: [
+          { id: 'imd', label: '① 절연막', q: '증착: 배선이 들어갈 절연막', desc: '콘택 위에 절연막을 한 층 더 쌓는다. 구리는 식각으로 깎기 어려워서, 선을 그릴 홈을 절연막에 먼저 판다.' },
+          { id: 'groove', label: '② 홈', q: '포토·식각: 선이 놓일 홈', desc: '포토와 식각으로 배선이 놓일 자리에 홈을 판다. 홈 바닥에는 콘택 윗면이 드러난다.' },
+          { id: 'cu', label: '③ 구리 채움', q: '증착: 배리어 + 구리 도금', desc: '구리 원자가 절연막으로 퍼지지 않게 배리어 막을 입히고, 구리로 홈을 가득 채운다. 위로도 넘치게 쌓인다.' },
+          { id: 'cmp', label: '④ CMP', q: 'CMP: 넘친 구리를 갈아 선만 남김', desc: '넘친 구리를 CMP로 갈아 내면 홈 속의 구리선만 남아 금속 1층 배선이 된다.' },
+          { id: 'up', label: '⑤ 위층 반복', q: '같은 과정을 위층에서 되풀이', desc: '금속 2층에서 같은 과정을 되풀이해 두 게이트를 입력(Vin) 하나로 합친다. NMOS 소스는 GND, PMOS 소스는 VDD, 두 드레인은 출력(Vout)으로 묶여 인버터가 완성된다.' }
+        ],
+        svg(s) {
+          const id = s.id, S = CXS, M = [[64, 30], [105, 24], [143, 113], [269, 24], [303, 30]];
+          let o = cxBase({ sti: true, well: true }) + cxGates(true) + cxSD(true, true) + cxr(20, S - 60, 360, 60, 'ild') + CX_C.map((x, i) => cxr(x - 5, S - 60, 10, (i === 1 || i === 4) ? 38 : 60, 'w')).join('');
+          const imd = cxr(20, S - 72, 360, 12, 'ild');
+          if (id === 'imd') o += imd + cxL(200, S - 80, '배선용 절연막', 'dg-volt');
+          if (id === 'groove') o += imd + M.map(([x, w]) => cxr(x, S - 72, w, 12, 'hole')).join('') + cxL(200, S - 80, '홈', 'dg-volt');
+          if (id === 'cu') o += imd + M.map(([x, w]) => cxr(x, S - 72, w, 12, 'cu')).join('') + cxr(20, S - 80, 360, 8, 'cu') + cxL(200, S - 88, '넘친 구리', 'dg-volt');
+          if (id === 'cmp') o += imd + M.map(([x, w]) => cxr(x, S - 72, w, 12, 'cu')).join('') + cxL(200, S - 80, '금속 1층 구리선', 'dg-volt');
+          if (id === 'up') o += cxr(20, S - 108, 360, 48, 'ild') + M.map(([x, w]) => cxr(x, S - 72, w, 12, 'cu')).join('') + cxr(112, S - 90, 10, 18, 'w') + cxr(276, S - 90, 10, 18, 'w') + cxr(105, S - 102, 188, 12, 'cu') + cxL(79, S - 78, 'GND') + cxL(200, S - 78, 'Vout', 'dg-volt') + cxL(318, S - 78, 'VDD') + cxL(199, S - 114, 'Vin', 'dg-volt');
+          return cxSvg('배선: ' + s.label, o, s.q, '0 54 400 246');
+        }
+      },
+      // ---------- 장면 8: 웨이퍼 → 칩 ----------
+      'cmos-wafer-chip': {
+        title: '웨이퍼에서 부품이 되기까지',
+        states: [
+          { id: 'grid', label: '① 웨이퍼 위 칩', q: '같은 칩이 격자로 찍혀 있음', desc: '지금까지 만든 인버터는 칩 안의 아주 작은 일부이고, 그런 칩이 웨이퍼 한 장에 수백~수천 개 같은 모양으로 찍혀 있다.' },
+          { id: 'eds', label: '② EDS 검사', q: 'EDS: 프로브 카드로 칩마다 검사', desc: '프로브 카드의 바늘을 칩 패드에 대고 신호를 넣어 합격과 불량을 가린다. 결과는 웨이퍼 위치별 지도로 남고, 불량이 몰린 곳은 공정 문제의 단서가 된다.' },
+          { id: 'dice', label: '③ 자르기', q: '다이싱: 잘라서 합격 칩만 골라냄', desc: '웨이퍼를 칩 단위로 자른 뒤 합격한 칩만 고른다. 불량 칩은 여기서 버려진다.' },
+          { id: 'pkg', label: '④ 패키징', q: '패키징: 칩을 보호하고 외부와 연결', desc: '골라낸 칩을 기판에 붙이고, 금속선으로 외부 단자와 잇고, 수지로 감싼다. 이렇게 해야 보드에 꽂을 수 있는 부품이 된다.' }
+        ],
+        svg(s) {
+          const id = s.id; let o = '';
+          const R = 96, cx = 200, cy = 130, d = 24, rnd = g4rnd(31);
+          const chips = [];
+          for (let y = cy - R; y + d <= cy + R; y += d) for (let x = cx - R; x + d <= cx + R; x += d) {
+            if (![[x, y], [x + d, y], [x, y + d], [x + d, y + d]].every(c => Math.hypot(c[0] - cx, c[1] - cy) <= R)) continue;
+            const r = rnd(), edge = Math.hypot(x + d / 2 - cx, y + d / 2 - cy) > R * 0.7; chips.push([x, y, r < (edge ? 0.3 : 0.07) ? 'bad' : 'ok']);
+          }
+          if (id === 'grid') o += `<circle cx="${cx}" cy="${cy}" r="${R}" class="dg-fsub"/>` + chips.map(([x, y]) => `<rect x="${x + 1}" y="${y + 1}" width="${d - 2}" height="${d - 2}" style="fill:#94a3b8;fill-opacity:.4"/>`).join('') + cxN(cx, 250, '칩 하나에 인버터 같은 회로가 가득 들어 있다');
+          if (id === 'eds') {
+            o += `<circle cx="${cx}" cy="${cy}" r="${R}" class="dg-fsub"/>` + chips.map(([x, y, k]) => `<rect x="${x + 1}" y="${y + 1}" width="${d - 2}" height="${d - 2}" style="fill:${k === 'bad' ? '#ef4444' : '#34d399'};fill-opacity:.6"/>`).join('');
+            o += `<rect class="dg-fsub" x="150" y="6" width="100" height="16" rx="3"/>` + cxL(200, 18, '프로브 카드', 'dg-sub') + `<path class="dg-line" d="M200 22 V62" style="stroke-width:1.8"/>` + cxL(318, 120, '■ 합격', 'dg-on', 'start') + cxL(318, 140, '■ 불량', 'dg-off', 'start');
+          }
+          if (id === 'dice') o += chips.map(([x, y, k], i) => { const dx = (x - cx) * 0.12, dy = (y - cy) * 0.12; return k === 'bad' ? `<rect x="${(x + 3 + dx).toFixed(1)}" y="${(y + 3 + dy).toFixed(1)}" width="${d - 6}" height="${d - 6}" style="fill:none;stroke:#ef4444;stroke-dasharray:2 2;opacity:.7"/>` : `<rect x="${(x + 3 + dx).toFixed(1)}" y="${(y + 3 + dy).toFixed(1)}" width="${d - 6}" height="${d - 6}" style="fill:#34d399;fill-opacity:.6"/>`; }).join('') + cxN(cx, 250, '점선은 버리는 불량 칩, 초록은 합격 칩');
+          if (id === 'pkg') {
+            o += `<rect x="90" y="150" width="220" height="64" rx="8" style="fill:#64748b;fill-opacity:.22;stroke:currentColor;stroke-opacity:.4"/>` + cxr(90, 214, 220, 12, 'ox') + cxr(150, 190, 100, 22, 'si', 'rx="2"') + cxr(150, 190, 100, 5, 'n') + [112, 288].map(x => cxr(x - 8, 210, 16, 4, 'w')).join('')
+              + `<path class="dg-line" d="M160 192 C 130 160, 118 175, 112 208 M240 192 C 270 160, 282 175, 288 208" style="stroke:#f59e0b;stroke-width:1.8"/>` + [120, 160, 200, 240, 280].map(x => `<circle cx="${x}" cy="238" r="7" fill="#94a3b8" fill-opacity=".8"/>`).join('')
+              + cxL(200, 207, '칩(다이)', 'dg-sub') + cxL(318, 190, '몰딩 수지', 'dg-sub', 'start') + cxL(318, 168, '금속선', 'dg-sub', 'start') + cxL(200, 262, '솔더 볼 (보드와 연결)', 'dg-sub');
+          }
+          return dgSvg('웨이퍼에서 부품까지: ' + s.label, o + cxQ(s.q), id === 'pkg' ? '0 100 400 200' : '0 0 400 300');
+        }
+      }
+    });
+
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
@@ -18032,7 +18229,7 @@
       return (hit ? hit[1] : (EXP_LAB_SUBJ[t.subject] || [])).filter(k => LABS[k]);
     };
     // 글 하나에 특별히 이어 줄 체험이 있으면 여기에 적는다 (글 id → ['lab:장비', 'jx:체험'])
-    const EXP_TH_EXTRA = { 'TH-c1f0b3a7': ['lab:photo', 'lab:etch', 'lab:ion'] };
+    const EXP_TH_EXTRA = { 'TH-c1f0b3a7': [] };   // 빈 목록 = 이 글에는 체험 버튼을 달지 않는다
     const expJxFor = (t) => t ? Object.keys(EXP_JX).filter(k => EXP_JX[k].th.includes(t.id)) : [];
     const expGoBtn = (go, title, sub, cls = 'exp-b') => `<button type="button" class="${cls}" data-go="${escH(go)}"><b>${escH(T(title))}</b><span>${escH(T(sub))}</span></button>`;
     // 이론 글 아래: 이 이론과 이어진 체험 버튼 묶음
