@@ -11080,6 +11080,169 @@
           if (n >= 3 && n < 4) o += ixT(200, 238, '벽 두께 100 nm 이하로', 10.5, { op: .85 });
           return dgSvg('FIB 단면: ' + s.label, o + ixQ(s.q, 262), '0 0 400 272');
         }
+      },
+      // ---------- 단계마다 묻는 질문 ----------
+      'fld-fa-gate': {
+        title: '단계마다 다음으로 갈 근거가 있는지 묻는다',
+        states: [
+          { id: 'g1', n: 1, label: '재현되는가', q: '불량이 다시 나오는가', desc: '칩을 다시 동작시켜 같은 불량이 나오는지 본다. 나오지 않으면 테스트 환경이나 접촉 문제일 수 있으므로 자르기 전에 의뢰한 쪽과 다시 확인한다.' },
+          { id: 'g2', n: 2, label: '자리가 좁혀졌는가', q: '후보 자리가 수 µm까지 줄었는가', desc: '열이나 빛으로 찾은 후보가 칩의 절반이면 아직 자를 수 없다. 수 µm 안팎까지 줄지 않으면 다른 방법을 겹쳐 쓴다.' },
+          { id: 'g3', n: 3, label: '겉에서 보이는가', q: '표면에서 원인이 보이는가', desc: '입자나 끊긴 선이 위에서 보이면 자르지 않고 성분 분석으로 넘어간다. 안 보이면 단면으로 간다.' },
+          { id: 'g4', n: 4, label: '속에서 보이는가', q: '단면에서 원인이 보이는가', desc: '단면에서도 보이지 않으면 자리가 틀렸거나 원인이 더 깊은 층에 있다. 한 층 더 파거나 다른 칩으로 다시 시도한다.' }
+        ],
+        svg(s) {
+          const N = [['재현', '재현되는가'], ['위치', '자리가 좁혀졌나'], ['표면', '겉에서 보이나'], ['단면', '속에서 보이나']];
+          let o = '';
+          N.forEach((nd, i) => {
+            const x = 14 + i * 94, on = i + 1 === s.n, past = i + 1 < s.n;
+            o += `<g style="opacity:${on ? 1 : past ? .55 : .3}">` + ixR(x, 40, 82, 50, on ? IXC.hi : IXC.gr, { fo: on ? .4 : .16, sw: on ? 3 : 1.4 }) + ixT(x + 41, 62, nd[0], 13, { w: 800, mw: 74 }) + ixT(x + 41, 79, nd[1], 9.5, { op: .85, mw: 76 }) + '</g>';
+            if (i < 3) o += ixA(x + 83, 65, x + 93, 65, 'currentColor', past || on ? .8 : .25);
+          });
+          const cx = 14 + (s.n - 1) * 94 + 41;
+          o += ixA(cx - 6, 94, 120, 140, IXC.pkg, .9) + ixR(60, 144, 120, 42, IXC.pkg, { fo: .22 }) + ixT(120, 161, '예', 11, { w: 800, fill: IXC.pkg }) + ixT(120, 177, s.n === 4 ? '원인 확정, 보고' : '다음 단계로', 11.5, { w: 800, mw: 108 });
+          o += ixA(cx + 6, 94, 280, 140, '#ef4444', .85) + ixR(220, 144, 120, 42, '#ef4444', { fo: .18 }) + ixT(280, 161, '아니오', 11, { w: 800, fill: '#ef4444' }) + ixT(280, 177, ['의뢰처와 재확인', '다른 방법을 겹침', '단면으로 이동', '다른 층·칩에서'][s.n - 1], 11, { w: 800, mw: 108 });
+          return dgSvg('불량 분석의 판단: ' + s.label, o + ixQ(s.q, 222), '0 0 400 236');
+        }
+      },
+      // ---------- 단락 · 개방 · 누설 ----------
+      'fld-fa-types': {
+        title: '전기적 불량은 단락, 개방, 누설로 나뉜다',
+        states: [
+          { id: 'short', label: '단락', q: '단락: 떨어져 있어야 할 선이 이어졌다', desc: '두 배선 사이를 입자나 금속 찌꺼기가 메워 전류가 흐른다. 정상이라면 흐르면 안 되는 길이 생긴 것이다. 식각 찌꺼기나 입자 오염을 의심한다.' },
+          { id: 'open', label: '개방', q: '개방: 이어져 있어야 할 선이 끊겼다', desc: '배선이나 비아 속에 구멍(보이드)이 있거나 덜 뚫려서 전류가 지나가지 못한다. 식각이 덜 되었거나 금속을 채우는 과정에 문제가 있었는지 본다.' },
+          { id: 'leak', label: '누설', q: '누설: 막아야 할 곳에서 전류가 샌다', desc: '얇아진 게이트 산화막이나 접합 부근의 결정 결함 때문에 막혀야 할 곳으로 작은 전류가 샌다. 대기 전류가 늘어나는 것으로 드러난다.' }
+        ],
+        svg(s) {
+          const id = s.id; let o = '';
+          o += ixR(30, 150, 340, 60, IXC.gr, { fo: .16, rx: 3 }) + ixT(60, 204, '기판 · 절연막', 10, { op: .65, a: 'start' });
+          if (id === 'short') {
+            o += ixR(70, 96, 70, 54, IXC.mem, { fo: .4, rx: 3 }) + ixR(260, 96, 70, 54, IXC.mem, { fo: .4, rx: 3 }) + ixT(105, 90, '배선 A', 11, { w: 700 }) + ixT(295, 90, '배선 B', 11, { w: 700 });
+            o += `<path d="M138 118 L168 108 L196 124 L226 106 L262 120 L262 140 L226 146 L196 140 L168 148 L138 142 Z" style="fill:#ef4444;fill-opacity:.7;stroke:#ef4444;stroke-width:1.6"/>` + ixT(200, 82, '입자가 두 선을 메움', 11, { w: 700, fill: '#ef4444' });
+            o += `<path d="M105 150 V176 H295 V150" style="stroke:#ef4444;stroke-width:2.4;stroke-dasharray:5 3;fill:none"/>` + ixT(200, 192, '전류가 흐르면 안 되는 길', 10.5, { op: .85 });
+          } else if (id === 'open') {
+            o += ixR(60, 118, 130, 32, IXC.mem, { fo: .4, rx: 3 }) + ixR(222, 118, 120, 32, IXC.mem, { fo: .4, rx: 3 }) + ixR(190, 118, 32, 32, '#ef4444', { fo: .1, rx: 3, dash: 1 });
+            o += ixR(236, 66, 18, 52, IXC.fab, { fo: .45, rx: 2 }) + `<ellipse cx="245" cy="104" rx="8" ry="10" style="fill:var(--bg,#fff);stroke:#ef4444;stroke-width:2"/>` + ixT(245, 56, '비아 속 구멍', 11, { w: 700, fill: '#ef4444' }) + ixT(206, 108, '끊김', 11, { w: 700, fill: '#ef4444' });
+            o += ixA(70, 176, 188, 176, 'currentColor', .6) + ixT(260, 180, '전류가 지나가지 못함', 10.5, { op: .85 });
+          } else {
+            o += ixR(70, 106, 260, 22, IXC.des, { fo: .22, rx: 3 }) + ixT(120, 100, '게이트', 11, { w: 700 }) + ixR(70, 128, 120, 12, IXC.pkg, { fo: .45, rx: 2 }) + ixR(220, 128, 110, 12, IXC.pkg, { fo: .45, rx: 2 }) + ixR(190, 128, 30, 5, '#ef4444', { fo: .5, rx: 1 }) + ixT(300, 160, '막이 얇은 자리', 11, { w: 700, fill: '#ef4444' });
+            [210, 204, 216].forEach((x, k) => { o += ixA(x, 138 + k * 3, x, 186, '#ef4444', .8); });
+            o += ixT(200, 202, '새는 작은 전류', 10.5, { op: .9 });
+          }
+          return dgSvg('전기적 불량: ' + s.label, o + ixQ(s.q, 230), '0 36 400 208');
+        }
+      },
+      // ---------- 위치 찾기 ----------
+      'fld-fa-isolate': {
+        title: '열, 빛, 레이저로 불량 자리를 찾는다',
+        states: [
+          { id: 'th', label: '열화상', q: '열화상: 새는 전류가 내는 열을 본다', desc: '새는 전류는 작은 열을 낸다. 적외선 카메라로 칩 표면의 온도가 오른 자리를 찾는다. 단락이나 큰 누설에 잘 맞지만 열이 퍼져 위치가 흐려지는 것이 한계이다.' },
+          { id: 'em', label: '발광(EMMI)', q: '발광 현미경: 누설 자리의 약한 빛을 모은다', desc: '산화막이나 접합에서 새는 전류가 있으면 아주 약한 빛이 난다. 이 빛을 모아 위치를 찾는다. 금속끼리의 단락은 빛이 나지 않아 찾지 못한다.' },
+          { id: 'ob', label: '레이저(OBIRCH)', q: '레이저 스캔: 저항이 바뀌는 자리를 찾는다', desc: '레이저로 칩을 훑으면 맞은 자리가 아주 조금 데워지며 저항이 바뀐다. 전류 변화가 큰 자리가 불량의 위치이다. 배선 단락이나 비아의 높은 저항을 찾는 데 강하다.' }
+        ],
+        svg(s) {
+          const id = s.id; let o = ixR(60, 20, 280, 170, IXC.gr, { fo: .14, rx: 4, sw: 2 });
+          for (let k = 1; k < 5; k++) o += `<path d="M60 ${20 + k * 34} H340" style="stroke:currentColor;stroke-width:.8;opacity:.12"/>`;
+          for (let k = 1; k < 7; k++) o += `<path d="M${60 + k * 40} 20 V190" style="stroke:currentColor;stroke-width:.8;opacity:.12"/>`;
+          const fx = 238, fy = 112;
+          if (id === 'th') {
+            [46, 32, 18].forEach((r, k) => { o += `<circle cx="${fx}" cy="${fy}" r="${r}" style="fill:#ef4444;fill-opacity:${.1 + k * .12};stroke:none"/>`; });
+            o += ixT(fx, fy - 54, '열이 퍼짐', 10.5, { op: .9 });
+          } else if (id === 'em') {
+            o += `<circle cx="${fx}" cy="${fy}" r="5" style="fill:#fde047;stroke:#fbbf24;stroke-width:1.6"/>`;
+            for (let a = 0; a < 8; a++) { const t = a * Math.PI / 4; o += `<path d="M${fx + 9 * Math.cos(t)} ${fy + 9 * Math.sin(t)} L${fx + 18 * Math.cos(t)} ${fy + 18 * Math.sin(t)}" style="stroke:#fbbf24;stroke-width:2;stroke-linecap:round"/>`; }
+            o += ixT(fx, fy - 28, '작은 점으로 빛남', 10.5, { op: .9 });
+          } else {
+            o += `<path d="M80 60 H320 M80 90 H320 M80 120 H320 M80 150 H320" style="stroke:${IXC.mem};stroke-width:1.2;stroke-dasharray:4 4;opacity:.5"/><path d="M${fx} 20 V${fy - 4}" style="stroke:${IXC.sys};stroke-width:3;opacity:.85"/><circle cx="${fx}" cy="${fy}" r="6" style="fill:${IXC.sys};fill-opacity:.7;stroke:${IXC.sys};stroke-width:1.6"/>` + ixT(fx + 12, fy - 18, '레이저가 훑는 선', 10.5, { a: 'start', op: .9 });
+          }
+          o += `<circle cx="${fx}" cy="${fy}" r="3" style="fill:#ef4444"/>` + ixT(fx + 12, fy + 26, '불량 자리', 10.5, { a: 'start', w: 700, fill: '#ef4444' }) + ixT(200, 206, '칩을 위에서 본 모습', 10, { op: .65 });
+          return dgSvg('위치 찾기: ' + s.label, o + ixQ(s.q, 232), '0 0 400 246');
+        }
+      },
+      // ---------- TEM 단면 읽기 ----------
+      'fld-fa-tem': {
+        title: 'TEM 단면은 층, 두께, 이상 세 가지를 읽는다',
+        states: [
+          { id: 'layer', label: '층 구분', q: '① 층이 무엇인지 밝기로 구분한다', desc: '재료마다 전자를 막는 정도가 달라서 층마다 밝기가 다르다. 무거운 원소의 층은 어둡고, 비어 있는 곳은 밝게 보인다.' },
+          { id: 'thick', label: '두께 재기', q: '② 층의 두께를 nm로 잰다', desc: '이미지에는 눈금자가 함께 들어 있어서 층의 두께를 nm 단위로 잰다. 게이트 산화막처럼 수 nm인 층은 원자 몇 층의 차이도 성능에 영향을 준다.' },
+          { id: 'bad', label: '이상 찾기', q: '③ 정상과 비교해 이상을 찾는다', desc: '같은 자리의 정상 칩 단면과 나란히 놓고 보아야 차이가 드러난다. 구멍이나 얇아진 막, 거칠어진 경계가 불량의 단서가 된다.' }
+        ],
+        svg(s) {
+          const id = s.id, L = [['금속', IXC.mem, 34, .5], ['절연막', IXC.gr, 40, .24], ['게이트 산화막', IXC.pkg, 14, .5], ['실리콘', IXC.des, 60, .34]]; let y = 22, o = '';
+          L.forEach((l, k) => {
+            const h = id === 'bad' && k === 2 ? 7 : l[2], on = id !== 'bad' || k === 2;
+            o += ixR(60, y, 200, h, l[1], { fo: id === 'layer' ? l[3] : .28, rx: 1, sw: 1.2, op: on ? 1 : .6 }) + ixT(272, y + Math.max(h / 2 + 4, 12), id === 'bad' && k === 2 ? '산화막: 정상보다 얇음' : l[0], 10.5, id === 'bad' && k === 2 ? { a: 'start', w: 700, fill: '#ef4444', mw: 120 } : { a: 'start', op: .85, mw: 110 });
+            if (id === 'thick' && (k === 0 || k === 2)) o += `<path d="M50 ${y} V${y + h} M46 ${y} H54 M46 ${y + h} H54" style="stroke:${IXC.hi};stroke-width:1.6"/>` + ixT(40, y + h / 2 + 4, k === 0 ? '100 nm' : '3 nm', 9.5, { a: 'end', w: 700, fill: IXC.hi });
+            y += h;
+          });
+          if (id === 'bad') o += `<ellipse cx="150" cy="68" rx="10" ry="6" style="fill:var(--bg,#fff);stroke:#ef4444;stroke-width:2"/>` + ixT(150, 52, '구멍', 10.5, { w: 700, fill: '#ef4444' });
+          return dgSvg('TEM 단면 읽기: ' + s.label, o + ixQ(s.q, 214), '0 0 400 228');
+        }
+      },
+      // ---------- 사례: 막 두께 비교 ----------
+      'fld-fa-case': {
+        title: '같은 층의 두께를 중앙과 가장자리에서 비교한다',
+        states: [
+          { id: 'ok', label: '정상 로트', q: '정상 로트: 중앙과 가장자리가 비슷하다', desc: '정상 로트에서는 막 두께가 웨이퍼 어느 자리에서도 규격 안에 있다. 이 모습이 비교의 기준이 된다. 숫자는 예시이다.' },
+          { id: 'bad', label: '불량 로트', q: '불량 로트: 가장자리가 규격보다 얇다', desc: '불량 로트에서는 가장자리로 갈수록 막이 얇아져 규격 아래로 내려간다. 같은 층을 정상과 나란히 재서야 이 차이가 증거가 된다.' },
+          { id: 'fix', label: '조치 후', q: '조치 후: 부품을 바꾸자 두께가 돌아왔다', desc: '막힌 가스 부품을 교체한 뒤에는 가장자리의 두께가 다시 규격 안으로 들어왔다. 원인이 맞았다는 확인이다.' }
+        ],
+        svg(s) {
+          const id = s.id, X0 = 52, X1 = 360, Y0 = 170, ay = (v) => Y0 - (v - 60) * 2.2;
+          let o = `<path d="M${X0} 26 V${Y0} H${X1}" style="fill:none;stroke:currentColor;stroke-width:1.4;opacity:.5"/>` + ixT(X0 - 6, ay(100) + 4, '100', 9.5, { a: 'end', op: .7 }) + ixT(X0 - 6, ay(80) + 4, '80', 9.5, { a: 'end', op: .7 }) + ixT(X0 - 6, ay(60) + 4, '60', 9.5, { a: 'end', op: .7 });
+          o += `<path d="M${X0} ${ay(90)} H${X1}" style="stroke:#ef4444;stroke-width:1.4;stroke-dasharray:5 4;opacity:.75"/>` + ixT(X1, ay(90) - 6, '규격 하한 90 nm', 10, { a: 'end', fill: '#ef4444' });
+          const prof = (t) => id === 'bad' ? 100 - 24 * Math.pow(t, 3) : 100 - 2 * Math.pow(t, 3);
+          let d = ''; for (let k = 0; k <= 20; k++) { const t = k / 20; d += (k ? 'L' : 'M') + (X0 + 20 + t * (X1 - X0 - 40)).toFixed(1) + ' ' + ay(prof(t)).toFixed(1); }
+          o += `<path d="${d}" style="fill:none;stroke:${id === 'bad' ? '#ef4444' : IXC.pkg};stroke-width:3.4;stroke-linecap:round"/>`;
+          o += ixT(X0 + 20, Y0 + 18, '중앙', 10.5, { op: .85 }) + ixT(X1 - 20, Y0 + 18, '가장자리', 10.5, { op: .85 }) + ixT(200, Y0 + 34, '웨이퍼 위치', 10, { op: .6 }) + ixT(X0 - 6, 20, '두께(nm)', 10, { a: 'end', op: .65 });
+          o += ixT(X1 - 20, ay(prof(1)) - 12, Math.round(prof(1)) + ' nm', 12, { w: 800, fill: id === 'bad' ? '#ef4444' : IXC.pkg });
+          return dgSvg('막 두께 비교: ' + s.label, o + ixQ(s.q, 222), '0 0 400 234');
+        }
+      },
+      // ---------- FDC가 보는 센서 ----------
+      'fld-fdc-var': {
+        title: '챔버에 달린 센서들과 각각이 알려 주는 이상',
+        states: [
+          { id: 'p', label: '압력', q: '압력: 누설과 배기 이상이 드러난다', desc: '챔버 압력은 누설이 있으면 올라가고, 배기가 막히면 느리게 내려간다. 진공 계통의 이상을 가장 먼저 보여 주는 변수이다.' },
+          { id: 'g', label: '가스 유량', q: '가스 유량: 설정과 다르면 공정이 달라진다', desc: '공정 가스가 설정한 양만큼 들어가는지 본다. 설정과 어긋나거나 출렁이면 막 두께와 식각 속도가 달라진다.' },
+          { id: 'rf', label: 'RF 파워', q: 'RF 파워와 반사: 플라즈마에 에너지가 제대로 들어가는가', desc: '넣은 파워 중 되돌아온 반사 파워가 늘면 정합이 흔들린다는 뜻이다. 플라즈마가 불안정해지는 신호이다.' },
+          { id: 't', label: '온도', q: '온도: 척과 챔버 벽의 온도가 목표에 있는가', desc: '웨이퍼를 올리는 척의 온도가 목표에서 벗어나면 반응 속도가 달라진다. 서서히 변하는 이상을 잡는 데 좋다.' }
+        ],
+        svg(s) {
+          const id = s.id, on = (k) => id === k, hl = (k) => on(k) ? 1 : .35;
+          let o = ixR(110, 40, 180, 130, IXC.gr, { fo: .14, rx: 8, sw: 2 }) + ixT(200, 62, '챔버', 11, { op: .7 });
+          o += ixR(150, 128, 100, 12, IXC.mem, { fo: .5, rx: 2 }) + ixT(200, 154, '웨이퍼를 올리는 척', 10, { op: .7 });
+          o += `<path d="M200 12 V40" style="stroke:${IXC.pkg};stroke-width:5;opacity:${hl('g')}"/>` + ixR(176, 76, 48, 6, IXC.sys, { fo: .5, rx: 2, op: hl('rf') }) + ixT(200, 96, '플라즈마', 10, { op: .8 });
+          o += `<path d="M200 170 V200" style="stroke:${IXC.hi};stroke-width:5;opacity:${hl('p')}"/>` + ixT(208, 196, '배기', 10, { a: 'start', op: .7 });
+          const S = [['g', 304, 30, '가스 유량', IXC.pkg, 208, 26], ['rf', 304, 80, 'RF 파워', IXC.sys, 228, 80], ['p', 304, 126, '압력', IXC.hi, 280, 118], ['t', 304, 168, '온도', IXC.fab, 250, 136]];
+          S.forEach((r) => { o += `<g style="opacity:${on(r[0]) ? 1 : .35}">` + ixR(r[1], r[2] - 12, 76, 26, r[4], { fo: on(r[0]) ? .45 : .2, sw: on(r[0]) ? 2.6 : 1.4, rx: 6 }) + ixT(r[1] + 38, r[2] + 5, r[3], 11, { w: 800, mw: 70 }) + `<path d="M${r[1]} ${r[2]} L${r[5]} ${r[6]}" style="stroke:${r[4]};stroke-width:2;fill:none;stroke-dasharray:4 3"/><circle cx="${r[5]}" cy="${r[6]}" r="3.4" style="fill:${r[4]}"/>` + '</g>'; });
+          return dgSvg('FDC 감시 변수: ' + s.label, o + ixQ(s.q, 232), '0 0 400 246');
+        }
+      },
+      // ---------- 파레토 ----------
+      'fld-why-pareto': {
+        title: '불량을 많은 순서로 세우면 적은 수의 원인이 대부분을 차지한다',
+        states: [
+          { id: 'all', label: '전체 보기', q: '막대는 개수, 선은 누적 비율', desc: '불량의 종류별 개수를 큰 것부터 막대로 세우고, 누적 비율을 선으로 이어 그렸다. 숫자는 예시이다.' },
+          { id: 'top', label: '상위 둘', q: '위의 둘이 전체의 약 62%를 차지한다', desc: '입자 불량과 선폭 불량 둘만으로 전체의 절반을 훨씬 넘는다. 5-Why를 시작할 곳은 이 둘이다.' },
+          { id: 'after', label: '대책 뒤', q: '입자 대책 뒤 다시 세어 본다', desc: '입자 대책을 적용한 뒤 다시 세어 보면 입자 막대가 크게 줄고, 순서가 바뀐 막대가 보인다. 그다음 팔 곳이 정해진다.' }
+        ],
+        svg(s) {
+          const id = s.id, N = ['입자', '선폭', '두께', '정렬', '기타'], V = id === 'after' ? [12, 24, 16, 12, 10] : [38, 24, 16, 12, 10];
+          const tot = V.reduce((a, b) => a + b, 0), X0 = 50, Y0 = 172, W = 44;
+          const ord = V.map((v, i) => [v, N[i]]).sort((a, b) => b[0] - a[0]);
+          let o = `<path d="M${X0} 26 V${Y0} H370" style="fill:none;stroke:currentColor;stroke-width:1.4;opacity:.5"/>`;
+          let cum = 0, d = '';
+          ord.forEach((r, i) => {
+            const h = r[0] / (id === 'after' ? 30 : 40) * 120, x = X0 + 14 + i * 62, hot = id === 'top' ? i < 2 : false;
+            cum += r[0];
+            o += ixR(x, Y0 - h, W, h, hot || (id !== 'top' && i === 0) ? IXC.sys : IXC.mem, { fo: id === 'top' && !hot ? .14 : .5, sw: 1.6, rx: 3, op: id === 'top' && !hot ? .5 : 1 }) + ixT(x + W / 2, Y0 + 15, r[1], 10.5, { w: 700 }) + ixT(x + W / 2, Y0 - 6, String(r[0]), 10.5, { op: .9, w: 700 });
+            d += (i ? 'L' : 'M') + (x + W / 2) + ' ' + (Y0 - cum / tot * 130);
+            o += `<circle cx="${x + W / 2}" cy="${Y0 - cum / tot * 130}" r="3.4" style="fill:${IXC.fab}"/>`;
+          });
+          o += `<path d="${d}" style="fill:none;stroke:${IXC.fab};stroke-width:2.4"/>` + ixT(X0 - 6, 40, '개수', 10, { a: 'end', op: .65 }) + ixT(366, 36, '누적 %', 10, { a: 'end', fill: IXC.fab });
+          if (id === 'top') o += ixR(X0 + 8, 16, 138, 154, IXC.sys, { fo: .06, rx: 6, dash: 1 });
+          return dgSvg('불량 파레토: ' + s.label, o + ixQ(s.q, 214), '0 0 400 226');
+        }
       }
     });
 
@@ -11910,6 +12073,117 @@
           }
         },
 
+        // ---------- 네 직무 비교 ----------
+        'qa-roles': {
+          title: '분석·품질 네 직무가 던지는 질문과 보는 것',
+          states: [
+            { id: 'yield', label: '수율', q: '수율 엔지니어', desc: '칩이 얼마나 살아남았는지, 어디서 잃었는지를 본다. 웨이퍼 맵과 수율 추이에서 손실의 원인 후보를 추려 불량 분석과 공정 쪽에 넘긴다.' },
+            { id: 'quality', label: '품질', q: '품질 엔지니어', desc: '공정이 평소대로 도는지 감시한다. 관리도와 설비 데이터에서 이상을 알아채고, 로트를 잡을지 판단하고, 절차를 지키게 한다.' },
+            { id: 'fa', label: '불량 분석', q: '불량 분석(FA) 엔지니어', desc: '불량 칩 안에서 무엇이 망가졌는지를 직접 확인한다. 현미경과 가공 장비로 좁혀 들어가 원인을 사진과 성분으로 보여 준다.' },
+            { id: 'rel', label: '신뢰성', q: '신뢰성 엔지니어', desc: '오래 써도, 열을 받아도 칩이 멀쩡한지를 시험으로 확인한다. 가속 시험으로 몇 년 뒤의 모습을 미리 예측한다.' }
+          ],
+          svg(s) {
+            const R = { yield: [IXC.mem, '칩이 얼마나 살아남았고, 어디서 잃었나', '웨이퍼 맵 · 수율 추이 · 결함 밀도', '손실 원인 후보와 분석 의뢰'], quality: [IXC.fab, '공정이 평소대로 도는가', '관리도 · 설비 데이터 · 절차', '이상 알림과 홀드 판단'], fa: [IXC.sys, '불량 칩 안에서 무엇이 망가졌나', 'SEM · TEM · FIB · EDS', '원인 사진과 분석 보고서'], rel: [IXC.pkg, '오래 써도, 열을 받아도 괜찮은가', '가속 수명 시험 · 열화', '수명 예측과 시험 보고서'] };
+            const ids = ['yield', 'quality', 'fa', 'rel'], nm = ['수율', '품질', '불량 분석', '신뢰성'];
+            let o = '';
+            ids.forEach((id, i) => { const on = id === s.id; o += `<g style="opacity:${on ? 1 : .4}">` + ixR(12 + i * 96, 12, 88, 32, R[id][0], { fo: on ? .45 : .18, sw: on ? 3 : 1.4, rx: 16 }) + ixT(56 + i * 96, 33, nm[i], 12, { w: 800, mw: 80 }) + '</g>'; });
+            const r = R[s.id], c = r[0];
+            o += ixR(14, 62, 372, 150, c, { fo: .1, rx: 10 });
+            [['던지는 질문', r[1]], ['보는 것', r[2]], ['만드는 결과물', r[3]]].forEach((row, i) => { const y = 82 + i * 44; o += ixT(30, y + 6, row[0], 10.5, { a: 'start', w: 800, fill: c }) + ixT(30, y + 24, row[1], 13, { a: 'start', w: 700, mw: 340 }); });
+            return dgSvg('분석·품질 직무: ' + s.label, o + ixQ(s.q, 236), '0 0 400 248');
+          }
+        },
+        // ---------- 직무별 화면 ----------
+        'qa-screens': {
+          title: '네 직무가 하루 종일 보는 화면',
+          states: [
+            { id: 'yield', label: '수율', q: '수율 엔지니어의 화면: 웨이퍼 맵', desc: '웨이퍼 위 불량 칩을 점으로 찍은 맵이다. 불량이 가장자리에 몰렸는지, 한 줄로 이어졌는지 모양에서 원인 후보를 읽는다.' },
+            { id: 'quality', label: '품질', q: '품질 엔지니어의 화면: 관리도', desc: '측정값을 시간 순서로 찍은 관리도이다. 점이 관리 한계를 넘거나 한쪽으로 쏠리는 순간이 이상 신호이다.' },
+            { id: 'fa', label: '불량 분석', q: '불량 분석 엔지니어의 화면: 현미경 이미지', desc: 'SEM으로 본 배선 사진이다. 두 선 사이를 입자가 메운 모습처럼 사진 한 장에서 원인을 읽는다.' },
+            { id: 'rel', label: '신뢰성', q: '신뢰성 엔지니어의 화면: 시험 시간별 불량', desc: '시험 시간이 지나면서 불량이 늘어나는 곡선이다. 곡선의 모양에서 칩의 수명과 약한 부분을 예측한다.' }
+          ],
+          svg(s) {
+            const id = s.id; let o = ixR(40, 12, 320, 190, IXC.gr, { fo: .1, rx: 8, sw: 2 }) + ixR(40, 12, 320, 22, IXC.gr, { fo: .25, rx: 8, sw: 0 });
+            const C = { yield: IXC.mem, quality: IXC.fab, fa: IXC.sys, rel: IXC.pkg }[id];
+            o += `<circle cx="56" cy="23" r="3" style="fill:#ef4444"/><circle cx="68" cy="23" r="3" style="fill:#fbbf24"/><circle cx="80" cy="23" r="3" style="fill:#34d399"/>` + ixT(200, 27, { yield: '수율 분석', quality: '관리도', fa: 'SEM 이미지', rel: '신뢰성 시험' }[id], 10.5, { w: 700, op: .8 });
+            if (id === 'yield') {
+              o += `<circle cx="150" cy="120" r="72" style="fill:none;stroke:${C};stroke-width:2;opacity:.7"/>`;
+              for (let j = -5; j <= 5; j++) for (let i = -5; i <= 5; i++) { const x = 150 + i * 12, y = 120 + j * 12; if (Math.hypot(i, j) > 5.6) continue; const bad = Math.hypot(i - 4, j - 1) < 2.3 || (j === -4 && i > -2 && i < 3); o += `<rect x="${x - 4.5}" y="${y - 4.5}" width="9" height="9" rx="1.5" style="fill:${bad ? '#ef4444' : C};fill-opacity:${bad ? .85 : .35}"/>`; }
+              o += ixT(262, 62, '로트별 수율', 10.5, { a: 'start', w: 700 }) + `<path d="M246 160 L262 148 L278 152 L294 128 L310 112 L326 118 L342 96" style="fill:none;stroke:${IXC.pkg};stroke-width:2.4"/>` + ixT(300, 182, '시간 →', 9.5, { op: .6 });
+            } else if (id === 'quality') {
+              const y = (v) => 120 - (v - 100) * 11;
+              o += `<path d="M60 ${y(100)} H340" style="stroke:currentColor;opacity:.4;stroke-width:1.2"/><path d="M60 ${y(106)} H340 M60 ${y(94)} H340" style="stroke:#ef4444;stroke-width:1.4;stroke-dasharray:5 4;opacity:.7"/>` + ixT(346, y(106) + 4, 'UCL', 9.5, { a: 'start', fill: '#ef4444' }) + ixT(346, y(94) + 4, 'LCL', 9.5, { a: 'start', fill: '#ef4444' });
+              const V = [100, 101.2, 99.4, 100.6, 99.2, 100.9, 101.5, 100.2, 101.8, 102.6, 103.4, 104.8, 106.7];
+              let d = ''; V.forEach((v, i) => { d += (i ? 'L' : 'M') + (66 + i * 21.5) + ' ' + y(v); }); o += `<path d="${d}" style="fill:none;stroke:${C};stroke-width:2.4"/>`;
+              V.forEach((v, i) => { o += `<circle cx="${66 + i * 21.5}" cy="${y(v)}" r="${i === 12 ? 5 : 3}" style="fill:${i === 12 ? '#ef4444' : C}"/>`; });
+              o += ixT(280, y(106.7) - 12, '한계를 넘음', 10.5, { w: 800, fill: '#ef4444' });
+            } else if (id === 'fa') {
+              o += ixR(52, 44, 296, 150, '#0f172a', { fo: .9, rx: 4, sw: 1 }); let sd = 7; const rn = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+              for (let k = 0; k < 160; k++) o += `<circle cx="${56 + rn() * 288}" cy="${48 + rn() * 142}" r="${.6 + rn() * 1.3}" style="fill:#94a3b8;opacity:${.12 + rn() * .25}"/>`;
+              o += ixR(100, 44, 40, 150, '#cbd5e1', { fo: .55, rx: 2, sw: 0 }) + ixR(260, 44, 40, 150, '#cbd5e1', { fo: .55, rx: 2, sw: 0 }) + `<path d="M138 112 L158 100 L184 110 L206 98 L232 108 L262 102 L262 134 L232 140 L206 130 L184 142 L158 132 L138 138 Z" style="fill:#fbbf24;fill-opacity:.9;stroke:#fde68a;stroke-width:1.4"/>` + ixT(200, 80, '두 선을 메운 입자', 11, { w: 800, fill: '#fde68a' }) + `<path d="M56 186 H116" style="stroke:#f8fafc;stroke-width:2"/>` + ixT(86, 180, '1 µm', 9.5, { fill: '#f8fafc' });
+            } else {
+              o += `<path d="M62 44 V176 H340" style="fill:none;stroke:currentColor;opacity:.5;stroke-width:1.4"/>` + ixT(58, 52, '누적 불량', 9.5, { a: 'end', op: .7 }) + ixT(340, 192, '시험 시간 →', 9.5, { a: 'end', op: .7 });
+              let d = ''; for (let k = 0; k <= 24; k++) { const t = k / 24; d += (k ? 'L' : 'M') + (66 + t * 270) + ' ' + (174 - 118 * (Math.pow(t, 2.6) * .9 + t * .08)); } o += `<path d="${d}" style="fill:none;stroke:${C};stroke-width:3"/>`;
+              o += ixR(250, 120, 84, 28, '#ef4444', { fo: .16, rx: 5 }) + ixT(292, 138, '늘어나는 구간', 10, { w: 700, fill: '#ef4444', mw: 76 });
+            }
+            return dgSvg('직무별 화면: ' + s.label, o + ixQ(s.q, 230), '0 0 400 242');
+          }
+        },
+        // ---------- 필요한 능력 ----------
+        'qa-skills': {
+          title: '직무별로 많이 쓰는 능력',
+          states: [
+            { id: 'yield', label: '수율', q: '수율: 공정 지식과 데이터 도구', desc: '수율은 공정이 어떻게 칩에 영향을 주는지 아는 것과 여러 로트를 비교하는 데이터 도구가 중요하다. 숫자는 감각을 위한 예시이다.' },
+            { id: 'quality', label: '품질', q: '품질: 통계와 소통', desc: '품질은 관리도와 Cpk를 다루는 통계가 중심이고, 이상을 알리고 절차를 설득하는 소통도 크다.' },
+            { id: 'fa', label: '불량 분석', q: '불량 분석: 분석 장비 이해', desc: '불량 분석은 현미경과 FIB를 다루고 이미지를 읽는 장비 이해가 가장 중요하다. 결과를 보고서로 정리하는 소통도 필요하다.' },
+            { id: 'rel', label: '신뢰성', q: '신뢰성: 통계와 시험 설계', desc: '신뢰성은 적은 시료로 수명을 예측하는 통계가 중심이다. 시험 장비와 데이터 도구도 함께 쓴다.' }
+          ],
+          svg(s) {
+            const SK = ['통계', '공정 지식', '분석 장비', '데이터 도구', '소통'], V = { yield: [3, 5, 2, 4, 3], quality: [5, 4, 1, 4, 4], fa: [2, 3, 5, 2, 4], rel: [5, 3, 3, 4, 3] }[s.id], C = { yield: IXC.mem, quality: IXC.fab, fa: IXC.sys, rel: IXC.pkg }[s.id];
+            let o = '';
+            SK.forEach((nm, i) => { const y = 20 + i * 38; o += ixT(24, y + 17, nm, 12, { a: 'start', w: 700 }); for (let k = 0; k < 5; k++) o += ixR(130 + k * 48, y + 4, 42, 20, C, { fo: k < V[i] ? .6 : .08, sw: k < V[i] ? 1.6 : 1, rx: 4, so: k < V[i] ? .95 : .35 }); });
+            return dgSvg('필요한 능력: ' + s.label, o + ixQ(s.q, 226), '0 0 400 238');
+          }
+        },
+        // ---------- Cpk ----------
+        'qa-cpk': {
+          title: '같은 규격 안에서 Cpk가 달라지는 세 가지 모습',
+          states: [
+            { id: 'good', label: '여유 있음', q: '평균이 가운데, 산포가 좁다: Cpk 약 1.67', desc: '평균이 규격의 가운데에 있고 흩어짐이 좁아 분포가 규격 안에 넉넉히 들어간다. 이런 공정이 안정적이다. 숫자는 예시이다.' },
+            { id: 'shift', label: '치우침', q: '평균이 한쪽으로 치우쳤다: Cpk 약 1.0', desc: '산포는 그대로인데 평균이 위쪽 한계로 다가갔다. 한계 가까이에서 분포의 꼬리가 규격을 넘기 시작한다. 조건을 옮겨 평균을 되돌린다.' },
+            { id: 'wide', label: '퍼짐', q: '산포가 넓다: Cpk 약 0.83', desc: '평균은 가운데이지만 흩어짐이 커서 양쪽 꼬리가 규격을 넘는다. 평균을 옮겨도 소용이 없고, 변동의 원인을 찾아 줄여야 한다.' }
+          ],
+          svg(s) {
+            const P = { good: [100, 2], shift: [104, 2], wide: [100, 4] }[s.id], X = (v) => 40 + (v - 80) * 8, Y0 = 170;
+            const g = (v) => Math.exp(-Math.pow((v - P[0]) / P[1], 2) / 2) * (P[1] === 4 ? 70 : 130);
+            let o = ''; let d = `M${X(80)} ${Y0}`, dOut = '';
+            for (let v = 80; v <= 120.01; v += .5) d += `L${X(v).toFixed(1)} ${(Y0 - g(v)).toFixed(1)}`;
+            d += `L${X(120)} ${Y0}Z`;
+            o += `<path d="${d}" style="fill:${IXC.mem};fill-opacity:.3;stroke:${IXC.mem};stroke-width:2.2"/>`;
+            [[80, 90], [110, 120]].forEach((r) => { let q = `M${X(r[0])} ${Y0}`; for (let v = r[0]; v <= r[1] + .01; v += .5) q += `L${X(v).toFixed(1)} ${(Y0 - g(v)).toFixed(1)}`; q += `L${X(r[1])} ${Y0}Z`; o += `<path d="${q}" style="fill:#ef4444;fill-opacity:.55"/>`; });
+            o += `<path d="M${X(90)} 30 V${Y0} M${X(110)} 30 V${Y0}" style="stroke:#ef4444;stroke-width:1.8;stroke-dasharray:5 4"/>` + ixT(X(90), 24, '규격 하한 90', 10.5, { w: 700, fill: '#ef4444' }) + ixT(X(110), 24, '규격 상한 110', 10.5, { w: 700, fill: '#ef4444' }) + `<path d="M40 ${Y0} H360" style="stroke:currentColor;opacity:.5"/>` + ixT(X(100), Y0 + 16, '평균 ' + P[0], 10.5, { op: .85 });
+            return dgSvg('Cpk: ' + s.label, o + ixQ(s.q, 214), '0 0 400 226');
+          }
+        },
+        // ---------- OOC와 OOS ----------
+        'qa-ooc': {
+          title: '관리 한계를 넘은 점과 규격을 넘은 점',
+          states: [
+            { id: 'ok', label: '정상', q: '모든 점이 관리 한계 안에 있다', desc: '점이 관리 한계 안에서 오르내린다. 평소 보이는 흔들림이므로 조치가 필요 없다.' },
+            { id: 'ooc', label: 'OOC', q: 'OOC: 관리 한계는 넘었지만 규격 안이다', desc: '마지막 점이 관리 한계를 넘었다. 제품은 아직 합격이지만 공정이 평소와 달라졌다는 신호이므로 원인을 찾는다.' },
+            { id: 'oos', label: 'OOS', q: 'OOS: 규격까지 벗어났다', desc: '점이 규격 상한까지 넘었다. 이 로트는 고객 기준을 벗어난 것이다. OOC에서 멈췄다면 여기까지 오지 않았을 수 있다.' }
+          ],
+          svg(s) {
+            const y = (v) => 112 - (v - 100) * 6.2, V = [100.4, 101.6, 99.2, 100.8, 99.6, 101.2, 100.2, 99.4, 100.9, 101.4, 100.1, 99.5];
+            V.push(s.id === 'ok' ? 100.6 : s.id === 'ooc' ? 107.2 : 111.8);
+            let o = `<path d="M50 ${y(100)} H350" style="stroke:currentColor;opacity:.4"/><path d="M50 ${y(106)} H350 M50 ${y(94)} H350" style="stroke:${IXC.fab};stroke-width:1.6;stroke-dasharray:5 4"/><path d="M50 ${y(110)} H350 M50 ${y(90)} H350" style="stroke:#ef4444;stroke-width:1.8"/>`;
+            o += ixT(354, y(106) + 4, '관리 한계', 9.5, { a: 'start', fill: IXC.fab }) + ixT(354, y(110) + 4, '규격', 9.5, { a: 'start', fill: '#ef4444' });
+            let d = ''; V.forEach((v, i) => { d += (i ? 'L' : 'M') + (60 + i * 22) + ' ' + y(v); }); o += `<path d="${d}" style="fill:none;stroke:${IXC.mem};stroke-width:2.4"/>`;
+            V.forEach((v, i) => { const last = i === V.length - 1 && s.id !== 'ok'; o += `<circle cx="${60 + i * 22}" cy="${y(v)}" r="${last ? 6 : 3.2}" style="fill:${last ? '#ef4444' : IXC.mem}"/>`; });
+            if (s.id !== 'ok') o += ixT(300, y(V[12]) - 12, s.id === 'ooc' ? 'OOC' : 'OOS', 12, { w: 800, fill: '#ef4444', a: 'end' });
+            return dgSvg('OOC와 OOS: ' + s.label, o + ixQ(s.q, 214), '0 0 420 226');
+          }
+        },
         // ---------- 분석·품질 직무의 고리 (분석·품질 직무 한눈에 보기 글) ----------
         'qa-loop': {
           title: '분석·품질 직무의 일은 고리처럼 돈다',
