@@ -12592,3 +12592,16 @@ Object.assign(window.I18N_EN, {
 "5-Why로 근본 원인까지 내려가 보고서로 남기고, 관리도와 절차를 고쳐 같은 일이 다시 생기지 않게 한다. 고친 뒤에는 첫 단계로 돌아가 지켜본다.": "Use 5-Why to reach the root cause, write it up in a report, and fix the control charts and procedures so it does not happen again. After the fix, return to the first step and keep watching.",
 "분석·품질 직무의 일: 이상 알아채기에서 재발 방지까지 이어지는 고리": "The work of quality and analysis roles: a loop from noticing an anomaly to preventing a repeat"
 });
+
+Object.assign(window.I18N_EN, {
+"FOUP와 웨이퍼 반송": "FOUPs and Wafer Transport",
+"웨이퍼가 장비 앞까지 오는 길과 다루는 방법": "How wafers travel to the tool and how to handle them",
+"작업 표준서(SOP)와 변경 관리": "Work Instructions (SOP) and Change Control",
+"절차를 지키는 방법과 바꿀 때의 규칙": "How to follow procedures and the rules for changing them",
+"서브팹과 유틸리티 기초": "Sub-fab and Utilities Basics",
+"장비 아래에서 가스 · 전력 · 냉각수를 대는 곳": "Where gas, power, and cooling water are supplied beneath the tool",
+"정비 후 복귀: 시운전과 시즈닝": "Returning After Maintenance: Qualification and Seasoning",
+"정비를 마친 장비를 생산으로 돌려보내는 순서": "The steps for sending a serviced tool back to production",
+"설비 에러 코드와 로그 읽기": "Reading Tool Error Codes and Logs",
+"알람 뒤에 남은 기록에서 원인의 실마리를 찾는 법": "How to find clues to the cause in the records left after an alarm"
+});
