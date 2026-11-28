@@ -12528,3 +12528,8 @@ Object.assign(window.I18N_EN, {
 "SEM이 모으는 신호: 2차 전자, 후방산란 전자, X선": "Signals SEM collects: secondary electrons, backscattered electrons, X-rays",
 "FIB로 결함 자리의 단면과 TEM 박편을 만드는 과정": "How FIB makes a cross-section and a TEM sample at the defect site"
 });
+
+Object.assign(window.I18N_EN, {
+"▶ 풀던 문제가 있어요": "▶ You have an unfinished question set",
+"▶ 풀던 면접이 있어요": "▶ You have an unfinished interview"
+});

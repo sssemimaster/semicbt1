@@ -18147,7 +18147,7 @@
       const b = document.getElementById('resumeBanner'), r = loadResume();
       if (!r) { b.className = 'hidden'; b.innerHTML = ''; return; }
       b.className = 'bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-2xl p-4 flex items-center gap-3';
-      b.innerHTML = `<div class="flex-1 min-w-0"><div class="text-sm font-bold text-amber-800 dark:text-amber-400">▶ 풀던 ${r.mode === 'quiz' ? '문제' : '면접'}가 있어요</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${r.next} / ${r.ids.length}문항까지 진행</div></div>
+      b.innerHTML = `<div class="flex-1 min-w-0"><div class="text-sm font-bold text-amber-800 dark:text-amber-400">▶ ${r.mode === 'quiz' ? '풀던 문제가' : '풀던 면접이'} 있어요</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${r.next} / ${r.ids.length}문항까지 진행</div></div>
         <button onclick="resumeSession()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm px-4 py-2 rounded-xl shrink-0">이어 풀기</button>
         <button onclick="clearResume()" aria-label="삭제" class="text-slate-400 hover:text-rose-500 text-lg px-1">✕</button>`;
     }
