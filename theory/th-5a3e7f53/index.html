@@ -17,7 +17,7 @@
   <meta name="apple-mobile-web-app-title" content="반도체 새김">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>불량 분석: 맵에서 단면까지 정리 — 현장 직무 | 반도체 새김</title>
-  <meta name="description" content="웨이퍼 맵에서 불량이 몰린 자리를 찾았다고 해서 원인을 아는 것은 아니다. 맵은 어디서 불량이 났는지만 알려 줄 뿐, 무엇이 칩을 망쳤는지는 알려 주지 않는다."><link rel="canonical" href="https://semicarve.com/theory/th-5a3e7f53/"><meta property="og:type" content="article"><meta property="og:site_name" content="반도체 새김"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="불량 분석: 맵에서 단면까지 정리 — 현장 직무 | 반도체 새김"><meta property="og:description" content="웨이퍼 맵에서 불량이 몰린 자리를 찾았다고 해서 원인을 아는 것은 아니다. 맵은 어디서 불량이 났는지만 알려 줄 뿐, 무엇이 칩을 망쳤는지는 알려 주지 않는다."><meta name="twitter:card" content="summary"><meta property="og:url" content="https://semicarve.com/theory/th-5a3e7f53/">
+  <meta name="description" content="해금하면 읽을 수 있는 심화 가이드입니다."><link rel="canonical" href="https://semicarve.com/theory/th-5a3e7f53/"><meta property="og:type" content="article"><meta property="og:site_name" content="반도체 새김"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="불량 분석: 맵에서 단면까지 정리 — 현장 직무 | 반도체 새김"><meta property="og:description" content="해금하면 읽을 수 있는 심화 가이드입니다."><meta name="twitter:card" content="summary"><meta property="og:url" content="https://semicarve.com/theory/th-5a3e7f53/">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Sora:wght@500;600;700;800&display=swap">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -1773,7 +1773,7 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
   .ac-tk{display:inline-flex;align-items:center;gap:.4rem} .ac-tk .ic.tk{font-size:1.15rem} .ac-tk small{font-size:11px;font-weight:600;opacity:.7;margin-left:.2rem}
   .pay-open{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;margin-top:.7rem;padding:.72rem;border:1px solid #d97706;border-radius:.8rem;background:rgba(245,185,66,.12);color:#92400e;font-weight:800;font-size:13px;transition:.15s} .pay-open:hover{background:rgba(245,185,66,.22)} html.dark .pay-open{color:#f5b942;border-color:rgba(245,185,66,.5)} .pay-open .ic.tk{font-size:1.2rem}
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "불량 분석: 맵에서 단면까지", "description": "웨이퍼 맵에서 불량이 몰린 자리를 찾았다고 해서 원인을 아는 것은 아니다. 맵은 어디서 불량이 났는지만 알려 줄 뿐, 무엇이 칩을 망쳤는지는 알려 주지 않는다.", "inLanguage": "ko", "articleSection": "심화 이론", "dateModified": "2026-11-28", "publisher": {"@type": "Organization", "name": "반도체 새김"}, "mainEntityOfPage": "https://semicarve.com/theory/th-5a3e7f53/"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "반도체 새김", "item": "https://semicarve.com/"}, {"@type": "ListItem", "position": 2, "name": "이론 백과사전", "item": "https://semicarve.com/theory/"}, {"@type": "ListItem", "position": 3, "name": "불량 분석: 맵에서 단면까지"}]}</script></head>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "불량 분석: 맵에서 단면까지", "description": "해금하면 읽을 수 있는 심화 가이드입니다.", "inLanguage": "ko", "articleSection": "심화 이론", "dateModified": "2026-11-28", "publisher": {"@type": "Organization", "name": "반도체 새김"}, "mainEntityOfPage": "https://semicarve.com/theory/th-5a3e7f53/"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "반도체 새김", "item": "https://semicarve.com/"}, {"@type": "ListItem", "position": 2, "name": "이론 백과사전", "item": "https://semicarve.com/theory/"}, {"@type": "ListItem", "position": 3, "name": "불량 분석: 맵에서 단면까지"}]}</script></head>
 <body class="bg-slate-50 dark:bg-[#0a1020] text-slate-800 dark:text-slate-200 antialiased min-h-screen flex flex-col relative transition-colors duration-200">
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="tkg" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fde68a"/><stop offset=".5" stop-color="#f5b942"/><stop offset="1" stop-color="#c2610c"/></linearGradient></defs>
     <symbol id="i-tok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="url(#tkg)"/><circle cx="12" cy="12" r="10.6" fill="none" stroke="#92400e" stroke-opacity=".4" stroke-width=".8"/><circle cx="12" cy="12" r="7.7" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1"/><path d="M12 6.9l5.1 5.1-5.1 5.1L6.9 12z" fill="#92400e" fill-opacity=".88"/><path d="M12 9.3l2.7 2.7-2.7 2.7L9.3 12z" fill="#fde68a"/></symbol>
@@ -2353,189 +2353,7 @@ html.dark #view-lab { --lb-ink:#f1f5f9; --lb-sub:#cbd5e1; --lb-mute:#94a3b8; --l
       <div class="mb-6"><div class="mb-5"><p class="eyebrow mb-1.5">ENCYCLOPEDIA</p><h2 class="page-title text-slate-900 dark:text-white">이론 백과사전</h2><p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5">소자부터 공정, 첨단 기술까지 폴더별로 정리했어요.</p></div></div>
       <input type="text" id="theorySearchInput" class="hidden" onkeyup="handleTheorySearch()">
       <div id="breadcrumbContainer" class="bg-indigo-50/70 dark:bg-[#0f2233] rounded-xl border border-indigo-100 dark:border-white/10 px-4 py-3 mb-6 flex flex-wrap items-center gap-y-2 text-sm hidden"></div>
-      <div id="learningContainer" class="flex flex-col space-y-4"><div class="bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden"><div class="p-6 md:p-8"><p class="eyebrow mb-2">심화 이론 <span class="opacity-50">/</span> 현장 직무 <span class="opacity-50">·</span> 약 7분 읽기</p><h1 class="page-title text-slate-900 dark:text-white mb-3">불량 분석: 맵에서 단면까지</h1><div class="flex flex-wrap gap-1.5 mb-6 pb-6 border-b border-slate-100 dark:border-white/10"><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#현장 직무</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#불량 분석</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#SEM</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#FIB</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#TEM</span></div><div class="custom-table-container theory-body prose prose-slate dark:prose-invert max-w-none"><div class="custom-badge-heading"><span class="custom-badge">✏️ 개요</span>맵은 어디까지만 알려 준다</div>
-
-<p>웨이퍼 맵에서 불량이 몰린 자리를 찾았다고 해서 원인을 아는 것은 아니다. 맵은 <strong>어디서</strong> 불량이 났는지만 알려 줄 뿐, <strong>무엇이</strong> 칩을 망쳤는지는 알려 주지 않는다. 그 답을 눈으로 확인하는 일이 <button type="button" class="th-term" data-def="Failure Analysis. 불량 칩을 하나 잡아 어디가 어떻게 망가졌는지 물리적 원인을 직접 확인하는 일이다.">불량 분석(FA)</button>이다.</p>
-<p>불량 분석은 점점 좁혀 들어가는 일이다. 지름 300 mm 웨이퍼에서 칩 한 개로, 칩에서 수 µm 크기의 결함 자리로, 거기서 단면과 성분으로 좁혀 간다. 한 번에 한 단계씩 좁히는 이유는 단순하다. 처음부터 높은 배율로 칩 전체를 훑을 수는 없기 때문이다.</p>
-<figure class="dg" data-dg="fld-fa-funnel" data-cap="불량 분석: 웨이퍼 맵에서 원자 크기까지 좁혀 들어가는 다섯 단계"></figure>
-
-<div class="custom-highlight-box">[읽는 법] 분석 결과는 수율 엔지니어와 공정 엔지니어에게 근거가 되어 돌아간다. "이 장비가 의심된다"는 추측이 "단면에서 막이 이렇게 얇았다"는 증거가 되는 셈이다.</div>
-
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 순서</span>비파괴가 먼저, 파괴는 마지막</div>
-
-<p>분석에 쓰는 불량 칩은 하나뿐일 수 있다. 한 번 자르면 되돌릴 수 없으므로 <strong>칩을 해치지 않는 방법을 먼저</strong> 쓰고, 자르는 분석은 위치를 확실히 정한 뒤에 한다.</p>
-<ol>
-<li><strong>접수와 이력 확인</strong>: 어느 Lot, 어느 웨이퍼, 어느 다이인지와 어떤 테스트 항목에서 불량이었는지를 확인한다.</li>
-<li><strong>전기적 재현</strong>: 칩을 다시 동작시켜 같은 불량이 나오는지 본다. 재현이 안 되면 분석 대상으로 부적절할 수 있다.</li>
-<li><strong>위치 찾기</strong>: 불량 때문에 새는 전류가 열을 내거나 빛을 내는 점을 이용해, 칩 전체에서 수 µm 크기의 후보 자리를 찾는다. 이 단계를 <button type="button" class="th-term" data-def="전기적 이상이 일어나는 자리를 열화상이나 발광 현미경으로 좁혀 찾는 일이다.">불량 위치 찾기(Fault isolation)</button>이라 한다.</li>
-<li><strong>표면 관찰</strong>: 후보 자리를 광학 현미경과 SEM으로 위에서 본다.</li>
-<li><strong>단면 관찰</strong>: 겉으로 보이지 않으면 FIB로 잘라 속을 본다.</li>
-<li><strong>성분 분석과 보고</strong>: 성분을 확인하고 원인 공정과 근거를 정리해 전달한다.</li>
-</ol>
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 도구</span>OM, SEM, TEM, FIB는 무엇이 다른가</div>
-
-<p>네 가지 도구는 <strong>얼마나 작은 것까지 보이느냐</strong>와 <strong>무엇을 하느냐</strong>로 나뉜다. 아래 그림은 도구마다 다루는 크기의 범위를 같은 눈금 위에 올린 것이다. 눈금 한 칸은 10배 차이이므로, 오른쪽으로 갈수록 훨씬 작은 세계이다.</p>
-<figure class="dg" data-dg="fld-fa-scale" data-cap="현미경과 가공 도구가 다루는 크기의 범위"></figure>
-
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>도구</th>
-<th>쓰는 것</th>
-<th>볼 수 있는 것</th>
-<th>특징</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>광학 현미경(OM)</td>
-<td>가시광</td>
-<td>긁힘, 입자, 변색 같은 큰 결함</td>
-<td>빠르고 값이 싸서 가장 먼저 쓴다</td>
-</tr>
-<tr>
-<td>SEM</td>
-<td>전자빔</td>
-<td>배선 모양, 표면 요철, 단면</td>
-<td>수 nm까지 보이고 가장 많이 쓴다</td>
-</tr>
-<tr>
-<td>TEM</td>
-<td>투과 전자</td>
-<td>막 두께, 계면, 결정 결함</td>
-<td>원자 층까지 보이지만 시편이 어렵다</td>
-</tr>
-<tr>
-<td>FIB</td>
-<td>이온빔</td>
-<td>(가공) 단면, 박편 만들기</td>
-<td>원하는 자리만 정밀하게 깎는다</td>
-</tr>
-</tbody>
-</table></div>
-<details class="th-toggle"><summary>왜 광학 현미경으로는 회로가 안 보일까</summary><div class="th-tg-body">빛에는 파장이 있어서 그보다 훨씬 작은 모양은 뭉개져 보인다. 가시광의 파장은 약 400~700 nm이고, 오늘날 칩의 선폭은 그보다 훨씬 작다. 그래서 파장이 훨씬 짧은 전자를 쓰는 SEM과 TEM이 필요하다.</div></details>
-
-<div class="custom-badge-heading"><span class="custom-badge">⚙️ 원리</span>SEM은 전자로 훑어서 그린다</div>
-
-<p>SEM은 진공 속에서 가늘게 모은 전자빔을 표면 위로 한 줄씩 훑으며, 빔이 닿는 자리마다 튀어나오는 신호를 모아 이미지를 만든다. 어떤 신호를 모으느냐에 따라 보이는 것이 달라진다.</p>
-<figure class="dg" data-dg="fld-fa-sem" data-cap="SEM이 모으는 신호: 2차 전자, 후방산란 전자, X선"></figure>
-
-<ul>
-<li><strong>2차 전자</strong>: 표면 가까이에서 나와 요철을 입체감 있게 보여 준다. 모양을 볼 때 쓴다.</li>
-<li><strong>후방산란 전자</strong>: 원자 번호가 클수록 많이 되돌아와 밝게 보인다. 재료 차이를 볼 때 쓴다.</li>
-<li><strong>X선(EDS)</strong>: 원소마다 정해진 에너지로 나오므로 성분을 알려 준다.</li>
-</ul>
-<div class="custom-highlight-box">[현장 팁] 같은 입자라도 2차 전자 이미지로는 모양을, 후방산란 이미지로는 재료를 본다. 입자의 모양과 성분을 함께 알면 어느 부품에서 떨어져 나왔는지 좁힐 수 있다.</div>
-
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 단면</span>FIB로 보고 싶은 자리만 자른다</div>
-
-<p>표면에 아무것도 보이지 않는데 칩이 불량이라면 문제는 속에 있다. 막 사이의 구멍(보이드), 끊긴 배선, 얇아진 막은 잘라 봐야 보인다. 이때 쓰는 것이 FIB(Focused Ion Beam)이다. 갈륨 이온을 가늘게 모아 쏘면 부딪힌 자리의 원자가 튕겨 나가서, 원하는 곳만 정밀하게 파낼 수 있다.</p>
-<figure class="dg" data-dg="fld-fa-fib" data-cap="FIB로 결함 자리의 단면과 TEM 박편을 만드는 과정"></figure>
-
-<p>보호막부터 덮는 이유는 빔이 표면을 거칠게 갈아 내면 정작 보려는 단면이 망가지기 때문이다. TEM으로 보려면 전자가 통과해야 하므로 박편을 100 nm 이하로 얇게 만든다. 이 정밀한 작업은 한 자리를 자르는 데 몇 시간이 걸리기도 한다. 그래서 위치 찾기가 부정확하면 시간과 칩 한 개를 함께 잃는다.</p>
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 성분</span>EDS로 무엇인지 확인한다</div>
-
-<p>결함 자리에서 이상한 입자가 보이면 다음 질문은 "이게 무엇이냐"이다. SEM에 붙은 EDS 검출기가 그 자리에서 나오는 X선을 재어 어떤 원소인지 알려 준다. 알루미늄인지, 철인지, 실리콘인지에 따라 원인이 달라진다. 철과 크롬이 함께 나오면 스테인리스 부품에서 떨어져 나온 것을 의심하고, 알루미늄이면 장비 챔버의 알루미늄 부품이나 배선 재료를 의심한다.</p>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>성분</th>
-<th>의심하는 곳</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>철, 크롬, 니켈</td>
-<td>스테인리스 배관, 장비 부품</td>
-</tr>
-<tr>
-<td>알루미늄</td>
-<td>장비 챔버나 배선 재료</td>
-</tr>
-<tr>
-<td>탄소, 산소</td>
-<td>유기물 오염, 감광막 찌꺼기</td>
-</tr>
-<tr>
-<td>실리콘</td>
-<td>웨이퍼 파편, 깎인 부스러기</td>
-</tr>
-</tbody>
-</table></div>
-<div class="custom-highlight-box">[주의] 위 표는 가장 흔한 짐작일 뿐이다. 성분은 단서이고, 결론은 어느 공정 이력과 맞는지까지 맞춰 보고 내려야 한다.</div>
-
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 연결</span>웨이퍼 맵 모양에서 분석까지</div>
-
-<p>맵의 모양은 무엇을 먼저 볼지를 알려 준다. 아래 표는 모양마다 분석에서 확인하는 것과 쓰는 도구를 짝지은 것이다. '웨이퍼 맵 읽기' 체험의 여섯 사례와 같은 모양이다.</p>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>맵 모양</th>
-<th>분석에서 확인하는 것</th>
-<th>주로 쓰는 도구</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>가장자리 쏠림</td>
-<td>가장자리와 중앙의 선폭, 막 두께 차이</td>
-<td>FIB 단면 + SEM</td>
-</tr>
-<tr>
-<td>중앙 군집</td>
-<td>중앙의 막 두께와 구조</td>
-<td>FIB 단면 + SEM/TEM</td>
-</tr>
-<tr>
-<td>긁힌 선</td>
-<td>자국의 폭과 깊이</td>
-<td>광학 현미경 + SEM</td>
-</tr>
-<tr>
-<td>같은 자리 반복</td>
-<td>같은 층의 패턴 모양 이상</td>
-<td>SEM(위에서)</td>
-</tr>
-<tr>
-<td>한쪽 쏠림</td>
-<td>한쪽과 반대쪽의 전기 특성과 단면 비교</td>
-<td>전기 측정 + 단면</td>
-</tr>
-<tr>
-<td>고르게 흩어짐</td>
-<td>입자의 모양과 성분</td>
-<td>SEM + EDS</td>
-</tr>
-</tbody>
-</table></div>
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 직무</span>불량 분석은 누구와 일하나</div>
-
-<p>불량 분석 엔지니어는 수율 엔지니어가 맵에서 골라 보낸 의뢰를 받아 분석하고, 결과를 공정 엔지니어에게 넘긴다. 세 사람이 같은 칩을 서로 다른 눈으로 보는 셈이다. 수율 엔지니어는 "어디가 문제인가", 불량 분석 엔지니어는 "무엇이 문제인가", 공정 엔지니어는 "어떻게 고칠 것인가"를 맡는다. 사이트의 직무 지도에서는 분석·품질 랩이 이 일을 하는 건물이다.</p>
-<div class="custom-badge-heading"><span class="custom-badge">🧠 정리</span>이 글의 뼈대</div>
-
-<ul>
-<li>웨이퍼 맵은 어디가 불량인지, 불량 분석은 무엇이 원인인지를 알려 준다.</li>
-<li>분석은 웨이퍼, 칩, 결함 자리, 단면, 성분 순으로 좁혀 들어간다.</li>
-<li>칩을 해치지 않는 방법을 먼저 쓰고, 자르는 분석은 위치를 정한 뒤에 한다.</li>
-<li>OM은 빠르게 겉모습을, SEM은 수 nm까지, TEM은 원자 층까지 보고, FIB는 보고 싶은 자리를 자른다.</li>
-<li>EDS의 성분은 원인을 좁히는 단서이다.</li>
-</ul>
-<div class="custom-badge-heading"><span class="custom-badge">✏️ 다음 읽기</span>이어지는 글</div>
-
-<ul>
-<li>수율과 결함 밀도, EDS 공정의 수율: 맵을 읽는 쪽</li>
-<li>클린룸 규칙과 파티클: 흩어진 입자를 줄이는 쪽</li>
-<li>5-Why와 불량 보고서: 분석 결과를 원인과 조치로 정리하는 쪽</li>
-</ul>
-<div class="custom-badge-heading"><span class="custom-badge">🧠 암기 포인트</span>면접 직전 체크</div>
-
-<ul>
-<li>FA = 불량 칩의 물리적 원인을 직접 확인하는 일. 비파괴가 먼저, 파괴는 나중.</li>
-<li>OM(수백 nm 이상) &lt; SEM(수 nm) &lt; TEM(원자 층). FIB는 가공 도구.</li>
-<li>TEM 시편은 100 nm 이하로 얇게 만들어야 한다.</li>
-<li>SEM 신호: 2차 전자는 모양, 후방산란 전자는 재료 차이, X선(EDS)은 원소.</li>
-<li>맵 모양(가장자리, 중앙, 선, 반복, 쏠림, 흩어짐)이 분석의 출발점이다.</li>
-</ul></div></div></div><nav aria-label="같이 보면 좋은 이론" class="mt-2"><p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-3">같이 보면 좋은 이론</p><ul class="grid gap-2 sm:grid-cols-2"><li><a href="../th-ffa1f53c/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">반도체 현장 직무 한눈에 보기</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li><li><a href="../th-6843f2ca/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">클린룸 규칙과 파티클</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li><li><a href="../th-51d7c83f/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">정전기(ESD) 취급</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li><li><a href="../th-bea378b5/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">화학물질과 특수가스 안전</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li></ul></nav></div>
+      <div id="learningContainer" class="flex flex-col space-y-4"><div class="bg-white dark:bg-[#0f1729] rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 overflow-hidden"><div class="p-6 md:p-8"><p class="eyebrow mb-2">심화 이론 <span class="opacity-50">/</span> 현장 직무 <span class="opacity-50">·</span> 약 7분 읽기</p><h1 class="page-title text-slate-900 dark:text-white mb-3">불량 분석: 맵에서 단면까지</h1><div class="flex flex-wrap gap-1.5 mb-6 pb-6 border-b border-slate-100 dark:border-white/10"><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#현장 직무</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#불량 분석</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#SEM</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#FIB</span><span class="bg-indigo-50 dark:bg-white/5 text-indigo-700 dark:text-cyan-300 text-[11px] px-2.5 py-1 rounded-full font-bold">#TEM</span></div><div class="custom-table-container theory-body prose prose-slate dark:prose-invert max-w-none"><p>해금하면 읽을 수 있는 심화 가이드입니다.</p></div></div></div><nav aria-label="같이 보면 좋은 이론" class="mt-2"><p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-3">같이 보면 좋은 이론</p><ul class="grid gap-2 sm:grid-cols-2"><li><a href="../th-ffa1f53c/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">반도체 현장 직무 한눈에 보기</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li><li><a href="../th-6843f2ca/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">클린룸 규칙과 파티클</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li><li><a href="../th-51d7c83f/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">정전기(ESD) 취급</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li><li><a href="../th-bea378b5/" class="block rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1729] px-4 py-3 hover:border-indigo-300 dark:hover:border-cyan-400/40 transition"><span class="font-bold text-sm text-slate-900 dark:text-white">화학물질과 특수가스 안전</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">심화 이론 · 현장 직무</span></a></li></ul></nav></div>
     </div>
     <!-- 🚨 오류 제보 모달 -->
     <div id="reportModal" class="hidden fixed inset-0 z-[60] items-center justify-center bg-black/60 p-4" onclick="if(event.target===this) closeReportModal()">

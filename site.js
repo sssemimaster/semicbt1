@@ -18421,16 +18421,17 @@
     // 체험 4가지(알람 콘솔·SPC 운영실·파형 디버거·타이밍 ECO)는 #view-jx-run 한 화면을 함께 쓴다.
     const JX_FIELD = ['alarm', 'spc', 'wmap'], JX_DESIGN = ['wave', 'eco'];
     // 탭마다 1개(알람 콘솔·파형 디버거)는 무료 맛보기로 jx.js 에 들어 있고, 나머지는 토큰(10)으로 해금한 뒤 서버에서 코드를 받는다
-    const JX_PAID = { spc: 'jx-spc', eco: 'jx-eco' };
+    const JX_PAID = { spc: 'jx-spc', wmap: 'jx-wmap', eco: 'jx-eco' };
     const JX_META = {
       'jx-spc': { t: 'SPC 관리도 운영실', d: '관리도가 실시간으로 자라요. 이상한 점을 잡아 장비를 멈춰요.' },
+      'jx-wmap': { t: '웨이퍼 맵 읽기', d: '불량 모양을 읽고 의심할 공정을 골라요.' },
       'jx-eco': { t: '타이밍 ECO 작업대', d: '타이밍 위반을 셀 크기, 문턱 전압, 버퍼, 클록 지연으로 고쳐요.' }
     };
     let jxLoading = null; const jxPaidLoads = {};
     function jxLoad() {
       if (window.JX) return Promise.resolve();
       if (jxLoading) return jxLoading;
-      jxLoading = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'jx.js?v=3'; sc.onload = ok; sc.onerror = () => no(new Error('jx.js')); document.head.appendChild(sc); }).catch((e) => { jxLoading = null; throw e; });
+      jxLoading = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'jx.js?v=4'; sc.onload = ok; sc.onerror = () => no(new Error('jx.js')); document.head.appendChild(sc); }).catch((e) => { jxLoading = null; throw e; });
       return jxLoading;
     }
     // 유료 체험 코드는 공개 파일이 아니라 서버(해금 확인 후)에서 받아 실행한다
@@ -18469,7 +18470,7 @@
     //   글 중간에 특정 장면과 이어 주고 싶으면 본문에 {{try:lab:장비|버튼 글자|설명}} 또는 {{try:jx:체험|버튼 글자|설명}} 한 줄을 쓴다.
     const EXP_JX = {
       alarm: { t: '알람 대응 콘솔', tag: '현장 직무 체험', d: '알람을 읽고 지금 할 행동을 골라요', view: 'field', main: 'TH-56e74739', th: ['TH-56e74739', 'TH-9d9a8089', 'TH-c7188c38', 'TH-23d511ae'] },
-      wmap: { t: '웨이퍼 맵 읽기', tag: '현장 직무 체험', d: '불량 모양을 읽고 의심할 공정을 골라요', view: 'field', main: 'TH-a7912602', th: ['TH-a7912602', 'TH-72d11656', 'TH-5a3e7f53', 'TH-cc0d3a71', 'TH-6843f2ca'] },
+      wmap: { t: '웨이퍼 맵 읽기', tag: '현장 직무 체험', d: '불량 모양을 읽고 의심할 공정을 골라요', view: 'field', main: 'TH-5a3e7f53', th: ['TH-5a3e7f53', 'TH-a7912602', 'TH-72d11656', 'TH-cc0d3a71'] },
       spc: { t: 'SPC 관리도 운영실', tag: '현장 직무 체험', d: '관리도에서 이상한 점을 잡아 장비를 멈춰요', view: 'field', main: 'TH-d9bed0e1', th: ['TH-d9bed0e1', 'TH-72d11656', 'TH-a7912602', 'TH-c7188c38'] },
       wave: { t: '파형 디버거', tag: '설계 직무 체험', d: '파형에서 원인이 시작된 사이클을 찾아요', view: 'design', main: 'TH-37c9d0c1', th: ['TH-37c9d0c1', 'TH-4b96e006', 'TH-0d974c8b', 'TH-71944c8d'] },
       eco: { t: '타이밍 ECO 작업대', tag: '설계 직무 체험', d: '타이밍 위반을 예산 안에서 고쳐요', view: 'design', main: 'TH-270a97fe', th: ['TH-270a97fe', 'TH-0d974c8b', 'TH-cf1ed26d'] }
