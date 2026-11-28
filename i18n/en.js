@@ -12605,3 +12605,30 @@ Object.assign(window.I18N_EN, {
 "설비 에러 코드와 로그 읽기": "Reading Tool Error Codes and Logs",
 "알람 뒤에 남은 기록에서 원인의 실마리를 찾는 법": "How to find clues to the cause in the records left after an alarm"
 });
+
+Object.assign(window.I18N_EN, {
+"숫자 읽는 기초": "Reading numbers: the basics",
+"숫자를 믿고 읽기 위한 통계와 측정의 기본": "The statistics and measurement basics you need to trust the numbers",
+"품질 통계 기초 (평균 · 산포 · 정규분포)": "Quality Statistics Basics (Mean · Spread · Normal Distribution)",
+"관리도와 Cpk 밑에 깔린 통계를 짧게 복습": "A short review of the statistics under control charts and Cpk",
+"측정을 믿는 법 (Gauge R&R)": "Trusting Your Measurements (Gauge R&R)",
+"측정값의 흔들림이 공정 탓인지 측정 탓인지 가리는 방법": "How to tell whether variation comes from the process or the measurement",
+"이상 다루기": "Handling anomalies",
+"이상이 보인 뒤 로트를 어떻게 잡고 처리하는지": "How to hold and dispose of lots once an anomaly shows up",
+"Excursion 대응: Hold · 영향 범위 · 처분": "Excursion Response: Hold · Scope · Disposition",
+"이상 로트를 잡고, 퍼진 범위를 찾고, 처리 방법을 정하는 순서": "The order for holding abnormal lots, finding how far the problem spread, and deciding what to do",
+"공통점 분석: 어느 장비가 범인인가": "Commonality Analysis: Which Tool Is the Culprit",
+"불량 로트의 이력에서 겹치는 장비를 찾는 방법": "How to find the tool shared by bad lots in their history",
+"고객 불량 대응: RMA와 8D 보고서": "Handling Customer Returns: RMA and 8D Reports",
+"고객이 돌려보낸 불량품을 분석하고 답하는 순서": "The order for analyzing a customer's returned part and replying",
+"이상 알아채고 다루기": "Noticing and handling anomalies",
+"진공 누설 찾기": "Finding a Vacuum Leak",
+"압력이 오르는 모양을 보고 새는 곳을 좁혀요": "Read how pressure rises and narrow down where it leaks",
+"인수인계 일지 쓰기": "Writing a Handover Log",
+"다음 교대가 알아야 할 것만 골라 남겨요": "Pick and record only what the next shift needs to know",
+"범인 장비 찾기": "Find the Culprit Tool",
+"불량 로트의 이력에서 겹치는 장비를 찾아요": "Find the tool that bad lots have in common",
+"이상 로트 처리": "Handling an Abnormal Lot",
+"홀드할 로트와 풀어 줄 로트를 가려요": "Decide which lots to hold and which to release",
+"준비 중": "Coming soon"
+});
