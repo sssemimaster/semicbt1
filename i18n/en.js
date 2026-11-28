@@ -12592,3 +12592,43 @@ Object.assign(window.I18N_EN, {
 "5-Why로 근본 원인까지 내려가 보고서로 남기고, 관리도와 절차를 고쳐 같은 일이 다시 생기지 않게 한다. 고친 뒤에는 첫 단계로 돌아가 지켜본다.": "Use 5-Why to reach the root cause, write it up in a report, and fix the control charts and procedures so it does not happen again. After the fix, return to the first step and keep watching.",
 "분석·품질 직무의 일: 이상 알아채기에서 재발 방지까지 이어지는 고리": "The work of quality and analysis roles: a loop from noticing an anomaly to preventing a repeat"
 });
+
+Object.assign(window.I18N_EN, {
+"FOUP와 웨이퍼 반송": "FOUPs and Wafer Transport",
+"웨이퍼가 장비 앞까지 오는 길과 다루는 방법": "How wafers travel to the tool and how to handle them",
+"작업 표준서(SOP)와 변경 관리": "Work Instructions (SOP) and Change Control",
+"절차를 지키는 방법과 바꿀 때의 규칙": "How to follow procedures and the rules for changing them",
+"서브팹과 유틸리티 기초": "Sub-fab and Utilities Basics",
+"장비 아래에서 가스 · 전력 · 냉각수를 대는 곳": "Where gas, power, and cooling water are supplied beneath the tool",
+"정비 후 복귀: 시운전과 시즈닝": "Returning After Maintenance: Qualification and Seasoning",
+"정비를 마친 장비를 생산으로 돌려보내는 순서": "The steps for sending a serviced tool back to production",
+"설비 에러 코드와 로그 읽기": "Reading Tool Error Codes and Logs",
+"알람 뒤에 남은 기록에서 원인의 실마리를 찾는 법": "How to find clues to the cause in the records left after an alarm"
+});
+
+Object.assign(window.I18N_EN, {
+"숫자 읽는 기초": "Reading numbers: the basics",
+"숫자를 믿고 읽기 위한 통계와 측정의 기본": "The statistics and measurement basics you need to trust the numbers",
+"품질 통계 기초 (평균 · 산포 · 정규분포)": "Quality Statistics Basics (Mean · Spread · Normal Distribution)",
+"관리도와 Cpk 밑에 깔린 통계를 짧게 복습": "A short review of the statistics under control charts and Cpk",
+"측정을 믿는 법 (Gauge R&R)": "Trusting Your Measurements (Gauge R&R)",
+"측정값의 흔들림이 공정 탓인지 측정 탓인지 가리는 방법": "How to tell whether variation comes from the process or the measurement",
+"이상 다루기": "Handling anomalies",
+"이상이 보인 뒤 로트를 어떻게 잡고 처리하는지": "How to hold and dispose of lots once an anomaly shows up",
+"Excursion 대응: Hold · 영향 범위 · 처분": "Excursion Response: Hold · Scope · Disposition",
+"이상 로트를 잡고, 퍼진 범위를 찾고, 처리 방법을 정하는 순서": "The order for holding abnormal lots, finding how far the problem spread, and deciding what to do",
+"공통점 분석: 어느 장비가 범인인가": "Commonality Analysis: Which Tool Is the Culprit",
+"불량 로트의 이력에서 겹치는 장비를 찾는 방법": "How to find the tool shared by bad lots in their history",
+"고객 불량 대응: RMA와 8D 보고서": "Handling Customer Returns: RMA and 8D Reports",
+"고객이 돌려보낸 불량품을 분석하고 답하는 순서": "The order for analyzing a customer's returned part and replying",
+"이상 알아채고 다루기": "Noticing and handling anomalies",
+"진공 누설 찾기": "Finding a Vacuum Leak",
+"압력이 오르는 모양을 보고 새는 곳을 좁혀요": "Read how pressure rises and narrow down where it leaks",
+"인수인계 일지 쓰기": "Writing a Handover Log",
+"다음 교대가 알아야 할 것만 골라 남겨요": "Pick and record only what the next shift needs to know",
+"범인 장비 찾기": "Find the Culprit Tool",
+"불량 로트의 이력에서 겹치는 장비를 찾아요": "Find the tool that bad lots have in common",
+"이상 로트 처리": "Handling an Abnormal Lot",
+"홀드할 로트와 풀어 줄 로트를 가려요": "Decide which lots to hold and which to release",
+"준비 중": "Coming soon"
+});
