@@ -10804,6 +10804,166 @@
       }
     });
 
+    // ===== '반도체 종류와 산업 구조 한눈에 보기' 글 전용 그림 =====
+    const IXC = { des: '#a78bfa', fab: '#f59e0b', pkg: '#34d399', mem: '#60a5fa', sys: '#f472b6', hi: '#6366f1', gr: '#94a3b8' };
+    const ixT = (x, y, str, sz = 12, o = {}) => {
+      const tx = T(str), mw = o.mw || 380;   // 영어처럼 글이 길어지면 정해진 폭 안에 들어오게 글자 크기를 줄인다
+      const est = Array.from(tx).reduce((a, c) => a + (/[가-힣]/.test(c) ? 1 : .56), 0) * sz * (o.w >= 700 ? 1.06 : 1);
+      if (est > mw) sz = Math.max(8, Math.floor(sz * mw / est * 10) / 10);
+      return `<text data-fit-done="1" class="dg-t" x="${x}" y="${y}" text-anchor="${o.a || 'middle'}" style="font-size:${sz}px;${o.w ? 'font-weight:' + o.w + ';' : ''}${o.fill ? 'fill:' + o.fill + ';' : ''}${o.op != null ? 'opacity:' + o.op + ';' : ''}">${escH(tx)}</text>`;
+    };
+    const ixR = (x, y, w, h, c, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx != null ? o.rx : 8}" style="fill:${o.nf ? 'none' : c};fill-opacity:${o.fo != null ? o.fo : .16};stroke:${c};stroke-width:${o.sw || 1.6};stroke-opacity:${o.so != null ? o.so : .9}${o.dash ? ';stroke-dasharray:4 3' : ''}${o.op != null ? ';opacity:' + o.op : ''}"/>`;
+    const ixQ = (txt, y) => ixT(200, y, txt, 12.5, { fill: 'var(--badge-fg)', w: 700 });
+    const ixA = (x1, y1, x2, y2, col = 'currentColor', op = .6) => { const a = Math.atan2(y2 - y1, x2 - x1), p = (t) => [x2 - 7 * Math.cos(a + t), y2 - 7 * Math.sin(a + t)], A = p(.5), B = p(-.5); return `<path d="M${x1} ${y1} L${x2} ${y2}" style="stroke:${col};stroke-width:2;opacity:${op};fill:none;stroke-linecap:round"/><path d="M${x2} ${y2} L${A[0]} ${A[1]} L${B[0]} ${B[1]} Z" style="fill:${col};opacity:${op}"/>`; };
+    Object.assign(DIAGRAMS, {
+      // ---------- 종류 지도: 메모리와 시스템 반도체 ----------
+      'ind-map': {
+        title: '반도체는 크게 두 갈래: 기억하는 칩과 나머지 모두',
+        states: [
+          { id: 'all', label: '전체 지도', q: '반도체의 종류: 메모리와 시스템 반도체', desc: '반도체는 데이터를 저장하는 메모리 반도체와, 계산하고 제어하고 감지하고 전력을 다루는 시스템 반도체(비메모리)로 나뉜다. 메모리가 아닌 칩은 모두 시스템 반도체에 들어간다.' },
+          { id: 'mem', label: '메모리', q: '메모리: 데이터를 저장하는 칩', desc: 'DRAM은 켜져 있는 동안 작업 중인 데이터를 빠르게 올려 두는 책상이고, NAND 플래시는 전원을 꺼도 파일을 보관하는 서랍이다. SRAM은 프로세서 안에서 쓰는 아주 빠른 소형 메모리(캐시)이다.' },
+          { id: 'sys', label: '시스템 반도체', q: '시스템 반도체: 계산·제어·감지·전력을 맡는 칩', desc: '두뇌 역할의 CPU·GPU·AP, 빛을 신호로 바꾸는 이미지 센서, 전기를 다루는 전력·아날로그 칩, 연결하고 제어하는 통신 칩과 MCU가 여기에 속한다. 종류가 매우 많고 쓰임새에 맞춰 설계가 달라진다.' }
+        ],
+        svg(s) {
+          const id = s.id, k = (g) => id === 'all' || id === g ? 1 : .2, ac = (g) => id === g ? 2.4 : 1.6;
+          let o = ixR(130, 6, 140, 30, IXC.gr, { fo: .14 }) + ixT(200, 26, '반도체', 14, { w: 800 });
+          o += `<path d="M200 36 V50 M105 50 H295 M105 50 V64 M295 50 V64" style="stroke:#94a3b8;stroke-width:1.6;fill:none;opacity:.7"/>`;
+          const head = (x, c, g, t1, t2) => `<g style="opacity:${k(g)}">` + ixR(x, 64, 170, 42, c, { fo: id === g ? .3 : .16, sw: ac(g) }) + ixT(x + 85, 83, t1, 13, { w: 800, mw: 160 }) + ixT(x + 85, 98, t2, 10.5, { op: .8, mw: 160 }) + '</g>';
+          o += head(20, IXC.mem, 'mem', '메모리 반도체', '데이터를 저장한다') + head(210, IXC.sys, 'sys', '시스템 반도체', '비메모리 · 나머지 전부');
+          const box = (x, y, w, h, c, g, t1, t2) => `<g style="opacity:${k(g)}">` + ixR(x, y, w, h, c, { fo: .12 }) + ixT(x + w / 2, y + (h > 40 ? 21 : 15), t1, 12.5, { w: 700, mw: 160 }) + ixT(x + w / 2, y + (h > 40 ? 38 : 29), t2, 10.5, { op: .8, mw: 160 }) + '</g>';
+          [['DRAM', '작업 책상 · HBM'], ['NAND 플래시', '저장 서랍 · SSD'], ['SRAM', '칩 안의 초고속 캐시']].forEach((r, i) => { o += box(20, 118 + i * 58, 170, 50, IXC.mem, 'mem', r[0], r[1]); });
+          [['CPU · GPU · AP', '연산 · 두뇌'], ['이미지 센서', '빛을 신호로 · 눈'], ['전력 · 아날로그', '전기를 다루는 칩'], ['통신 · MCU', '연결하고 제어한다']].forEach((r, i) => { o += box(210, 118 + i * 42, 170, 36, IXC.sys, 'sys', r[0], r[1]); });
+          return dgSvg('반도체 종류: ' + s.label, o + ixQ(s.q, 300), '0 0 400 308');
+        }
+      },
+      // ---------- 칩 속 모양: 같은 셀 반복 vs 서로 다른 블록 ----------
+      'ind-shape': {
+        title: '칩을 열어 보면: 같은 셀의 반복과 서로 다른 블록의 조합',
+        states: [
+          { id: 'mem', label: '메모리 칩', q: '메모리: 같은 셀을 끝없이 반복', desc: '메모리는 데이터 한 칸을 담는 셀을 수십억 개 규칙적으로 늘어놓은 구조다. 규격이 정해진 제품을 대량으로 만들기 때문에, 더 작고 더 싸게 많이 만드는 미세화와 수율이 곧 경쟁력이다.' },
+          { id: 'sys', label: '시스템 반도체 칩', q: '시스템 반도체: 기능이 다른 블록을 한 칩에', desc: '시스템 반도체는 연산, 그래픽, 인공지능, 저장, 입출력처럼 기능이 다른 블록을 한 칩에 배치한다. 고객이 원하는 기능에 맞춰 설계가 달라지므로 다품종으로 만들고, 어떤 기능을 얼마나 잘 설계하느냐가 경쟁력이다.' }
+        ],
+        svg(s) {
+          const mem = s.id === 'mem';
+          let o = ixR(60, 24, 280, 170, IXC.gr, { fo: .1, sw: 2, rx: 6 });
+          if (mem) {
+            for (let r = 0; r < 7; r++) for (let c = 0; c < 17; c++) o += `<rect x="${72 + c * 15.2}" y="${34 + r * 15}" width="11.5" height="11.5" rx="2" style="fill:${IXC.mem};fill-opacity:.42"/>`;
+            o += ixR(72, 146, 256, 36, IXC.gr, { fo: .18, rx: 4, dash: 1 }) + ixT(200, 168, '주변 회로 (읽고 쓰는 길)', 11, { op: .85 });
+            o += ixT(200, 216, '같은 셀 수십억 개를 규칙적으로 반복', 11.5) + ixT(200, 236, '규격이 정해진 제품을 대량으로 생산', 11.5, { op: .8 });
+          } else {
+            const blk = (x, y, w, h, c, t) => ixR(x, y, w, h, c, { fo: .26, rx: 4 }) + ixT(x + w / 2, y + h / 2 + 4, t, 11, { w: 700 });
+            o += blk(70, 34, 120, 64, IXC.des, 'CPU') + blk(196, 34, 134, 64, IXC.fab, 'GPU') + blk(70, 104, 70, 46, IXC.sys, 'NPU') + blk(146, 104, 64, 46, IXC.mem, '캐시') + blk(216, 104, 114, 46, IXC.pkg, '메모리 제어') + ixR(70, 156, 260, 28, IXC.gr, { fo: .2, rx: 4 }) + ixT(200, 175, '입출력 (I/O)', 11, { w: 700 });
+            o += ixT(200, 216, '기능이 다른 블록을 한 칩에 배치', 11.5) + ixT(200, 236, '고객이 원하는 기능에 맞춘 다품종 생산', 11.5, { op: .8 });
+          }
+          return dgSvg('칩 속 모양: ' + s.label, o + ixQ(s.q, 270), '0 0 400 280');
+        }
+      },
+      // ---------- 칩 하나가 거치는 세 단계와 회사 유형 ----------
+      'ind-chain': {
+        title: '설계 → 제조 → 포장: 어디까지 하느냐가 회사 유형을 가른다',
+        states: [
+          { id: 'fabless', label: '팹리스', q: '팹리스: 설계만 맡는 회사', who: '제조와 포장은 다른 회사에 맡긴다', ex: '예: NVIDIA, Qualcomm, LX세미콘', cov: [0], desc: '공장(팹)이 없는 회사다. 칩을 기획하고 설계하는 일에 집중하고, 만드는 일은 파운드리에, 포장과 테스트는 OSAT에 맡긴다.' },
+          { id: 'foundry', label: '파운드리', q: '파운드리: 남이 설계한 칩을 만드는 공장', who: '고객의 설계도를 받아 웨이퍼에 칩을 만든다', ex: '예: TSMC, 삼성전자 파운드리, DB하이텍', cov: [1], desc: '다른 회사가 설계한 칩을 위탁받아 생산하는 공장이다. 설계는 하지 않고, 더 미세하고 안정적으로 만드는 공정 기술과 생산 능력으로 경쟁한다.' },
+          { id: 'osat', label: 'OSAT', q: 'OSAT: 포장과 테스트를 맡는 회사', who: '다른 회사의 칩을 포장하고 시험한다', ex: '예: ASE, Amkor, 하나마이크론', cov: [2], desc: '웨이퍼에서 잘라 낸 칩을 포장하고 제대로 동작하는지 시험하는 후공정 전문 회사다. 칩을 쌓고 잇는 어드밴스드 패키징이 커지면서 역할이 커지고 있다.' },
+          { id: 'idm', label: 'IDM', q: 'IDM: 설계부터 포장까지 직접 하는 회사', who: '세 단계를 한 회사가 모두 한다', ex: '예: 삼성전자, SK하이닉스, Micron', cov: [0, 1, 2], desc: '설계, 제조, 포장을 모두 직접 하는 회사다. 설계와 공정을 함께 맞춰 최적화할 수 있어서, 칩 구조와 공정이 한 몸처럼 움직이는 메모리 회사 대부분이 이 유형이다.' }
+        ],
+        svg(s) {
+          const cols = [[IXC.des, '① 설계', '무엇을 만들지 정하고', '회로로 옮긴다'], [IXC.fab, '② 제조 (FAB)', '웨이퍼 위에 실제로', '회로를 만든다'], [IXC.pkg, '③ 포장·테스트', '잘라서 포장하고', '제대로 되는지 거른다']], X = [12, 146, 280];
+          let o = '';
+          cols.forEach((c, i) => {
+            const on = s.cov.indexOf(i) >= 0;
+            o += `<g style="opacity:${on ? 1 : .3}">` + ixR(X[i], 18, 108, 92, c[0], { fo: on ? .3 : .12, sw: on ? 2.4 : 1.4 }) + ixT(X[i] + 54, 42, c[1], 12.5, { w: 800, mw: 98 }) + ixT(X[i] + 54, 66, c[2], 10.5, { op: .9, mw: 98 }) + ixT(X[i] + 54, 82, c[3], 10.5, { op: .9, mw: 98 }) + '</g>';
+            if (i < 2) o += ixA(X[i] + 112, 64, X[i + 1] - 4, 64, 'currentColor', .45);
+            if (on) o += `<path d="M${X[i] + 54} 110 V132" style="stroke:${IXC.hi};stroke-width:2;fill:none"/>`;
+          });
+          const a = X[s.cov[0]], b = X[s.cov[s.cov.length - 1]] + 108;
+          o += ixR(a, 132, b - a, 34, IXC.hi, { fo: .3, sw: 2.2 }) + ixT((a + b) / 2, 154, s.label, 14, { w: 800 });
+          o += ixT(200, 196, s.who, 12) + ixT(200, 216, s.ex, 10.5, { op: .75 });
+          return dgSvg('산업 구조: ' + s.label, o + ixQ(s.q, 248), '0 0 400 258');
+        }
+      },
+      // ---------- 칩 한 개의 여정: 회사 사이를 오가는 길 ----------
+      'ind-journey': {
+        title: '팹리스가 만든 칩 한 개의 여정',
+        states: [
+          { id: 's1', label: '① 설계', q: '팹리스의 칩 설계와 검증', n: 1, note: '무엇을 만들지 정하고 회로로 옮긴 뒤, 오류가 없는지 확인한다', desc: '팹리스가 칩의 기능을 정하고 회로로 옮긴다. 제조를 시작하기 전에 설계가 맞는지 충분히 확인해야 하므로 검증에 시간을 많이 쓴다.' },
+          { id: 's2', label: '② 설계도 전달과 제조', q: '설계도 전달과 파운드리의 웨이퍼 제조', n: 2, note: '설계도를 넘기는 일을 테이프아웃이라 하고, 이후에는 고치기 어렵다', desc: '완성한 설계도를 파운드리에 넘기는 일을 테이프아웃이라 한다. 파운드리는 이 설계도로 마스크를 만들고 웨이퍼 위에 칩을 만든다. 한번 제조에 들어가면 설계를 고치기 어렵고 비용도 크다.' },
+          { id: 's3', label: '③ 포장·테스트', q: '웨이퍼가 OSAT로 넘어가 포장·시험', n: 3, note: '웨이퍼를 잘라 포장하고, 합격한 칩만 골라낸다', desc: '제조가 끝난 웨이퍼는 OSAT로 넘어가 칩 단위로 잘리고 포장된다. 포장한 뒤에도 시험을 해서 합격한 칩만 고른다.' },
+          { id: 's4', label: '④ 납품과 판매', q: '완성된 칩이 팹리스를 거쳐 고객에게', n: 4, note: '검수한 칩을 스마트폰·서버 같은 제품 회사에 공급한다', desc: '완성된 칩은 다시 팹리스로 돌아와 최종 확인을 거친 뒤, 스마트폰이나 서버를 만드는 고객 회사에 공급된다. 이 사이에 칩이 문제를 일으키면 책임을 가리는 일도 팹리스가 중심이 된다.' }
+        ],
+        svg(s) {
+          const lanes = [['팹리스', IXC.des], ['파운드리', IXC.fab], ['OSAT', IXC.pkg]], LY = [10, 74, 138], BX = [116, 186, 256, 326], BL = [0, 1, 2, 0], TXT = ['설계·검증', '웨이퍼 제조', '포장·테스트', '검수·판매'];
+          let o = '';
+          lanes.forEach((l, i) => { o += ixR(4, LY[i], 392, 58, l[1], { fo: .08, sw: 1, so: .5, rx: 8 }) + ixT(14, LY[i] + 34, l[0], 12.5, { a: 'start', w: 800, mw: 62 }); });
+          for (let i = 0; i < 4; i++) {
+            const on = i + 1 <= s.n, cur = i + 1 === s.n, cy = LY[BL[i]] + 22;
+            o += `<g style="opacity:${on ? 1 : .25}">` + `<circle cx="${BX[i]}" cy="${cy}" r="${cur ? 18 : 15}" style="fill:${lanes[BL[i]][1]};fill-opacity:${cur ? .55 : .25};stroke:${cur ? IXC.hi : lanes[BL[i]][1]};stroke-width:${cur ? 3 : 1.6}"/>` + ixT(BX[i], cy + 5, String(i + 1), 13, { w: 800 }) + ixT(BX[i], LY[BL[i]] + 53, TXT[i], 10.5, { w: 600, mw: 68 }) + '</g>';
+            if (i < 3) { const cy2 = LY[BL[i + 1]] + 22, on2 = i + 2 <= s.n; o += `<g style="opacity:${on2 ? 1 : .22}">` + ixA(BX[i] + 12, cy + (cy2 > cy ? 11 : cy2 < cy ? -11 : 0), BX[i + 1] - 12, cy2 + (cy2 > cy ? -11 : cy2 < cy ? 11 : 0), IXC.hi, .8) + '</g>'; }
+          }
+          return dgSvg('칩 한 개의 여정: ' + s.label, o + ixT(200, 224, s.note, 11, { op: .85 }) + ixQ(s.q, 252), '0 0 400 262');
+        }
+      },
+      // ---------- 세 유형의 강점과 부담 ----------
+      'ind-tradeoff': {
+        title: '팹리스, 파운드리, IDM의 강점과 부담',
+        states: [
+          { id: 'fabless', label: '팹리스', q: '팹리스: 가볍게 시작하는 대신 제조는 의존', g: [1, 5, 4], good: '공장 없이 설계에 집중하고 빠르게 새 칩을 낸다', bad: '제조 용량과 공정을 파운드리에 기대야 한다', desc: '공장 투자 없이 설계 역량만으로 시작할 수 있고 제품을 자유롭게 정한다. 대신 제조 능력은 파운드리에 기대므로 생산 용량을 확보하는 일과 제작 뒤 수정이 어려운 점이 부담이다.' },
+          { id: 'foundry', label: '파운드리', q: '파운드리: 여러 고객의 주문으로 채우는 공장', g: [5, 1, 3], good: '여러 고객 주문으로 공장을 채우고 공정 기술로 경쟁한다', bad: '막대한 설비 투자와 고객 주문 변동을 견뎌야 한다', desc: '고객이 많을수록 공장을 꽉 채울 수 있고, 더 앞선 공정을 개발해 고객을 모은다. 대신 설비 투자가 매우 크고, 어떤 칩을 만들지는 고객이 정하므로 주문 변동에 민감하다.' },
+          { id: 'idm', label: 'IDM', q: 'IDM: 설계와 공정을 함께 다듬는 구조', g: [5, 5, 2], good: '설계와 공정을 함께 맞춰 최적화한다', bad: '설계와 공장 모두에 큰 투자가 필요하다', desc: '설계와 공정을 같은 회사가 하므로 칩 구조와 공정을 함께 다듬을 수 있고 설계 정보를 밖으로 내보내지 않아도 된다. 대신 설계와 공장 양쪽에 투자해야 하고, 시장이 나쁠 때는 공장 가동률 부담이 커진다.' }
+        ],
+        svg(s) {
+          const rows = ['공장 설비 투자', '내 제품을 정하는 자유', '외부 회사에 기대는 정도'];
+          let o = ixT(200, 20, '개념도: 세 유형을 서로 견준 상대적 크기', 10.5, { op: .7 });
+          rows.forEach((r, i) => {
+            const y = 58 + i * 40;
+            o += ixT(14, y + 4, r, 12, { a: 'start', w: 600, mw: 205 });
+            for (let d = 0; d < 5; d++) o += `<circle cx="${232 + d * 30}" cy="${y}" r="10" style="fill:${d < s.g[i] ? IXC.hi : 'none'};fill-opacity:.55;stroke:${IXC.hi};stroke-width:1.6;stroke-opacity:${d < s.g[i] ? 1 : .35}"/>`;
+          });
+          o += ixR(14, 160, 372, 26, IXC.pkg, { fo: .14, sw: 1.2 }) + ixT(200, 177, T('강점') + '  ' + T(s.good), 11, { mw: 350 }) + ixR(14, 192, 372, 26, IXC.sys, { fo: .14, sw: 1.2 }) + ixT(200, 209, T('부담') + '  ' + T(s.bad), 11, { mw: 350 });
+          return dgSvg('유형별 강점과 부담: ' + s.label, o + ixQ(s.q, 246), '0 0 400 256');
+        }
+      },
+      // ---------- 실제 회사들은 어떻게 걸쳐 있나 ----------
+      'ind-cases': {
+        title: '대표 회사들이 맡는 구간',
+        states: [
+          { id: 'kr', label: '국내 회사', q: '국내 대표 회사가 맡는 구간', rows: [['SK하이닉스', 'IDM', [1, 1, 1]], ['삼성전자', 'IDM + 파운드리', [1, 1, 1]], ['DB하이텍', '파운드리', [0, 1, 0]], ['LX세미콘', '팹리스', [1, 0, 0]], ['하나마이크론', 'OSAT', [0, 0, 1]]], desc: '삼성전자는 메모리와 파운드리를 함께 운영하고 시스템 반도체 설계도 한다. 한 회사 안에서도 사업부마다 유형이 다를 수 있다. 예시는 일부일 뿐이고 순서는 순위와 무관하다.' },
+          { id: 'gl', label: '해외 회사', q: '해외 대표 회사가 맡는 구간', rows: [['NVIDIA', '팹리스', [1, 0, 0]], ['TSMC', '파운드리', [0, 1, 0]], ['Micron', 'IDM', [1, 1, 1]], ['Intel', 'IDM + 파운드리', [1, 1, 1]], ['ASE · Amkor', 'OSAT', [0, 0, 1]]], desc: 'TSMC는 설계 없이 제조만 하는 파운드리이고 NVIDIA는 설계만 하는 팹리스다. Intel은 자기 칩을 설계하고 만들면서 다른 회사의 칩을 위탁 생산하는 사업도 한다. 예시는 일부일 뿐이고 순서는 순위와 무관하다.' }
+        ],
+        svg(s) {
+          const CX = [214, 276, 338], CC = [IXC.des, IXC.fab, IXC.pkg], HD = ['설계', '제조', '포장'];
+          let o = '';
+          HD.forEach((h, i) => { o += ixT(CX[i], 24, h, 12, { w: 800, mw: 58 }); });
+          s.rows.forEach((r, j) => {
+            const y = 40 + j * 36;
+            o += ixT(12, y + 17, r[0], 12, { a: 'start', w: 700, mw: 86 }) + ixT(100, y + 17, r[1], 10, { a: 'start', op: .75, mw: 84 });
+            r[2].forEach((v, i) => { o += ixR(CX[i] - 28, y + 3, 56, 22, CC[i], { fo: v ? .5 : 0, nf: !v, dash: !v, sw: v ? 1.8 : 1, so: v ? 1 : .3, rx: 6 }); });
+          });
+          return dgSvg('대표 회사: ' + s.label, o + ixT(200, 236, '대표 예일 뿐이고 순서는 순위와 무관하다', 10.5, { op: .7 }) + ixQ(s.q, 262), '0 0 400 272');
+        }
+      },
+      // ---------- 회사 유형 → 직무 지도의 건물 ----------
+      'ind-jobmap': {
+        title: '회사 유형마다 있는 건물이 다르다',
+        states: [
+          { id: 'fabless', label: '팹리스', q: '팹리스에 있는 건물', desc: '설계센터가 중심이고, 제조와 후공정 건물은 없다. 설계, 검증, 제품 기획 같은 직무가 많다.' },
+          { id: 'foundry', label: '파운드리', q: '파운드리에 있는 건물', desc: '설계센터가 없고, 공정 개발(R&D)과 FAB, 서브팹이 중심이다. 공정, 설비, 수율 직무가 많다.' },
+          { id: 'idm', label: '메모리·IDM', q: '메모리·IDM에 있는 건물', desc: '장비·소재 구역만 외부 회사의 영역이고 나머지 건물은 모두 있다. 설계, 공정, 후공정 직무를 한 회사에서 찾을 수 있다.' },
+          { id: 'osat', label: 'OSAT', q: 'OSAT에 있는 건물', desc: '후공정동이 중심이다. 패키징과 테스트, 분석·품질 직무가 많다.' }
+        ],
+        svg(s) {
+          const ty = CAREER_TYPES.find(t => t.id === s.id), has = (ty && ty.has) || [];
+          const B = [['design', '설계센터', '칩 설계도'], ['rnd', 'R&D센터', '공정·마스크 개발'], ['fab', 'FAB', '웨이퍼 제조'], ['hq', '본사 사무동', '영업·기획·운영'], ['sub', '서브팹', '가스·전력·초순수'], ['pkg', '후공정동', '포장·테스트'], ['supply', '장비·소재', '외부 공급 회사'], ['it', 'IT·데이터센터', '자동화·데이터'], ['lab', '분석·품질 랩', '불량 분석·품질']];
+          let o = '';
+          B.forEach((b, i) => {
+            const x = 10 + (i % 3) * 130, y = 12 + Math.floor(i / 3) * 62, on = has.indexOf(b[0]) >= 0;
+            o += `<g style="opacity:${on ? 1 : .25}">` + ixR(x, y, 120, 52, on ? IXC.hi : IXC.gr, { fo: on ? .26 : .1, sw: on ? 2.4 : 1.2 }) + ixT(x + 60, y + 22, b[1], 12, { w: 800, mw: 110 }) + ixT(x + 60, y + 39, b[2], 10, { op: .85, mw: 110 }) + '</g>';
+          });
+          return dgSvg('회사 유형별 건물: ' + s.label, o + ixT(200, 214, '진한 테두리 = 이 유형에 있는 건물', 10.5, { op: .75 }) + ixT(200, 232, '직무 지도에서 건물을 누르면 그곳의 직무가 나온다', 10.5, { op: .75 }) + ixQ(s.q, 256), '0 0 400 266');
+        }
+      }
+    });
+
     function dgRender(fig, sid) {
       const D = DIAGRAMS[fig.dataset.dg]; if (!D) return;
       const s = D.states.find(x => x.id === sid) || D.states[0];
@@ -18229,13 +18389,17 @@
       return (hit ? hit[1] : (EXP_LAB_SUBJ[t.subject] || [])).filter(k => LABS[k]);
     };
     // 글 하나에 특별히 이어 줄 체험이 있으면 여기에 적는다 (글 id → ['lab:장비', 'jx:체험'])
+    // 글 끝에서 직무 지도로 이어 주는 글 (체험 버튼 묶음 대신 직무 지도 버튼 하나)
+    const THEORY_MAP = { 'TH-5a3b5410': { go: 'map:all', t: '반도체 직무 지도', sub: '회사 유형을 고르면 그 회사에 있는 건물과 직무가 보여요' } };
     const EXP_TH_EXTRA = { 'TH-c1f0b3a7': [] };   // 빈 목록 = 이 글에는 체험 버튼을 달지 않는다
     const expJxFor = (t) => t ? Object.keys(EXP_JX).filter(k => EXP_JX[k].th.includes(t.id)) : [];
     const expGoBtn = (go, title, sub, cls = 'exp-b') => `<button type="button" class="${cls}" data-go="${escH(go)}"><b>${escH(T(title))}</b><span>${escH(T(sub))}</span></button>`;
     // 이론 글 아래: 이 이론과 이어진 체험 버튼 묶음
     function appendTheoryExp(t, card) {
       try {
-        if (!t || !card || String(t.content || '').includes('{{try:')) return;   // 본문에 장면별 버튼이 이미 있으면 맨 아래 묶음은 생략
+        if (!t || !card || String(t.content || '').includes('{{try:')) return;
+        const mp = THEORY_MAP[t.id];
+        if (mp) { const bx = document.createElement('div'); bx.className = 'exp-rel'; bx.innerHTML = `<p class="exp-h">${escH(T('💼 직무 지도로 이어서 보기'))}</p><div class="exp-row">${expGoBtn(mp.go, mp.t, mp.sub)}</div>`; card.after(bx); return; }   // 본문에 장면별 버튼이 이미 있으면 맨 아래 묶음은 생략
         if (t.category === ADV_CAT && t.lab && LABS[t.lab]) return;   // 장비 사용 가이드는 자체 안내가 있다
         const goOf = (g) => { const [k, id] = g.split(':'); return k === 'lab' ? (LABS[id] ? expGoBtn(g, LABS[id].title, T('장비 체험') + ' · ' + T(LABS[id].sub)) : '') : (EXP_JX[id] ? expGoBtn(g, EXP_JX[id].t, T(EXP_JX[id].tag) + ' · ' + T(EXP_JX[id].d)) : ''); };
         const gos = EXP_TH_EXTRA[t.id] || expJxFor(t).map(k => 'jx:' + k).concat(expLabsFor(t).map(k => 'lab:' + k));
@@ -18258,6 +18422,7 @@
       const b = e.target.closest && e.target.closest('[data-go]'); if (!b) return;
       const i = b.dataset.go.indexOf(':'), k = b.dataset.go.slice(0, i), id = b.dataset.go.slice(i + 1); e.preventDefault();
       if (k === 'lab' && LABS[id]) labOpen(id); else if (k === 'jx' && EXP_JX[id]) jxOpen(id); else if (k === 'th') openTheory(id);
+      else if (k === 'map') { careerState.type = id; careerState.hover = null; navTo('view-careers'); }
     });
     // 목록 카드: 무료 맛보기 / 토큰 / 해금됨 표시와 마지막 점수 (기록은 이 기기에만 저장돼요)
     function jxMarkProgress() {
